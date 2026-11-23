@@ -6,6 +6,7 @@ import {
   sanitasiUrlAman,
   urutkanPercakapanAdmin,
 } from "./chatbot";
+import { buatUuid } from "./uuid";
 import { skemaPengaturanChatbot } from "./validasi/admin";
 
 describe("helper keamanan dan logika chatbot Kiko", () => {
@@ -78,5 +79,18 @@ describe("helper keamanan dan logika chatbot Kiko", () => {
     expect(CHATBOT_AVATAR_CONFIG.mode).toBe("kodie-symbol");
     expect(CHATBOT_LAUNCHER_CONFIG.shape).toBe("pill");
     expect(CHATBOT_LAUNCHER_CONFIG.suggestedPrompts.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("menghasilkan UUID v4 valid via buatUuid termasuk saat randomUUID tidak tersedia di HTTP LAN", () => {
+    const polaUuidV4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+    expect(buatUuid()).toMatch(polaUuidV4);
+
+    const asli = globalThis.crypto.randomUUID;
+    Object.defineProperty(globalThis.crypto, "randomUUID", { value: undefined, configurable: true });
+    try {
+      expect(buatUuid()).toMatch(polaUuidV4);
+    } finally {
+      Object.defineProperty(globalThis.crypto, "randomUUID", { value: asli, configurable: true });
+    }
   });
 });

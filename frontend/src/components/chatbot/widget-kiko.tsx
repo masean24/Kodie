@@ -39,6 +39,7 @@ import {
 } from "@/lib/chatbot";
 import { cx } from "@/lib/cx";
 import { buatClientBrowser } from "@/lib/supabase/browser";
+import { buatUuid } from "@/lib/uuid";
 import { AvatarKiko } from "./avatar-kiko";
 import { CHATBOT_LAUNCHER_CONFIG } from "./chatbot.config";
 import { MarkdownAman } from "./markdown-aman";
@@ -397,7 +398,7 @@ export function WidgetKiko({
     setPesanGalat(null);
 
     const sekarang = new Date().toISOString();
-    const msgUserId = `usr-${crypto.randomUUID()}`;
+    const msgUserId = `usr-${buatUuid()}`;
 
     // Jalur 1: Sedang dalam sesi Live Admin -> panggil RPC `kirim_pesan_live_chat`.
     if (dalamModeAdmin && percakapanId && pengguna) {
@@ -426,7 +427,7 @@ export function WidgetKiko({
     }
 
     // Jalur 2: Mode Bot AI (Mock fallback atau Streaming SSE Supabase Edge Function `chat`).
-    const botTempId = `bot-${crypto.randomUUID()}`;
+    const botTempId = `bot-${buatUuid()}`;
     setPesanList((prev) => [
       ...prev,
       { id: msgUserId, peran: "pengguna", isi: teks, sitasi: [], dibuatPada: sekarang },
@@ -679,7 +680,7 @@ export function WidgetKiko({
     setPesanList((prev) => [
       ...prev,
       {
-        id: `sys-${crypto.randomUUID()}`,
+        id: `sys-${buatUuid()}`,
         peran: "sistem",
         isi: catatanSistem,
         sitasi: [],
@@ -702,7 +703,7 @@ export function WidgetKiko({
     setPesanList((prev) => [
       ...prev,
       {
-        id: `sys-${crypto.randomUUID()}`,
+        id: `sys-${buatUuid()}`,
         peran: "sistem",
         isi: `Sesi dengan Admin selesai. Percakapan dikembalikan ke asisten ${namaBot}.`,
         sitasi: [],
