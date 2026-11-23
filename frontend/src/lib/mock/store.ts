@@ -23,6 +23,12 @@ import type {
   Siswa,
   StatusPengguna,
 } from "@/types/database";
+import {
+  KONFIGURASI_CHATBOT_DEFAULT,
+  type KonfigurasiChatbot,
+  type PercakapanChat,
+  type PesanChat,
+} from "@/lib/chatbot";
 
 type TokenMock = {
   token: string;
@@ -63,6 +69,9 @@ type Store = {
   programOverride: Record<string, Partial<Pick<Program, "harga_paket" | "durasi_menit" | "jumlah_sesi" | "honor_per_sesi" | "aktif">>>;
   sesiTanpaMeetIds: string[];
   logAdmin: LogAdmin[];
+  chatbotConfig: KonfigurasiChatbot;
+  percakapanChat: PercakapanChat[];
+  pesanChat: PesanChat[];
 };
 
 const ORTU = "00000000-0000-4000-c000-000000000001";
@@ -637,6 +646,48 @@ function awal(): Store {
         dibuat_pada: new Date(sekarang - 4 * jam).toISOString(),
       },
     ],
+    chatbotConfig: { ...KONFIGURASI_CHATBOT_DEFAULT },
+    percakapanChat: [
+      {
+        id: "00000000-0000-4000-c500-000000000001",
+        pengguna_id: ORTU,
+        admin_id: null,
+        judul: "Tanya jadwal kelas anak SD",
+        status: "menunggu_admin",
+        laporan_masalah_id: null,
+        dibuat_pada: new Date(sekarang - 25 * menit).toISOString(),
+        diperbarui_pada: new Date(sekarang - 10 * menit).toISOString(),
+      },
+    ],
+    pesanChat: [
+      {
+        id: "00000000-0000-4000-c600-000000000001",
+        percakapan_id: "00000000-0000-4000-c500-000000000001",
+        pengirim_id: ORTU,
+        pengirim_peran: "pengguna",
+        isi: "Halo Kiko, apakah ada jadwal Coding Dasar SD yang hari Minggu pagi?",
+        sitasi: [],
+        dibuat_pada: new Date(sekarang - 25 * menit).toISOString(),
+      },
+      {
+        id: "00000000-0000-4000-c600-000000000002",
+        percakapan_id: "00000000-0000-4000-c500-000000000001",
+        pengirim_id: null,
+        pengirim_peran: "bot",
+        isi: "Untuk saat ini kelas Coding Dasar SD terjadwal di akhir pekan sesuai katalog [1]. Jika ingin meminta jadwal khusus, Anda bisa berbicara langsung dengan Admin Kodie.",
+        sitasi: [{ index: 1, title: "Katalog Kelas Coding Dasar", url: "/program/coding-dasar" }],
+        dibuat_pada: new Date(sekarang - 24 * menit).toISOString(),
+      },
+      {
+        id: "00000000-0000-4000-c600-000000000003",
+        percakapan_id: "00000000-0000-4000-c500-000000000001",
+        pengirim_id: ORTU,
+        pengirim_peran: "sistem",
+        isi: "Permintaan bicara dengan Admin telah dikirim. Mohon tunggu, Admin Kodie akan segera bergabung ke percakapan ini.",
+        sitasi: [],
+        dibuat_pada: new Date(sekarang - 10 * menit).toISOString(),
+      },
+    ],
   };
 }
 
@@ -651,7 +702,10 @@ export function storeMock(): Store {
     g.__kodieMock.profilPengajar === undefined ||
     g.__kodieMock.sesi === undefined ||
     g.__kodieMock.notifikasi === undefined ||
-    g.__kodieMock.pengaturan === undefined
+    g.__kodieMock.pengaturan === undefined ||
+    g.__kodieMock.chatbotConfig === undefined ||
+    g.__kodieMock.percakapanChat === undefined ||
+    g.__kodieMock.pesanChat === undefined
   ) {
     const isi = awal();
     g.__kodieMock.booking ??= isi.booking;
@@ -672,6 +726,9 @@ export function storeMock(): Store {
     g.__kodieMock.programOverride ??= isi.programOverride;
     g.__kodieMock.sesiTanpaMeetIds ??= isi.sesiTanpaMeetIds;
     g.__kodieMock.logAdmin ??= isi.logAdmin;
+    g.__kodieMock.chatbotConfig ??= isi.chatbotConfig;
+    g.__kodieMock.percakapanChat ??= isi.percakapanChat;
+    g.__kodieMock.pesanChat ??= isi.pesanChat;
   }
   return g.__kodieMock;
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Kontainer } from "@/components/ui/dasar";
+import { LogoKodieSlogan } from "./logo";
 
 const KOLOM = [
   {
@@ -44,9 +45,9 @@ export function Footer() {
             </div>
           ))}
         </div>
-        <p aria-hidden className="mt-12 font-display text-6xl font-extrabold tracking-tight text-primary md:text-8xl">
-          Kodie
-        </p>
+        <div className="mt-12">
+          <LogoKodieSlogan />
+        </div>
         <p className="mt-6 text-sm text-text-muted">
           Karya lomba SEVENT X 2026 · SDG 4 dan SDG 8. Semua nama dan data di situs ini adalah contoh.
         </p>

@@ -12,9 +12,27 @@ const atkinson = Atkinson_Hyperlegible_Next({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: { default: "Kodie · Bimbel coding dan teknologi SD sampai SMA", template: "%s · Kodie" },
   description:
     "Kelas daring kelompok kecil untuk siswa SD, SMP, dan SMA, diajar mahasiswa terverifikasi, dengan laporan untuk orang tua setiap sesi.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [{ url: "/apple-touch-icon_180.png", sizes: "180x180", type: "image/png" }],
+  },
+  manifest: "/site.webmanifest",
+  openGraph: {
+    title: "Kodie · Bimbel coding dan teknologi SD sampai SMA",
+    description:
+      "Kelas daring kelompok kecil untuk siswa SD, SMP, dan SMA, diajar mahasiswa terverifikasi, dengan laporan untuk orang tua setiap sesi.",
+    type: "website",
+    locale: "id_ID",
+    siteName: "Kodie",
+    images: [{ url: "/og-kodie.png", width: 1200, height: 630, alt: "Kodie — From Hello World to Hello Future" }],
+  },
 };
 
 export const viewport: Viewport = {

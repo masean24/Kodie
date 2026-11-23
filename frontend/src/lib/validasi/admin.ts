@@ -49,6 +49,18 @@ export const skemaPengaturanRekening = z.object({
   qris_path: z.string().nullable().optional(),
 });
 
+export const skemaPengaturanChatbot = z.object({
+  chatbot_aktif: z.boolean(),
+  chatbot_nama: z.string().trim().min(2, "Nama asisten minimal 2 karakter.").max(40),
+  chatbot_sapaan: z.string().trim().min(5, "Pesan sapaan minimal 5 karakter.").max(300),
+  chatbot_kontak_wa: z
+    .string()
+    .trim()
+    .regex(/^62[0-9]{8,15}$/, "Gunakan format angka diawali 62, contoh 6281100000001."),
+  chatbot_kontak_email: z.string().trim().email("Format email bantuan tidak valid."),
+});
+
 export type InputUbahProgram = z.infer<typeof skemaUbahProgram>;
 export type InputUbahKelasAdmin = z.infer<typeof skemaUbahKelasAdmin>;
 export type InputPengaturanRekening = z.infer<typeof skemaPengaturanRekening>;
+export type InputPengaturanChatbot = z.infer<typeof skemaPengaturanChatbot>;

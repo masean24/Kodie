@@ -11,10 +11,12 @@ import {
   aksiAdminUbahKelas,
   aksiAdminUbahProgram,
 } from "@/lib/aksi/admin";
+import type { KonfigurasiChatbot } from "@/lib/chatbot";
+import { aksiAdminSimpanPengaturanChatbot } from "@/lib/aksi/chatbot";
 import { unggahGambarQris } from "@/lib/api/unggah";
 import { pesanError } from "@/lib/errors";
 import { ACCEPT_QRIS, cekFileQris } from "@/lib/validasi/admin";
-import { Input, Pilihan } from "@/components/ui/formulir";
+import { Input, Pilihan, Textarea } from "@/components/ui/formulir";
 import { Tombol } from "@/components/ui/tombol";
 import { PesanFormulir } from "@/components/auth/bagian";
 
@@ -380,6 +382,105 @@ export function FormPengaturanAdmin({
       <div>
         <Tombol type="submit" disabled={menunggu} aria-busy={menunggu}>
           {menunggu ? "Menyimpan…" : "Simpan pengaturan"}
+        </Tombol>
+      </div>
+    </form>
+  );
+}
+
+/** Form pengaturan Asisten AI Kiko & kontak handoff Admin (Prompt Chatbot FE). */
+export function FormPengaturanChatbotAdmin({ awal }: { awal: KonfigurasiChatbot }) {
+  const [aktif, setAktif] = useState(awal.chatbot_aktif);
+  const [nama, setNama] = useState(awal.chatbot_nama);
+  const [sapaan, setSapaan] = useState(awal.chatbot_sapaan);
+  const [wa, setWa] = useState(awal.chatbot_kontak_wa);
+  const [email, setEmail] = useState(awal.chatbot_kontak_email);
+  const [galat, setGalat] = useState<string>();
+  const [galatIsian, setGalatIsian] = useState<Record<string, string>>({});
+  const [info, setInfo] = useState<string>();
+  const [menunggu, mulai] = useTransition();
+
+  const simpan = (e: React.FormEvent) => {
+    e.preventDefault();
+    setGalat(undefined);
+    setGalatIsian({});
+    setInfo(undefined);
+    mulai(async () => {
+      const res = await aksiAdminSimpanPengaturanChatbot({
+        chatbot_aktif: aktif,
+        chatbot_nama: nama,
+        chatbot_sapaan: sapaan,
+        chatbot_kontak_wa: wa,
+        chatbot_kontak_email: email,
+      });
+      if (res.galat) setGalat(res.galat);
+      else if (res.galatIsian) setGalatIsian(res.galatIsian);
+      else setInfo("Pengaturan asisten AI & live chat berhasil disimpan.");
+    });
+  };
+
+  return (
+    <form onSubmit={simpan} className="flex max-w-[680px] flex-col gap-5 rounded-card bg-surface p-6">
+      <div>
+        <h2 className="text-xl font-semibold">Asisten AI Kiko & Live Chat</h2>
+        <p className="mt-1 text-sm text-text-muted">
+          Atur ketersediaan widget Kiko, pesan sapaan pembuka, serta kontak WhatsApp dan email untuk bantuan Admin.
+        </p>
+      </div>
+
+      <PesanFormulir galat={galat} info={info} />
+
+      <label className="flex min-h-touch cursor-pointer items-center gap-3 font-bold">
+        <input
+          type="checkbox"
+          checked={aktif}
+          onChange={(e) => setAktif(e.target.checked)}
+          className="size-5 accent-primary"
+        />
+        <span>Tampilkan widget asisten AI di seluruh website</span>
+      </label>
+
+      <Input
+        id="chatbot_nama"
+        label="Nama asisten"
+        value={nama}
+        galat={galatIsian.chatbot_nama}
+        onChange={(e) => setNama(e.target.value)}
+      />
+
+      <Textarea
+        id="chatbot_sapaan"
+        label="Pesan sapaan pembuka"
+        value={sapaan}
+        maxLength={300}
+        maksKarakter={300}
+        panjangSaatIni={sapaan.length}
+        galat={galatIsian.chatbot_sapaan}
+        onChange={(e) => setSapaan(e.target.value)}
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Input
+          id="chatbot_kontak_wa"
+          label="Nomor WhatsApp bantuan"
+          petunjuk="Format angka diawali 62, contoh 6281100000001."
+          value={wa}
+          galat={galatIsian.chatbot_kontak_wa}
+          onChange={(e) => setWa(e.target.value)}
+        />
+        <Input
+          id="chatbot_kontak_email"
+          type="email"
+          label="Email bantuan"
+          value={email}
+          galat={galatIsian.chatbot_kontak_email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <Tombol type="submit" disabled={menunggu} aria-busy={menunggu}>
+          {menunggu ? "Menyimpan…" : "Simpan pengaturan asisten"}
         </Tombol>
       </div>
     </form>

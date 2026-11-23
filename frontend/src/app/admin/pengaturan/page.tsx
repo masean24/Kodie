@@ -1,24 +1,29 @@
 import type { Metadata } from "next";
 import { ambilPengaturanAdmin } from "@/lib/api/admin";
-import { FormPengaturanAdmin } from "@/components/admin/aksi-kelola";
+import { ambilPengaturanChatbotAdmin } from "@/lib/api/chatbot";
+import { FormPengaturanAdmin, FormPengaturanChatbotAdmin } from "@/components/admin/aksi-kelola";
 
-export const metadata: Metadata = { title: "Pengaturan rekening & QRIS" };
+export const metadata: Metadata = { title: "Pengaturan sistem & pembayaran" };
 
 export default async function HalamanPengaturanAdmin() {
-  const awal = await ambilPengaturanAdmin();
+  const [awal, chatbotAwal] = await Promise.all([
+    ambilPengaturanAdmin(),
+    ambilPengaturanChatbotAdmin(),
+  ]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[46px]">
-          Pengaturan rekening & QRIS
+          Pengaturan rekening, QRIS & asisten AI
         </h1>
         <p className="mt-2 text-text-muted">
-          Rekening bank dan gambar QRIS ini tampil di halaman pembayaran orang tua dan siswa saat membuat booking.
+          Rekening bank dan gambar QRIS tampil di halaman pembayaran, sementara pengaturan Kiko mengatur widget asisten di seluruh situs.
         </p>
       </div>
 
       <FormPengaturanAdmin awal={awal} />
+      <FormPengaturanChatbotAdmin awal={chatbotAwal} />
     </div>
   );
 }

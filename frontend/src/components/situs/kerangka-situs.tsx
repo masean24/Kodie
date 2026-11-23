@@ -2,6 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilDaftarNotifikasi } from "@/lib/api/notifikasi";
 import { DASHBOARD, NAMA_PERAN } from "@/lib/peran";
+import { ChatbotSitus } from "@/components/chatbot/chatbot-situs";
 import { TombolTautan } from "@/components/ui/tombol";
 import { Header } from "./header";
 import { Footer } from "./footer";
@@ -71,6 +72,9 @@ export function KerangkaSitus({ children, ruangBawah }: { children: ReactNode; r
         {children}
       </main>
       <Footer />
+      <Suspense fallback={null}>
+        <ChatbotSitus />
+      </Suspense>
       {ruangBawah ? <div aria-hidden className="tanpa-cetak h-16 lg:hidden" /> : null}
     </>
   );
