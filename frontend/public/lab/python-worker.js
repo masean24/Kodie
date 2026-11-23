@@ -34,6 +34,36 @@ async function muatPyodide() {
   return pyodideSiap;
 }
 
+let turtleTerpasang = null;
+
+/** Pasang modul `turtle` virtual (public/lab/turtle_kodie.py) ke sys.modules, sekali per worker. */
+async function pasangTurtle(py) {
+  if (!turtleTerpasang) {
+    turtleTerpasang = (async () => {
+      const res = await fetch(new URL("./turtle_kodie.py", import.meta.url));
+      if (!res.ok) throw new Error("Modul turtle Kodie Lab gagal dimuat.");
+      py.globals.set("__sumber_turtle__", await res.text());
+      // Nama berkas "<exec>" membuat baris internal modul ini disaring dari traceback (lihat rapikanGalat).
+      py.runPython(
+        [
+          "import sys, types",
+          "_m = types.ModuleType('turtle')",
+          "_m.__file__ = 'turtle.py'",
+          "exec(compile(__sumber_turtle__, '<exec>', 'exec'), _m.__dict__)",
+          "sys.modules['turtle'] = _m",
+          "del _m, __sumber_turtle__",
+        ].join("\n"),
+      );
+    })();
+  }
+  try {
+    await turtleTerpasang;
+  } catch (err) {
+    turtleTerpasang = null;
+    throw err;
+  }
+}
+
 /** Buang baris internal Pyodide dari traceback supaya pesan galat mudah dibaca siswa. */
 function rapikanGalat(pesan) {
   const baris = String(pesan).split("\n");
@@ -62,10 +92,19 @@ self.onmessage = async (e) => {
     }
     return;
   }
-  if (jenis !== "jalankan") return;
+  if (jenis !== "jalankan" && jenis !== "jalankan-turtle") return;
+  const modeTurtle = jenis === "jalankan-turtle";
   let py;
   try {
     py = await muatPyodide();
+    if (modeTurtle) {
+      await pasangTurtle(py);
+      // Pasang ulang bila kode siswa sebelumnya menghapus atau mengganti modul turtle.
+      if (!py.runPython("import sys\nhasattr(sys.modules.get('turtle'), '_kodie_reset')")) {
+        turtleTerpasang = null;
+        await pasangTurtle(py);
+      }
+    }
   } catch (err) {
     pyodideSiap = null;
     kirim({ jenis: "status", status: "gagal", pesan: String(err && err.message ? err.message : err) });
@@ -73,16 +112,27 @@ self.onmessage = async (e) => {
     return;
   }
   const mulai = performance.now();
-  // Namespace baru setiap kali Run, supaya variabel dari percobaan sebelumnya tidak terbawa.
+  if (modeTurtle) py.runPython("import sys\nsys.modules['turtle']._kodie_reset()");  // Namespace baru setiap kali Run, supaya variabel dari percobaan sebelumnya tidak terbawa.
   const ruang = py.globals.get("dict")();
+  let galat = false;
   try {
     await py.loadPackagesFromImports(kode);
     await py.runPythonAsync(kode, { globals: ruang, filename: "main.py" });
-    kirim({ jenis: "selesai", id, galat: false, durasi: performance.now() - mulai });
   } catch (err) {
+    galat = true;
     kirim({ jenis: "keluaran", aliran: "stderr", teks: rapikanGalat(err && err.message ? err.message : err) });
-    kirim({ jenis: "selesai", id, galat: true, durasi: performance.now() - mulai });
   } finally {
     ruang.destroy();
   }
+  if (modeTurtle) {
+    // Kirim gambar yang sempat terbentuk, juga ketika program berhenti karena galat.
+    let perintah = [];
+    try {
+      perintah = JSON.parse(py.runPython("import sys\nsys.modules['turtle']._kodie_json()"));
+    } catch {
+      // Modul turtle diganti atau dihapus oleh kode siswa: kirim gambar kosong.
+    }
+    kirim({ jenis: "turtle", id, perintah });
+  }
+  kirim({ jenis: "selesai", id, galat, durasi: performance.now() - mulai });
 };

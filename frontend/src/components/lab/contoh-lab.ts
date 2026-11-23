@@ -48,6 +48,26 @@ tombol.addEventListener("click", () => {
 console.log("Halaman siap!");
 `;
 
+export const CONTOH_TURTLE = `# Python Turtle: bunga warna-warni
+# Ubah angkanya, lalu klik Jalankan (atau tekan Ctrl + Enter).
+import turtle
+
+kiko = turtle.Turtle()
+kiko.pensize(2)
+
+warna = ["#1d4ed8", "#84cc16", "#f97316", "#ec4899", "#0ea5e9", "#8b5cf6"]
+
+for i in range(12):
+    kiko.pencolor(warna[i % len(warna)])
+    kiko.circle(80)
+    kiko.left(30)
+
+kiko.penup()
+kiko.goto(0, -200)
+kiko.write("Halo dari Kiko!", align="center", font=("Arial", 16, "bold"))
+kiko.hideturtle()
+`;
+
 export const CONTOH_PYTHON = `# Selamat datang di Kodie Lab!
 # Ubah kodenya, lalu klik Jalankan (atau tekan Ctrl + Enter).
 

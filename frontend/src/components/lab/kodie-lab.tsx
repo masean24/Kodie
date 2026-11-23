@@ -1,13 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as KeyboardEventReact, type ReactNode } from "react";
 import { motion } from "motion/react";
-import { Code2, Eraser, FileCode2, Loader2, Play, RotateCcw, Square, Terminal } from "lucide-react";
+import { Code2, Copy, Eraser, FileCode2, Loader2, Play, Puzzle, RotateCcw, Square, Terminal, Turtle, X } from "lucide-react";
 import { cx } from "@/lib/cx";
+import { blokKePython, CONTOH_BLOK, jalankanBlok } from "@/lib/lab/blok";
+import { jalankanPerintah, type Adegan, type PerintahTurtle } from "@/lib/lab/turtle";
 import { EditorKode, type BahasaLab } from "./editor-kode";
-import { CONTOH_CSS, CONTOH_HTML, CONTOH_JS, CONTOH_PYTHON } from "./contoh-lab";
+import { EditorBlok } from "./editor-blok";
+import { KanvasTurtle } from "./kanvas-turtle";
+import { CONTOH_CSS, CONTOH_HTML, CONTOH_JS, CONTOH_PYTHON, CONTOH_TURTLE } from "./contoh-lab";
 
-type Mode = "web" | "python";
+type Mode = "blok" | "turtle" | "web" | "python";
+type ModePython = "python" | "turtle";
 type BerkasWeb = "html" | "css" | "js";
 type Baris = { aliran: "stdout" | "stderr" | "warn" | "info"; teks: string };
 type StatusPython = "belum" | "memuat" | "siap" | "jalan" | "gagal";
@@ -16,35 +21,62 @@ type Simpanan = {
   mode: Mode;
   web: Record<BerkasWeb, string>;
   python: string;
+  turtle: string;
+  /** JSON workspace Blockly. */
+  blok: string;
 };
 
 const KUNCI = "kodie:lab:v1";
 const MAKS_BARIS = 500;
+const MODE_SAH: Mode[] = ["blok", "turtle", "web", "python"];
 
 const NAMA_BERKAS: Record<BerkasWeb, string> = { html: "index.html", css: "style.css", js: "script.js" };
 
+const PILIHAN_MODE: { nilai: Mode; label: string; ikon: typeof Code2 }[] = [
+  { nilai: "blok", label: "Blok", ikon: Puzzle },
+  { nilai: "turtle", label: "Python Turtle", ikon: Turtle },
+  { nilai: "web", label: "HTML, CSS, JS", ikon: Code2 },
+  { nilai: "python", label: "Python", ikon: FileCode2 },
+];
+
+const PESAN_KEMBALIKAN: Record<Mode, string> = {
+  blok: "Kembalikan papan blok ke contoh? Susunan blokmu akan terhapus.",
+  turtle: "Kembalikan kode Python Turtle ke contoh? Kodemu di mode Python Turtle akan terhapus.",
+  web: "Kembalikan HTML, CSS, dan JavaScript ke kode contoh? Kodemu di mode Web akan terhapus.",
+  python: "Kembalikan kode Python ke contoh? Kodemu di mode Python akan terhapus.",
+};
+
 function contohAwal(): Simpanan {
-  return { mode: "web", web: { html: CONTOH_HTML, css: CONTOH_CSS, js: CONTOH_JS }, python: CONTOH_PYTHON };
+  return {
+    mode: "blok",
+    web: { html: CONTOH_HTML, css: CONTOH_CSS, js: CONTOH_JS },
+    python: CONTOH_PYTHON,
+    turtle: CONTOH_TURTLE,
+    blok: JSON.stringify(CONTOH_BLOK),
+  };
 }
 
 /** Komponen ini hanya dirender di browser (lihat `lab-klien.tsx`), jadi aman membaca localStorage. */
 function bacaSimpanan(): Simpanan {
+  const awal = contohAwal();
   try {
     const mentah = localStorage.getItem(KUNCI);
-    if (!mentah) return contohAwal();
+    if (!mentah) return awal;
     const s = JSON.parse(mentah) as Partial<Simpanan>;
-    const awal = contohAwal();
+    const teks = (v: unknown, cadangan: string) => (typeof v === "string" ? v : cadangan);
     return {
-      mode: s.mode === "python" ? "python" : "web",
+      mode: MODE_SAH.includes(s.mode as Mode) ? (s.mode as Mode) : awal.mode,
       web: {
-        html: typeof s.web?.html === "string" ? s.web.html : awal.web.html,
-        css: typeof s.web?.css === "string" ? s.web.css : awal.web.css,
-        js: typeof s.web?.js === "string" ? s.web.js : awal.web.js,
+        html: teks(s.web?.html, awal.web.html),
+        css: teks(s.web?.css, awal.web.css),
+        js: teks(s.web?.js, awal.web.js),
       },
-      python: typeof s.python === "string" ? s.python : awal.python,
+      python: teks(s.python, awal.python),
+      turtle: teks(s.turtle, awal.turtle),
+      blok: teks(s.blok, awal.blok),
     };
   } catch {
-    return contohAwal();
+    return awal;
   }
 }
 
@@ -92,6 +124,8 @@ ${js}
 </html>`;
 }
 
+const tambahBaris = (lama: Baris[], baru: Baris) => [...lama, baru].slice(-MAKS_BARIS);
+
 export function KodieLab() {
   const [kode, setKode] = useState<Simpanan>(bacaSimpanan);
   const mode = kode.mode;
@@ -101,17 +135,26 @@ export function KodieLab() {
   // Salinan terbaru untuk handler yang dipanggil beruntun sebelum React merender ulang.
   const terbaru = useRef(kode);
 
+  // Web
   const [dokumen, setDokumen] = useState(() => rakitDokumen(kode.web, 0));
   const putaran = useRef(0);
   const iframe = useRef<HTMLIFrameElement>(null);
   const [konsolWeb, setKonsolWeb] = useState<Baris[]>([]);
 
-  const [keluaranPy, setKeluaranPy] = useState<Baris[]>([]);
+  // Python dan Python Turtle (berbagi satu Web Worker Pyodide)
+  const [keluaran, setKeluaran] = useState<Record<ModePython, Baris[]>>({ python: [], turtle: [] });
   const [statusPy, setStatusPy] = useState<StatusPython>("belum");
   const [pesanGagal, setPesanGagal] = useState<string>();
-  const [durasi, setDurasi] = useState<number>();
+  const [durasi, setDurasi] = useState<Partial<Record<ModePython, number>>>({});
+  const modeJalan = useRef<ModePython>("python");
   const worker = useRef<Worker | null>(null);
   const timerSimpan = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Gambar (mode Blok dan Python Turtle)
+  const [adegan, setAdegan] = useState<{ blok: Adegan | null; turtle: Adegan | null }>({ blok: null, turtle: null });
+  const [putaranKanvas, setPutaranKanvas] = useState(0);
+  const [keluaranBlok, setKeluaranBlok] = useState<Baris[]>([]);
+  const [intipPython, setIntipPython] = useState(false);
 
   /** Perbarui kode dan simpan ke localStorage (ditunda 400 ms agar tidak menulis di setiap ketukan). */
   const perbarui = (ubah: (k: Simpanan) => Simpanan) => {
@@ -137,7 +180,7 @@ export function KodieLab() {
       const d = e.data as { kodieLab?: boolean; aliran?: Baris["aliran"]; teks?: string };
       if (!d?.kodieLab || typeof d.teks !== "string") return;
       const baris: Baris = { aliran: d.aliran ?? "stdout", teks: d.teks };
-      setKonsolWeb((k) => [...k, baris].slice(-MAKS_BARIS));
+      setKonsolWeb((k) => tambahBaris(k, baris));
     };
     window.addEventListener("message", terima);
     return () => window.removeEventListener("message", terima);
@@ -149,7 +192,9 @@ export function KodieLab() {
       const d = e.data as
         | { jenis: "status"; status: "memuat" | "siap" | "gagal"; pesan?: string }
         | { jenis: "keluaran"; aliran: "stdout" | "stderr"; teks: string }
+        | { jenis: "turtle"; perintah: PerintahTurtle[] }
         | { jenis: "selesai"; galat: boolean; durasi?: number };
+      const target = modeJalan.current;
       if (d.jenis === "status") {
         if (d.status === "gagal") {
           setStatusPy("gagal");
@@ -159,9 +204,12 @@ export function KodieLab() {
         }
       } else if (d.jenis === "keluaran") {
         const baris: Baris = { aliran: d.aliran, teks: d.teks };
-        setKeluaranPy((k) => [...k, baris].slice(-MAKS_BARIS));
+        setKeluaran((k) => ({ ...k, [target]: tambahBaris(k[target], baris) }));
+      } else if (d.jenis === "turtle") {
+        setAdegan((a) => ({ ...a, turtle: jalankanPerintah(Array.isArray(d.perintah) ? d.perintah : []) }));
+        setPutaranKanvas((p) => p + 1);
       } else if (d.jenis === "selesai") {
-        setDurasi(d.durasi);
+        setDurasi((x) => ({ ...x, [target]: d.durasi }));
         setStatusPy((s) => (s === "gagal" ? s : "siap"));
       }
     };
@@ -171,9 +219,9 @@ export function KodieLab() {
 
   const pastikanWorker = useCallback(() => worker.current ?? buatWorker(), [buatWorker]);
 
-  // Muat Python di latar begitu mode Python dibuka, supaya klik Jalankan pertama terasa cepat.
+  // Muat Python di latar begitu mode Python atau Python Turtle dibuka, supaya Jalankan pertama terasa cepat.
   useEffect(() => {
-    if (mode !== "python" || worker.current) return;
+    if ((mode !== "python" && mode !== "turtle") || worker.current) return;
     pastikanWorker().postMessage({ jenis: "muat" });
   }, [mode, pastikanWorker]);
 
@@ -186,64 +234,134 @@ export function KodieLab() {
     [],
   );
 
-  const jalankan = useCallback(() => {
+  const jalankanBlokSekarang = () => {
+    const h = jalankanBlok(terbaru.current.blok);
+    setAdegan((a) => ({ ...a, blok: jalankanPerintah(h.perintah) }));
+    setPutaranKanvas((p) => p + 1);
+    const baris: Baris[] = h.keluaran.map((teks) => ({ aliran: "stdout", teks }));
+    if (h.catatan) baris.push({ aliran: "warn", teks: h.catatan });
+    if (h.galat) baris.push({ aliran: "stderr", teks: h.galat });
+    setKeluaranBlok(baris);
+  };
+
+  const jalankan = () => {
     if (mode === "web") {
       putaran.current += 1;
       setKonsolWeb([]);
       setDokumen(rakitDokumen(terbaru.current.web, putaran.current));
       return;
     }
+    if (mode === "blok") {
+      jalankanBlokSekarang();
+      return;
+    }
     if (statusPy === "jalan") return;
+    modeJalan.current = mode;
     setPesanGagal(undefined);
-    setKeluaranPy([]);
-    setDurasi(undefined);
+    setKeluaran((k) => ({ ...k, [mode]: [] }));
+    setDurasi((x) => ({ ...x, [mode]: undefined }));
     setStatusPy("jalan");
     putaran.current += 1;
-    pastikanWorker().postMessage({ jenis: "jalankan", id: putaran.current, kode: terbaru.current.python });
-  }, [mode, statusPy, pastikanWorker]);
+    pastikanWorker().postMessage({
+      jenis: mode === "turtle" ? "jalankan-turtle" : "jalankan",
+      id: putaran.current,
+      kode: mode === "turtle" ? terbaru.current.turtle : terbaru.current.python,
+    });
+  };
 
   const hentikan = () => {
+    const target = modeJalan.current;
     worker.current?.terminate();
     worker.current = null;
-    setKeluaranPy((k) => [...k, { aliran: "warn", teks: "Program dihentikan." }]);
+    setKeluaran((k) => ({ ...k, [target]: tambahBaris(k[target], { aliran: "warn", teks: "Program dihentikan." }) }));
     setStatusPy("belum");
     pastikanWorker().postMessage({ jenis: "muat" });
   };
 
-  const gantiMode = (m: Mode) => perbarui((k) => ({ ...k, mode: m }));
+  const gantiMode = (m: Mode) => {
+    setIntipPython(false);
+    perbarui((k) => ({ ...k, mode: m }));
+  };
 
   const ubahKode = (b: BahasaLab, nilai: string) =>
-    perbarui((k) => (b === "python" ? { ...k, python: nilai } : { ...k, web: { ...k.web, [b]: nilai } }));
+    perbarui((k) => {
+      if (b === "python") return mode === "turtle" ? { ...k, turtle: nilai } : { ...k, python: nilai };
+      return { ...k, web: { ...k.web, [b]: nilai } };
+    });
 
   const kembalikanContoh = () => {
-    const pesan =
-      mode === "web"
-        ? "Kembalikan HTML, CSS, dan JavaScript ke kode contoh? Kodemu di mode Web akan terhapus."
-        : "Kembalikan kode Python ke contoh? Kodemu di mode Python akan terhapus.";
-    if (!window.confirm(pesan)) return;
+    if (!window.confirm(PESAN_KEMBALIKAN[mode])) return;
     const c = contohAwal();
-    perbarui((k) => (mode === "web" ? { ...k, web: c.web } : { ...k, python: c.python }));
+    perbarui((k) => {
+      if (mode === "web") return { ...k, web: c.web };
+      if (mode === "blok") return { ...k, blok: c.blok };
+      if (mode === "turtle") return { ...k, turtle: c.turtle };
+      return { ...k, python: c.python };
+    });
     setVersiEditor((v) => v + 1);
   };
 
-  const bersihkan = () => (mode === "web" ? setKonsolWeb([]) : setKeluaranPy([]));
+  const pythonDariBlok = useMemo(() => (intipPython ? blokKePython(kode.blok) : ""), [intipPython, kode.blok]);
 
-  const bahasaAktif: BahasaLab = mode === "python" ? "python" : berkas;
-  const nilaiAktif = mode === "python" ? kode.python : kode.web[berkas];
-  const sedangJalan = mode === "python" && statusPy === "jalan";
-  const pyBelumSiap = mode === "python" && (statusPy === "belum" || statusPy === "memuat");
+  const salinKeTurtle = () => {
+    if (terbaru.current.turtle.trim() && !window.confirm("Ganti kode di mode Python Turtle dengan hasil terjemahan blok ini?")) return;
+    const hasil = blokKePython(terbaru.current.blok);
+    setIntipPython(false);
+    perbarui((k) => ({ ...k, turtle: hasil, mode: "turtle" }));
+    setVersiEditor((v) => v + 1);
+  };
+
+  const bersihkan = () => {
+    if (mode === "web") setKonsolWeb([]);
+    else if (mode === "blok") setKeluaranBlok([]);
+    else setKeluaran((k) => ({ ...k, [mode]: [] }));
+  };
+
+  // Ctrl/Cmd + Enter juga berlaku di papan blok (editor kode sudah menanganinya sendiri).
+  const pintasanBlok = (e: KeyboardEventReact) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      jalankanBlokSekarang();
+    }
+  };
+
+  const modePython = mode === "python" || mode === "turtle";
+  const bahasaAktif: BahasaLab = modePython ? "python" : mode === "web" ? berkas : "python";
+  const nilaiAktif = mode === "python" ? kode.python : mode === "turtle" ? kode.turtle : kode.web[berkas];
+  const sedangJalan = modePython && statusPy === "jalan";
+  const pyBelumSiap = modePython && (statusPy === "belum" || statusPy === "memuat");
+
+  const statusPanelPython: ReactNode =
+    statusPy === "jalan" ? (
+      <span className="inline-flex items-center gap-1.5 text-sm font-bold text-primary">
+        <Loader2 aria-hidden className="size-4 animate-spin" /> Berjalan…
+      </span>
+    ) : pyBelumSiap ? (
+      <span className="inline-flex items-center gap-1.5 text-sm text-text-muted">
+        <Loader2 aria-hidden className="size-4 animate-spin" /> Memuat Python
+      </span>
+    ) : modePython && durasi[mode] !== undefined ? (
+      <span className="text-sm text-text-muted">Selesai dalam {((durasi[mode] ?? 0) / 1000).toFixed(2).replace(".", ",")} detik</span>
+    ) : null;
+
+  const kosongPython = pyBelumSiap
+    ? "Menyiapkan Python di browser… (sekitar 10 MB, hanya saat pertama)"
+    : statusPy === "gagal"
+      ? (pesanGagal ?? "Python gagal dimuat.")
+      : mode === "turtle"
+        ? "Hasil print() dan pesan galat muncul di sini."
+        : "Klik Jalankan untuk melihat hasil print() di sini.";
 
   return (
     <div className="lab flex flex-col gap-4">
       {/* Bilah alat */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="radiogroup" aria-label="Bahasa" className="relative grid grid-cols-2 rounded-full border-[1.5px] border-border-strong bg-surface p-[3px]">
-          {(
-            [
-              { nilai: "web", label: "HTML, CSS, JS", ikon: Code2 },
-              { nilai: "python", label: "Python", ikon: FileCode2 },
-            ] as const
-          ).map((o) => {
+        <div
+          role="radiogroup"
+          aria-label="Mode Kodie Lab"
+          className="relative grid w-full grid-cols-2 gap-[3px] rounded-[22px] border-[1.5px] border-border-strong bg-surface p-[3px] sm:w-auto sm:grid-cols-4 sm:rounded-full"
+        >
+          {PILIHAN_MODE.map((o) => {
             const aktif = mode === o.nilai;
             return (
               <button
@@ -312,8 +430,12 @@ export function KodieLab() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Editor */}
-        <section aria-label="Editor kode" className="flex h-[420px] flex-col overflow-hidden rounded-card border border-border bg-surface md:h-[520px] lg:h-[600px]">
-          <div className="flex items-center gap-1 border-b border-border bg-surface-sunken px-2 pt-2">
+        <section
+          aria-label={mode === "blok" ? "Papan blok" : "Editor kode"}
+          onKeyDownCapture={mode === "blok" ? pintasanBlok : undefined}
+          className="relative flex h-[460px] flex-col overflow-hidden rounded-card border border-border bg-surface md:h-[520px] lg:h-[600px]"
+        >
+          <div className="flex min-h-[48px] items-center justify-between gap-2 border-b border-border bg-surface-sunken px-2 pt-2">
             {mode === "web" ? (
               <div role="tablist" aria-label="Berkas" className="flex gap-1">
                 {(Object.keys(NAMA_BERKAS) as BerkasWeb[]).map((b) => (
@@ -332,19 +454,73 @@ export function KodieLab() {
                   </button>
                 ))}
               </div>
+            ) : mode === "blok" ? (
+              <>
+                <span className="min-h-[40px] rounded-t-[10px] bg-surface px-3 py-2 text-sm font-bold text-primary">Papan blok</span>
+                <button
+                  type="button"
+                  aria-expanded={intipPython}
+                  aria-controls="intip-python"
+                  onClick={() => setIntipPython((v) => !v)}
+                  className={cx(
+                    "mb-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-sm font-bold transition-colors",
+                    intipPython ? "bg-primary text-primary-foreground" : "bg-surface text-text hover:bg-primary-subtle",
+                  )}
+                >
+                  <FileCode2 aria-hidden className="size-4" />
+                  Intip kode Python
+                </button>
+              </>
             ) : (
-              <span className="min-h-[40px] rounded-t-[10px] bg-surface px-3 py-2 font-mono text-sm font-bold text-primary">main.py</span>
+              <span className="min-h-[40px] rounded-t-[10px] bg-surface px-3 py-2 font-mono text-sm font-bold text-primary">
+                {mode === "turtle" ? "turtle.py" : "main.py"}
+              </span>
             )}
           </div>
-          <div className="min-h-0 flex-1">
-            <EditorKode
-              key={`${bahasaAktif}-${versiEditor}`}
-              bahasa={bahasaAktif}
-              nilaiAwal={nilaiAktif}
-              label={mode === "python" ? "Kode Python" : `Kode ${NAMA_BERKAS[berkas]}`}
-              onUbah={(v) => ubahKode(bahasaAktif, v)}
-              onJalankan={jalankan}
-            />
+          <div className="relative min-h-0 flex-1">
+            {mode === "blok" ? (
+              <EditorBlok key={`blok-${versiEditor}`} nilaiAwal={kode.blok} onUbah={(json) => perbarui((k) => ({ ...k, blok: json }))} />
+            ) : (
+              <EditorKode
+                key={`${mode}-${bahasaAktif}-${versiEditor}`}
+                bahasa={bahasaAktif}
+                nilaiAwal={nilaiAktif}
+                label={mode === "python" ? "Kode Python" : mode === "turtle" ? "Kode Python Turtle" : `Kode ${NAMA_BERKAS[berkas]}`}
+                onUbah={(v) => ubahKode(bahasaAktif, v)}
+                onJalankan={jalankan}
+              />
+            )}
+
+            {/* z-[90]: di atas toolbox (70) dan flyout (80) Blockly, di bawah menu dropdown Blockly. */}
+            {mode === "blok" && intipPython ? (
+              <div
+                id="intip-python"
+                className="absolute inset-x-3 bottom-3 z-[90] flex max-h-[70%] flex-col overflow-hidden rounded-card-sm border border-border bg-surface shadow-kartu-hover"
+              >
+                <div className="flex items-center justify-between gap-2 border-b border-border bg-surface-sunken px-4 py-2">
+                  <p className="text-sm font-bold">Kode Python dari blokmu</p>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={salinKeTurtle}
+                      className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full bg-primary px-3 text-sm font-bold text-primary-foreground hover:bg-primary-hover"
+                    >
+                      <Copy aria-hidden className="size-4" />
+                      Buka di Python Turtle
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Tutup kode Python"
+                      onClick={() => setIntipPython(false)}
+                      className="grid size-9 place-items-center rounded-full text-text-muted hover:bg-surface-raised hover:text-text"
+                    >
+                      <X aria-hidden className="size-4" />
+                    </button>
+                  </div>
+                </div>
+                <pre className="min-h-0 flex-1 overflow-auto p-4 font-mono text-sm leading-6 text-text">{pythonDariBlok}</pre>
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -363,45 +539,35 @@ export function KodieLab() {
             </section>
             <PanelKonsol judul="Konsol" baris={konsolWeb} kosong="console.log() akan muncul di sini." onBersihkan={bersihkan} kecil />
           </div>
-        ) : (
-          <div className="flex h-[420px] flex-col md:h-[520px] lg:h-[600px]">
+        ) : mode === "blok" || mode === "turtle" ? (
+          <div className="flex h-[560px] flex-col gap-4 lg:h-[600px]">
+            <section aria-label="Gambar" className="flex min-h-0 flex-[3] flex-col overflow-hidden rounded-card border border-border bg-surface">
+              <KanvasTurtle adegan={adegan[mode]} putaran={putaranKanvas} />
+            </section>
             <PanelKonsol
               judul="Keluaran"
-              baris={keluaranPy}
+              baris={mode === "blok" ? keluaranBlok : keluaran.turtle}
               onBersihkan={bersihkan}
-              kosong={
-                pyBelumSiap
-                  ? "Menyiapkan Python di browser… (sekitar 10 MB, hanya saat pertama)"
-                  : statusPy === "gagal"
-                    ? (pesanGagal ?? "Python gagal dimuat.")
-                    : "Klik Jalankan untuk melihat hasil print() di sini."
-              }
-              status={
-                statusPy === "jalan" ? (
-                  <span className="inline-flex items-center gap-1.5 text-sm font-bold text-primary">
-                    <Loader2 aria-hidden className="size-4 animate-spin" /> Berjalan…
-                  </span>
-                ) : pyBelumSiap ? (
-                  <span className="inline-flex items-center gap-1.5 text-sm text-text-muted">
-                    <Loader2 aria-hidden className="size-4 animate-spin" /> Memuat Python
-                  </span>
-                ) : durasi !== undefined ? (
-                  <span className="text-sm text-text-muted">Selesai dalam {(durasi / 1000).toFixed(2).replace(".", ",")} detik</span>
-                ) : null
-              }
+              kosong={mode === "blok" ? "Klik Jalankan untuk melihat Kiko menggambar. Pesan dari blok Kiko bilang muncul di sini." : kosongPython}
+              status={mode === "turtle" ? statusPanelPython : null}
+              kecil
             />
+          </div>
+        ) : (
+          <div className="flex h-[420px] flex-col md:h-[520px] lg:h-[600px]">
+            <PanelKonsol judul="Keluaran" baris={keluaran.python} onBersihkan={bersihkan} kosong={kosongPython} status={statusPanelPython} />
           </div>
         )}
       </div>
       <p className="text-sm text-text-muted">
-        Kode disimpan otomatis di browser ini saja. Kode web berjalan di bingkai terisolasi, dan Python berjalan langsung di browser
-        dengan Pyodide. <code>input()</code> belum didukung.
+        Kode disimpan otomatis di browser ini saja. Blok berjalan langsung di browser, kode web berjalan di bingkai terisolasi, dan
+        Python berjalan dengan Pyodide. <code>input()</code> belum didukung.
       </p>
     </div>
   );
 }
 
-function JudulPanel({ ikon, judul, aksi }: { ikon: React.ReactNode; judul: string; aksi?: React.ReactNode }) {
+function JudulPanel({ ikon, judul, aksi }: { ikon: ReactNode; judul: string; aksi?: ReactNode }) {
   return (
     <div className="flex min-h-[44px] items-center justify-between gap-2 border-b border-border bg-surface-sunken px-4">
       <h2 className="inline-flex items-center gap-2 text-sm font-bold">
@@ -432,7 +598,7 @@ function PanelKonsol({
   baris: Baris[];
   kosong: string;
   onBersihkan: () => void;
-  status?: React.ReactNode;
+  status?: ReactNode;
   kecil?: boolean;
 }) {
   const akhir = useRef<HTMLDivElement>(null);

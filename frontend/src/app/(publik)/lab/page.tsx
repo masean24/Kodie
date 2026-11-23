@@ -4,7 +4,7 @@ import { LabKlien } from "@/components/lab/lab-klien";
 
 export const metadata: Metadata = {
   title: "Kodie Lab",
-  description: "Coding playground Kodie: tulis HTML, CSS, JavaScript, atau Python lalu jalankan langsung di browser tanpa install aplikasi.",
+  description: "Coding playground Kodie: susun blok, gambar dengan Python Turtle, atau tulis HTML, CSS, JavaScript, dan Python, lalu jalankan langsung di browser tanpa install aplikasi.",
 };
 
 export default function HalamanLab() {
@@ -17,7 +17,7 @@ export default function HalamanLab() {
             Kodie <Sorotan diBlok>Lab</Sorotan>
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 md:text-lg">
-            Pilih bahasa, tulis kodenya, lalu klik Jalankan. Hasilnya langsung terlihat di sebelah editor.
+            Pilih mode, susun blok atau tulis kodenya, lalu klik Jalankan. Hasilnya langsung terlihat di sebelah editor.
           </p>
         </Kontainer>
       </section>
