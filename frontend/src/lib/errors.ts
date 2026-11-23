@@ -13,7 +13,37 @@ export const PESAN_ERROR: Record<string, string> = {
   SESI_BELUM_DIBUKA: "Kelas bisa dimasuki mulai 15 menit sebelum sesi dimulai.",
   LINK_MEET_BELUM_ADA: "Link kelas belum siap. Coba lagi beberapa menit lagi atau hubungi admin.",
   LAPORAN_TERKUNCI: "Laporan sudah terkunci karena lewat 24 jam sejak dikirim.",
+  // Kode frontend untuk error Supabase Auth (PRD bagian 8: dipetakan frontend dari respons Auth)
+  EMAIL_SUDAH_DIPAKAI: "Email sudah dipakai.",
+  LOGIN_GAGAL: "Email atau password salah.",
+  EMAIL_BELUM_DIKONFIRMASI: "Email belum dikonfirmasi. Buka tautan konfirmasi di kotak masuk email Anda.",
+  PASSWORD_LEMAH: "Password terlalu lemah. Gunakan minimal 8 karakter yang tidak mudah ditebak.",
+  TERLALU_BANYAK_PERCOBAAN: "Terlalu banyak percobaan. Tunggu beberapa menit, lalu coba lagi.",
+  PENDAFTARAN_DITUTUP: "Pendaftaran sedang ditutup. Coba lagi nanti.",
 };
+
+/** Petakan kode error Supabase Auth (`error.code`) ke kode frontend di atas. */
+export function kodeErrorAuth(error: { code?: string; message?: string; status?: number }): string {
+  switch (error.code) {
+    case "user_already_exists":
+    case "email_exists":
+      return "EMAIL_SUDAH_DIPAKAI";
+    case "invalid_credentials":
+      return "LOGIN_GAGAL";
+    case "email_not_confirmed":
+      return "EMAIL_BELUM_DIKONFIRMASI";
+    case "weak_password":
+      return "PASSWORD_LEMAH";
+    case "over_request_rate_limit":
+    case "over_email_send_rate_limit":
+      return "TERLALU_BANYAK_PERCOBAAN";
+    case "signup_disabled":
+      return "PENDAFTARAN_DITUTUP";
+  }
+  if (error.status === 429) return "TERLALU_BANYAK_PERCOBAAN";
+  // Trigger database melempar kode error PRD (mis. VALIDASI_GAGAL) di pesan.
+  return error.message && error.message in PESAN_ERROR ? error.message : "UMUM";
+}
 
 export const PESAN_UMUM = "Terjadi kesalahan, coba lagi.";
 

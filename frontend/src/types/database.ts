@@ -98,3 +98,25 @@ export interface HasilTesMinat {
   /** PERKIRAAN bentuk: slug program. Kosong jika jenjang siswa tidak diketahui (tamu). */
   rekomendasi_program: string[];
 }
+
+export type Peran = "orang_tua" | "siswa" | "pengajar" | "admin";
+
+/** Nilai `pengguna.status` per peran (PRD bagian 7). */
+export type StatusPengguna =
+  | "aktif"
+  | "nonaktif"
+  | "menunggu_persetujuan"
+  | "ditolak_orang_tua"
+  | "menunggu_verifikasi"
+  | "terverifikasi"
+  | "ditolak";
+
+/** Tabel `pengguna` (id sama dengan auth.users.id). Email ada di Supabase Auth. */
+export interface Pengguna {
+  id: string;
+  peran: Peran;
+  nama: string;
+  no_wa: string | null;
+  status: StatusPengguna;
+  dibuat_pada: string;
+}
