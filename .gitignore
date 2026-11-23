@@ -1,0 +1,32 @@
+# Dependensi
+node_modules/
+
+# Build
+.next/
+out/
+dist/
+build/
+
+# Environment (JANGAN di-commit, repo ini publik)
+.env
+.env.*
+!.env.example
+
+# Supabase lokal
+backend/supabase/.branches/
+backend/supabase/.temp/
+
+# Log dan cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.tsbuildinfo
+.vercel/
+
+# Sistem operasi dan editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
