@@ -202,7 +202,7 @@ export function FormOrangTua({ kembali, lanjut = null }: { kembali?: () => void;
   });
   const { kirim, menunggu, galat, info } = useKirim(setError, lanjut);
   return (
-    <form onSubmit={handleSubmit(kirim, fokusGalatPertama)} noValidate className="mt-6 flex flex-col gap-5">
+    <form method="post" onSubmit={handleSubmit(kirim, fokusGalatPertama)} noValidate className="mt-6 flex flex-col gap-5">
       <p className="text-text-muted">Data anak ditambahkan setelah akun jadi.</p>
       <PesanFormulir galat={galat} info={info} />
       <Kelompok judul="Akun">
@@ -236,7 +236,7 @@ function FormSiswa({ kembali, pindahKeOrangTua }: { kembali: () => void; pindahK
   const daftarKelas = jenjang === "SMP" || jenjang === "SMA" ? DAFTAR_KELAS[jenjang] : [];
 
   return (
-    <form onSubmit={handleSubmit(kirim, fokusGalatPertama)} noValidate className="mt-6 flex flex-col gap-5">
+    <form method="post" onSubmit={handleSubmit(kirim, fokusGalatPertama)} noValidate className="mt-6 flex flex-col gap-5">
       <p className="text-text-muted">Kami hanya meminta data yang diperlukan untuk kelas. Tidak ada foto, alamat, atau nomor identitas.</p>
       <PesanFormulir galat={galat} info={info} />
       <Kelompok judul="Sekolah">
@@ -327,7 +327,7 @@ export function FormPengajar({ kembali, keahlianAwal = [] }: { kembali?: () => v
   const e = formState.errors;
 
   return (
-    <form onSubmit={handleSubmit(kirim, fokusGalatPertama)} noValidate className="mt-6 flex flex-col gap-5">
+    <form method="post" onSubmit={handleSubmit(kirim, fokusGalatPertama)} noValidate className="mt-6 flex flex-col gap-5">
       <p className="text-text-muted">
         Foto profil, kartu identitas (KTP atau KTM), SKCK, dan program yang ingin diajar diunggah setelah akun jadi, di halaman profil.
       </p>

@@ -43,8 +43,10 @@ export function FormMasuk({
     });
   }, fokusGalatPertama);
 
+  // method="post": jika form terkirim sebelum React selesai hidrasi, browser tidak menaruh
+  // email dan password di URL (GET bawaan). Hal yang sama berlaku di form daftar.
   const form = (
-      <form onSubmit={kirim} noValidate className={ringkas ? "flex flex-col gap-4" : "mt-6 flex flex-col gap-4 rounded-card-sm bg-surface p-5"}>
+      <form method="post" onSubmit={kirim} noValidate className={ringkas ? "flex flex-col gap-4" : "mt-6 flex flex-col gap-4 rounded-card-sm bg-surface p-5"}>
         <PesanFormulir galat={galat} />
         <Input id="email" type="email" label="Email" autoComplete="email" galat={errors.email?.message} {...register("email")} />
         <Input
