@@ -3,6 +3,8 @@
  * Semua nama adalah karangan. Harga, durasi, dan kapasitas mengikuti docs/SERAH-TERIMA-FE.md.
  */
 import type { Bidang, KelasKatalog, KodeOpsi, PengajarPublik, Program } from "@/types/database";
+import { storeMock } from "./store";
+import { STATUS_AKTIF } from "@/lib/booking";
 
 export const programMock: Program[] = [
   {
@@ -129,8 +131,10 @@ export function buatKelasMock(sekarang: Date): KelasKatalog[] {
     const program = programMock.find((p) => p.slug === r.program)!;
     const pengajar = pengajarMock.find((p) => p.id === r.pengajar)!;
     const kapasitas = program.jenjang.includes("SD") ? 10 : 15;
+    // Booking aktif yang dibuat di mode mock ikut menghitung kursi terpakai.
+    const terpakai = r.terpakai + storeMock().booking.filter((b) => b.kelas_id === r.id && STATUS_AKTIF.includes(b.status)).length;
     const mulai_pada = waktuWib(sekarang, r.hari, r.jam, r.minggu);
-    const sisa_kursi = Math.max(0, kapasitas - r.terpakai);
+    const sisa_kursi = Math.max(0, kapasitas - terpakai);
     const status = r.status ?? "terbuka";
     return {
       id: r.id,
@@ -140,7 +144,7 @@ export function buatKelasMock(sekarang: Date): KelasKatalog[] {
       kapasitas,
       jam_mulai: `${String(r.jam).padStart(2, "0")}:00:00`,
       status,
-      kursi_terpakai: r.terpakai,
+      kursi_terpakai: terpakai,
       sisa_kursi,
       bisa_dibooking: status === "terbuka" && sisa_kursi > 0 && new Date(mulai_pada) > sekarang,
       hari_mingguan: r.hari,

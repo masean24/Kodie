@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilDaftarAnak, ambilHasilMinatTerbaru } from "@/lib/api/siswa";
+import { ambilDaftarBooking } from "@/lib/api/booking";
+import { KartuPerluBayar } from "@/components/booking/kartu-perlu-bayar";
 import { NAMA_BIDANG } from "@/lib/tes-minat";
 import { kelasTombol } from "@/components/ui/tombol";
 import { inisialNama } from "@/lib/nama";
@@ -11,7 +13,7 @@ import { KartuBagian, LaporanTerbaru, RaporJurusan, SesiTerdekat, sapaan } from 
 export const metadata: Metadata = { title: "Dashboard orang tua" };
 
 export default async function DashboardOrangTua() {
-  const [p, anak] = await Promise.all([ambilPenggunaSaya(), ambilDaftarAnak()]);
+  const [p, anak, booking] = await Promise.all([ambilPenggunaSaya(), ambilDaftarAnak(), ambilDaftarBooking()]);
   const hasil = await ambilHasilMinatTerbaru(anak.map((a) => a.id));
 
   return (
@@ -22,7 +24,7 @@ export default async function DashboardOrangTua() {
         </h1>
         <p className="mt-2 text-text-muted">Ini ringkasan kelas anak-anak Anda.</p>
       </div>
-      {/* Kartu "booking perlu dibayar" ditambahkan di Prompt 4. */}
+      <KartuPerluBayar daftar={booking} basePath="/orang-tua/booking" />
       <div className="grid items-start gap-6 xl:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-6">
           <SesiTerdekat />

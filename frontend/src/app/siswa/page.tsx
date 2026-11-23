@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilHasilMinatTerbaru, ambilSiswaSaya } from "@/lib/api/siswa";
+import { ambilDaftarBooking } from "@/lib/api/booking";
+import { KartuPerluBayar } from "@/components/booking/kartu-perlu-bayar";
 import { Catatan } from "@/components/ui/dasar";
 import { HasilTesTerakhir, LaporanTerbaru, RaporJurusan, SesiTerdekat } from "@/components/area/kartu-dashboard";
 import { PanelLink } from "@/components/persetujuan/panel-link";
@@ -9,7 +11,7 @@ import { SambilMenunggu } from "@/components/persetujuan/sambil-menunggu";
 export const metadata: Metadata = { title: "Dashboard siswa" };
 
 export default async function DashboardSiswa() {
-  const [p, siswa] = await Promise.all([ambilPenggunaSaya(), ambilSiswaSaya()]);
+  const [p, siswa, booking] = await Promise.all([ambilPenggunaSaya(), ambilSiswaSaya(), ambilDaftarBooking()]);
   const hasil = siswa ? (await ambilHasilMinatTerbaru([siswa.id]))[siswa.id] : undefined;
   const panggilan = p?.nama.split(" ")[0];
   const aktif = p?.status === "aktif";
@@ -23,6 +25,7 @@ export default async function DashboardSiswa() {
         </p>
       </div>
 
+      {aktif ? <KartuPerluBayar daftar={booking} basePath="/siswa/booking" /> : null}
       {aktif ? (
         <div className="grid items-start gap-6 xl:grid-cols-[1fr_320px]">
           <div className="flex flex-col gap-6">

@@ -170,3 +170,53 @@ export interface HasilMinat {
   bidang_teratas: Bidang;
   dibuat_pada: string;
 }
+
+export type StatusBooking =
+  | "menunggu_pembayaran"
+  | "menunggu_verifikasi"
+  | "terkonfirmasi"
+  | "selesai"
+  | "kedaluwarsa"
+  | "dibatalkan";
+
+/** Tabel `booking` (PRD bagian 5 dan 7). */
+export interface Booking {
+  id: string;
+  kode: string;
+  kelas_id: string;
+  siswa_id: string;
+  dibuat_oleh: string;
+  status: StatusBooking;
+  total: number;
+  batas_bayar_pada: string;
+  dibuat_pada: string;
+}
+
+/** Hasil RPC `buat_booking`. */
+export interface HasilBuatBooking {
+  id: string;
+  kode: string;
+  status: StatusBooking;
+  total: number;
+  batas_bayar_pada: string;
+}
+
+/** Tabel `pembayaran`: riwayat unggahan bukti per booking. */
+export interface Pembayaran {
+  id: string;
+  booking_id: string;
+  bukti_path: string;
+  diunggah_pada: string;
+  status: "menunggu" | "disetujui" | "ditolak";
+  alasan_penolakan: string | null;
+  diverifikasi_oleh: string | null;
+  diverifikasi_pada: string | null;
+}
+
+/** Isi tabel `pengaturan` untuk instruksi bayar, plus signed URL gambar QRIS. */
+export interface InfoPembayaran {
+  nama_bank: string;
+  nomor_rekening: string;
+  nama_pemilik_rekening: string;
+  qris_url: string | null;
+}

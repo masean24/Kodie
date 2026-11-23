@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { HasilPersetujuan, InfoPersetujuan, KeputusanPersetujuan, LinkPersetujuan } from "@/types/database";
 import { storeMock } from "@/lib/mock/store";
 import { buatClientServer } from "@/lib/supabase/server";
@@ -46,6 +47,7 @@ export async function buatLinkPersetujuan(): Promise<LinkPersetujuan> {
 
 /** RPC `info_persetujuan(p_token)`. Lempar TOKEN_TIDAK_BERLAKU jika kedaluwarsa atau sudah dipakai. */
 export async function infoPersetujuan(token: string): Promise<InfoPersetujuan> {
+  await connection();
   if (pakaiMock) {
     const t = tokenMockBerlaku(token);
     const s = t ? storeMock().siswa.find((x) => x.id === t.siswa_id) : null;

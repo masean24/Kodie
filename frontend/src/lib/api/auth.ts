@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import type { Pengguna } from "@/types/database";
 import { akunMock } from "@/lib/mock/akun";
 import { storeMock } from "@/lib/mock/store";
@@ -46,8 +47,11 @@ const akunBaruMock: typeof akunMock = (gAkun.__kodieAkunBaru ??= []);
 export async function ambilPenggunaSaya(): Promise<Pengguna | null> {
   if (pakaiMock) {
     const p = bacaCookieMock((await cookies()).get(COOKIE_MOCK)?.value);
-    const status = p ? storeMock().status[p.id] : undefined;
-    return p && status ? { ...p, status } : p;
+    if (!p) return null;
+    // Data mock memakai waktu sekarang: tandai render ini dinamis sebelum menyentuh store (Cache Components).
+    await connection();
+    const status = storeMock().status[p.id];
+    return status ? { ...p, status } : p;
   }
   const supabase = await buatClientServer();
   const { data: u } = await supabase.auth.getUser();

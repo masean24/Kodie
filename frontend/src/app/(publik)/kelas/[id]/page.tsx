@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ArrowLeft, CalendarDays, Check } from "lucide-react";
 import { ambilKelas } from "@/lib/api/kelas";
+import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilPengajarPublik } from "@/lib/api/pengajar";
 import { ambilProgram } from "@/lib/api/program";
 import { alasanTidakBisaDipesan, jadwalSesi } from "@/lib/kelas";
@@ -47,6 +48,12 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
   if (!k) notFound();
   const [pengajar, program] = await Promise.all([ambilPengajarPublik(k.pengajar_id), ambilProgram(k.program_slug)]);
   const alasan = alasanTidakBisaDipesan(k);
+  const pengguna = await ambilPenggunaSaya();
+  const pemesan: "tamu" | "orang_tua" | "siswa" | "lain" = !pengguna
+    ? "tamu"
+    : pengguna.peran === "orang_tua" || pengguna.peran === "siswa"
+      ? pengguna.peran
+      : "lain";
   const sesi = jadwalSesi(k.mulai_pada, k.jumlah_sesi);
 
   return (
@@ -103,8 +110,23 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
             <p className={kelasTombol("utama", "lg", "w-full")} aria-disabled="true">
               {alasan}
             </p>
+          ) : pemesan === "lain" ? (
+            <>
+              <p className={kelasTombol("utama", "lg", "w-full")} aria-disabled="true">
+                Pesan kelas
+              </p>
+              <p className="text-sm text-text-muted">Pemesanan hanya untuk akun orang tua dan siswa.</p>
+            </>
           ) : (
-            <TombolTautan href={`/masuk?lanjut=/kelas/${k.id}`} ukuran="lg" className="w-full">
+            <TombolTautan
+              href={
+                pemesan === "tamu"
+                  ? `/masuk?lanjut=/kelas/${k.id}`
+                  : `${pemesan === "orang_tua" ? "/orang-tua" : "/siswa"}/booking/baru?kelas=${k.id}`
+              }
+              ukuran="lg"
+              className="w-full"
+            >
               Pesan kelas
             </TombolTautan>
           )}
