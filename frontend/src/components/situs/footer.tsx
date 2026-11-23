@@ -60,7 +60,7 @@ const KOLOM_NAVIGASI: {
     item: [
       { jenis: "link", href: "/tes-minat", label: "Tes minat", sumber: "tes" },
       { jenis: "link", href: "/kelas", label: "Katalog kelas", sumber: "katalog" },
-      { jenis: "link", href: "/daftar", label: "Daftar jadi pengajar", sumber: "pengajar" },
+      { jenis: "link", href: "/karier", label: "Karier pengajar", sumber: "pengajar" },
     ],
   },
   {
@@ -586,18 +586,19 @@ export function Footer() {
       data-situs
       data-footer-theme={temaFooter}
       style={{
+        // Peralihan bergradasi dari warna halaman ke warna footer, menggantikan garis batas.
         backgroundColor: "var(--footer-bg)",
+        backgroundImage: "linear-gradient(180deg, var(--k-bg) 0px, var(--footer-bg) 140px)",
         color: "var(--footer-text)",
-        borderColor: "var(--footer-border)",
       }}
-      className="mt-auto w-full border-t transition-colors duration-300 relative overflow-hidden"
+      className="mt-auto w-full transition-colors duration-300 relative overflow-hidden"
     >
-      {/* Pendaran Langit Halus */}
+      {/* Pendaran Langit Halus (mulai transparan agar gradasi atas tetap mulus) */}
       <div
         aria-hidden="true"
         style={{
           background:
-            "linear-gradient(180deg, var(--sky-top) 0%, transparent 65%), radial-gradient(circle at 75% 85%, var(--sky-glow), transparent 60%)",
+            "linear-gradient(180deg, transparent 0px, var(--sky-top) 140px, transparent 65%), radial-gradient(circle at 75% 85%, var(--sky-glow), transparent 60%)",
         }}
         className="absolute inset-0 pointer-events-none"
       />

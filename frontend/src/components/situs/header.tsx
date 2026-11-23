@@ -13,6 +13,7 @@ const MENU = [
   { href: "/program", label: "Program" },
   { href: "/kelas", label: "Kelas" },
   { href: "/tes-minat", label: "Tes minat" },
+  { href: "/lab", label: "Kodie Lab" },
 ];
 
 function aktif(pathname: string, href: string) {
@@ -29,8 +30,8 @@ function DaftarMenu({ mobile, pathname, onPilih }: { mobile: boolean; pathname: 
           aria-current={ini ? "page" : undefined}
           onClick={onPilih}
           className={cx(
-            "flex min-h-[44px] items-center rounded-full px-3 py-2 text-[17px] leading-[27px] transition-colors",
-            mobile && "w-full px-4",
+            "flex min-h-[44px] items-center whitespace-nowrap rounded-full py-2 text-[17px] leading-[27px] transition-colors",
+            mobile ? "w-full px-4" : "px-3",
             ini ? "bg-accent-subtle font-bold text-primary" : "font-normal text-text hover:bg-surface-sunken",
           )}
         >
@@ -78,18 +79,18 @@ export function Header({
   };
 
   return (
-    <header data-situs className="group/hdr sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-      <Kontainer className="flex h-[72px] items-center justify-between gap-2 md:gap-4">
+    <header data-situs className="vt-header group/hdr sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
+      <Kontainer className="flex h-[72px] items-center justify-between gap-2 xl:gap-4">
         <Logo ringkasSaatMasukPonsel />
-        <nav aria-label="Menu utama" className="hidden md:block">
+        <nav aria-label="Menu utama" className="hidden xl:block">
           <ul className="flex items-center gap-1">{tautan(false)}</ul>
         </nav>
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 xl:flex">
           <LanguageSwitch />
           <ThemeSwitch />
           {akun}
         </div>
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 xl:hidden">
           <LanguageSwitch />
           {loncengPonsel}
           <button
@@ -107,7 +108,7 @@ export function Header({
       <div
         id="menu-ponsel"
         hidden={!buka}
-        className="border-t border-border bg-surface md:hidden"
+        className="border-t border-border bg-surface xl:hidden"
         onClick={(e) => {
           if ((e.target as HTMLElement).closest("a")) setBuka(false);
         }}

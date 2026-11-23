@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { Kerangka, Kontainer } from "@/components/ui/dasar";
 import { AlurDaftar } from "@/components/auth/alur-daftar";
 
@@ -17,6 +18,8 @@ export default function HalamanDaftar({ searchParams }: PageProps<"/daftar">) {
 
 async function Isi({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { peran } = await searchParams;
-  const awal = peran === "orang_tua" || peran === "siswa" || peran === "pengajar" ? peran : null;
+  // Pendaftaran pengajar dipindah ke halaman rekrutmen.
+  if (peran === "pengajar") redirect("/karier");
+  const awal = peran === "orang_tua" || peran === "siswa" ? peran : null;
   return <AlurDaftar peranAwal={awal} />;
 }

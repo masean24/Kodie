@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useForm, useWatch, type FieldValues, type Path, type UseFormSetError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpen, Check, GraduationCap, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, Check, GraduationCap, Users, type LucideIcon } from "lucide-react";
 import type { z } from "zod";
-import type { Peran } from "@/types/database";
+import type { Bidang } from "@/types/database";
 import { aksiDaftar } from "@/app/(auth)/aksi";
 import { NAMA_BIDANG } from "@/lib/tes-minat";
 import {
@@ -22,12 +22,12 @@ import { Catatan } from "@/components/ui/dasar";
 import { Tombol } from "@/components/ui/tombol";
 import { KartuAuth, Kelompok, Langkah, PesanFormulir, fokusGalatPertama } from "./bagian";
 
-type PeranDaftar = Exclude<Peran, "admin">;
+/** Halaman /daftar hanya untuk orang tua dan siswa. Pengajar melamar lewat /karier. */
+export type PeranDaftar = "orang_tua" | "siswa";
 
 const PILIHAN: { peran: PeranDaftar; judul: string; ket: string; ikon: LucideIcon }[] = [
   { peran: "orang_tua", judul: "Orang tua atau wali", ket: "Untuk mendaftarkan anak SD, SMP, atau SMA dan membayar kelas.", ikon: Users },
   { peran: "siswa", judul: "Siswa SMP atau SMA", ket: "Akunmu aktif setelah orang tua menyetujui lewat link.", ikon: GraduationCap },
-  { peran: "pengajar", judul: "Pengajar", ket: "Untuk mahasiswa dan pencari kerja. Aktif setelah diverifikasi admin.", ikon: BookOpen },
 ];
 
 export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
@@ -98,6 +98,13 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
             </div>
           </fieldset>
           <p className="mt-4 text-sm text-text-muted">Siswa SD didaftarkan oleh orang tua.</p>
+          <Link
+            href="/karier"
+            className="mt-4 flex min-h-touch items-center justify-between gap-3 rounded-card-sm bg-surface-sunken px-4 py-3 text-sm font-bold text-primary underline-offset-4 hover:underline"
+          >
+            Ingin mengajar di Kodie? Lihat posisi pengajar yang dibuka
+            <ArrowRight aria-hidden className="size-4 shrink-0" />
+          </Link>
           <Tombol type="submit" ukuran="lg" className="mt-6 w-full" disabled={!peran}>
             Lanjut
           </Tombol>
@@ -113,7 +120,7 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
   }
 
   const kembali = () => setLangkah(1);
-  const judul = { orang_tua: "Data orang tua", siswa: "Data siswa", pengajar: "Data pengajar" }[peran];
+  const judul = { orang_tua: "Data orang tua", siswa: "Data siswa" }[peran];
 
   return (
     <KartuAuth lebar="max-w-[640px]">
@@ -123,7 +130,6 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
       </h1>
       {peran === "orang_tua" ? <FormOrangTua kembali={kembali} /> : null}
       {peran === "siswa" ? <FormSiswa kembali={kembali} pindahKeOrangTua={() => setPeran("orang_tua")} /> : null}
-      {peran === "pengajar" ? <FormPengajar kembali={kembali} /> : null}
     </KartuAuth>
   );
 }
@@ -309,12 +315,13 @@ const STATUS_KERJA = [
   { nilai: "pencari_kerja", label: "Pencari kerja" },
 ] as const;
 
-function FormPengajar({ kembali }: { kembali: () => void }) {
+/** Form akun pengajar. Dipakai di halaman lamaran /karier/[posisi]. */
+export function FormPengajar({ kembali, keahlianAwal = [] }: { kembali?: () => void; keahlianAwal?: Bidang[] }) {
   type I = z.input<typeof skemaPengajar>;
   const { register, handleSubmit, setError, formState } = useForm<I>({
     resolver: zodResolver(skemaPengajar),
     shouldFocusError: false,
-    defaultValues: { peran: "pengajar", keahlian: [] },
+    defaultValues: { peran: "pengajar", keahlian: keahlianAwal },
   });
   const { kirim, menunggu, galat, info } = useKirim(setError);
   const e = formState.errors;

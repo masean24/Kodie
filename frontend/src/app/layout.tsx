@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Atkinson_Hyperlegible_Next, Lexend } from "next/font/google";
+import { PenyediaGerak } from "@/components/ui/gerak";
 import "./globals.css";
 
 const lexend = Lexend({ variable: "--font-lexend", subsets: ["latin"], display: "swap" });
@@ -52,7 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Lewati ke konten utama
         </a>
-        {children}
+        <PenyediaGerak>{children}</PenyediaGerak>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { Suspense } from "react";
-import { CalendarDays, ClipboardCheck, CreditCard, FileText, Video, type LucideIcon } from "lucide-react";
+import { ArrowRight, CalendarDays, ClipboardCheck, CreditCard, FileText, Video, type LucideIcon } from "lucide-react";
 import { ambilDaftarProgram } from "@/lib/api/program";
 import { ambilDaftarPengajarPublik } from "@/lib/api/pengajar";
 import { Kerangka, Kontainer, StateKosong, StatusMemuat, Sorotan } from "@/components/ui/dasar";
@@ -7,6 +8,7 @@ import { TombolTautan } from "@/components/ui/tombol";
 import { ObjekBidang } from "@/components/kategori";
 import { KartuProgram } from "@/components/program/kartu-program";
 import { KartuPengajar } from "@/components/pengajar/kartu-pengajar";
+import { AngkatHover, Muncul } from "@/components/ui/gerak";
 
 export default function Beranda() {
   return (
@@ -38,8 +40,8 @@ export default function Beranda() {
 
 function Pahlawan() {
   return (
-    <section className="blok-merek on-block overflow-hidden rounded-b-[32px] md:rounded-b-block">
-      <Kontainer className="grid items-center gap-10 py-12 md:py-20 lg:grid-cols-[1.15fr_1fr]">
+    <section className="hero-layar blok-merek on-block flex overflow-hidden rounded-b-[32px] md:rounded-b-block">
+      <Kontainer className="grid w-full items-center gap-10 py-12 md:py-20 lg:grid-cols-[1.15fr_1fr]">
         <div>
           <h1 className="text-[32px] leading-[42px] font-extrabold tracking-tight sm:text-[40px] sm:leading-[52px] lg:text-[50px] lg:leading-[64px]">
             Belajar coding dan teknologi{" "}
@@ -82,6 +84,7 @@ function Nilai() {
   return (
     <section aria-labelledby="judul-nilai" className="py-16 md:py-24">
       <Kontainer className="text-center">
+        <Muncul>
         <h2
           id="judul-nilai"
           className="mx-auto max-w-3xl text-[24px] leading-[38px] font-extrabold sm:text-[30px] sm:leading-[46px] md:text-[36px] md:leading-[54px]"
@@ -106,6 +109,7 @@ function Nilai() {
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-text-muted md:text-lg">
           Maksimal 10 siswa untuk SD dan 15 untuk SMP–SMA. Pengajar dicek lewat KTP atau KTM, SKCK, dan wawancara.
         </p>
+        </Muncul>
       </Kontainer>
     </section>
   );
@@ -133,8 +137,12 @@ async function DaftarProgram() {
   }
   return (
     <div className="mt-10 grid gap-6 md:grid-cols-3">
-      {daftar.map((p) => (
-        <KartuProgram key={p.id} p={p} />
+      {daftar.map((p, i) => (
+        <Muncul key={p.id} tunda={i * 0.08} className="flex">
+          <AngkatHover className="flex w-full">
+            <KartuProgram p={p} />
+          </AngkatHover>
+        </Muncul>
       ))}
     </div>
   );
@@ -160,7 +168,7 @@ function CaraKerja() {
         </h2>
         <ol className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {LANGKAH.map((l, i) => (
-            <li key={l.judul} className="flex flex-col items-center text-center">
+            <Muncul as="li" key={l.judul} tunda={i * 0.07} className="flex flex-col items-center text-center">
               <span aria-hidden className="blok-merek grid size-16 place-items-center rounded-full">
                 <l.ikon className="size-7" />
               </span>
@@ -169,7 +177,7 @@ function CaraKerja() {
               </span>
               <h3 className="mt-2.5 text-lg font-semibold leading-snug">{l.judul}</h3>
               <p className="mt-1 text-base leading-6 text-text-muted">{l.ket}</p>
-            </li>
+            </Muncul>
           ))}
         </ol>
       </Kontainer>
@@ -181,7 +189,7 @@ function Pengajar() {
   return (
     <section aria-labelledby="judul-pengajar" className="py-16 md:py-24">
       <Kontainer>
-        <div className="grid gap-8 rounded-[32px] bg-gradient-to-br from-coding-dasar-strong to-coding-dasar-block-to p-6 text-on-accent md:rounded-block md:p-12 lg:grid-cols-[1fr_2fr] lg:items-center">
+        <Muncul className="grid gap-8 rounded-[32px] bg-gradient-to-br from-coding-dasar-strong to-coding-dasar-block-to p-6 text-on-accent md:rounded-block md:p-12 lg:grid-cols-[1fr_2fr] lg:items-center">
           <div>
             <h2
               id="judul-pengajar"
@@ -192,6 +200,13 @@ function Pengajar() {
             <p className="mt-3 text-base leading-7 md:text-lg">
               Semua pengajar memakai Teaching Playbook yang sama di setiap sesi.
             </p>
+            <Link
+              href="/karier"
+              className="group mt-6 inline-flex min-h-touch items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-base font-bold ring-1 ring-white/40 transition-colors hover:bg-white/25"
+            >
+              Ingin bergabung sebagai pengajar? Lihat posisi yang dibuka
+              <ArrowRight aria-hidden className="size-4 shrink-0 transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
           <Suspense
             fallback={
@@ -204,7 +219,7 @@ function Pengajar() {
           >
             <DaftarPengajar />
           </Suspense>
-        </div>
+        </Muncul>
       </Kontainer>
     </section>
   );
@@ -228,7 +243,7 @@ function AjakanTes() {
   return (
     <section aria-labelledby="judul-ajakan" className="pb-16 md:pb-24">
       <Kontainer>
-        <div className="blok-merek on-block relative overflow-hidden rounded-[32px] px-6 py-14 text-center md:rounded-block md:py-20">
+        <Muncul className="blok-merek on-block relative overflow-hidden rounded-[32px] px-6 py-14 text-center md:rounded-block md:py-20">
           <ObjekBidang bidang="software" ukuran={96} miring={-10} className="absolute left-6 top-6 hidden lg:block" />
           <ObjekBidang bidang="iot" ukuran={88} miring={8} className="absolute bottom-8 left-[6%] hidden lg:block" />
           <ObjekBidang bidang="jaringan" ukuran={80} miring={10} className="absolute right-6 top-6 hidden lg:block" />
@@ -247,7 +262,7 @@ function AjakanTes() {
               Coba tes minat
             </TombolTautan>
           </div>
-        </div>
+        </Muncul>
       </Kontainer>
     </section>
   );

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
-import { Check, ChevronDown, Monitor, Moon, Sun, type LucideIcon } from "lucide-react";
+import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as KeyboardEventReact } from "react";
+import { Monitor, Moon, Sun, type LucideIcon } from "lucide-react";
 import { cx } from "@/lib/cx";
 
 type Tema = "light" | "dark" | "system";
@@ -91,94 +91,118 @@ export function LanguageSwitch() {
   );
 }
 
-/** Pemilih tema Terang / Gelap / Ikuti sistem di Header (Figma `ThemeSwitch` 9:401). */
+/** Jari-jari lingkaran reveal yang menutup seluruh layar dari titik klik. */
+function jariJari(x: number, y: number) {
+  return Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+}
+
+function simpanTema(nilai: Tema) {
+  localStorage.setItem(KUNCI_TEMA, nilai);
+  terapkanTema(nilai);
+  window.dispatchEvent(new Event(EVENT_TEMA));
+}
+
+/**
+ * Ganti tema dengan reveal melingkar dari tombol yang diklik (View Transitions API).
+ * Tanpa dukungan browser atau dengan `prefers-reduced-motion`, tema langsung berganti.
+ */
+function gantiTemaHalus(nilai: Tema, asal: HTMLElement) {
+  const akar = document.documentElement;
+  const kurangiGerak = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (typeof document.startViewTransition !== "function" || kurangiGerak) {
+    simpanTema(nilai);
+    return;
+  }
+  const kotak = asal.getBoundingClientRect();
+  const x = kotak.left + kotak.width / 2;
+  const y = kotak.top + kotak.height / 2;
+  akar.style.setProperty("--vt-x", `${x}px`);
+  akar.style.setProperty("--vt-y", `${y}px`);
+  akar.style.setProperty("--vt-r", `${jariJari(x, y)}px`);
+  akar.dataset.vt = "tema";
+  const transisi = document.startViewTransition(async () => {
+    simpanTema(nilai);
+    // Beri React waktu merender ulang komponen yang membaca tema (misalnya footer) sebelum snapshot baru.
+    await new Promise((r) => setTimeout(r, 40));
+  });
+  transisi.finished.finally(() => {
+    delete akar.dataset.vt;
+  });
+}
+
+/** Toggle tema Terang / Gelap / Ikuti sistem di Header. Pill aktif bergeser dengan Motion. */
 export function ThemeSwitch({ penuh }: { penuh?: boolean }) {
-  const menuId = useId();
-  const [buka, setBuka] = useState(false);
-  const akar = useRef<HTMLDivElement>(null);
   const tema = useSyncExternalStore(langgananTema, bacaTema, (): Tema => "system");
+  const tombol = useRef<(HTMLButtonElement | null)[]>([]);
+  const indeks = Math.max(
+    0,
+    OPSI_TEMA.findIndex((o) => o.nilai === tema),
+  );
 
   useEffect(() => {
     terapkanTema(tema);
   }, [tema]);
 
-  useEffect(() => {
-    if (!buka) return;
-    const klik = (e: MouseEvent) => {
-      if (!akar.current?.contains(e.target as Node)) setBuka(false);
-    };
-    const tombol = (e: KeyboardEvent) => e.key === "Escape" && setBuka(false);
-    document.addEventListener("mousedown", klik);
-    document.addEventListener("keydown", tombol);
-    return () => {
-      document.removeEventListener("mousedown", klik);
-      document.removeEventListener("keydown", tombol);
-    };
-  }, [buka]);
-
-  const pilih = (nilai: Tema) => {
-    localStorage.setItem(KUNCI_TEMA, nilai);
-    terapkanTema(nilai);
-    window.dispatchEvent(new Event(EVENT_TEMA));
-    setBuka(false);
+  const pilih = (i: number) => {
+    const o = OPSI_TEMA[i];
+    const el = tombol.current[i];
+    if (!o || !el || o.nilai === tema) return;
+    gantiTemaHalus(o.nilai, el);
   };
 
-  const aktif = OPSI_TEMA.find((o) => o.nilai === tema) ?? OPSI_TEMA[2];
-  const IkonAktif = aktif.ikon;
+  const keyboard = (e: KeyboardEventReact, i: number) => {
+    const maju = e.key === "ArrowRight" || e.key === "ArrowDown";
+    const mundur = e.key === "ArrowLeft" || e.key === "ArrowUp";
+    if (!maju && !mundur) return;
+    e.preventDefault();
+    const n = (i + (maju ? 1 : -1) + OPSI_TEMA.length) % OPSI_TEMA.length;
+    tombol.current[n]?.focus();
+    pilih(n);
+  };
 
   return (
-    <div ref={akar} className={cx("relative", penuh && "w-full")}>
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={buka}
-        aria-controls={menuId}
-        aria-label={`Tema tampilan: ${aktif.label}`}
-        onClick={() => setBuka((v) => !v)}
-        className={cx(
-          "flex min-h-[44px] items-center justify-between gap-2 rounded-full border-[1.5px] border-border-strong bg-surface px-3 py-2 text-base font-bold text-text transition-colors hover:bg-surface-sunken",
-          buka && "border-focus ring-2 ring-focus/30",
-          penuh && "w-full",
-        )}
-      >
-        <span className="flex items-center gap-2 whitespace-nowrap">
-          <IkonAktif aria-hidden className="size-5 shrink-0" />
-          <span>{aktif.label}</span>
-        </span>
-        <ChevronDown aria-hidden className="size-4 shrink-0" />
-      </button>
-
-      <div
-        id={menuId}
-        role="menu"
-        hidden={!buka}
-        className={cx(
-          "z-40 mt-2 rounded-[10px] border border-border bg-surface-raised p-2 shadow-lg",
-          penuh ? "w-full" : "absolute right-0 top-full w-[220px]",
-        )}
-      >
-        {OPSI_TEMA.map((o) => {
-          const terpilih = o.nilai === tema;
-          const Ikon = o.ikon;
-          return (
-            <button
-              key={o.nilai}
-              type="button"
-              role="menuitemradio"
-              aria-checked={terpilih}
-              onClick={() => pilih(o.nilai)}
-              className={cx(
-                "flex min-h-[44px] w-full items-center gap-3 rounded-[6px] px-3 py-2 text-left text-[17px] leading-[27px] transition-colors",
-                terpilih ? "bg-primary-subtle font-bold text-primary" : "text-text hover:bg-surface-sunken",
-              )}
-            >
-              <Ikon aria-hidden className="size-5 shrink-0" />
-              <span className="flex-1">{o.label}</span>
-              {terpilih ? <Check aria-hidden className="size-5 shrink-0" /> : null}
-            </button>
-          );
-        })}
-      </div>
+    <div
+      role="radiogroup"
+      aria-label="Tema tampilan"
+      className={cx(
+        "relative grid grid-cols-3 items-center rounded-full border-[1.5px] border-border-strong bg-surface p-[3px]",
+        penuh ? "w-full" : "w-[126px] shrink-0",
+      )}
+    >
+      {/* Pill aktif digeser dengan transisi CSS (easing pegas): posisinya ikut state, termasuk setelah hidrasi. */}
+      <span
+        aria-hidden
+        className="absolute bottom-[3px] left-[3px] top-[3px] rounded-full bg-primary shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.34,1.36,0.64,1)] motion-reduce:transition-none"
+        style={{ width: "calc((100% - 6px) / 3)", transform: `translateX(${indeks * 100}%)` }}
+      />
+      {OPSI_TEMA.map((o, i) => {
+        const terpilih = i === indeks;
+        const Ikon = o.ikon;
+        return (
+          <button
+            key={o.nilai}
+            ref={(el) => {
+              tombol.current[i] = el;
+            }}
+            type="button"
+            role="radio"
+            aria-checked={terpilih}
+            aria-label={o.label}
+            title={o.label}
+            tabIndex={terpilih ? 0 : -1}
+            onClick={() => pilih(i)}
+            onKeyDown={(e) => keyboard(e, i)}
+            className={cx(
+              "relative z-10 flex min-h-[38px] items-center justify-center gap-2 rounded-full px-2 text-sm font-bold transition-colors duration-300",
+              terpilih ? "text-primary-foreground" : "text-text-muted hover:text-text",
+            )}
+          >
+            <Ikon aria-hidden className="size-[18px] shrink-0" />
+            {penuh ? <span className="whitespace-nowrap">{o.label}</span> : null}
+          </button>
+        );
+      })}
     </div>
   );
 }
+
