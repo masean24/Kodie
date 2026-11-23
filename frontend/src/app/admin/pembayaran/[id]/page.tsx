@@ -148,14 +148,12 @@ export default async function HalamanDetailPembayaranAdmin({
         </Kartu>
       </div>
 
-      <Kartu className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold">Keputusan admin</h2>
-        <AksiVerifikasiPembayaran
-          pembayaranId={pembayaran.id}
-          kodeBooking={booking.kode}
-          statusSaatIni={pembayaran.status}
-        />
-      </Kartu>
+      {/* Komponen aksi sudah memuat kartu dan judul "Keputusan admin" sendiri. */}
+      <AksiVerifikasiPembayaran
+        pembayaranId={pembayaran.id}
+        kodeBooking={booking.kode}
+        statusSaatIni={pembayaran.status}
+      />
     </div>
   );
 }

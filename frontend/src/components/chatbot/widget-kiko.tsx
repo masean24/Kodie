@@ -91,6 +91,7 @@ export function WidgetKiko({
   const [terbuka, setTerbuka] = useState(false);
   const [menutup, setMenutup] = useState(false);
   const [tooltipTampil, setTooltipTampil] = useState(false);
+  const akarWidget = useRef<HTMLDivElement>(null);
   const [tooltipTeks, setTooltipTeks] = useState(CHATBOT_LAUNCHER_CONFIG.proactiveTooltip);
   const [panelHandoffBuka, setPanelHandoffBuka] = useState(false);
 
@@ -157,6 +158,13 @@ export function WidgetKiko({
     if (tutupTimerRef.current) clearTimeout(tutupTimerRef.current);
     setMenutup(false);
     setTerbuka(true);
+    // Pengguna sudah berinteraksi dengan Kiko: sapaan tidak perlu muncul lagi di sesi ini.
+    setTooltipTampil(false);
+    try {
+      sessionStorage.setItem(KEY_TOOLTIP_DITUTUP, "1");
+    } catch {
+      // Abaikan
+    }
     setEkspresiKiko("curious");
     setJumpSignal((n) => n + 1);
     setTimeout(() => inputRef.current?.focus(), 60);
@@ -167,7 +175,9 @@ export function WidgetKiko({
     else bukaPanel();
   };
 
-  // Tooltip sapaan mengambang (muncul kecuali user sengaja menutupnya)
+  // Tooltip sapaan mengambang. Supaya tidak menutupi konten halaman:
+  // tampil sekali per sesi, hilang sendiri setelah 8 detik, dan hilang begitu pengguna
+  // scroll, mengetik, atau mengeklik di luar widget. Di layar < 640 px tidak ditampilkan (lihat markup).
   useEffect(() => {
     if (!konfigurasi.chatbot_aktif || terbuka) return;
     let sudahDitutup = false;
@@ -177,8 +187,39 @@ export function WidgetKiko({
       sudahDitutup = false;
     }
     if (sudahDitutup) return;
-    const t = setTimeout(() => setTooltipTampil(true), 800);
-    return () => clearTimeout(t);
+
+    const sembunyikan = () => {
+      setTooltipTampil(false);
+      try {
+        sessionStorage.setItem(KEY_TOOLTIP_DITUTUP, "1");
+      } catch {
+        // Abaikan
+      }
+      lepas();
+    };
+    const posisiAwal = window.scrollY;
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - posisiAwal) > 80) sembunyikan();
+    };
+    const onPointer = (e: PointerEvent) => {
+      if (!akarWidget.current?.contains(e.target as Node)) sembunyikan();
+    };
+    const lepas = () => {
+      clearTimeout(tampil);
+      clearTimeout(habis);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pointerdown", onPointer);
+      window.removeEventListener("keydown", sembunyikan);
+    };
+
+    const tampil = setTimeout(() => {
+      setTooltipTampil(true);
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("pointerdown", onPointer);
+      window.addEventListener("keydown", sembunyikan);
+    }, 800);
+    const habis = setTimeout(sembunyikan, 800 + 8000);
+    return lepas;
   }, [konfigurasi.chatbot_aktif, terbuka]);
 
   // Esc menutup widget
@@ -813,7 +854,7 @@ export function WidgetKiko({
   );
 
   return (
-    <div className="tanpa-cetak fixed right-4 bottom-20 z-40 flex flex-col items-end gap-2 md:right-6 lg:bottom-6">
+    <div ref={akarWidget} className="tanpa-cetak fixed right-4 bottom-20 z-40 flex flex-col items-end gap-2 md:right-6 lg:bottom-6">
       {/* Panel Chat Kiko di atas maskot */}
       {terbuka ? (
         <section
@@ -1163,9 +1204,9 @@ export function WidgetKiko({
         </section>
       ) : null}
 
-      {/* Balon sapaan mengambang (mengikuti referensi widget HTML) */}
+      {/* Balon sapaan mengambang (mengikuti referensi widget HTML). Disembunyikan di layar < 640 px agar tidak menutupi konten. */}
       {!terbuka && tooltipTampil ? (
-        <div className="kiko-animate-float flex max-w-[260px] items-center gap-2 rounded-2xl rounded-br-none border border-[#1D4ED8] bg-[#0F172A] py-2 pr-2 pl-3.5 text-xs font-semibold text-white shadow-lg">
+        <div className="kiko-animate-float hidden max-w-[260px] sm:flex items-center gap-2 rounded-2xl rounded-br-none border border-[#1D4ED8] bg-[#0F172A] py-2 pr-2 pl-3.5 text-xs font-semibold text-white shadow-lg">
           <span className="size-2 shrink-0 rounded-full bg-[#C6F64D]" aria-hidden />
           <button type="button" onClick={bukaPanel} className="text-left leading-snug hover:underline">
             {tooltipTeks}
