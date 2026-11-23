@@ -1,4 +1,19 @@
-import { Banknote, BookOpen, GraduationCap, LayoutGrid, ShieldCheck, User, Users, Wallet, type LucideIcon } from "lucide-react";
+import {
+  AlertTriangle,
+  Banknote,
+  BookOpen,
+  GraduationCap,
+  History,
+  Layers,
+  LayoutGrid,
+  Settings,
+  ShieldCheck,
+  User,
+  UserCheck,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 import type { Peran } from "@/types/database";
 
 export type ItemMenu = { href: string; label: string; ikon: LucideIcon };
@@ -25,6 +40,17 @@ export const MENU_PERAN: Partial<Record<Peran, ItemMenu[]>> = {
     { href: "/mengajar/kelas", label: "Kelas", ikon: BookOpen },
     { href: "/mengajar/profil", label: "Profil", ikon: User },
     { href: "/mengajar/penghasilan", label: "Penghasilan", ikon: Banknote },
+  ],
+  admin: [
+    { href: "/admin", label: "Ringkasan", ikon: LayoutGrid },
+    { href: "/admin/pembayaran", label: "Pembayaran", ikon: Wallet },
+    { href: "/admin/pengajar", label: "Pengajar", ikon: UserCheck },
+    { href: "/admin/laporan-masalah", label: "Laporan masalah", ikon: AlertTriangle },
+    { href: "/admin/kelas", label: "Kelas", ikon: BookOpen },
+    { href: "/admin/program", label: "Program", ikon: Layers },
+    { href: "/admin/honor", label: "Honor", ikon: Banknote },
+    { href: "/admin/pengaturan", label: "Pengaturan", ikon: Settings },
+    { href: "/admin/log", label: "Log aksi", ikon: History },
   ],
 };
 

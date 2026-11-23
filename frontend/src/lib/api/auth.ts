@@ -43,6 +43,21 @@ async function tulisCookieMock(p: Pengguna | null) {
 const gAkun = globalThis as typeof globalThis & { __kodieAkunBaru?: typeof akunMock };
 const akunBaruMock: typeof akunMock = (gAkun.__kodieAkunBaru ??= []);
 
+/** Daftar semua pengguna mock (bawaan + pendaftaran baru) dengan penimpaan status/profil terkini. */
+export function daftarPenggunaMock(): Pengguna[] {
+  const store = storeMock();
+  return [...akunMock, ...akunBaruMock].map((a) => {
+    const p = a.pengguna;
+    const status = store.status[p.id];
+    const profil = store.profilPengguna[p.id];
+    return {
+      ...p,
+      ...(status ? { status } : {}),
+      ...(profil ? { nama: profil.nama, no_wa: profil.no_wa } : {}),
+    };
+  });
+}
+
 /** Baris `pengguna` milik pengguna yang sedang login, atau null untuk tamu. */
 export async function ambilPenggunaSaya(): Promise<Pengguna | null> {
   if (pakaiMock) {

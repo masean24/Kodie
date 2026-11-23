@@ -1,6 +1,7 @@
 import { buatClientBrowser } from "@/lib/supabase/browser";
 import { cekBukti, ekstensiBukti } from "@/lib/validasi/bukti";
 import { cekDokumenPengajar, cekFotoPengajar, ekstensiFilePengajar } from "@/lib/validasi/mengajar";
+import { cekFileQris, ekstensiQris } from "@/lib/validasi/admin";
 import { pakaiMock } from "./sumber";
 
 /**
@@ -37,4 +38,16 @@ export function unggahFotoPengajar(penggunaId: string, file: File): Promise<stri
 /** Bucket privat `dokumen-pengajar`, path `{penggunaId}/{uuid}.{ext}` (maks 2 MB). */
 export function unggahDokumenPengajar(penggunaId: string, file: File): Promise<string> {
   return unggahKeBucket("dokumen-pengajar", penggunaId, file, cekDokumenPengajar, ekstensiFilePengajar);
+}
+
+/** Bucket privat `pengaturan`, path `qris-{uuid}.{ext}` (maks 1 MB, SERAH-TERIMA-FE.md). */
+export async function unggahGambarQris(file: File): Promise<string> {
+  if (cekFileQris(file)) throw new Error("FILE_TIDAK_VALID");
+  const path = `qris-${crypto.randomUUID()}.${ekstensiQris(file)}`;
+  if (pakaiMock) return path;
+  const { error } = await buatClientBrowser()
+    .storage.from("pengaturan")
+    .upload(path, file, { contentType: file.type || undefined, upsert: false });
+  if (error) throw new Error("FILE_TIDAK_VALID");
+  return path;
 }

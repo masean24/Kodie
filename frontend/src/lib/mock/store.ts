@@ -11,10 +11,12 @@ import type {
   LaporanMasalah,
   LaporanSesi,
   LaporanSiswa,
+  LogAdmin,
   Notifikasi,
   Pembayaran,
   PengajarProgram,
   ProfilPengajar,
+  Program,
   RaporJurusan,
   Rating,
   SesiSaya,
@@ -52,6 +54,15 @@ type Store = {
   rating: Rating[];
   laporanMasalah: LaporanMasalah[];
   notifikasi: Notifikasi[];
+  pengaturan: {
+    nama_bank: string;
+    nomor_rekening: string;
+    nama_pemilik_rekening: string;
+    qris_path: string | null;
+  };
+  programOverride: Record<string, Partial<Pick<Program, "harga_paket" | "durasi_menit" | "jumlah_sesi" | "honor_per_sesi" | "aktif">>>;
+  sesiTanpaMeetIds: string[];
+  logAdmin: LogAdmin[];
 };
 
 const ORTU = "00000000-0000-4000-c000-000000000001";
@@ -87,6 +98,29 @@ function awal(): Store {
     alasan_penolakan: "Nominal transfer Rp250.000, kurang Rp50.000. Mohon transfer kekurangannya lalu unggah bukti baru.",
     diverifikasi_oleh: ADMIN_MOCK,
     diverifikasi_pada: new Date(sekarang - 4 * jam).toISOString(),
+  };
+
+  // Contoh antrean verifikasi admin: 1 pembayaran menunggu pemeriksaan.
+  const bookingMenungguVerif: Booking = {
+    id: "00000000-0000-4000-f000-000000000006",
+    kode: "BK-20261123-0006",
+    kelas_id: "00000000-0000-4000-a000-000000000004",
+    siswa_id: "00000000-0000-4000-d000-000000000002",
+    dibuat_oleh: ORTU,
+    status: "menunggu_verifikasi",
+    total: 275_000,
+    batas_bayar_pada: new Date(sekarang + 18 * jam).toISOString(),
+    dibuat_pada: new Date(sekarang - 5 * jam).toISOString(),
+  };
+  const pembayaranMenunggu: Pembayaran = {
+    id: "00000000-0000-4000-f100-000000000002",
+    booking_id: bookingMenungguVerif.id,
+    bukti_path: `${bookingMenungguVerif.id}/transfer-contoh.jpg`,
+    diunggah_pada: new Date(sekarang - 3 * jam).toISOString(),
+    status: "menunggu",
+    alasan_penolakan: null,
+    diverifikasi_oleh: null,
+    diverifikasi_pada: null,
   };
 
   // Booking terkonfirmasi untuk kelas-kelas yang diajar Nadia Putri (untuk demo form laporan, halaman sesi, & rapor).
@@ -503,8 +537,8 @@ function awal(): Store {
     ],
     status: {},
     profilPengguna: {},
-    booking: [bookingContoh, bookingDinda, bookingBima, bookingRakaSimulasi, bookingRakaReguler],
-    pembayaran: [pembayaranDitolak],
+    booking: [bookingContoh, bookingDinda, bookingBima, bookingRakaSimulasi, bookingRakaReguler, bookingMenungguVerif],
+    pembayaran: [pembayaranDitolak, pembayaranMenunggu],
     profilPengajar: [
       {
         pengguna_id: PENGAJAR_VERIFIED,
@@ -527,10 +561,10 @@ function awal(): Store {
         kampus: "Institut Teknologi Contoh",
         jurusan: "Teknik Komputer",
         keahlian: ["jaringan", "iot"],
-        cv_url: null,
+        cv_url: "https://contoh.id/cv-yoga",
         foto_path: null,
-        identitas_path: null,
-        skck_path: null,
+        identitas_path: `${PENGAJAR_BARU}/ktp-yoga.jpg`,
+        skck_path: `${PENGAJAR_BARU}/skck-yoga.pdf`,
         wawancara_selesai: false,
         alasan_penolakan: null,
         diverifikasi_pada: null,
@@ -550,8 +584,59 @@ function awal(): Store {
     raporJurusan,
     honor,
     rating: [],
-    laporanMasalah: [],
+    laporanMasalah: [
+      {
+        id: "00000000-0000-4000-b800-000000000001",
+        pelapor_id: ORTU,
+        sesi_id: sesiCoding[0].id,
+        pengajar_id: PENGAJAR_VERIFIED,
+        kategori: "masalah_teknis",
+        deskripsi: "Suara mikrofon sempat terputus 3 menit di awal sesi sebelum kembali normal.",
+        prioritas: "normal",
+        status: "baru",
+        dibuat_pada: new Date(sekarang - 5 * jam).toISOString(),
+      },
+      {
+        id: "00000000-0000-4000-b800-000000000002",
+        pelapor_id: SISWA_RAKA,
+        sesi_id: null,
+        pengajar_id: PENGAJAR_VERIFIED,
+        kategori: "perilaku_tidak_pantas",
+        deskripsi: "Contoh laporan prioritas tinggi untuk menguji urutan paling atas di antrean admin.",
+        prioritas: "tinggi",
+        status: "baru",
+        dibuat_pada: new Date(sekarang - 1 * jam).toISOString(),
+      },
+    ],
     notifikasi,
+    pengaturan: {
+      nama_bank: "Bank Contoh",
+      nomor_rekening: "1234 5678 90",
+      nama_pemilik_rekening: "Kodie (contoh)",
+      qris_path: null,
+    },
+    programOverride: {},
+    sesiTanpaMeetIds: [sesiReguler[3].id],
+    logAdmin: [
+      {
+        id: "00000000-0000-4000-b900-000000000001",
+        admin_id: ADMIN_MOCK,
+        aksi: "setujui_pengajar",
+        target_tipe: "pengajar",
+        target_id: PENGAJAR_VERIFIED,
+        detail: { catatan: "Verifikasi awal pengajar contoh" },
+        dibuat_pada: "2026-11-02T09:00:00.000Z",
+      },
+      {
+        id: "00000000-0000-4000-b900-000000000002",
+        admin_id: ADMIN_MOCK,
+        aksi: "tolak_pembayaran",
+        target_tipe: "pembayaran",
+        target_id: pembayaranDitolak.id,
+        detail: { alasan: pembayaranDitolak.alasan_penolakan },
+        dibuat_pada: new Date(sekarang - 4 * jam).toISOString(),
+      },
+    ],
   };
 }
 
@@ -565,7 +650,8 @@ export function storeMock(): Store {
     g.__kodieMock.pembayaran === undefined ||
     g.__kodieMock.profilPengajar === undefined ||
     g.__kodieMock.sesi === undefined ||
-    g.__kodieMock.notifikasi === undefined
+    g.__kodieMock.notifikasi === undefined ||
+    g.__kodieMock.pengaturan === undefined
   ) {
     const isi = awal();
     g.__kodieMock.booking ??= isi.booking;
@@ -582,6 +668,10 @@ export function storeMock(): Store {
     g.__kodieMock.rating ??= isi.rating;
     g.__kodieMock.laporanMasalah ??= isi.laporanMasalah;
     g.__kodieMock.notifikasi ??= isi.notifikasi;
+    g.__kodieMock.pengaturan ??= isi.pengaturan;
+    g.__kodieMock.programOverride ??= isi.programOverride;
+    g.__kodieMock.sesiTanpaMeetIds ??= isi.sesiTanpaMeetIds;
+    g.__kodieMock.logAdmin ??= isi.logAdmin;
   }
   return g.__kodieMock;
 }

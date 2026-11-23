@@ -206,11 +206,12 @@ export async function kirimBuktiBayar(bookingId: string, path: string): Promise<
 export async function ambilInfoPembayaran(): Promise<InfoPembayaran> {
   await wajibLogin();
   if (pakaiMock) {
+    const { nama_bank, nomor_rekening, nama_pemilik_rekening, qris_path } = storeMock().pengaturan;
     return {
-      nama_bank: "Bank Contoh",
-      nomor_rekening: "1234 5678 90",
-      nama_pemilik_rekening: "Kodie (contoh)",
-      qris_url: "/qris-contoh.svg",
+      nama_bank,
+      nomor_rekening,
+      nama_pemilik_rekening,
+      qris_url: qris_path ? "/qris-contoh.svg" : "/qris-contoh.svg",
     };
   }
   const supabase = await buatClientServer();

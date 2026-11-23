@@ -17,24 +17,35 @@ File ini diperbarui di setiap checkpoint supaya pekerjaan bisa dilanjutkan oleh 
 | 3 | Persetujuan orang tua, profil anak, dashboard | Selesai | `1b2306b` |
 | 4 | Booking dan pembayaran (F6) | Selesai | `08cfee1` |
 | 5 | Area pengajar (F7–F11, F13) | Selesai | `c08b842` |
-| 6 | Halaman sesi, notifikasi realtime, rating, lapor masalah, rapor (F8, F10–F12, bag. 9) | Selesai, **belum di-commit** | belum |
-| 7–9 | Lihat `docs/PROMPT-CLAUDE-CODE.md` | Belum | |
+| 6 | Halaman sesi, notifikasi realtime, rating, lapor masalah, rapor (F8, F10–F12, bag. 9) | Selesai | `f9c3558` |
+| 7 | Dashboard admin & seluruh kelola admin (F5–F8, F12–F14, bag. 8) | Selesai, **belum di-commit** | belum |
+| 8–9 | Lihat `docs/PROMPT-CLAUDE-CODE.md` | Belum | |
 
 ## Checkpoint terakhir
 
-**Prompt 6 selesai, belum di-commit** (tanggal 2026-11-23). `npm run lint`, `npm run typecheck`, `npm test` (54 uji di 7 file), dan `npm run build` (41 rute App Router) lolos. Keputusan dicatat di `docs/KEPUTUSAN.md`.
+**Prompt 7 selesai, belum di-commit** (tanggal 2026-11-23). `npx next typegen`, `npm run lint`, `npm run typecheck`, `npm test` (60 uji di 8 file), dan `npm run build` (51 static/PPR output di App Router) lolos. Keputusan dicatat di `docs/KEPUTUSAN.md`.
 
-Langkah pertama untuk agen berikutnya: commit perubahan Prompt 6 di branch `claude/frontend-fondasi` (jangan ikutkan `.claude/` dan `.env.local`), lalu mulai Prompt 7 (Dashboard admin).
+Langkah pertama untuk agen berikutnya: commit perubahan Prompt 7 di branch `claude/frontend-fondasi` (jangan ikutkan `.claude/` dan `.env.local`), lalu lanjut Prompt 8 (integrasi dengan backend Supabase + verifikasi end-to-end dengan `NEXT_PUBLIC_USE_MOCK=false`).
 
-File baru dan yang diubah di Prompt 6:
-- Data & validasi: `src/types/database.ts` (`LaporanSaya`, `RaporSaya`, `Rating`, `LaporanMasalah`, `Notifikasi`), `src/lib/sesi.ts`, `src/lib/validasi/sesi.ts`, `src/lib/sesi.test.ts` (7 uji baru), `src/lib/mock/store.ts` (seed rapor Raka, laporan sesi 1–4, notifikasi mock), `src/lib/api/mengajar.ts` (trigger notifikasi mock saat kirim laporan / geser jadwal), `src/lib/api/sesi.ts`, `src/lib/api/notifikasi.ts`, `src/lib/aksi/sesi.ts`.
-- Tampilan & rute: `src/components/situs/lonceng-notifikasi.tsx`, `src/components/situs/kerangka-situs.tsx`, `src/components/sesi/{detail-sesi.tsx,interaksi-sesi.tsx}`, `src/components/rapor/tampilan-rapor.tsx`, `src/components/area/{menu-peran.ts,kartu-dashboard.tsx}`, `src/app/{orang-tua,siswa}/page.tsx`, `src/app/{orang-tua,siswa}/sesi/[id]/page.tsx`, `src/app/{orang-tua,siswa}/rapor/{page.tsx,[id]/page.tsx}`, dan tombol Laporkan masalah di `src/app/(publik)/pengajar/[id]/page.tsx`.
+File baru dan yang diubah di Prompt 7:
+- Data, validasi & tes: `src/types/database.ts` (`AdminRingkasan`, `SesiAdmin`, `LogAdmin`), `src/lib/admin.ts`, `src/lib/validasi/admin.ts`, `src/lib/admin.test.ts` (6 uji baru), `src/lib/mock/store.ts` (seed pembayaran menunggu, dokumen KTP/SKCK pengajar baru, 2 laporan masalah termasuk prioritas tinggi `perilaku_tidak_pantas`, `sesiTanpaMeetIds`, `logAdmin`, pengaturan bank/QRIS), `src/lib/api/auth.ts`, `src/lib/api/booking.ts`, `src/lib/api/unggah.ts` (`unggahGambarQris`), `src/lib/api/admin.ts`, `src/lib/aksi/admin.ts`.
+- Tampilan & rute: `src/components/area/{menu-peran.ts,nav-peran.tsx}`, `src/components/admin/{filter-antrean.tsx,aksi-pembayaran.tsx,aksi-pengajar.tsx,aksi-kelola.tsx}`, dan `src/app/admin/{page.tsx,loading.tsx,error.tsx}`, `/admin/pembayaran/{page.tsx,[id]/page.tsx}`, `/admin/pengajar/{page.tsx,[id]/page.tsx}`, `/admin/laporan-masalah/page.tsx`, `/admin/honor/page.tsx`, `/admin/kelas/page.tsx`, `/admin/program/page.tsx`, `/admin/pengaturan/page.tsx`, `/admin/log/page.tsx`.
 
-Belum diuji: pemeriksaan visual langsung di browser (360 dan 1440 px) + cetak PDF rapor untuk Prompt 6, serta mode Supabase asli (`NEXT_PUBLIC_USE_MOCK=false`, Realtime `postgres_changes` pada tabel `notifikasi`, view `sesi_saya`, `laporan_saya`, `rapor_saya`, RPC `beri_rating`, dan insert `laporan_masalah`).
+Belum diuji: pemeriksaan visual langsung di browser (360 dan 1440 px) pada area `/admin/*` serta mode Supabase asli (`NEXT_PUBLIC_USE_MOCK=false`: view `admin_ringkasan`, signed URL bucket `bukti-bayar`, `dokumen-pengajar`, dan `pengaturan`, serta semua RPC admin di `docs/SERAH-TERIMA-FE.md`).
 
-## Berikutnya: Prompt 7 (dashboard admin)
+## Berikutnya: Prompt 8 (integrasi backend Supabase)
 
-Isi menurut `docs/PROMPT-CLAUDE-CODE.md`: dashboard admin (`/admin`, view `admin_ringkasan`), antrean verifikasi pengajar (`/admin/pengajar` & `/admin/pengajar/[id]`, signed URL `dokumen-pengajar`, centang wawancara, setujui/tolak/nonaktifkan), verifikasi pembayaran (`/admin/pembayaran` & `/admin/pembayaran/[id]`, signed URL `bukti-bayar`, setujui/tolak dengan alasan), laporan masalah (`/admin/laporan-masalah`, prioritas tinggi perilaku tidak pantas paling atas), honor (`/admin/honor`, tandai dibayar), kelola kelas & daftar sesi tanpa link Meet (`/admin/kelas`), kelola program (`/admin/program`), kelola rekening & QRIS (`/admin/pengaturan`), serta log admin (`/admin/log`). Fitur F14 dan aksi admin di PRD bagian 8. Tunjukkan rencana ke pengguna dan tunggu persetujuan sebelum menulis kode. Layar Figma: frame "11. Admin: verifikasi pembayaran" (node `26:3058`, file `bvc4Ub6KI68PvSf5Zors7a`).
+Isi menurut `docs/PROMPT-CLAUDE-CODE.md`: mencocokkan `src/types/database.ts` dengan hasil `supabase gen types` dari `backend/supabase/types/database.ts` (semua kolom bertanda `PERKIRAAN`), menguji seluruh alur dengan `NEXT_PUBLIC_USE_MOCK=false`, Realtime notifikasi, Storage privat, dan RPC backend.
+
+## Kontrak backend yang dipakai Prompt 7
+
+Sumber: `docs/PRD.md` bagian 7–9 dan `docs/SERAH-TERIMA-FE.md`.
+
+- View `admin_ringkasan`, tabel `log_admin`, `pengaturan`, `program`, `kelas`, `sesi`, `honor`, `laporan_masalah`, `pembayaran`, `pengajar_program`, `profil_pengajar`.
+- RPC `admin_setujui_pembayaran(p_pembayaran_id)`, `admin_tolak_pembayaran(p_pembayaran_id, p_alasan)`.
+- RPC `admin_wawancara_selesai(p_pengajar_id, p_selesai)`, `admin_setujui_pengajar(p_pengajar_id, p_program_ids)`, `admin_tolak_pengajar(p_pengajar_id, p_alasan)`, `admin_nonaktifkan_pengguna(p_pengguna_id, p_alasan)`.
+- RPC `admin_ubah_laporan_masalah(p_id, p_status)`, `admin_tandai_honor_dibayar(p_id)`, serta Edge Function `buat-meet({ kelas_id })`.
+- Bucket privat `bukti-bayar`, `dokumen-pengajar`, dan `pengaturan` diakses via signed URL 5 menit (`createSignedUrl(..., 300)`).
 
 ## Kontrak backend yang dipakai Prompt 6
 

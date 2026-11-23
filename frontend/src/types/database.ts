@@ -428,3 +428,39 @@ export interface Notifikasi {
   dibaca_pada: string | null;
   dibuat_pada: string;
 }
+
+/** View `admin_ringkasan` (PRD F14 & SERAH-TERIMA-FE.md). */
+export interface AdminRingkasan {
+  siswa_aktif: number;
+  kelas_berjalan: number;
+  booking_menunggu_verifikasi: number;
+  pengajar_menunggu_verifikasi: number;
+  laporan_masalah_baru: number;
+  honor_belum_dibayar?: number;
+  sesi_tanpa_meet?: number;
+}
+
+/** Tabel `sesi` untuk admin (PRD bagian 7). */
+export interface SesiAdmin {
+  id: string;
+  kelas_id: string;
+  nomor: number;
+  mulai_pada: string;
+  selesai_pada: string;
+  status: StatusSesi;
+  meet_space: string | null;
+  meet_uri: string | null;
+  meet_dibuat_pada: string | null;
+  meet_gagal_terakhir: string | null;
+}
+
+/** Tabel `log_admin` (PRD bagian 7). */
+export interface LogAdmin {
+  id: string;
+  admin_id: string;
+  aksi: string;
+  target_tipe: string;
+  target_id: string;
+  detail: Record<string, unknown> | string | null;
+  dibuat_pada: string;
+}
