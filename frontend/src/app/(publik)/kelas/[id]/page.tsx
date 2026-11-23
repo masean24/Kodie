@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -14,6 +15,12 @@ import { TombolTautan, kelasTombol } from "@/components/ui/tombol";
 import { TagProgram, labelJenjang, warnaProgram } from "@/components/kategori";
 import { SisaKursi, judulKelas } from "@/components/kelas/kartu-kelas";
 import { KartuPengajar } from "@/components/pengajar/kartu-pengajar";
+
+export async function generateMetadata({ params }: PageProps<"/kelas/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  const k = await ambilKelas(id);
+  return k ? { title: judulKelas(k) } : { title: "Kelas tidak ditemukan" };
+}
 
 export default function HalamanDetailKelas({ params }: PageProps<"/kelas/[id]">) {
   return (

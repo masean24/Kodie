@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 /**
  * Client Supabase untuk Server Component, Server Function, dan Route Handler.
  * Buat baru untuk setiap request. `cookies()` adalah runtime API, jadi pemanggilnya harus
- * berada di dalam <Suspense>. Penyegaran sesi lewat proxy.ts menyusul di Prompt 2 (auth).
+ * berada di dalam <Suspense>. Sesi disegarkan di `src/proxy.ts` pada setiap request.
  */
 export async function buatClientServer() {
   const cookieStore = await cookies();

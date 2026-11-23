@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ShieldCheck } from "lucide-react";
@@ -9,6 +10,12 @@ import { TagBidang } from "@/components/kategori";
 import { Avatar, Rating, keteranganPengajar } from "@/components/pengajar/kartu-pengajar";
 import { KartuKelas } from "@/components/kelas/kartu-kelas";
 import { FormLaporMasalah } from "@/components/sesi/interaksi-sesi";
+
+export async function generateMetadata({ params }: PageProps<"/pengajar/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  const p = await ambilPengajarPublik(id);
+  return p ? { title: `${p.nama} · Pengajar` } : { title: "Pengajar tidak ditemukan" };
+}
 
 export default function HalamanPengajar({ params }: PageProps<"/pengajar/[id]">) {
   return (

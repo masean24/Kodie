@@ -43,9 +43,19 @@ export const viewport: Viewport = {
   ],
 };
 
+/**
+ * Pasang tema pilihan pengguna (localStorage "kodie:tema", lihat ThemeSwitch) sebelum halaman dilukis,
+ * agar tidak berkedip ke tema sistem saat dimuat. Tanpa pilihan, CSS mengikuti prefers-color-scheme.
+ */
+const SKRIP_TEMA = `try{var t=localStorage.getItem("kodie:tema");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${lexend.variable} ${atkinson.variable} antialiased`}>
+    // suppressHydrationWarning: atribut data-theme dipasang skrip di atas sebelum React hidrasi.
+    <html lang="id" className={`${lexend.variable} ${atkinson.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SKRIP_TEMA }} />
+      </head>
       <body className="flex min-h-dvh flex-col">
         <a
           href="#konten"

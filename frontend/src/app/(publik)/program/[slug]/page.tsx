@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -11,6 +12,12 @@ import { TombolTautan } from "@/components/ui/tombol";
 import { labelJenjang, warnaProgram } from "@/components/kategori";
 import { KartuKelas } from "@/components/kelas/kartu-kelas";
 import { GambarProgram } from "@/components/program/gambar-program";
+
+export async function generateMetadata({ params }: PageProps<"/program/[slug]">): Promise<Metadata> {
+  const { slug } = await params;
+  const p = await ambilProgram(slug);
+  return p ? { title: p.nama } : { title: "Program tidak ditemukan" };
+}
 
 export default function HalamanDetailProgram({ params }: PageProps<"/program/[slug]">) {
   return (
