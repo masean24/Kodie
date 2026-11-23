@@ -50,8 +50,14 @@ export async function ambilPenggunaSaya(): Promise<Pengguna | null> {
     if (!p) return null;
     // Data mock memakai waktu sekarang: tandai render ini dinamis sebelum menyentuh store (Cache Components).
     await connection();
-    const status = storeMock().status[p.id];
-    return status ? { ...p, status } : p;
+    const store = storeMock();
+    const status = store.status[p.id];
+    const profil = store.profilPengguna[p.id];
+    return {
+      ...p,
+      ...(status ? { status } : {}),
+      ...(profil ? { nama: profil.nama, no_wa: profil.no_wa } : {}),
+    };
   }
   const supabase = await buatClientServer();
   const { data: u } = await supabase.auth.getUser();
@@ -107,6 +113,22 @@ export async function daftar(input: InputDaftar): Promise<{ pengguna: Pengguna |
         pengguna_id: pengguna.id,
         nama_orang_tua: input.nama_orang_tua,
         email_orang_tua: input.email_orang_tua || null,
+      });
+    } else if (input.peran === "pengajar") {
+      storeMock().profilPengajar.push({
+        pengguna_id: pengguna.id,
+        status_kerja: input.status_kerja,
+        kampus: input.kampus,
+        jurusan: input.jurusan,
+        keahlian: input.keahlian,
+        cv_url: input.cv_url || null,
+        foto_path: null,
+        identitas_path: null,
+        skck_path: null,
+        wawancara_selesai: false,
+        alasan_penolakan: null,
+        diverifikasi_pada: null,
+        diverifikasi_oleh: null,
       });
     }
     await tulisCookieMock(pengguna);

@@ -2,7 +2,7 @@
  * Data mock. Bentuknya mengikuti tabel/view Supabase (src/types/database.ts).
  * Semua nama adalah karangan. Harga, durasi, dan kapasitas mengikuti docs/SERAH-TERIMA-FE.md.
  */
-import type { Bidang, KelasKatalog, KodeOpsi, PengajarPublik, Program } from "@/types/database";
+import type { Bidang, KelasKatalog, KodeOpsi, PengajarPublik, Playbook, Program } from "@/types/database";
 import { storeMock } from "./store";
 import { STATUS_AKTIF } from "@/lib/booking";
 
@@ -127,12 +127,13 @@ const rencana: RencanaKelas[] = [
 
 /** Bentuk view kelas_katalog, dihitung terhadap waktu `sekarang`. */
 export function buatKelasMock(sekarang: Date): KelasKatalog[] {
-  return rencana.map((r) => {
+  const store = storeMock();
+  const bawaan = rencana.map((r) => {
     const program = programMock.find((p) => p.slug === r.program)!;
     const pengajar = pengajarMock.find((p) => p.id === r.pengajar)!;
     const kapasitas = program.jenjang.includes("SD") ? 10 : 15;
     // Booking aktif yang dibuat di mode mock ikut menghitung kursi terpakai.
-    const terpakai = r.terpakai + storeMock().booking.filter((b) => b.kelas_id === r.id && STATUS_AKTIF.includes(b.status)).length;
+    const terpakai = r.terpakai + store.booking.filter((b) => b.kelas_id === r.id && STATUS_AKTIF.includes(b.status)).length;
     const mulai_pada = waktuWib(sekarang, r.hari, r.jam, r.minggu);
     const sisa_kursi = Math.max(0, kapasitas - terpakai);
     const status = r.status ?? "terbuka";
@@ -159,7 +160,152 @@ export function buatKelasMock(sekarang: Date): KelasKatalog[] {
       mulai_pada,
     };
   });
+  const tambahan = store.kelasTambahan.map((k) => {
+    const terpakai = store.booking.filter((b) => b.kelas_id === k.id && STATUS_AKTIF.includes(b.status)).length;
+    const sisa_kursi = Math.max(0, k.kapasitas - terpakai);
+    return {
+      ...k,
+      kursi_terpakai: terpakai,
+      sisa_kursi,
+      bisa_dibooking: k.status === "terbuka" && sisa_kursi > 0 && new Date(k.mulai_pada) > sekarang,
+    };
+  });
+  return [...bawaan, ...tambahan];
 }
+
+/** Playbook mock per program & sesi (PRD F9). */
+export const playbookMock: Playbook[] = [
+  {
+    id: "00000000-0000-4000-b500-000000000101",
+    program_id: "00000000-0000-4000-8000-000000000001",
+    level: 1,
+    nomor_sesi: 1,
+    judul: "Kenalan dengan Scratch dan gerak dasar",
+    starter_url: "https://scratch.mit.edu/projects/editor/",
+    konten_md: `## Tujuan sesi
+Siswa mengenal area kerja Scratch, memilih karakter (sprite), dan menggerakkan karakter dengan blok perintah dasar.
+
+## Alur sesi
+- **00–10 · Pembukaan:** Perkenalan singkat, cek suara dan layar siswa, dan ajak siswa menebak cara kerja animasi.
+- **10–40 · Praktik terpandu:** Tambahkan sprite kucing dan latar panggung. Coba blok "ketika bendera diklik", "gerak 10 langkah", dan "tunggu 1 detik".
+- **40–52 · Tantangan:** Siswa menambahkan latar belakang pilihan sendiri dan mengganti warna sprite saat tombol spasi ditekan.
+- **52–60 · Penutup:** Dua siswa menunjukkan hasil layar. Ingatkan menyimpan proyek.
+
+## Tantangan untuk siswa
+Buat sprite bergerak ke kanan tiga kali sambil berganti kostum setiap langkah.
+
+## Kunci jawaban
+Pasang blok "ketika bendera diklik" → ulangi 3 kali: "gerak 20 langkah", "kostum berikutnya", dan "tunggu 0.3 detik".
+
+## Persiapan sebelum kelas
+- Buka Scratch editor di tab peramban
+- Cek daftar nama panggilan siswa
+- Pastikan izin berbagi layar aktif
+
+## Alat dan starter
+- Scratch: Editor kosong untuk sesi pengenalan
+
+## Catatan keamanan
+Jangan minta nomor HP atau akun media sosial siswa. Semua komunikasi lewat kelas dan laporan.`,
+  },
+  {
+    id: "00000000-0000-4000-b500-000000000102",
+    program_id: "00000000-0000-4000-8000-000000000001",
+    level: 1,
+    nomor_sesi: 2,
+    judul: "Perulangan dan animasi berjalan",
+    starter_url: "https://scratch.mit.edu/projects/editor/",
+    konten_md: `## Tujuan sesi
+Siswa bisa memakai blok “ulangi” untuk membuat karakter bergerak terus, dan menjelaskan kapan perulangan berhenti.
+
+## Alur sesi
+- **00–10 · Pembukaan:** Sapa siswa, ulas proyek minggu lalu, tanya satu hal yang mereka ingat.
+- **10–40 · Praktik terpandu:** Bangun animasi kucing berjalan bersama. Bagikan layar dan minta siswa mengikuti langkah demi langkah.
+- **40–52 · Tantangan:** Siswa menambah suara saat kucing menyentuh tepi. Bantu yang kesulitan lewat chat Meet.
+- **52–60 · Penutup:** Dua siswa menunjukkan hasil. Ingatkan simpan proyek dan isi laporan.
+
+## Tantangan untuk siswa
+Buat kucing mengeong setiap kali menyentuh tepi panggung, lalu berbalik arah.
+
+## Kunci jawaban
+Di dalam blok "selamanya" atau "ulangi 20 kali": masukkan "gerak 10 langkah", "kostum berikutnya", lalu blok kondisi "jika menyentuh pinggir, pantulkan" dan putar suara "Meow" saat menyentuh pinggir.
+
+## Persiapan sebelum kelas
+- Buka proyek starter di Scratch
+- Cek daftar siswa dan nama panggilan
+- Uji suara dan bagikan layar
+
+## Alat dan starter
+- Scratch: proyek starter “Kucing berjalan”
+
+## Catatan keamanan
+Jangan minta nomor HP atau akun media sosial siswa. Semua komunikasi lewat kelas dan laporan.`,
+  },
+  {
+    id: "00000000-0000-4000-b500-000000000201",
+    program_id: "00000000-0000-4000-8000-000000000002",
+    level: 2,
+    nomor_sesi: 1,
+    judul: "Layout halaman web responsif dengan Flexbox",
+    starter_url: "https://codesandbox.io/",
+    konten_md: `## Tujuan sesi
+Siswa mampu menyusun kartu profil web agar rapi di layar ponsel dan laptop menggunakan CSS Flexbox.
+
+## Alur sesi
+- **00–15 · Pembukaan:** Tinjau struktur HTML dasar dan bandingkan contoh situs di layar ponsel vs laptop.
+- **15–55 · Praktik terpandu:** Bangun container flex dengan wrap, gap, dan penataan rata tengah bersama siswa di CodeSandbox.
+- **55–80 · Tantangan:** Siswa menambahkan tombol aksi dan memastikan kartu tidak melebar di layar sempit.
+- **80–90 · Penutup:** Review dua hasil siswa dan rangkum properti Flexbox yang sering dipakai.
+
+## Tantangan untuk siswa
+Buat tiga kartu proyek yang berjejer menyamping di desktop dan turun ke bawah secara otomatis di layar sempit.
+
+## Kunci jawaban
+Atur \`display: flex; flex-wrap: wrap; gap: 16px;\` pada pembungkus dan \`flex: 1 1 260px;\` pada tiap kartu.
+
+## Persiapan sebelum kelas
+- Buka starter HTML/CSS di CodeSandbox
+- Siapkan tautan untuk dibagikan di chat Meet
+
+## Alat dan starter
+- CodeSandbox: Template kartu proyek HTML & CSS
+
+## Catatan keamanan
+Pastikan siswa tidak menulis data pribadi asli (alamat rumah atau nomor telepon) di halaman contoh.`,
+  },
+  {
+    id: "00000000-0000-4000-b500-000000000304",
+    program_id: "00000000-0000-4000-8000-000000000003",
+    level: 1,
+    nomor_sesi: 4,
+    judul: "Integrasi AI dan refleksi jurusan IT",
+    starter_url: "https://colab.research.google.com/",
+    konten_md: `## Tujuan sesi
+Siswa mencoba klasifikasi teks sederhana berbasis AI, menghubungkannya dengan proyek teknologi sebelumnya, dan merefleksikan minat jurusan IT.
+
+## Alur sesi
+- **00–15 · Pembukaan:** Review pengalaman tiga bidang sebelumnya: Software, Jaringan, dan IoT.
+- **15–55 · Praktik terpandu:** Jalankan notebook contoh klasifikasi sentimen kalimat dan amati bagaimana data latih memengaruhi akurasi.
+- **55–80 · Tantangan:** Siswa menguji lima kalimat buatan sendiri dan mencatat kapan model salah menebak.
+- **80–90 · Penutup:** Diskusi singkat bidang mana yang paling disukai tiap siswa untuk bekal rapor jurusan.
+
+## Tantangan untuk siswa
+Temukan dua contoh kalimat yang membuat model salah klasifikasi dan jelaskan alasannya.
+
+## Kunci jawaban
+Kalimat bernada sarkasme atau mengandung negasi ganda (misal "tidak buruk") sering salah ditebak model bag-of-words sederhana karena tidak melihat konteks urutan kata.
+
+## Persiapan sebelum kelas
+- Buka Google Colab starter dengan akun demo
+- Catat keaktifan tiap siswa selama sesi 1–4 untuk mengisi rapor
+
+## Alat dan starter
+- Google Colab: Notebook klasifikasi sentimen dasar
+
+## Catatan keamanan
+Jangan minta nomor HP atau akun media sosial siswa. Ingatkan bahwa rapor rekomendasi adalah saran, bukan keputusan mutlak.`,
+  },
+];
 
 type SoalMock = {
   id: string;

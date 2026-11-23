@@ -220,3 +220,121 @@ export interface InfoPembayaran {
   nama_pemilik_rekening: string;
   qris_url: string | null;
 }
+
+/** Tabel `profil_pengajar` (PRD bagian 7). */
+export interface ProfilPengajar {
+  pengguna_id: string;
+  status_kerja: StatusKerja;
+  kampus: string | null;
+  jurusan: string | null;
+  keahlian: Bidang[];
+  cv_url: string | null;
+  foto_path: string | null;
+  identitas_path: string | null;
+  skck_path: string | null;
+  wawancara_selesai: boolean;
+  alasan_penolakan: string | null;
+  diverifikasi_pada: string | null;
+  diverifikasi_oleh: string | null;
+}
+
+/** Tabel `pengajar_program` (PRD bagian 7). */
+export interface PengajarProgram {
+  pengajar_id: string;
+  program_id: string;
+  disetujui: boolean;
+}
+
+export type StatusSesi = "terjadwal" | "selesai" | "dibatalkan";
+
+/** View `sesi_saya`: tanpa `meet_uri` (docs/SERAH-TERIMA-FE.md). */
+export interface SesiSaya {
+  id: string;
+  kelas_id: string;
+  nomor: number;
+  mulai_pada: string;
+  selesai_pada: string;
+  status: StatusSesi;
+  bisa_masuk_kelas: boolean;
+}
+
+/** Tabel `playbook` / hasil RPC `playbook_sesi` (PRD bagian 7–8). */
+export interface Playbook {
+  id: string;
+  program_id: string;
+  level: number;
+  nomor_sesi: number;
+  judul: string;
+  konten_md: string;
+  starter_url: string | null;
+}
+
+/** Tabel `laporan_sesi` (PRD bagian 7). */
+export interface LaporanSesi {
+  id: string;
+  sesi_id: string;
+  pengajar_id: string;
+  ringkasan: string;
+  rekaman_url: string | null;
+  kendala: string | null;
+  dikirim_pada: string;
+  diubah_pada: string | null;
+}
+
+/** Tabel `laporan_siswa` (PRD bagian 7). */
+export interface LaporanSiswa {
+  id: string;
+  laporan_sesi_id: string;
+  siswa_id: string;
+  hadir: boolean;
+  catatan: string | null;
+  karya_url: string | null;
+}
+
+/** Tabel `rapor_jurusan` (PRD bagian 7). */
+export interface RaporJurusan {
+  id: string;
+  sesi_id: string;
+  siswa_id: string;
+  skor_software: number;
+  skor_jaringan: number;
+  skor_iot: number;
+  skor_ai_data: number;
+  bidang_rekomendasi: Bidang;
+  alasan: string;
+  saran: string;
+  dibuat_pada: string;
+}
+
+/** Elemen `p_siswa` pada RPC `kirim_laporan` dan `ubah_laporan`. */
+export interface InputLaporanSiswa {
+  siswa_id: string;
+  hadir: boolean;
+  catatan?: string | null;
+  karya_url?: string | null;
+}
+
+/** Elemen `p_rapor` pada RPC `kirim_laporan` dan `ubah_laporan`. */
+export interface InputRaporJurusan {
+  siswa_id: string;
+  skor_software: number;
+  skor_jaringan: number;
+  skor_iot: number;
+  skor_ai_data: number;
+  bidang_rekomendasi: Bidang;
+  alasan: string;
+  saran: string;
+}
+
+export type StatusHonor = "belum_dibayar" | "dibayar";
+
+/** Tabel `honor` (PRD bagian 7). */
+export interface Honor {
+  id: string;
+  pengajar_id: string;
+  sesi_id: string;
+  jumlah: number;
+  status: StatusHonor;
+  dibayar_pada: string | null;
+  dibayar_oleh: string | null;
+}

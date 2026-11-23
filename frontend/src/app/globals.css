@@ -288,14 +288,26 @@ h4 {
   }
 }
 
+.hanya-cetak {
+  display: none;
+}
+
 @media print {
   header[data-situs],
   footer[data-situs],
   .tanpa-cetak {
     display: none !important;
   }
+  .hanya-cetak {
+    display: block !important;
+  }
+  .area-cetak {
+    display: block !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
   body {
-    background: #ffffff;
-    color: #000000;
+    background: #ffffff !important;
+    color: #0f172a !important;
   }
 }

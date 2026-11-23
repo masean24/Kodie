@@ -11,15 +11,15 @@ export function LayoutArea({ peran, children }: { peran: Peran; children: ReactN
   const nav = adaNavPeran(peran);
   return (
     <KerangkaSitus ruangBawah={nav}>
-      <Kontainer className={nav ? "grid gap-8 pb-24 lg:grid-cols-[220px_1fr] lg:pb-12" : ""}>
+      <Kontainer className={nav ? "area-cetak grid gap-8 pb-24 lg:grid-cols-[220px_1fr] lg:pb-12" : ""}>
         {nav ? (
           <>
-            <nav aria-label="Menu akun" className="hidden pt-10 lg:block">
+            <nav aria-label="Menu akun" className="tanpa-cetak hidden pt-10 lg:block">
               <NavPeran peran={peran} />
             </nav>
             <nav
               aria-label="Menu akun ponsel"
-              className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
+              className="tanpa-cetak fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
             >
               <NavPeran peran={peran} ponsel />
             </nav>
