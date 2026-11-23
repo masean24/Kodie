@@ -53,7 +53,7 @@ export function Rating({ p }: { p: PengajarPublik }) {
 export function KartuPengajar({ p, judulLevel = 3 }: { p: PengajarPublik; judulLevel?: 2 | 3 }) {
   const Judul = judulLevel === 2 ? "h2" : "h3";
   return (
-    <article className="flex h-full flex-col gap-3 rounded-card-sm bg-surface p-6">
+    <article className="flex h-full flex-col gap-3 rounded-card-sm bg-surface p-6 shadow-kartu">
       <div className="flex items-center gap-4">
         <Avatar nama={p.nama} foto={p.foto_url} />
         <div className="min-w-0">

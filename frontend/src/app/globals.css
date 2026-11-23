@@ -86,6 +86,10 @@
   --k-on-strong: #0f172a;
   --k-on-soft: #0f172a;
   --k-on-block: #0f172a;
+
+  /* Shadow tipis kartu agar tepinya terlihat jelas di latar terang */
+  --k-shadow-kartu: 0 1px 2px rgb(15 23 42 / 0.06), 0 6px 16px -4px rgb(15 23 42 / 0.1);
+  --k-shadow-kartu-hover: 0 2px 4px rgb(15 23 42 / 0.06), 0 14px 28px -8px rgb(15 23 42 / 0.18);
 }
 
 :root[data-theme="dark"] {
@@ -149,6 +153,9 @@
   --k-ai-data-deep: #e2e8f0;
   --k-on-soft: #f1f5f9;
   --k-on-block: #f1f5f9;
+
+  --k-shadow-kartu: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 16px -4px rgb(0 0 0 / 0.45);
+  --k-shadow-kartu-hover: 0 2px 4px rgb(0 0 0 / 0.3), 0 14px 28px -8px rgb(0 0 0 / 0.6);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -213,10 +220,15 @@
     --k-ai-data-deep: #e2e8f0;
     --k-on-soft: #f1f5f9;
     --k-on-block: #f1f5f9;
+
+    --k-shadow-kartu: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 16px -4px rgb(0 0 0 / 0.45);
+    --k-shadow-kartu-hover: 0 2px 4px rgb(0 0 0 / 0.3), 0 14px 28px -8px rgb(0 0 0 / 0.6);
   }
 }
 
 @theme inline {
+  --shadow-kartu: var(--k-shadow-kartu);
+  --shadow-kartu-hover: var(--k-shadow-kartu-hover);
   --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-lexend), ui-sans-serif, system-ui, sans-serif;
 

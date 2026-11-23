@@ -218,7 +218,7 @@ function Nilai() {
         <ul className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
           {KEUNGGULAN.map((k, i) => (
             <Muncul as="li" key={k.judul} tunda={i * 0.08} className="flex">
-              <article className="flex w-full flex-col rounded-card border border-border bg-surface-sunken p-6 transition-[border-color,box-shadow] duration-300 hover:border-primary hover:shadow-lg">
+              <article className="flex w-full flex-col rounded-card border border-border bg-surface p-6 shadow-kartu transition-[border-color,box-shadow] duration-300 hover:border-primary hover:shadow-kartu-hover">
                 <div className="flex items-center justify-between gap-3">
                   <span aria-hidden className={cx("grid size-12 shrink-0 place-items-center rounded-2xl", k.warnaIkon)}>
                     <k.ikon className="size-6" />

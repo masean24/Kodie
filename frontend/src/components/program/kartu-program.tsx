@@ -13,7 +13,7 @@ export function KartuProgram({ p, judulTag = "h3" }: { p: Program; judulTag?: "h
   const w = warnaProgram(p.slug);
   const Tag = judulTag;
   return (
-    <article className={cx("flex h-full flex-col gap-4 rounded-card-sm bg-gradient-to-b p-6 text-on-block", w.blok)}>
+    <article className={cx("flex h-full flex-col gap-4 rounded-card-sm bg-gradient-to-b p-6 text-on-block shadow-kartu", w.blok)}>
       <GambarProgram slug={p.slug} />
       <div>
         <span className="inline-flex rounded-full bg-surface px-3 py-0.5 text-sm font-bold text-text">

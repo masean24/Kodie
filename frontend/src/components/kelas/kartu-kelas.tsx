@@ -42,7 +42,7 @@ export function SisaKursi({ k }: { k: KelasKatalog }) {
 export function KartuKelas({ k }: { k: KelasKatalog }) {
   const alasan = alasanTidakBisaDipesan(k);
   return (
-    <article className="flex flex-col gap-4 rounded-card-sm bg-surface p-6">
+    <article className="flex flex-col gap-4 rounded-card-sm bg-surface p-6 shadow-kartu">
       <div>
         <TagProgram slug={k.program_slug}>{labelJenjang(k.jenjang)}</TagProgram>
       </div>

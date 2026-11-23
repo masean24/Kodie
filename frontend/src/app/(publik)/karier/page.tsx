@@ -51,7 +51,7 @@ export default function HalamanKarier() {
             {KEUNTUNGAN.map((k, i) => {
               const Ikon = IKON_KEUNTUNGAN[i] ?? Sparkles;
               return (
-                <Muncul as="li" key={k.judul} tunda={i * 0.07} className="rounded-card bg-surface-sunken p-6">
+                <Muncul as="li" key={k.judul} tunda={i * 0.07} className="rounded-card border border-border bg-surface p-6 shadow-kartu">
                   <span aria-hidden className="blok-merek grid size-12 place-items-center rounded-full">
                     <Ikon className="size-6" />
                   </span>

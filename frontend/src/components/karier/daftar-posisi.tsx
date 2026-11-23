@@ -87,7 +87,7 @@ export function DaftarPosisi({ posisi }: { posisi: Posisi[] }) {
 
 function KartuPosisi({ p }: { p: Posisi }) {
   return (
-    <article className="group relative flex w-full flex-col gap-4 rounded-card border border-border bg-surface p-6 shadow-sm transition-shadow hover:shadow-lg">
+    <article className="group relative flex w-full flex-col gap-4 rounded-card border border-border bg-surface p-6 shadow-kartu transition-shadow hover:shadow-kartu-hover">
       <div className="flex items-center justify-between gap-3">
         <TagBidang bidang={p.bidang} />
         <span className="inline-flex items-center gap-1.5 rounded-full bg-success-subtle px-3 py-0.5 text-sm font-bold text-success">
