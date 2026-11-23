@@ -407,3 +407,17 @@ h4 {
   transform-origin: bottom right;
   animation: kiko-panel-out 200ms cubic-bezier(0.4, 0, 1, 1) forwards;
 }
+
+@keyframes kiko-float-bubble {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.kiko-animate-float {
+  animation: kiko-float-bubble 3s ease-in-out infinite;
+}

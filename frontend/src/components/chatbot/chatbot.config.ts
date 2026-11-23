@@ -1,22 +1,22 @@
-export type BentukLauncherChatbot = "circle" | "squircle" | "rounded" | "pill";
+export type BentukLauncherChatbot = "circle" | "squircle" | "rounded" | "pill" | "mascot";
 
 /**
  * Konfigurasi Avatar & Identitas Visual Kiko.
- * Terpisah dari launcher bubble agar aset maskot Kiko dapat langsung dipasang
- * nanti dengan mengganti `mode` ke "image" dan mengisi `imageUrl`.
+ * Secara bawaan memakai Maskot 2D SVG interaktif Kiko, dan dapat diganti
+ * ke aset gambar statis dengan mengubah `mode` ke "image" serta mengisi `imageUrl`.
  */
 export const CHATBOT_AVATAR_CONFIG = {
-  /** Ganti ke "image" dan isi `imageUrl` (mis. "/logo/kiko-mascot.png") setelah maskot Kiko selesai dibangun. */
-  mode: "kodie-symbol" as "kodie-symbol" | "image",
+  /** Gunakan "kiko-2d" untuk SVG maskot 2D interaktif, atau "image" untuk gambar eksternal. */
+  mode: "kiko-2d" as "kiko-2d" | "image",
   imageUrl: null as string | null,
-  alt: "Kiko — Asisten resmi Kodie",
+  alt: "Kiko — Maskot asisten resmi Kodie",
 };
 
-/** Konfigurasi tombol launcher mengambang & saran pertanyaan awal. */
+/** Konfigurasi launcher maskot mengambang & saran pertanyaan awal. */
 export const CHATBOT_LAUNCHER_CONFIG = {
-  shape: "pill" as BentukLauncherChatbot,
+  shape: "mascot" as BentukLauncherChatbot,
   labelPrefix: "Tanya",
-  proactiveTooltip: "Bingung pilih kelas IT? Tanya Kiko!",
+  proactiveTooltip: "Hai! Ada yang bisa kubantu? :)",
   suggestedPrompts: [
     "Program apa yang cocok untuk anak SD kelas 5?",
     "Apa itu Simulasi Jurusan IT dan rapor rekomendasinya?",

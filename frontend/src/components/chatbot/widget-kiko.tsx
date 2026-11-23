@@ -12,10 +12,11 @@ import {
   RefreshCw,
   RotateCcw,
   SendHorizontal,
-  Sparkles,
   Square,
   Ticket,
   UserCheck,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 import type { Peran } from "@/types/database";
@@ -43,6 +44,7 @@ import { buatUuid } from "@/lib/uuid";
 import { AvatarKiko } from "./avatar-kiko";
 import { CHATBOT_LAUNCHER_CONFIG } from "./chatbot.config";
 import { MarkdownAman } from "./markdown-aman";
+import { MaskotKiko, putarBlipKiko, type EkspresiKiko } from "./maskot-kiko";
 
 interface ItemPesanUI {
   id: string;
@@ -59,20 +61,6 @@ const KEY_PERCAKAPAN = "kodie_kiko_percakapan_id";
 const KEY_TAMU_RIWAYAT = "kodie_kiko_tamu_riwayat";
 const KEY_TOOLTIP_DITUTUP = "kodie_kiko_tooltip_tutup";
 
-function kelasBentukLauncher(bentuk: typeof CHATBOT_LAUNCHER_CONFIG.shape) {
-  switch (bentuk) {
-    case "circle":
-      return "size-14 rounded-full p-0";
-    case "squircle":
-      return "size-14 rounded-[18px] p-0";
-    case "rounded":
-      return "rounded-2xl px-4 py-2.5";
-    case "pill":
-    default:
-      return "rounded-full px-4 py-2.5";
-  }
-}
-
 function ekstrakKonteksHalaman(pathname: string) {
   if (typeof window === "undefined") {
     return { url: pathname, title: "Kodie", snippet: "" };
@@ -87,9 +75,10 @@ function ekstrakKonteksHalaman(pathname: string) {
 }
 
 /**
- * Widget Floating AI Chatbot ("Kiko") + Live Admin Takeover.
- * Mendukung streaming SSE (`fetch` + `ReadableStream` + `AbortController`), sitasi interaktif,
- * Markdown aman, dan 3 jalur eskalasi ke manusia (WhatsApp/Email, Tiket, dan Live Chat Realtime).
+ * Widget Floating AI Chatbot ("Kiko") dengan Maskot 2D Interaktif + Live Admin Takeover.
+ * Mendukung streaming SSE (`fetch` + `ReadableStream` + `AbortController`), lirikan kolom ketik,
+ * spinner loading 12 ruji, lip-sync bicara, mode tidur idle (zZz), suara blip Web Audio API,
+ * sitasi interaktif, Markdown aman, dan 3 jalur eskalasi ke manusia.
  */
 export function WidgetKiko({
   konfigurasi,
@@ -102,7 +91,15 @@ export function WidgetKiko({
   const [terbuka, setTerbuka] = useState(false);
   const [menutup, setMenutup] = useState(false);
   const [tooltipTampil, setTooltipTampil] = useState(false);
+  const [tooltipTeks, setTooltipTeks] = useState(CHATBOT_LAUNCHER_CONFIG.proactiveTooltip);
   const [panelHandoffBuka, setPanelHandoffBuka] = useState(false);
+
+  // State interaksi maskot 2D Kiko
+  const [ekspresiKiko, setEkspresiKiko] = useState<EkspresiKiko>("smile");
+  const [isTypingChat, setIsTypingChat] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [jumpSignal, setJumpSignal] = useState(0);
 
   const [percakapanId, setPercakapanId] = useState<string | null>(null);
   const [statusPercakapan, setStatusPercakapan] = useState<StatusPercakapanChat>("bot");
@@ -124,13 +121,32 @@ export function WidgetKiko({
   const gulirRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const tutupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const speakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const happyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const realtimeOkRef = useRef(false);
 
   const namaBot = konfigurasi.chatbot_nama || "Kiko";
 
+  const picuBicaraSenang = useCallback(
+    (denganBlip: boolean) => {
+      if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
+      if (happyTimerRef.current) clearTimeout(happyTimerRef.current);
+      setEkspresiKiko("happy");
+      setIsSpeaking(true);
+      if (denganBlip) putarBlipKiko("reply", soundEnabled);
+      speakTimerRef.current = setTimeout(() => setIsSpeaking(false), 1800);
+      happyTimerRef.current = setTimeout(() => {
+        setEkspresiKiko((cur) => (cur === "happy" ? "smile" : cur));
+      }, 2600);
+    },
+    [soundEnabled],
+  );
+
   const tutupPanel = useCallback(() => {
     if (!terbuka || menutup) return;
+    setIsTypingChat(false);
     setMenutup(true);
+    setEkspresiKiko("smile");
     tutupTimerRef.current = setTimeout(() => {
       setTerbuka(false);
       setMenutup(false);
@@ -141,12 +157,8 @@ export function WidgetKiko({
     if (tutupTimerRef.current) clearTimeout(tutupTimerRef.current);
     setMenutup(false);
     setTerbuka(true);
-    setTooltipTampil(false);
-    try {
-      sessionStorage.setItem(KEY_TOOLTIP_DITUTUP, "1");
-    } catch {
-      // Abaikan
-    }
+    setEkspresiKiko("curious");
+    setJumpSignal((n) => n + 1);
     setTimeout(() => inputRef.current?.focus(), 60);
   }, []);
 
@@ -155,21 +167,21 @@ export function WidgetKiko({
     else bukaPanel();
   };
 
-  // Proactive tooltip ringan di desktop sekali per sesi.
+  // Tooltip sapaan mengambang (muncul kecuali user sengaja menutupnya)
   useEffect(() => {
     if (!konfigurasi.chatbot_aktif || terbuka) return;
     let sudahDitutup = false;
     try {
       sudahDitutup = sessionStorage.getItem(KEY_TOOLTIP_DITUTUP) === "1";
     } catch {
-      sudahDitutup = true;
+      sudahDitutup = false;
     }
     if (sudahDitutup) return;
-    const t = setTimeout(() => setTooltipTampil(true), 2200);
+    const t = setTimeout(() => setTooltipTampil(true), 800);
     return () => clearTimeout(t);
   }, [konfigurasi.chatbot_aktif, terbuka]);
 
-  // Esc menutup widget.
+  // Esc menutup widget
   useEffect(() => {
     if (!terbuka) return;
     const onKey = (e: KeyboardEvent) => {
@@ -179,7 +191,7 @@ export function WidgetKiko({
     return () => window.removeEventListener("keydown", onKey);
   }, [terbuka, tutupPanel]);
 
-  // Pulihkan percakapan atau riwayat tamu saat mount / ganti status login.
+  // Pulihkan percakapan atau riwayat tamu
   useEffect(() => {
     let batal = false;
     async function pulihkan() {
@@ -236,7 +248,7 @@ export function WidgetKiko({
     };
   }, [pengguna]);
 
-  // Simpan riwayat tamu sementara ke localStorage.
+  // Simpan riwayat tamu sementara ke localStorage
   useEffect(() => {
     if (pengguna) return;
     try {
@@ -247,7 +259,7 @@ export function WidgetKiko({
     }
   }, [pengguna, pesanList]);
 
-  // Langganan Supabase Realtime (atau polling fallback) saat percakapan dalam mode tunggu/ditangani admin.
+  // Langganan Supabase Realtime saat mode tunggu / ditangani admin
   const dalamModeAdmin = statusPercakapan === "menunggu_admin" || statusPercakapan === "ditangani_admin";
 
   const segarkanPercakapan = useCallback(async () => {
@@ -320,6 +332,9 @@ export function WidgetKiko({
             if (prev.some((x) => x.id === item.id)) return prev;
             return [...prev, item];
           });
+          if (m.pengirim_peran === "admin") {
+            picuBicaraSenang(true);
+          }
         },
       )
       .subscribe((st) => {
@@ -334,9 +349,8 @@ export function WidgetKiko({
       clearInterval(fallback);
       void supabase.removeChannel(channel);
     };
-  }, [percakapanId, pengguna, dalamModeAdmin, segarkanPercakapan]);
+  }, [percakapanId, pengguna, dalamModeAdmin, segarkanPercakapan, picuBicaraSenang]);
 
-  // Gulir otomatis ke bawah saat ada pesan baru atau streaming token.
   useEffect(() => {
     const el = gulirRef.current;
     if (el) el.scrollTop = el.scrollHeight;
@@ -358,12 +372,15 @@ export function WidgetKiko({
     abortRef.current?.abort();
     setStreaming(false);
     setMenungguTokenPertama(false);
+    setIsSpeaking(false);
+    setEkspresiKiko("smile");
     setPercakapanId(null);
     setStatusPercakapan("bot");
     setPesanList([]);
     setPanelHandoffBuka(false);
     setPesanInfo(null);
     setPesanGalat(null);
+    putarBlipKiko("pop", soundEnabled);
     try {
       localStorage.removeItem(KEY_PERCAKAPAN);
       localStorage.removeItem(KEY_TAMU_RIWAYAT);
@@ -387,6 +404,8 @@ export function WidgetKiko({
     abortRef.current = null;
     setStreaming(false);
     setMenungguTokenPertama(false);
+    setIsSpeaking(false);
+    setEkspresiKiko("smile");
   };
 
   const kirimPesan = async (teksKirim?: string) => {
@@ -394,20 +413,24 @@ export function WidgetKiko({
     if (!teks || streaming) return;
 
     setMasukan("");
+    setIsTypingChat(false);
     setPesanInfo(null);
     setPesanGalat(null);
 
     const sekarang = new Date().toISOString();
     const msgUserId = `usr-${buatUuid()}`;
 
-    // Jalur 1: Sedang dalam sesi Live Admin -> panggil RPC `kirim_pesan_live_chat`.
+    // Jalur 1: Sedang dalam sesi Live Admin
     if (dalamModeAdmin && percakapanId && pengguna) {
+      setEkspresiKiko("thinking");
       const res = await aksiKirimPesanLiveChat(percakapanId, teks);
       if (res.galat || !res.data) {
+        setEkspresiKiko("surprised");
         setPesanGalat(res.galat ?? "Gagal mengirim pesan live chat.");
         setMasukan(teks);
         return;
       }
+      setEkspresiKiko("smile");
       const tersimpan = res.data;
       setPesanList((prev) =>
         prev.some((x) => x.id === tersimpan.id)
@@ -426,7 +449,7 @@ export function WidgetKiko({
       return;
     }
 
-    // Jalur 2: Mode Bot AI (Mock fallback atau Streaming SSE Supabase Edge Function `chat`).
+    // Jalur 2: Mode Bot AI (Mock atau SSE Supabase Edge Function `chat`)
     const botTempId = `bot-${buatUuid()}`;
     setPesanList((prev) => [
       ...prev,
@@ -434,6 +457,7 @@ export function WidgetKiko({
       { id: botTempId, peran: "bot", isi: "", sitasi: [], dibuatPada: sekarang },
     ]);
 
+    setEkspresiKiko("thinking");
     if (pakaiMock) {
       setStreaming(true);
       setMenungguTokenPertama(true);
@@ -452,6 +476,7 @@ export function WidgetKiko({
             : m,
         ),
       );
+      picuBicaraSenang(true);
       return;
     }
 
@@ -494,8 +519,9 @@ export function WidgetKiko({
             pesanServer = errJson.message;
           }
         } catch {
-          // Gunakan fallback pesan
+          // Fallback pesan
         }
+        setEkspresiKiko("surprised");
         setPesanList((prev) =>
           prev.map((m) =>
             m.id === botTempId
@@ -509,6 +535,7 @@ export function WidgetKiko({
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
+      let adaToken = false;
 
       const prosesBlokSse = (blok: string) => {
         const barisBlok = blok.split(/\r?\n/);
@@ -530,7 +557,12 @@ export function WidgetKiko({
         if (jenisEvent === "delta") {
           const chunk = typeof parsed.content === "string" ? parsed.content : "";
           if (!chunk) return;
-          setMenungguTokenPertama(false);
+          if (!adaToken) {
+            adaToken = true;
+            setMenungguTokenPertama(false);
+            setEkspresiKiko("happy");
+            setIsSpeaking(true);
+          }
           setPesanList((prev) =>
             prev.map((m) => (m.id === botTempId ? { ...m, isi: m.isi + chunk } : m)),
           );
@@ -539,6 +571,7 @@ export function WidgetKiko({
           setPesanList((prev) => prev.map((m) => (m.id === botTempId ? { ...m, sitasi: list } : m)));
         } else if (jenisEvent === "guardrail_refusal") {
           setMenungguTokenPertama(false);
+          setEkspresiKiko("surprised");
           const msg =
             typeof parsed.message === "string"
               ? parsed.message
@@ -573,12 +606,16 @@ export function WidgetKiko({
             });
           }
           if (parsed.low_confidence) {
+            setEkspresiKiko("curious");
             setPesanList((prev) =>
               prev.map((m) => (m.id === botTempId ? { ...m, tampilkanHandoff: true } : m)),
             );
+          } else {
+            picuBicaraSenang(true);
           }
         } else if (jenisEvent === "error") {
           setMenungguTokenPertama(false);
+          setEkspresiKiko("surprised");
           const msg =
             typeof parsed.message === "string"
               ? parsed.message
@@ -605,7 +642,6 @@ export function WidgetKiko({
       }
       if (buffer.trim()) prosesBlokSse(buffer);
 
-      // Pastikan pesan kosong (mis. aborted sebelum token pertama) tidak tertinggal aneh.
       setPesanList((prev) =>
         prev.map((m) =>
           m.id === botTempId && m.isi.trim() === ""
@@ -615,6 +651,7 @@ export function WidgetKiko({
       );
     } catch (err) {
       if ((err as { name?: string })?.name === "AbortError") {
+        setEkspresiKiko("smile");
         setPesanList((prev) =>
           prev.map((m) =>
             m.id === botTempId && m.isi.trim() === ""
@@ -623,6 +660,7 @@ export function WidgetKiko({
           ),
         );
       } else {
+        setEkspresiKiko("surprised");
         setPesanList((prev) =>
           prev.map((m) =>
             m.id === botTempId
@@ -659,6 +697,7 @@ export function WidgetKiko({
     setProsesHandoff(false);
 
     if (res.galat || !res.data) {
+      setEkspresiKiko("surprised");
       setPesanGalat(res.galat ?? "Gagal menghubungi Admin.");
       return;
     }
@@ -667,6 +706,7 @@ export function WidgetKiko({
     setPercakapanId(percakapan_id);
     setStatusPercakapan(status);
     setPanelHandoffBuka(false);
+    picuBicaraSenang(true);
     try {
       localStorage.setItem(KEY_PERCAKAPAN, percakapan_id);
     } catch {
@@ -700,6 +740,7 @@ export function WidgetKiko({
       return;
     }
     setStatusPercakapan(res.data.status);
+    setEkspresiKiko("smile");
     setPesanList((prev) => [
       ...prev,
       {
@@ -772,49 +813,66 @@ export function WidgetKiko({
   );
 
   return (
-    <div className="tanpa-cetak fixed right-4 bottom-20 z-40 flex flex-col items-end gap-2.5 md:right-6 lg:bottom-6">
-      {/* Panel Chat Kiko */}
+    <div className="tanpa-cetak fixed right-4 bottom-20 z-40 flex flex-col items-end gap-2 md:right-6 lg:bottom-6">
+      {/* Panel Chat Kiko di atas maskot */}
       {terbuka ? (
         <section
           role="dialog"
           aria-modal="false"
           aria-label={`Asisten ${namaBot}`}
           className={cx(
-            "flex h-[min(560px,calc(100dvh-7.5rem))] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-[24px] border border-border bg-surface shadow-2xl sm:w-[400px]",
+            "flex h-[min(440px,calc(100dvh-13.5rem))] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-[24px] border border-[#1D4ED8]/40 bg-surface shadow-2xl sm:h-[min(500px,calc(100dvh-13.5rem))] sm:w-[400px]",
             menutup ? "kiko-panel-out" : "kiko-panel-in",
           )}
         >
           {/* Header Panel */}
-          <div className="blok-merek on-block flex items-center justify-between gap-2 px-4 py-3">
+          <div className="flex items-center justify-between gap-2 bg-[#1D4ED8] px-4 py-3 text-white">
             <div className="flex min-w-0 items-center gap-2.5">
               <AvatarKiko diatasBiru />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <p className="truncate font-display text-base font-bold">{namaBot}</p>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-semibold">
-                    {statusPercakapan === "ditangani_admin"
-                      ? "Admin Live"
-                      : statusPercakapan === "menunggu_admin"
-                        ? "Menunggu Admin"
-                        : "AI Asisten"}
-                  </span>
+                  <span className="size-2 shrink-0 rounded-full bg-[#C6F64D]" aria-hidden />
+                  <p className="truncate font-display text-base font-bold">
+                    {namaBot}{" "}
+                    <span className="text-xs font-semibold text-[#C6F64D]">
+                      •{" "}
+                      {statusPercakapan === "ditangani_admin"
+                        ? "Admin Live"
+                        : statusPercakapan === "menunggu_admin"
+                          ? "Menunggu Admin"
+                          : "Asisten Web"}
+                    </span>
+                  </p>
                 </div>
-                <p className="truncate text-xs opacity-90">
+                <p className="truncate text-xs text-white/85">
                   {statusPercakapan === "ditangani_admin"
                     ? "Admin Kodie sedang membantu langsung"
                     : statusPercakapan === "menunggu_admin"
                       ? "Sedang menyambungkan ke Admin Kodie…"
-                      : "Asisten resmi Kodie"}
+                      : "Siap bantu info program & kelas Kodie"}
                 </p>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex shrink-0 items-center gap-0.5">
+              <button
+                type="button"
+                title={soundEnabled ? "Matikan suara Kiko" : "Aktifkan suara Kiko"}
+                aria-label={soundEnabled ? "Matikan suara Kiko" : "Aktifkan suara Kiko"}
+                onClick={() => {
+                  const baru = !soundEnabled;
+                  setSoundEnabled(baru);
+                  if (baru) putarBlipKiko("pop", true);
+                }}
+                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-[#C6F64D]"
+              >
+                {soundEnabled ? <Volume2 aria-hidden className="size-4" /> : <VolumeX aria-hidden className="size-4" />}
+              </button>
               <button
                 type="button"
                 title="Mulai percakapan baru"
                 aria-label="Mulai percakapan baru"
                 onClick={resetPercakapan}
-                className="grid size-9 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-white"
+                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-[#C6F64D]"
               >
                 <RotateCcw aria-hidden className="size-4" />
               </button>
@@ -823,9 +881,9 @@ export function WidgetKiko({
                 title="Tutup chat"
                 aria-label="Tutup chat"
                 onClick={tutupPanel}
-                className="grid size-9 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-white"
+                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-[#C6F64D]"
               >
-                <X aria-hidden className="size-5" />
+                <X aria-hidden className="size-4" />
               </button>
             </div>
           </div>
@@ -865,7 +923,7 @@ export function WidgetKiko({
 
               {/* Saran pertanyaan awal saat belum ada percakapan */}
               {pesanList.length === 0 ? (
-                <div className="mt-1 flex flex-col gap-1.5 pl-9">
+                <div className="mt-1 flex flex-col gap-1.5 pl-10">
                   <p className="text-xs font-semibold text-text-muted">Pertanyaan populer:</p>
                   {CHATBOT_LAUNCHER_CONFIG.suggestedPrompts.map((p) => (
                     <button
@@ -895,7 +953,8 @@ export function WidgetKiko({
 
                 const dariSaya = m.peran === "pengguna";
                 const dariAdmin = m.peran === "admin";
-                const sedangMengetik = !dariSaya && streaming && m.isi === "" && waitingCheck(m, pesanList, menungguTokenPertama);
+                const sedangMengetik =
+                  !dariSaya && streaming && m.isi === "" && waitingCheck(m, pesanList, menungguTokenPertama);
 
                 return (
                   <div
@@ -906,7 +965,7 @@ export function WidgetKiko({
                       dariAdmin ? (
                         <span
                           aria-hidden="true"
-                          className="grid size-7 shrink-0 place-items-center rounded-full bg-cta text-cta-foreground"
+                          className="grid size-8 shrink-0 place-items-center rounded-full bg-cta text-cta-foreground"
                         >
                           <Headset className="size-4" />
                         </span>
@@ -924,7 +983,7 @@ export function WidgetKiko({
                         className={cx(
                           "rounded-2xl px-3.5 py-2.5 shadow-xs",
                           dariSaya
-                            ? "rounded-tr-sm bg-primary text-[14px] leading-[22px] text-primary-foreground"
+                            ? "rounded-tr-sm bg-[#1D4ED8] text-[14px] leading-[22px] text-white"
                             : "rounded-tl-sm border border-border bg-surface text-text",
                         )}
                       >
@@ -941,7 +1000,6 @@ export function WidgetKiko({
                         )}
                       </div>
 
-                      {/* Daftar sitasi & aksi salin/ulangi */}
                       {!dariSaya && !sedangMengetik && m.isi ? (
                         <div className="flex flex-wrap items-center gap-2 px-1">
                           <button
@@ -1021,7 +1079,7 @@ export function WidgetKiko({
             </div>
           </div>
 
-          {/* Bar Bantu Manusia & Input Pesan */}
+          {/* Bar Bantuan Admin & Input Pesan */}
           <div className="border-t border-border bg-surface p-3">
             {!dalamModeAdmin ? (
               <div className="mb-2 flex items-center justify-between gap-2 text-xs">
@@ -1053,7 +1111,13 @@ export function WidgetKiko({
                 rows={1}
                 maxLength={1500}
                 value={masukan}
-                onChange={(e) => setMasukan(e.target.value)}
+                onFocus={() => setIsTypingChat(true)}
+                onBlur={() => setIsTypingChat(false)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setMasukan(val);
+                  setIsTypingChat(val.trim().length > 0 || document.activeElement === inputRef.current);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
@@ -1063,10 +1127,10 @@ export function WidgetKiko({
                 placeholder={
                   dalamModeAdmin
                     ? "Tulis pesan untuk Admin Kodie…"
-                    : `Tanya ${namaBot} seputar Kodie…`
+                    : `Tanya ${namaBot} seputar web ini…`
                 }
                 disabled={streaming}
-                className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-border bg-bg px-3.5 py-2.5 text-[14px] leading-5 text-text placeholder:text-text-muted focus:border-primary focus:outline-none disabled:opacity-60"
+                className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-border bg-bg px-3.5 py-2.5 text-[14px] leading-5 text-text placeholder:text-text-muted focus:border-[#1D4ED8] focus:outline-none disabled:opacity-60"
               />
 
               {streaming ? (
@@ -1088,9 +1152,10 @@ export function WidgetKiko({
                   type="submit"
                   disabled={!masukan.trim()}
                   aria-label="Kirim pesan"
-                  className="grid size-[44px] shrink-0 place-items-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:bg-disabled disabled:text-text-muted"
+                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-[#C6F64D] px-3.5 py-2 text-xs font-bold text-[#0F172A] transition-all hover:brightness-95 active:scale-95 disabled:bg-disabled disabled:text-text-muted"
                 >
-                  <SendHorizontal aria-hidden className="size-5" />
+                  <SendHorizontal aria-hidden className="size-4" />
+                  <span>Kirim</span>
                 </button>
               )}
             </form>
@@ -1098,12 +1163,12 @@ export function WidgetKiko({
         </section>
       ) : null}
 
-      {/* Proactive Tooltip */}
+      {/* Balon sapaan mengambang (mengikuti referensi widget HTML) */}
       {!terbuka && tooltipTampil ? (
-        <div className="hidden items-center gap-2 rounded-full border border-border bg-surface-raised py-1.5 pr-2 pl-3.5 text-xs font-semibold text-text shadow-md md:flex">
-          <Sparkles aria-hidden className="size-3.5 text-primary" />
-          <button type="button" onClick={bukaPanel} className="hover:underline">
-            {CHATBOT_LAUNCHER_CONFIG.proactiveTooltip}
+        <div className="kiko-animate-float flex max-w-[260px] items-center gap-2 rounded-2xl rounded-br-none border border-[#1D4ED8] bg-[#0F172A] py-2 pr-2 pl-3.5 text-xs font-semibold text-white shadow-lg">
+          <span className="size-2 shrink-0 rounded-full bg-[#C6F64D]" aria-hidden />
+          <button type="button" onClick={bukaPanel} className="text-left leading-snug hover:underline">
+            {tooltipTeks}
           </button>
           <button
             type="button"
@@ -1116,43 +1181,39 @@ export function WidgetKiko({
                 // Abaikan
               }
             }}
-            className="grid size-6 place-items-center rounded-full text-text-muted hover:bg-surface-sunken"
+            className="grid size-6 shrink-0 place-items-center rounded-full text-white/75 hover:bg-white/10 hover:text-white"
           >
             <X aria-hidden className="size-3.5" />
           </button>
         </div>
       ) : null}
 
-      {/* Tombol Launcher Mengambang (ber-morph saat panel dibuka/ditutup) */}
+      {/* Maskot 2D Interaktif Kiko sebagai pemicu utama pojok kanan bawah */}
       <button
         type="button"
         onClick={togglePanel}
         aria-expanded={terbuka && !menutup}
-        aria-label={terbuka && !menutup ? `Tutup ${namaBot}` : `${CHATBOT_LAUNCHER_CONFIG.labelPrefix} ${namaBot}`}
+        title={terbuka && !menutup ? `Tutup ${namaBot}` : `Klik untuk chat dengan ${namaBot}`}
+        aria-label={terbuka && !menutup ? `Tutup ${namaBot}` : `Tanya ${namaBot}`}
         className={cx(
-          "inline-flex min-h-[48px] items-center justify-center gap-2.5 border border-primary/20 bg-surface-raised font-display text-sm font-bold text-text shadow-lg transition-all duration-200 hover:border-primary hover:shadow-xl",
-          kelasBentukLauncher(CHATBOT_LAUNCHER_CONFIG.shape),
+          "cursor-pointer transition-transform duration-200 hover:scale-105 focus-visible:rounded-2xl",
+          terbuka ? "h-[84px] w-[82px] sm:h-[112px] sm:w-[108px]" : "h-[118px] w-[114px] sm:h-[154px] sm:w-[148px]",
         )}
       >
-        <span
-          className={cx(
-            "transition-transform duration-200",
-            terbuka && !menutup ? "rotate-90 scale-95" : "rotate-0 scale-100",
-          )}
-        >
-          {terbuka && !menutup ? (
-            <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground">
-              <X aria-hidden className="size-4" />
-            </span>
-          ) : (
-            <AvatarKiko ukuran="kecil" />
-          )}
+        <MaskotKiko
+          ekspresi={ekspresiKiko}
+          isTypingChat={isTypingChat}
+          isSpeaking={isSpeaking}
+          isPanelOpen={terbuka && !menutup}
+          isThinkingLock={menungguTokenPertama}
+          soundEnabled={soundEnabled}
+          jumpSignal={jumpSignal}
+          onEkspresiOtomatis={setEkspresiKiko}
+          onTipBerubah={setTooltipTeks}
+        />
+        <span className="sr-only">
+          {terbuka && !menutup ? `Tutup ${namaBot}` : `${CHATBOT_LAUNCHER_CONFIG.labelPrefix} ${namaBot}`}
         </span>
-        {CHATBOT_LAUNCHER_CONFIG.shape === "pill" || CHATBOT_LAUNCHER_CONFIG.shape === "rounded" ? (
-          <span className="pr-1">
-            {terbuka && !menutup ? "Tutup" : `${CHATBOT_LAUNCHER_CONFIG.labelPrefix} ${namaBot}`}
-          </span>
-        ) : null}
       </button>
     </div>
   );

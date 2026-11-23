@@ -75,9 +75,9 @@ describe("helper keamanan dan logika chatbot Kiko", () => {
     ).toBe(false);
   });
 
-  it("memisahkan konfigurasi avatar Kiko agar siap diganti gambar maskot", () => {
-    expect(CHATBOT_AVATAR_CONFIG.mode).toBe("kodie-symbol");
-    expect(CHATBOT_LAUNCHER_CONFIG.shape).toBe("pill");
+  it("memisahkan konfigurasi avatar Kiko agar siap pakai maskot 2D atau gambar", () => {
+    expect(CHATBOT_AVATAR_CONFIG.mode).toBe("kiko-2d");
+    expect(CHATBOT_LAUNCHER_CONFIG.shape).toBe("mascot");
     expect(CHATBOT_LAUNCHER_CONFIG.suggestedPrompts.length).toBeGreaterThanOrEqual(3);
   });
 
