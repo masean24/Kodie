@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 import { Kontainer } from "@/components/ui/dasar";
 import { cx } from "@/lib/cx";
+import { LanguageSwitch, ThemeSwitch } from "./kontrol-header";
 import { Logo } from "./logo";
 
 const MENU = [
@@ -28,9 +29,9 @@ function DaftarMenu({ mobile, pathname, onPilih }: { mobile: boolean; pathname: 
           aria-current={ini ? "page" : undefined}
           onClick={onPilih}
           className={cx(
-            "flex min-h-touch items-center rounded-full px-4 font-display",
-            mobile && "w-full",
-            ini ? "bg-accent-subtle font-semibold text-primary" : "text-text hover:bg-surface-sunken",
+            "flex min-h-[44px] items-center rounded-full px-3 py-2 text-[17px] leading-[27px] transition-colors",
+            mobile && "w-full px-4",
+            ini ? "bg-accent-subtle font-bold text-primary" : "font-normal text-text hover:bg-surface-sunken",
           )}
         >
           {m.label}
@@ -46,10 +47,18 @@ function MenuAktif(props: { mobile: boolean; onPilih: () => void }) {
 }
 
 /**
- * `akun` dan `akunPonsel` diisi Server Component (components/situs/akun-header.tsx):
- * tombol Masuk/Daftar untuk tamu, atau menu akun untuk pengguna yang login.
+ * `akun`, `akunPonsel`, dan `loncengPonsel` diisi Server Component (`components/situs/kerangka-situs.tsx`):
+ * tombol Masuk/Daftar untuk tamu, atau lonceng notifikasi + menu akun untuk pengguna login.
  */
-export function Header({ akun, akunPonsel }: { akun: ReactNode; akunPonsel: ReactNode }) {
+export function Header({
+  akun,
+  akunPonsel,
+  loncengPonsel,
+}: {
+  akun: ReactNode;
+  akunPonsel: ReactNode;
+  loncengPonsel?: ReactNode;
+}) {
   const [buka, setBuka] = useState(false);
 
   useEffect(() => {
@@ -69,23 +78,31 @@ export function Header({ akun, akunPonsel }: { akun: ReactNode; akunPonsel: Reac
   };
 
   return (
-    <header data-situs className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-      <Kontainer className="flex h-[72px] items-center justify-between gap-4">
-        <Logo />
+    <header data-situs className="group/hdr sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
+      <Kontainer className="flex h-[72px] items-center justify-between gap-2 md:gap-4">
+        <Logo ringkasSaatMasukPonsel />
         <nav aria-label="Menu utama" className="hidden md:block">
           <ul className="flex items-center gap-1">{tautan(false)}</ul>
         </nav>
-        <div className="hidden items-center gap-3 md:flex">{akun}</div>
-        <button
-          type="button"
-          className="grid size-touch place-items-center rounded-full border-[1.5px] border-border-strong md:hidden"
-          aria-expanded={buka}
-          aria-controls="menu-ponsel"
-          aria-label={buka ? "Tutup menu" : "Buka menu"}
-          onClick={() => setBuka((b) => !b)}
-        >
-          {buka ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
-        </button>
+        <div className="hidden items-center gap-3 md:flex">
+          <LanguageSwitch />
+          <ThemeSwitch />
+          {akun}
+        </div>
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageSwitch />
+          {loncengPonsel}
+          <button
+            type="button"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border-[1.5px] border-border-strong px-3 py-2"
+            aria-expanded={buka}
+            aria-controls="menu-ponsel"
+            aria-label={buka ? "Tutup menu" : "Buka menu"}
+            onClick={() => setBuka((b) => !b)}
+          >
+            {buka ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
+          </button>
+        </div>
       </Kontainer>
       <div
         id="menu-ponsel"
@@ -99,6 +116,9 @@ export function Header({ akun, akunPonsel }: { akun: ReactNode; akunPonsel: Reac
           <nav aria-label="Menu utama ponsel">
             <ul className="flex flex-col gap-1">{tautan(true)}</ul>
           </nav>
+          <div className="border-t border-border pt-4">
+            <ThemeSwitch penuh />
+          </div>
           {akunPonsel}
         </Kontainer>
       </div>

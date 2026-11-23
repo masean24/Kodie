@@ -23,13 +23,26 @@ function TombolTamu({ ponsel }: { ponsel?: boolean }) {
 async function Akun({ ponsel }: { ponsel?: boolean }) {
   const p = await ambilPenggunaSaya();
   if (!p) return <TombolTamu ponsel={ponsel} />;
-  const notif = await ambilDaftarNotifikasi();
   const props = { nama: p.nama, peranLabel: NAMA_PERAN[p.peran], dashboard: DASHBOARD[p.peran] };
+  if (ponsel) return <MenuAkunPonsel {...props} />;
+  const notif = await ambilDaftarNotifikasi();
   return (
     <>
-      <LoncengNotifikasi penggunaId={p.id} awal={notif} pantau={!ponsel} ponsel={ponsel} />
-      {ponsel ? <MenuAkunPonsel {...props} /> : <MenuAkun {...props} />}
+      <LoncengNotifikasi penggunaId={p.id} awal={notif} pantau />
+      <MenuAkun {...props} />
     </>
+  );
+}
+
+/** Lonceng notifikasi di bar atas ponsel untuk pengguna login (Figma Header 9:563). */
+async function LoncengHeaderPonsel() {
+  const p = await ambilPenggunaSaya();
+  if (!p) return null;
+  const notif = await ambilDaftarNotifikasi();
+  return (
+    <div data-masuk="">
+      <LoncengNotifikasi penggunaId={p.id} awal={notif} ponsel />
+    </div>
   );
 }
 
@@ -46,6 +59,11 @@ export function KerangkaSitus({ children, ruangBawah }: { children: ReactNode; r
         akunPonsel={
           <Suspense fallback={<TombolTamu ponsel />}>
             <Akun ponsel />
+          </Suspense>
+        }
+        loncengPonsel={
+          <Suspense fallback={null}>
+            <LoncengHeaderPonsel />
           </Suspense>
         }
       />

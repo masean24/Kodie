@@ -175,18 +175,23 @@ export function LoncengNotifikasi({
           type="button"
           aria-expanded={buka}
           aria-controls={ponsel ? "panel-notif-ponsel" : "panel-notif-desktop"}
+          aria-label={
+            ponsel
+              ? belumDibaca > 0
+                ? `Notifikasi (${belumDibaca} belum dibaca)`
+                : "Notifikasi"
+              : undefined
+          }
           onClick={() => setBuka((v) => !v)}
           className={cx(
-            "flex min-h-touch items-center gap-2 rounded-full px-3 font-display font-semibold hover:bg-surface-sunken",
-            ponsel && "w-full justify-between border-[1.5px] border-border-strong",
+            "flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full transition-colors hover:bg-surface-sunken",
+            ponsel ? "px-2.5 py-2" : "px-3 py-2",
           )}
         >
-          <span className="flex items-center gap-2">
-            <Bell aria-hidden className="size-5" />
-            <span>Notifikasi</span>
-          </span>
+          <Bell aria-hidden className="size-5 shrink-0" />
+          {!ponsel ? <span className="font-bold text-base text-text">Notifikasi</span> : null}
           {belumDibaca > 0 ? (
-            <span className="grid min-h-[22px] min-w-[22px] place-items-center rounded-full bg-danger px-1.5 text-xs font-bold text-danger-foreground tabular-nums">
+            <span className="inline-flex min-h-[22px] min-w-[22px] items-center justify-center rounded-full bg-danger px-1.5 text-[14px] leading-5 font-normal text-danger-foreground tabular-nums">
               {belumDibaca}
               <span className="sr-only"> belum dibaca</span>
             </span>
@@ -197,8 +202,10 @@ export function LoncengNotifikasi({
           id={ponsel ? "panel-notif-ponsel" : "panel-notif-desktop"}
           hidden={!buka}
           className={cx(
-            "z-40 mt-2 rounded-card-sm border border-border bg-surface-raised p-3 shadow-lg",
-            ponsel ? "w-full" : "absolute right-0 top-full w-[360px]",
+            "z-40 rounded-[10px] border border-border bg-surface-raised p-3 shadow-lg",
+            ponsel
+              ? "fixed inset-x-4 top-[76px] sm:inset-auto sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[360px]"
+              : "absolute right-0 top-full mt-2 w-[360px]",
           )}
         >
           <div className="flex items-center justify-between gap-2 px-2 pb-2">

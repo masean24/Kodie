@@ -15,7 +15,7 @@ function Inisial({ nama }: { nama: string }) {
     .map((k) => k[0]?.toUpperCase() ?? "")
     .join("");
   return (
-    <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-primary-subtle font-display text-sm font-semibold text-primary">
+    <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-primary-subtle text-base font-bold text-primary">
       {i}
     </span>
   );
@@ -63,10 +63,10 @@ export function MenuAkun({ nama, peranLabel, dashboard }: Props) {
         aria-expanded={buka}
         aria-controls="menu-akun"
         onClick={() => setBuka((b) => !b)}
-        className="flex min-h-touch items-center gap-2 rounded-full border-[1.5px] border-border-strong py-1 pl-1 pr-3"
+        className="flex min-h-[44px] items-center gap-2 rounded-full px-2 py-1 transition-colors hover:bg-surface-sunken"
       >
         <Inisial nama={nama} />
-        <span className="max-w-40 truncate font-display font-semibold">{nama}</span>
+        <span className="max-w-40 truncate text-base font-bold text-text">{nama}</span>
         <ChevronDown aria-hidden className="size-4" />
         <span className="sr-only">, menu akun</span>
       </button>

@@ -2,46 +2,160 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { Menu } from "lucide-react";
 import type { Peran } from "@/types/database";
 import { cx } from "@/lib/cx";
 import { MENU_PERAN } from "./menu-peran";
 
-function Daftar({ peran, pathname, ponsel }: { peran: Peran; pathname: string; ponsel?: boolean }) {
+function apakahAktif(href: string, pertamaHref: string, pathname: string) {
+  return href === pertamaHref ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function DaftarDesktop({ peran, pathname }: { peran: Peran; pathname: string }) {
   const items = MENU_PERAN[peran] ?? [];
-  const banyak = ponsel && items.length > 5;
+  const pertamaHref = items[0]?.href ?? "";
   return (
-    <ul className={banyak ? "flex overflow-x-auto px-1" : ponsel ? "grid auto-cols-fr grid-flow-col" : "flex flex-col gap-1"}>
+    <ul className="flex min-h-[420px] w-[260px] flex-col gap-1 rounded-card-sm bg-surface px-3 py-4">
       {items.map((m) => {
-        // Ringkasan hanya aktif di path persisnya; item lain juga di sub-halamannya.
-        const aktif =
-          m.href === items[0].href ? pathname === m.href : pathname === m.href || pathname.startsWith(`${m.href}/`);
+        const aktif = apakahAktif(m.href, pertamaHref, pathname);
         return (
-          <li key={m.href} className={banyak ? "shrink-0" : undefined}>
+          <li key={m.href}>
             <Link
               href={m.href}
               aria-current={aktif ? "page" : undefined}
               className={cx(
-                ponsel
-                  ? "flex min-h-[56px] flex-col items-center justify-center gap-0.5 text-xs"
-                  : "flex min-h-touch items-center gap-3 rounded-md px-3 font-display",
-                banyak && "px-3 whitespace-nowrap",
-                aktif ? "font-semibold text-primary" : "text-text",
-                !ponsel && (aktif ? "bg-accent-subtle" : "hover:bg-surface-sunken"),
+                "flex min-h-[48px] items-center gap-3 rounded-[10px] px-4 py-3 text-[17px] leading-[27px] transition-colors",
+                aktif ? "bg-accent-subtle font-bold text-primary" : "font-normal text-text hover:bg-surface-sunken",
               )}
             >
-              <span
-                aria-hidden
-                className={cx(ponsel && "grid h-7 w-12 place-items-center rounded-full", ponsel && aktif && "bg-accent-subtle")}
-              >
-                <m.ikon className="size-5" />
-              </span>
-              {m.label}
+              <m.ikon aria-hidden className="size-5 shrink-0" />
+              <span>{m.label}</span>
             </Link>
           </li>
         );
       })}
     </ul>
+  );
+}
+
+function DaftarPonsel({ peran, pathname }: { peran: Peran; pathname: string }) {
+  const items = MENU_PERAN[peran] ?? [];
+  const pertamaHref = items[0]?.href ?? "";
+  const pakaiLainnya = items.some((m) => m.utamaPonsel);
+  const utama = pakaiLainnya ? items.filter((m) => m.utamaPonsel) : items;
+  const lainnya = pakaiLainnya ? items.filter((m) => !m.utamaPonsel) : [];
+  const lainnyaAktif = lainnya.some((m) => apakahAktif(m.href, pertamaHref, pathname));
+
+  const [buka, setBuka] = useState(false);
+  const akar = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!buka) return;
+    const klik = (e: MouseEvent) => {
+      if (!akar.current?.contains(e.target as Node)) setBuka(false);
+    };
+    const tombol = (e: KeyboardEvent) => e.key === "Escape" && setBuka(false);
+    document.addEventListener("mousedown", klik);
+    document.addEventListener("keydown", tombol);
+    return () => {
+      document.removeEventListener("mousedown", klik);
+      document.removeEventListener("keydown", tombol);
+    };
+  }, [buka]);
+
+  return (
+    <div ref={akar} className="relative">
+      {lainnya.length > 0 && buka ? (
+        <div
+          id="menu-lainnya-ponsel"
+          className="absolute bottom-full right-2 mb-2 w-60 rounded-[10px] border border-border bg-surface-raised p-2 shadow-lg"
+        >
+          <ul className="flex flex-col gap-1">
+            {lainnya.map((m) => {
+              const aktif = apakahAktif(m.href, pertamaHref, pathname);
+              return (
+                <li key={m.href}>
+                  <Link
+                    href={m.href}
+                    aria-current={aktif ? "page" : undefined}
+                    onClick={() => setBuka(false)}
+                    className={cx(
+                      "flex min-h-[44px] items-center gap-3 rounded-[6px] px-3 py-2 text-[17px] leading-[27px] transition-colors",
+                      aktif ? "bg-accent-subtle font-bold text-primary" : "text-text hover:bg-surface-sunken",
+                    )}
+                  >
+                    <m.ikon aria-hidden className="size-5 shrink-0" />
+                    <span>{m.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : null}
+
+      <ul className="grid auto-cols-fr grid-flow-col bg-surface px-1 py-2">
+        {utama.map((m) => {
+          const aktif = apakahAktif(m.href, pertamaHref, pathname);
+          return (
+            <li key={m.href}>
+              <Link
+                href={m.href}
+                aria-current={aktif ? "page" : undefined}
+                onClick={() => setBuka(false)}
+                className={cx(
+                  "flex min-h-[56px] flex-col items-center justify-center gap-1 py-1.5 text-[14px] leading-5 tracking-[0.1px]",
+                  aktif ? "text-primary" : "text-text-muted",
+                )}
+              >
+                <span
+                  aria-hidden
+                  className={cx("grid place-items-center rounded-full px-4 py-1", aktif && "bg-accent-subtle")}
+                >
+                  <m.ikon className="size-[22px]" />
+                </span>
+                <span className="truncate">{m.labelPonsel ?? m.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+
+        {lainnya.length > 0 ? (
+          <li>
+            <button
+              type="button"
+              aria-expanded={buka}
+              aria-controls="menu-lainnya-ponsel"
+              onClick={() => setBuka((v) => !v)}
+              className={cx(
+                "flex min-h-[56px] w-full flex-col items-center justify-center gap-1 py-1.5 text-[14px] leading-5 tracking-[0.1px]",
+                lainnyaAktif || buka ? "text-primary" : "text-text-muted",
+              )}
+            >
+              <span
+                aria-hidden
+                className={cx(
+                  "grid place-items-center rounded-full px-4 py-1",
+                  (lainnyaAktif || buka) && "bg-accent-subtle",
+                )}
+              >
+                <Menu className="size-[22px]" />
+              </span>
+              <span>Lainnya</span>
+            </button>
+          </li>
+        ) : null}
+      </ul>
+    </div>
+  );
+}
+
+function Daftar(props: { peran: Peran; pathname: string; ponsel?: boolean }) {
+  return props.ponsel ? (
+    <DaftarPonsel peran={props.peran} pathname={props.pathname} />
+  ) : (
+    <DaftarDesktop peran={props.peran} pathname={props.pathname} />
   );
 }
 
