@@ -52,6 +52,7 @@ export function HasilTes({ namaProgram }: { namaProgram: Record<string, string> 
   const teratas = hasil.bidang_teratas;
   const urut = [...URUTAN_BIDANG].sort((a, b) => hasil.skor[b] - hasil.skor[a] || URUTAN_BIDANG.indexOf(a) - URUTAN_BIDANG.indexOf(b));
   const nama = (slug: string) => namaProgram[slug] ?? slug;
+  const programUtama = hasil.rekomendasi_program[0] ?? "simulasi-jurusan-it";
 
   return (
     <div className="flex flex-col gap-6">
@@ -68,7 +69,7 @@ export function HasilTes({ namaProgram }: { namaProgram: Record<string, string> 
 
       <Catatan judul="Hasil ini saran, bukan keputusan">
         Kamu tetap bebas memilih kelas dan jurusan.{" "}
-        {hasil.tersimpan ? "Hasil ini sudah tersimpan di profilmu." : "Hasil tamu tidak tersimpan. Daftar dulu kalau ingin menyimpannya."}
+        {hasil.tersimpan ? "Hasil ini sudah tersimpan di profil siswa." : "Hasil tamu tidak tersimpan. Daftar dulu kalau ingin menyimpannya."}
       </Catatan>
 
       <section aria-labelledby="judul-skor" className="rounded-card bg-surface p-6 md:p-8">
@@ -136,8 +137,8 @@ export function HasilTes({ namaProgram }: { namaProgram: Record<string, string> 
             Daftar dan simpan hasil
           </TombolTautan>
         )}
-        <Link href="/kelas?program=simulasi-jurusan-it" className="flex min-h-touch items-center font-display font-semibold text-primary hover:underline">
-          Lihat kelas Simulasi Jurusan IT
+        <Link href={`/kelas?program=${programUtama}`} className="flex min-h-touch items-center font-display font-semibold text-primary hover:underline">
+          Lihat kelas {nama(programUtama)}
         </Link>
         <Link href="/tes-minat" onClick={hapusTes} className="flex min-h-touch items-center font-display font-semibold text-primary hover:underline">
           Ulangi tes

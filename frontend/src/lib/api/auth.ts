@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import type { Pengguna } from "@/types/database";
 import { akunMock } from "@/lib/mock/akun";
+import { storeMock } from "@/lib/mock/store";
 import { buatClientServer } from "@/lib/supabase/server";
 import { kodeErrorAuth } from "@/lib/errors";
 import { dataSignUp, type InputDaftar, type InputMasuk } from "@/lib/validasi/auth";
@@ -38,11 +39,16 @@ async function tulisCookieMock(p: Pengguna | null) {
 }
 
 /** Akun yang didaftarkan selama server mock berjalan (hilang saat server dimulai ulang). */
-const akunBaruMock: typeof akunMock = [];
+const gAkun = globalThis as typeof globalThis & { __kodieAkunBaru?: typeof akunMock };
+const akunBaruMock: typeof akunMock = (gAkun.__kodieAkunBaru ??= []);
 
 /** Baris `pengguna` milik pengguna yang sedang login, atau null untuk tamu. */
 export async function ambilPenggunaSaya(): Promise<Pengguna | null> {
-  if (pakaiMock) return bacaCookieMock((await cookies()).get(COOKIE_MOCK)?.value);
+  if (pakaiMock) {
+    const p = bacaCookieMock((await cookies()).get(COOKIE_MOCK)?.value);
+    const status = p ? storeMock().status[p.id] : undefined;
+    return p && status ? { ...p, status } : p;
+  }
   const supabase = await buatClientServer();
   const { data: u } = await supabase.auth.getUser();
   if (!u.user) return null;
@@ -84,6 +90,21 @@ export async function daftar(input: InputDaftar): Promise<{ pengguna: Pengguna |
       dibuat_pada: new Date().toISOString(),
     };
     akunBaruMock.push({ email, password: input.password, pengguna });
+    if (input.peran === "siswa") {
+      // Padanan trigger database: baris `siswa` milik akun ini.
+      storeMock().siswa.push({
+        id: crypto.randomUUID(),
+        nama: input.nama,
+        tanggal_lahir: input.tanggal_lahir,
+        jenjang: input.jenjang,
+        kelas: input.kelas,
+        sekolah: input.sekolah || null,
+        orang_tua_id: null,
+        pengguna_id: pengguna.id,
+        nama_orang_tua: input.nama_orang_tua,
+        email_orang_tua: input.email_orang_tua || null,
+      });
+    }
     await tulisCookieMock(pengguna);
     return { pengguna };
   }

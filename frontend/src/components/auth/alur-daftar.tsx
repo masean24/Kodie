@@ -129,7 +129,7 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
 }
 
 /** Kirim ke Server Function dan pasang galat dari server ke isiannya. */
-function useKirim<T extends FieldValues>(setError: UseFormSetError<T>) {
+function useKirim<T extends FieldValues>(setError: UseFormSetError<T>, lanjut: string | null = null) {
   const [menunggu, mulai] = useTransition();
   const [galat, setGalat] = useState<string>();
   const [info, setInfo] = useState<string>();
@@ -137,7 +137,7 @@ function useKirim<T extends FieldValues>(setError: UseFormSetError<T>) {
     setGalat(undefined);
     setInfo(undefined);
     mulai(async () => {
-      const hasil = await aksiDaftar(data);
+      const hasil = await aksiDaftar(data, lanjut);
       if (hasil?.galatIsian) {
         for (const [k, v] of Object.entries(hasil.galatIsian)) setError(k as Path<T>, { message: v }, { shouldFocus: true });
       }
@@ -148,12 +148,12 @@ function useKirim<T extends FieldValues>(setError: UseFormSetError<T>) {
   return { kirim, menunggu, galat, info };
 }
 
-function Aksi({ kembali, menunggu }: { kembali: () => void; menunggu: boolean }) {
+function Aksi({ kembali, menunggu }: { kembali?: () => void; menunggu: boolean }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <Tombol varian="kedua" onClick={kembali}>
+    <div className={kembali ? "flex items-center justify-between gap-3" : "flex"}>
+      {kembali ? <Tombol varian="kedua" onClick={kembali}>
         Kembali
-      </Tombol>
+      </Tombol> : null}
       <Tombol type="submit" disabled={menunggu} aria-busy={menunggu}>
         {menunggu ? "Membuat akun…" : "Buat akun"}
       </Tombol>
@@ -187,14 +187,14 @@ function IsianAkun<T extends FieldValues>({
   );
 }
 
-function FormOrangTua({ kembali }: { kembali: () => void }) {
+export function FormOrangTua({ kembali, lanjut = null }: { kembali?: () => void; lanjut?: string | null }) {
   type I = z.input<typeof skemaOrangTua>;
   const { register, handleSubmit, setError, formState } = useForm<I>({
     resolver: zodResolver(skemaOrangTua),
     shouldFocusError: false,
     defaultValues: { peran: "orang_tua" },
   });
-  const { kirim, menunggu, galat, info } = useKirim(setError);
+  const { kirim, menunggu, galat, info } = useKirim(setError, lanjut);
   return (
     <form onSubmit={handleSubmit(kirim, fokusGalatPertama)} noValidate className="mt-6 flex flex-col gap-5">
       <p className="text-text-muted">Data anak ditambahkan setelah akun jadi.</p>

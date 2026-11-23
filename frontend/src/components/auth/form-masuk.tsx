@@ -10,7 +10,16 @@ import { Input } from "@/components/ui/formulir";
 import { Tombol } from "@/components/ui/tombol";
 import { KartuAuth, PesanFormulir, fokusGalatPertama } from "./bagian";
 
-export function FormMasuk({ lanjut, akunMock }: { lanjut: string | null; akunMock?: string[] }) {
+export function FormMasuk({
+  lanjut,
+  akunMock,
+  ringkas,
+}: {
+  lanjut: string | null;
+  akunMock?: string[];
+  /** Hanya formulir, tanpa kartu dan judul (dipakai di halaman persetujuan). */
+  ringkas?: boolean;
+}) {
   const [galat, setGalat] = useState<string>();
   const [menunggu, mulai] = useTransition();
   const {
@@ -31,11 +40,8 @@ export function FormMasuk({ lanjut, akunMock }: { lanjut: string | null; akunMoc
     });
   }, fokusGalatPertama);
 
-  return (
-    <KartuAuth>
-      <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Masuk</h1>
-      <p className="mt-2 text-text-muted">Masuk untuk memesan kelas, melihat laporan, atau mengajar.</p>
-      <form onSubmit={kirim} noValidate className="mt-6 flex flex-col gap-4 rounded-card-sm bg-surface p-5">
+  const form = (
+      <form onSubmit={kirim} noValidate className={ringkas ? "flex flex-col gap-4" : "mt-6 flex flex-col gap-4 rounded-card-sm bg-surface p-5"}>
         <PesanFormulir galat={galat} />
         <Input id="email" type="email" label="Email" autoComplete="email" galat={errors.email?.message} {...register("email")} />
         <Input
@@ -50,6 +56,14 @@ export function FormMasuk({ lanjut, akunMock }: { lanjut: string | null; akunMoc
           {menunggu ? "Memeriksa…" : "Masuk"}
         </Tombol>
       </form>
+  );
+  if (ringkas) return form;
+
+  return (
+    <KartuAuth>
+      <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Masuk</h1>
+      <p className="mt-2 text-text-muted">Masuk untuk memesan kelas, melihat laporan, atau mengajar.</p>
+      {form}
       <p className="mt-6 text-center">
         Belum punya akun?{" "}
         <Link href="/daftar" className="font-display font-semibold text-primary underline-offset-4 hover:underline">

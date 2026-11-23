@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { daftar, keluar, masuk } from "@/lib/api/auth";
 import { pesanError } from "@/lib/errors";
-import { tujuanSetelahDaftar, tujuanSetelahMasuk } from "@/lib/peran";
+import { lanjutAman, tujuanSetelahDaftar, tujuanSetelahMasuk } from "@/lib/peran";
 import { skemaDaftar, skemaMasuk } from "@/lib/validasi/auth";
 
 export type HasilAksi = {
@@ -35,7 +35,7 @@ export async function aksiMasuk(masukan: unknown, lanjut: string | null): Promis
   redirect(tujuan);
 }
 
-export async function aksiDaftar(masukan: unknown): Promise<HasilAksi> {
+export async function aksiDaftar(masukan: unknown, lanjut: string | null = null): Promise<HasilAksi> {
   const cek = skemaDaftar.safeParse(masukan);
   if (!cek.success) return { galatIsian: galatIsian(cek.error.issues) };
   let tujuan: string;
@@ -44,7 +44,7 @@ export async function aksiDaftar(masukan: unknown): Promise<HasilAksi> {
     if (!pengguna) {
       return { info: "Akun dibuat. Buka email Anda dan klik tautan konfirmasi, lalu masuk." };
     }
-    tujuan = tujuanSetelahDaftar(pengguna.peran);
+    tujuan = tujuanSetelahDaftar(pengguna.peran, lanjut);
   } catch (e) {
     const pesan = pesanError(e);
     if (e instanceof Error && e.message === "EMAIL_SUDAH_DIPAKAI") {
@@ -55,7 +55,7 @@ export async function aksiDaftar(masukan: unknown): Promise<HasilAksi> {
   redirect(tujuan);
 }
 
-export async function aksiKeluar(): Promise<void> {
+export async function aksiKeluar(lanjut?: string | null | FormData): Promise<void> {
   await keluar();
-  redirect("/");
+  redirect(lanjutAman(typeof lanjut === "string" ? lanjut : null) ?? "/");
 }

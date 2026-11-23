@@ -26,7 +26,7 @@ async function Akun({ ponsel }: { ponsel?: boolean }) {
 }
 
 /** Header + main + footer untuk semua halaman. */
-export function KerangkaSitus({ children }: { children: ReactNode }) {
+export function KerangkaSitus({ children, ruangBawah }: { children: ReactNode; ruangBawah?: boolean }) {
   return (
     <>
       <Header
@@ -45,6 +45,7 @@ export function KerangkaSitus({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Footer />
+      {ruangBawah ? <div aria-hidden className="h-16 lg:hidden" /> : null}
     </>
   );
 }

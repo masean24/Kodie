@@ -120,3 +120,53 @@ export interface Pengguna {
   status: StatusPengguna;
   dibuat_pada: string;
 }
+
+/** Tabel `siswa`. Siswa SD tidak punya akun (pengguna_id null) dan wajib punya orang_tua_id. */
+export interface Siswa {
+  id: string;
+  nama: string;
+  tanggal_lahir: string; // YYYY-MM-DD
+  jenjang: Jenjang;
+  kelas: number;
+  sekolah: string | null;
+  orang_tua_id: string | null;
+  pengguna_id: string | null;
+  nama_orang_tua: string | null;
+  email_orang_tua: string | null;
+}
+
+/** Hasil RPC `buat_link_persetujuan()`. Token asli hanya dikembalikan sekali. */
+export interface LinkPersetujuan {
+  token: string;
+  kedaluwarsa_pada: string;
+}
+
+/** Hasil RPC `info_persetujuan(p_token)`. */
+export interface InfoPersetujuan {
+  siswa_id: string;
+  nama: string;
+  jenjang: Jenjang;
+  kelas: number;
+  sekolah: string | null;
+  kedaluwarsa_pada: string;
+}
+
+export type KeputusanPersetujuan = "setujui" | "tolak";
+
+/** Hasil RPC `putuskan_persetujuan(p_token, p_keputusan)`. */
+export interface HasilPersetujuan {
+  status: string;
+  siswa_id: string;
+  diputuskan_pada: string;
+}
+
+/** Tabel `hasil_minat`. `skor` berisi persentase 4 bidang. */
+export interface HasilMinat {
+  id: string;
+  siswa_id: string;
+  dikerjakan_oleh: string;
+  jawaban: JawabanMinat;
+  skor: SkorBidang;
+  bidang_teratas: Bidang;
+  dibuat_pada: string;
+}

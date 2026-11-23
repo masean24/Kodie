@@ -1,13 +1,17 @@
 import type { HasilTesMinat, JawabanMinat, SoalMinatPublik } from "@/types/database";
 import { soalMinatMock } from "@/lib/mock/data";
+import { storeMock } from "@/lib/mock/store";
 import { clientPublik } from "@/lib/supabase/publik";
+import { buatClientServer } from "@/lib/supabase/server";
 import {
   JURUSAN_PER_BIDANG,
   bidangTeratas,
   hitungPersentase,
   hitungSkorMentah,
+  rekomendasiProgram,
   semuaTerjawab,
 } from "@/lib/tes-minat";
+import { ambilPenggunaSaya } from "./auth";
 import { lemparJikaError, pakaiMock } from "./sumber";
 
 /** View `soal_minat_publik`: 12 soal terurut, opsi tanpa bobot. */
@@ -26,25 +30,39 @@ export async function ambilSoalMinat(): Promise<SoalMinatPublik[]> {
 }
 
 /**
- * Padanan RPC `hitung_tes_minat(p_jawaban, p_siswa_id?)`. Di sesi ini hanya untuk tamu,
- * jadi hasil tidak disimpan (tersimpan = false). Penyimpanan untuk pengguna login menyusul di Prompt 2–3.
+ * RPC `hitung_tes_minat(p_jawaban, p_siswa_id?)`. Hanya untuk server (dipanggil lewat Server Function).
+ * Hasil disimpan hanya jika login dan `siswaId` milik pengguna (siswa sendiri atau anak orang tua).
  */
-export async function hitungTesMinat(jawaban: JawabanMinat): Promise<HasilTesMinat> {
+export async function hitungTesMinat(jawaban: JawabanMinat, siswaId?: string | null): Promise<HasilTesMinat> {
   if (pakaiMock) {
     if (!semuaTerjawab(soalMinatMock.length, jawaban)) throw new Error("VALIDASI_GAGAL");
     const skor_mentah = hitungSkorMentah(soalMinatMock, jawaban);
     const teratas = bidangTeratas(skor_mentah);
+    const skor = hitungPersentase(skor_mentah);
+    const p = siswaId ? await ambilPenggunaSaya() : null;
+    const store = storeMock();
+    const siswa = p ? store.siswa.find((s) => s.id === siswaId && (s.pengguna_id === p.id || s.orang_tua_id === p.id)) : null;
+    if (siswaId && !siswa) throw new Error("TIDAK_BERHAK");
+    let id: string | null = null;
+    if (siswa && p) {
+      id = crypto.randomUUID();
+      store.hasilMinat.push({ id, siswa_id: siswa.id, dikerjakan_oleh: p.id, jawaban, skor, bidang_teratas: teratas, dibuat_pada: new Date().toISOString() });
+    }
     return {
-      id: null,
-      tersimpan: false,
-      skor: hitungPersentase(skor_mentah),
+      id,
+      tersimpan: id !== null,
+      skor,
       skor_mentah,
       bidang_teratas: teratas,
       rekomendasi_jurusan: JURUSAN_PER_BIDANG[teratas],
-      rekomendasi_program: [],
+      rekomendasi_program: siswa ? rekomendasiProgram(siswa.jenjang, siswa.kelas) : [],
     };
   }
-  const { data, error } = await clientPublik().rpc("hitung_tes_minat", { p_jawaban: jawaban });
+  const supabase = await buatClientServer();
+  const { data, error } = await supabase.rpc("hitung_tes_minat", {
+    p_jawaban: jawaban,
+    ...(siswaId ? { p_siswa_id: siswaId } : {}),
+  });
   lemparJikaError(error);
   return data as HasilTesMinat;
 }

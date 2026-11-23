@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ambilSoalMinat } from "@/lib/api/tes-minat";
 import { Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
-import { Kuis } from "@/components/tes-minat/kuis";
+import { Kuis, type Peserta } from "@/components/tes-minat/kuis";
+import { ambilPenggunaSaya } from "@/lib/api/auth";
+import { ambilDaftarAnak, ambilSiswaSaya } from "@/lib/api/siswa";
 
 export const metadata: Metadata = {
   title: "Tes minat jurusan IT",
@@ -32,5 +34,19 @@ async function Soal() {
   if (soal.length === 0) {
     return <StateKosong judul="Soal belum tersedia" keterangan="Tes minat sedang disiapkan. Coba lagi nanti." />;
   }
-  return <Kuis soal={soal} />;
+  return <Kuis soal={soal} peserta={await pesertaTes()} />;
+}
+
+/** Siswa: profil sendiri. Orang tua: memilih anak. Peran lain dan tamu: hasil tidak disimpan. */
+async function pesertaTes(): Promise<Peserta> {
+  const p = await ambilPenggunaSaya();
+  if (p?.peran === "siswa") {
+    const s = await ambilSiswaSaya();
+    return { mode: "siswa", siswaId: s?.id ?? null, nama: s?.nama ?? p.nama };
+  }
+  if (p?.peran === "orang_tua") {
+    const anak = await ambilDaftarAnak();
+    return { mode: "orang_tua", anak: anak.map(({ id, nama, jenjang, kelas }) => ({ id, nama, jenjang, kelas })) };
+  }
+  return { mode: "tamu" };
 }

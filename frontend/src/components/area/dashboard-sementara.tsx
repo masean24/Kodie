@@ -3,7 +3,7 @@ import { AlertTriangle, CheckCircle2, Clock } from "lucide-react";
 import type { StatusPengguna } from "@/types/database";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { LABEL_STATUS, NAMA_PERAN } from "@/lib/peran";
-import { Catatan, Kartu, Kontainer, Lencana } from "@/components/ui/dasar";
+import { Catatan, Kartu, Lencana } from "@/components/ui/dasar";
 
 const NADA_STATUS: Record<StatusPengguna, "sukses" | "peringatan" | "bahaya" | "netral"> = {
   aktif: "sukses",
@@ -27,7 +27,7 @@ export async function DashboardSementara({ children }: { children?: ReactNode })
   const nada = NADA_STATUS[p.status];
   const Ikon = IKON[nada];
   return (
-    <Kontainer className="flex flex-col gap-6 py-10 md:py-12">
+    <div className="flex flex-col gap-6">
       <Kartu className="md:p-10">
         <p className="text-text-muted">{NAMA_PERAN[p.peran]}</p>
         <h1 className="mt-1 text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Halo, {p.nama}</h1>
@@ -43,6 +43,6 @@ export async function DashboardSementara({ children }: { children?: ReactNode })
       <Catatan judul="Dashboard sedang disiapkan">
         Ringkasan sesi, booking, dan laporan akan tampil di sini.
       </Catatan>
-    </Kontainer>
+    </div>
   );
 }

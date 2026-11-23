@@ -52,8 +52,9 @@ export function tujuanSetelahMasuk(peran: Peran, lanjut?: string | null): string
 }
 
 /** Tujuan setelah daftar (PRD F1): siswa ke halaman persetujuan orang tua. */
-export function tujuanSetelahDaftar(peran: Peran): string {
-  return peran === "siswa" ? "/siswa/persetujuan" : DASHBOARD[peran];
+export function tujuanSetelahDaftar(peran: Peran, lanjut?: string | null): string {
+  if (peran === "siswa") return "/siswa/persetujuan";
+  return lanjutAman(lanjut) ? tujuanSetelahMasuk(peran, lanjut) : DASHBOARD[peran];
 }
 
 export const LABEL_STATUS: Record<StatusPengguna, string> = {
