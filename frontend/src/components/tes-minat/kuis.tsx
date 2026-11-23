@@ -1,0 +1,155 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import type { JawabanMinat, KodeOpsi, SoalMinatPublik } from "@/types/database";
+import { hitungTesMinat } from "@/lib/api/tes-minat";
+import { pesanError } from "@/lib/errors";
+import { cx } from "@/lib/cx";
+import { Tombol } from "@/components/ui/tombol";
+import { bacaJawaban, simpanHasil, simpanJawaban } from "./penyimpanan";
+
+export function Kuis({ soal }: { soal: SoalMinatPublik[] }) {
+  const router = useRouter();
+  const total = soal.length;
+  const [indeks, setIndeks] = useState(0);
+  const [jawaban, setJawaban] = useState<JawabanMinat>({});
+  const [galat, setGalat] = useState<string | null>(null);
+  const [mengirim, setMengirim] = useState(false);
+  const judulRef = useRef<HTMLHeadingElement>(null);
+  const pernahPindah = useRef(false);
+
+  useEffect(() => {
+    const tersimpan = bacaJawaban();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- memulihkan jawaban dari sessionStorage setelah hidrasi
+    if (tersimpan) setJawaban(tersimpan);
+  }, []);
+
+  useEffect(() => {
+    if (pernahPindah.current) judulRef.current?.focus();
+    pernahPindah.current = true;
+  }, [indeks]);
+
+  const s = soal[indeks];
+  const terjawab = soal.filter((x) => jawaban[String(x.urutan)]).length;
+  const terakhir = indeks === total - 1;
+  const dipilih = jawaban[String(s.urutan)];
+
+  function pilih(kode: KodeOpsi) {
+    const baru = { ...jawaban, [String(s.urutan)]: kode };
+    setJawaban(baru);
+    simpanJawaban(baru);
+    setGalat(null);
+  }
+
+  async function lihatHasil() {
+    const belum = soal.filter((x) => !jawaban[String(x.urutan)]);
+    if (belum.length > 0) {
+      setGalat(`Masih ada ${belum.length} soal yang belum dijawab: nomor ${belum.map((x) => x.urutan).join(", ")}.`);
+      setIndeks(soal.indexOf(belum[0]));
+      return;
+    }
+    setMengirim(true);
+    try {
+      const hasil = await hitungTesMinat(jawaban);
+      simpanHasil(hasil);
+      router.push("/tes-minat/hasil");
+    } catch (e) {
+      setGalat(pesanError(e));
+      setMengirim(false);
+    }
+  }
+
+  return (
+    <div className="mx-auto max-w-[700px] rounded-card bg-gradient-to-b from-primary-subtle to-surface-sunken p-5 md:p-12">
+      <div className="flex items-center justify-between text-sm">
+        <p className="font-bold text-primary">
+          Soal {indeks + 1} dari {total}
+        </p>
+        <p className="text-text-muted" aria-live="polite">
+          {terjawab} sudah dijawab
+        </p>
+      </div>
+      <ol aria-label="Kemajuan tes" className="mt-3 flex gap-1">
+        {soal.map((x, i) => {
+          const sudah = Boolean(jawaban[String(x.urutan)]);
+          return (
+            <li key={x.id} className="flex-1">
+              <button
+                type="button"
+                onClick={() => setIndeks(i)}
+                aria-label={`Soal ${x.urutan}${sudah ? ", sudah dijawab" : ", belum dijawab"}`}
+                aria-current={i === indeks ? "step" : undefined}
+                className="flex h-touch w-full items-center"
+              >
+                <span
+                  className={cx(
+                    "block h-2.5 w-full rounded-full",
+                    i === indeks
+                      ? "bg-surface ring-2 ring-primary"
+                      : sudah
+                        ? "bg-accent ring-1 ring-[#0f172a]/20"
+                        : "bg-neutral-subtle",
+                  )}
+                />
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+
+      <fieldset className="mt-6">
+        <legend className="contents">
+          <h2 ref={judulRef} tabIndex={-1} className="text-[26px] leading-8 font-extrabold focus:outline-none md:text-[36px] md:leading-[42px]">
+            {s.teks}
+          </h2>
+        </legend>
+        <p className="mt-4 text-text-muted">Pilih satu jawaban yang paling mirip denganmu. Tidak ada jawaban benar atau salah.</p>
+        <div className="mt-6 flex flex-col gap-3">
+          {s.opsi.map((o) => {
+            const aktif = dipilih === o.kode;
+            return (
+              <label
+                key={o.kode}
+                className={cx(
+                  "flex min-h-[60px] cursor-pointer items-center gap-4 rounded-card-sm border-[1.5px] bg-surface px-5 py-3 has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-focus",
+                  aktif ? "border-primary bg-primary-subtle font-bold text-primary" : "border-transparent hover:border-border-strong",
+                )}
+              >
+                <input
+                  type="radio"
+                  name={`soal-${s.urutan}`}
+                  value={o.kode}
+                  checked={aktif}
+                  onChange={() => pilih(o.kode)}
+                  className="size-5 shrink-0 accent-primary"
+                />
+                {o.teks}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      {galat ? (
+        <p role="alert" className="mt-6 rounded-card-sm bg-danger-subtle p-4 font-bold text-danger">
+          {galat}
+        </p>
+      ) : null}
+
+      <div className="mt-8 flex items-center justify-between gap-3">
+        <Tombol varian="kedua" onClick={() => setIndeks((i) => Math.max(0, i - 1))} disabled={indeks === 0}>
+          Kembali
+        </Tombol>
+        {terakhir ? (
+          <Tombol onClick={lihatHasil} disabled={mengirim} aria-busy={mengirim}>
+            {mengirim ? "Menghitung…" : "Lihat hasil"}
+          </Tombol>
+        ) : (
+          <Tombol onClick={() => setIndeks((i) => Math.min(total - 1, i + 1))}>Soal berikutnya</Tombol>
+        )}
+      </div>
+      <p className="mt-6 text-sm text-text-muted">Semua {total} soal wajib dijawab sebelum hasil keluar.</p>
+    </div>
+  );
+}

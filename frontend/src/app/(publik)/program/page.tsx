@@ -1,0 +1,51 @@
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { ambilDaftarProgram } from "@/lib/api/program";
+import { Kerangka, Kontainer, StateKosong, StatusMemuat, Sorotan } from "@/components/ui/dasar";
+import { JudulHalaman } from "@/components/situs/judul-halaman";
+import { KartuProgram } from "@/components/program/kartu-program";
+
+export const metadata: Metadata = { title: "Program" };
+
+export default function HalamanProgram() {
+  return (
+    <>
+      <JudulHalaman
+        judul={
+          <>
+            Tiga program, <Sorotan diBlok>naik bertahap</Sorotan>
+          </>
+        }
+        keterangan="Setiap paket berisi 4 sesi daring, seminggu sekali, dalam kelompok kecil."
+      />
+      <Kontainer className="py-12 md:py-16">
+        <Suspense
+          fallback={
+            <div className="grid gap-6 md:grid-cols-3">
+              <StatusMemuat />
+              {[0, 1, 2].map((i) => (
+                <Kerangka key={i} className="h-[420px]" />
+              ))}
+            </div>
+          }
+        >
+          <Daftar />
+        </Suspense>
+      </Kontainer>
+    </>
+  );
+}
+
+async function Daftar() {
+  const daftar = await ambilDaftarProgram();
+  if (daftar.length === 0) {
+    return <StateKosong judul="Program belum tersedia" keterangan="Program sedang disiapkan. Coba lagi nanti." />;
+  }
+  return (
+    <div className="grid gap-6 md:grid-cols-3">
+      {daftar.map((p) => (
+        <KartuProgram key={p.id} p={p} />
+      ))}
+    </div>
+  );
+}

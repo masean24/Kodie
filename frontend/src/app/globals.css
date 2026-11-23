@@ -1,0 +1,301 @@
+@import "tailwindcss";
+
+/*
+ * Token desain Kodie v4. Satu-satunya sumber nilai warna, radius, spasi, dan font.
+ * Nilai diambil dari Variables Figma "Nama Website — Design System & UI"
+ * (koleksi Color, Kategori, Dimension; mode Light dan Dark).
+ * Komponen memakai kelas Tailwind yang dipetakan di @theme di bawah, bukan hex langsung.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Color — Light */
+  --k-bg: #f4f7fc;
+  --k-surface: #ffffff;
+  --k-surface-raised: #ffffff;
+  --k-surface-sunken: #eff6ff;
+  --k-text: #0f172a;
+  --k-text-muted: #475569;
+  --k-border: #e2e8f0;
+  --k-border-strong: #64748b;
+  --k-primary: #1d4ed8;
+  --k-primary-hover: #1e3a8a;
+  --k-primary-foreground: #ffffff;
+  --k-primary-subtle: #dbeafe;
+  --k-success: #017137;
+  --k-success-subtle: #dcf7e2;
+  --k-warning: #7f5d09;
+  --k-warning-subtle: #fdedc9;
+  --k-danger: #b32322;
+  --k-danger-hover: #8f1b1a;
+  --k-danger-foreground: #ffffff;
+  --k-danger-subtle: #fee9e6;
+  --k-info: #1d4ed8;
+  --k-info-subtle: #dbeafe;
+  --k-neutral-subtle: #e2e8f0;
+  --k-disabled: #e2e8f0;
+  --k-focus: #3b82f6;
+  --k-overlay: #0f172a8c;
+  --k-shadow: #0f172a24;
+  --k-brand-block: #1d4ed8;
+  --k-on-brand-block: #ffffff;
+  --k-brand-block-from: #172554;
+  --k-brand-block-to: #2563eb;
+  --k-highlight-bg: #1d4ed8;
+  --k-highlight-fg: #ffffff;
+  --k-highlight-on-block-bg: #c6f64d;
+  --k-highlight-on-block-fg: #0f172a;
+  --k-cta-bg: #c6f64d;
+  --k-cta-hover: #b8e82a;
+  --k-cta-fg: #0f172a;
+  --k-focus-on-block: #ffffff;
+  --k-ink-block-to: #d7ff73;
+  --k-accent: #c6f64d;
+  --k-accent-subtle: #eeffc2;
+  --k-on-accent: #0f172a;
+
+  /* Kategori — Light */
+  --k-coding-dasar-soft: #eeffc2;
+  --k-coding-dasar-strong: #c6f64d;
+  --k-coding-dasar-deep: #0f172a;
+  --k-coding-dasar-block: #d7ff73;
+  --k-coding-dasar-block-to: #eeffc2;
+  --k-kelas-reguler-soft: #eff6ff;
+  --k-kelas-reguler-strong: #93c5fd;
+  --k-kelas-reguler-deep: #1e3a8a;
+  --k-kelas-reguler-block: #93c5fd;
+  --k-kelas-reguler-block-to: #eff6ff;
+  --k-simulasi-jurusan-soft: #eff6ff;
+  --k-simulasi-jurusan-strong: #dbeafe;
+  --k-simulasi-jurusan-deep: #1e3a8a;
+  --k-simulasi-jurusan-block: #dbeafe;
+  --k-simulasi-jurusan-block-to: #eff6ff;
+  --k-software-soft: #eff6ff;
+  --k-software-strong: #60a5fa;
+  --k-software-deep: #1e3a8a;
+  --k-jaringan-soft: #eff6ff;
+  --k-jaringan-strong: #3b82f6;
+  --k-jaringan-deep: #172554;
+  --k-iot-soft: #eeffc2;
+  --k-iot-strong: #d7ff73;
+  --k-iot-deep: #0f172a;
+  --k-ai-data-soft: #f1f5f9;
+  --k-ai-data-strong: #cad3e6;
+  --k-ai-data-deep: #334155;
+  --k-on-strong: #0f172a;
+  --k-on-soft: #0f172a;
+  --k-on-block: #0f172a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    /* Color — Dark */
+    --k-bg: #0b1220;
+    --k-surface: #111c33;
+    --k-surface-raised: #16233f;
+    --k-surface-sunken: #070d18;
+    --k-text: #f1f5f9;
+    --k-text-muted: #94a3b8;
+    --k-border: #24344f;
+    --k-border-strong: #64748b;
+    --k-primary: #60a5fa;
+    --k-primary-hover: #93c5fd;
+    --k-primary-foreground: #0b1220;
+    --k-primary-subtle: #172554;
+    --k-success: #86db9d;
+    --k-success-subtle: #112d1a;
+    --k-warning: #ebc573;
+    --k-warning-subtle: #342707;
+    --k-danger: #f98f87;
+    --k-danger-hover: #fbaba4;
+    --k-danger-foreground: #2a0e0c;
+    --k-danger-subtle: #421c19;
+    --k-info: #60a5fa;
+    --k-info-subtle: #172554;
+    --k-neutral-subtle: #1e293b;
+    --k-disabled: #1e293b;
+    --k-focus: #93c5fd;
+    --k-overlay: #000000b2;
+    --k-shadow: #00000080;
+    --k-brand-block: #1e3a8a;
+    --k-on-brand-block: #f1f5f9;
+    --k-brand-block-from: #0b1220;
+    --k-brand-block-to: #1d4ed8;
+    --k-highlight-bg: #3b82f6;
+    --k-accent-subtle: #26310b;
+
+    /* Kategori — Dark */
+    --k-coding-dasar-soft: #26310b;
+    --k-coding-dasar-deep: #eeffc2;
+    --k-coding-dasar-block: #2a330b;
+    --k-coding-dasar-block-to: #3a440f;
+    --k-kelas-reguler-soft: #0f1e33;
+    --k-kelas-reguler-deep: #dbeafe;
+    --k-kelas-reguler-block: #0f1e33;
+    --k-kelas-reguler-block-to: #16233f;
+    --k-simulasi-jurusan-soft: #111c33;
+    --k-simulasi-jurusan-deep: #eff6ff;
+    --k-simulasi-jurusan-block: #111c33;
+    --k-simulasi-jurusan-block-to: #1e293b;
+    --k-software-soft: #111c33;
+    --k-software-deep: #dbeafe;
+    --k-jaringan-soft: #111c33;
+    --k-jaringan-deep: #93c5fd;
+    --k-iot-soft: #26310b;
+    --k-iot-deep: #eeffc2;
+    --k-ai-data-soft: #1e293b;
+    --k-ai-data-deep: #e2e8f0;
+    --k-on-soft: #f1f5f9;
+    --k-on-block: #f1f5f9;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-lexend), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--k-bg);
+  --color-surface: var(--k-surface);
+  --color-surface-raised: var(--k-surface-raised);
+  --color-surface-sunken: var(--k-surface-sunken);
+  --color-text: var(--k-text);
+  --color-text-muted: var(--k-text-muted);
+  --color-border: var(--k-border);
+  --color-border-strong: var(--k-border-strong);
+  --color-primary: var(--k-primary);
+  --color-primary-hover: var(--k-primary-hover);
+  --color-primary-foreground: var(--k-primary-foreground);
+  --color-primary-subtle: var(--k-primary-subtle);
+  --color-success: var(--k-success);
+  --color-success-subtle: var(--k-success-subtle);
+  --color-warning: var(--k-warning);
+  --color-warning-subtle: var(--k-warning-subtle);
+  --color-danger: var(--k-danger);
+  --color-danger-hover: var(--k-danger-hover);
+  --color-danger-foreground: var(--k-danger-foreground);
+  --color-danger-subtle: var(--k-danger-subtle);
+  --color-info: var(--k-info);
+  --color-info-subtle: var(--k-info-subtle);
+  --color-neutral-subtle: var(--k-neutral-subtle);
+  --color-disabled: var(--k-disabled);
+  --color-focus: var(--k-focus);
+  --color-overlay: var(--k-overlay);
+  --color-brand-block: var(--k-brand-block);
+  --color-on-brand-block: var(--k-on-brand-block);
+  --color-brand-block-from: var(--k-brand-block-from);
+  --color-brand-block-to: var(--k-brand-block-to);
+  --color-highlight-bg: var(--k-highlight-bg);
+  --color-highlight-fg: var(--k-highlight-fg);
+  --color-highlight-on-block-bg: var(--k-highlight-on-block-bg);
+  --color-highlight-on-block-fg: var(--k-highlight-on-block-fg);
+  --color-cta: var(--k-cta-bg);
+  --color-cta-hover: var(--k-cta-hover);
+  --color-cta-foreground: var(--k-cta-fg);
+  --color-focus-on-block: var(--k-focus-on-block);
+  --color-accent: var(--k-accent);
+  --color-accent-subtle: var(--k-accent-subtle);
+  --color-on-accent: var(--k-on-accent);
+  --color-on-strong: var(--k-on-strong);
+  --color-on-soft: var(--k-on-soft);
+  --color-on-block: var(--k-on-block);
+
+  --color-coding-dasar-soft: var(--k-coding-dasar-soft);
+  --color-coding-dasar-strong: var(--k-coding-dasar-strong);
+  --color-coding-dasar-deep: var(--k-coding-dasar-deep);
+  --color-coding-dasar-block: var(--k-coding-dasar-block);
+  --color-coding-dasar-block-to: var(--k-coding-dasar-block-to);
+  --color-kelas-reguler-soft: var(--k-kelas-reguler-soft);
+  --color-kelas-reguler-strong: var(--k-kelas-reguler-strong);
+  --color-kelas-reguler-deep: var(--k-kelas-reguler-deep);
+  --color-kelas-reguler-block: var(--k-kelas-reguler-block);
+  --color-kelas-reguler-block-to: var(--k-kelas-reguler-block-to);
+  --color-simulasi-jurusan-soft: var(--k-simulasi-jurusan-soft);
+  --color-simulasi-jurusan-strong: var(--k-simulasi-jurusan-strong);
+  --color-simulasi-jurusan-deep: var(--k-simulasi-jurusan-deep);
+  --color-simulasi-jurusan-block: var(--k-simulasi-jurusan-block);
+  --color-simulasi-jurusan-block-to: var(--k-simulasi-jurusan-block-to);
+  --color-software-soft: var(--k-software-soft);
+  --color-software-strong: var(--k-software-strong);
+  --color-software-deep: var(--k-software-deep);
+  --color-jaringan-soft: var(--k-jaringan-soft);
+  --color-jaringan-strong: var(--k-jaringan-strong);
+  --color-jaringan-deep: var(--k-jaringan-deep);
+  --color-iot-soft: var(--k-iot-soft);
+  --color-iot-strong: var(--k-iot-strong);
+  --color-iot-deep: var(--k-iot-deep);
+  --color-ai-data-soft: var(--k-ai-data-soft);
+  --color-ai-data-strong: var(--k-ai-data-strong);
+  --color-ai-data-deep: var(--k-ai-data-deep);
+
+  /* Dimension */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-card-sm: 18px;
+  --radius-card: 28px;
+  --radius-block: 40px;
+  --spacing-control: 48px;
+  --spacing-touch: 44px;
+  --container-kodie: 1200px;
+}
+
+/* Dasar */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--k-bg);
+  color: var(--k-text);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 27px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+}
+
+/* Fokus selalu terlihat: cincin 3 px, putih di atas blok merek */
+:focus-visible {
+  outline: 3px solid var(--k-focus);
+  outline-offset: 2px;
+}
+.on-block :focus-visible {
+  outline-color: var(--k-focus-on-block);
+}
+
+/* Gradien tonal blok merek (halaman publik saja) */
+.blok-merek {
+  background: linear-gradient(120deg, var(--k-brand-block-from), var(--k-brand-block-to));
+  color: var(--k-on-brand-block);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  header[data-situs],
+  footer[data-situs],
+  .tanpa-cetak {
+    display: none !important;
+  }
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+}
