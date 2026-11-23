@@ -177,20 +177,22 @@ function bangunMarkupWajah({
   return `${hudBrackets}<g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)})">${eyes}${mouth}</g>`;
 }
 
+/**
+ * Komponen lengan statis tanpa prop `transform` di JSX agar mutasi `requestAnimationFrame`
+ * di DOM tidak pernah tertimpa saat React melakukan re-render.
+ */
 function LenganSvg({
   armRef,
   foreRef,
-  posisiAwal,
 }: {
   armRef: React.RefObject<SVGGElement | null>;
   foreRef: React.RefObject<SVGGElement | null>;
-  posisiAwal: string;
 }) {
   return (
-    <g ref={armRef} transform={posisiAwal}>
+    <g ref={armRef}>
       <line x1="0" y1="0" x2="44" y2="0" stroke={C.navy} strokeWidth="13" strokeLinecap="round" />
       <circle r="13" fill={C.blue} />
-      <g ref={foreRef} transform="translate(44 0) rotate(6)">
+      <g ref={foreRef}>
         <circle r="7" fill={C.navy} />
         <line x1="0" y1="0" x2="40" y2="0" stroke={C.navy} strokeWidth="12" strokeLinecap="round" />
         <rect x="30" y="-9.5" width="10" height="19" rx="4" fill={C.lime} />
@@ -207,9 +209,9 @@ function LenganSvg({
 }
 
 /**
- * Maskot 2D Interaktif Kiko (replik persis desain & animasi SVG flat kodie):
- * mengikuti kursor, melirik ke kolom ketik, lip-sync bicara, animasi loading 12 ruji,
- * lompatan squash & stretch, mode tidur otomatis (zZz), serta efek suara blip.
+ * Maskot 2D Interaktif Kiko: delta-time normalized (halus di 60Hz/120Hz/144Hz),
+ * interpolasi kepala/mata/lengan tanpa patah saat state berubah, mode tidur idle (zZz),
+ * lip-sync bicara, loading spinner 12 ruji, dan suara blip Web Audio API.
  */
 export function MaskotKiko({
   ekspresi,
@@ -260,6 +262,10 @@ export function MaskotKiko({
     mouseY: 0,
     jumpY: 0,
     jumpV: 0,
+    headX: 0,
+    headRot: 0,
+    eyeX: 0,
+    eyeY: 0,
     lastActivity: 0,
     lastCycle: 0,
     cycleIdx: 0,
@@ -286,17 +292,15 @@ export function MaskotKiko({
     callbacksRef.current = { onEkspresiOtomatis, onTipBerubah };
   }, [onEkspresiOtomatis, onTipBerubah]);
 
-  // Pemicu lompatan eksternal (misal saat membuka panel chat atau menekan Kiko)
   useEffect(() => {
     if (jumpSignal === 0) return;
     if (animRef.current.jumpY === 0) {
-      animRef.current.jumpV = 13;
+      animRef.current.jumpV = 12;
       putarBlipKiko("jump", stateRef.current.soundEnabled);
     }
     animRef.current.lastActivity = performance.now();
   }, [jumpSignal]);
 
-  // Reset timer idle saat mengetik / panel terbuka / memproses
   useEffect(() => {
     if (isTypingChat || isSpeaking || isThinkingLock) {
       animRef.current.lastActivity = performance.now();
@@ -314,7 +318,7 @@ export function MaskotKiko({
         putarBlipKiko("wake", stateRef.current.soundEnabled);
         callbacksRef.current.onEkspresiOtomatis("surprised");
         callbacksRef.current.onTipBerubah("Eh, kamu kembali! Ada yang bisa kubantu? :)");
-        if (a.jumpY === 0 && !reduced) a.jumpV = 13;
+        if (a.jumpY === 0 && !reduced) a.jumpV = 12;
         setTimeout(() => {
           if (stateRef.current.ekspresi === "surprised" && !stateRef.current.isThinkingLock) {
             callbacksRef.current.onEkspresiOtomatis("smile");
@@ -338,21 +342,43 @@ export function MaskotKiko({
     const t0 = performance.now();
     animRef.current.lastActivity = t0;
     animRef.current.lastCycle = t0;
+    let prevNow = t0;
     let rafId = 0;
 
+    // Posisi awal lengan & kepala langsung diset sebelum frame pertama agar tidak berkedip
+    armLRef.current?.setAttribute("transform", "translate(105 270) scale(-1 1) rotate(30)");
+    foreLRef.current?.setAttribute("transform", "translate(44 0) rotate(6)");
+    armRRef.current?.setAttribute("transform", "translate(235 270) rotate(30)");
+    foreRRef.current?.setAttribute("transform", "translate(44 0) rotate(6)");
+
     const frame = (now: number) => {
+      const dt = Math.min(0.05, Math.max(0.001, (now - prevNow) / 1000));
+      prevNow = now;
+      const step60 = dt * 60;
       const t = (now - t0) / 1000;
       const s = stateRef.current;
       const a = animRef.current;
 
       // Mode tidur otomatis setelah 14 detik tanpa aktivitas
-      if (!s.isThinkingLock && !s.isTypingChat && !s.isSpeaking && s.ekspresi !== "sleep" && now - a.lastActivity > IDLE_SLEEP_MS) {
+      if (
+        !s.isThinkingLock &&
+        !s.isTypingChat &&
+        !s.isSpeaking &&
+        s.ekspresi !== "sleep" &&
+        now - a.lastActivity > IDLE_SLEEP_MS
+      ) {
         callbacksRef.current.onEkspresiOtomatis("sleep");
         callbacksRef.current.onTipBerubah("zZz... Gerakkan kursor untuk membangunkan Kiko! 😴");
       }
 
       // Variasi ekspresi berkala saat panel tertutup
-      if (!s.isPanelOpen && !s.isThinkingLock && !s.isTypingChat && s.ekspresi !== "sleep" && now - a.lastCycle > CYCLE_INTERVAL_MS) {
+      if (
+        !s.isPanelOpen &&
+        !s.isThinkingLock &&
+        !s.isTypingChat &&
+        s.ekspresi !== "sleep" &&
+        now - a.lastCycle > CYCLE_INTERVAL_MS
+      ) {
         a.lastCycle = now;
         a.cycleIdx = (a.cycleIdx + 1) % KIKO_IDLE_SEQUENCE.length;
         const item = KIKO_IDLE_SEQUENCE[a.cycleIdx];
@@ -374,34 +400,38 @@ export function MaskotKiko({
         return;
       }
 
-      // Fisika lompatan + squash & stretch
+      // Fisika lompatan + squash & stretch dinormalisasi 60fps
       if (a.jumpY > 0 || a.jumpV !== 0) {
-        a.jumpY += a.jumpV;
-        a.jumpV -= 0.8;
+        a.jumpY += a.jumpV * step60;
+        a.jumpV -= 0.78 * step60;
         if (a.jumpY <= 0) {
           a.jumpY = 0;
           a.jumpV = 0;
         }
       }
-      const sy = 1 + Math.max(-8, Math.min(8, a.jumpV)) * 0.012;
+      const sy = 1 + Math.max(-7, Math.min(7, a.jumpV)) * 0.011;
       const sx = 1 / Math.sqrt(sy);
-      const bob = s.ekspresi === "sleep" ? Math.sin(t * 1.4) * 1.8 : Math.sin(t * 2.4) * 3;
+      const bob = s.ekspresi === "sleep" ? Math.sin(t * 1.4) * 1.6 : Math.sin(t * 2.4) * 2.6;
       rootRef.current?.setAttribute(
         "transform",
         `translate(0 ${(bob - a.jumpY).toFixed(2)}) translate(170 350) scale(${sx.toFixed(3)} ${sy.toFixed(3)}) translate(-170 -350)`,
       );
 
-      // Kepala mengikuti kursor / miring ke kolom ketik / miring tidur
-      let rot = a.mouseX * 4 + Math.sin(t * 1.8) * 1.2;
-      let hx = a.mouseX * 5;
-      if (s.ekspresi === "sleep") {
-        rot = -4 + Math.sin(t * 1.2) * 1.2;
-        hx = -2;
-      } else if (s.isTypingChat) {
-        rot = -4.5;
-        hx = -4;
-      }
-      headRef.current?.setAttribute("transform", `translate(${hx.toFixed(1)} 0) rotate(${rot.toFixed(2)} 170 226)`);
+      // Kepala & mata diinterpolasi halus (lerp) agar tidak pernah patah saat klik / mengetik
+      const alphaHead = 1 - Math.pow(1 - 0.16, step60);
+      const targetRot =
+        s.ekspresi === "sleep"
+          ? -4 + Math.sin(t * 1.2) * 1.2
+          : s.isTypingChat
+            ? -4.5
+            : a.mouseX * 4 + Math.sin(t * 1.8) * 1.2;
+      const targetHx = s.ekspresi === "sleep" ? -2 : s.isTypingChat ? -4 : a.mouseX * 5;
+      a.headRot += (targetRot - a.headRot) * alphaHead;
+      a.headX += (targetHx - a.headX) * alphaHead;
+      headRef.current?.setAttribute(
+        "transform",
+        `translate(${a.headX.toFixed(2)} 0) rotate(${a.headRot.toFixed(2)} 170 226)`,
+      );
 
       // Pulsa antena & LED
       const fast = s.ekspresi === "thinking" || s.ekspresi === "surprised";
@@ -410,20 +440,23 @@ export function MaskotKiko({
       antennaRef.current?.setAttribute("r", (8 + Math.sin(t * pulseSpeed) * 1.5).toFixed(2));
       ledRef.current?.setAttribute("r", (5 + Math.sin(t * pulseSpeed + 1) * 0.85).toFixed(2));
 
-      // Ekspresi wajah & mata mengikuti kursor / melirik kolom ketik
-      const ox = s.isTypingChat ? -8.5 : a.mouseX * 7;
-      const oy = s.isTypingChat ? 3.5 : -a.mouseY * 5;
+      // Ekspresi wajah & posisi mata terinterpolasi halus
+      const targetOx = s.isTypingChat ? -8.5 : a.mouseX * 7;
+      const targetOy = s.isTypingChat ? 3.5 : -a.mouseY * 5;
+      a.eyeX += (targetOx - a.eyeX) * alphaHead;
+      a.eyeY += (targetOy - a.eyeY) * alphaHead;
       if (faceRef.current) {
         faceRef.current.innerHTML = bangunMarkupWajah({
           expr: s.ekspresi,
           t,
-          ox,
-          oy,
+          ox: a.eyeX,
+          oy: a.eyeY,
           isSpeaking: s.isSpeaking,
         });
       }
 
-      // Interpolasi posisi lengan kiri & kanan
+      // Interpolasi lengan dinormalisasi 60fps
+      const alphaArm = 1 - Math.pow(1 - 0.14, step60);
       const pose = poseUntukEkspresi(s.ekspresi, t);
       const specs = [
         { arm: armRRef.current, fore: foreRRef.current, x: 235, mirror: false, idx: 0 },
@@ -431,8 +464,8 @@ export function MaskotKiko({
       ];
       for (const sp of specs) {
         const st = a.armsState[sp.idx];
-        st.sh += (pose[sp.idx].sh - st.sh) * 0.14;
-        st.el += (pose[sp.idx].el - st.el) * 0.14;
+        st.sh += (pose[sp.idx].sh - st.sh) * alphaArm;
+        st.el += (pose[sp.idx].el - st.el) * alphaArm;
         sp.arm?.setAttribute(
           "transform",
           `translate(${sp.x} 270) ${sp.mirror ? "scale(-1 1)" : ""} rotate(${st.sh.toFixed(2)})`,
@@ -485,7 +518,14 @@ export function MaskotKiko({
           <rect x="6" y="6" width="12" height="12" rx="3" fill={C.blue} />
           <rect x="8" y="8" width="8" height="8" rx="2" fill={C.navy} />
           <circle cx="12" cy="13" r="2" fill={C.lime} />
-          <text x="23" y="17" fontFamily="var(--font-display), Inter, sans-serif" fontWeight="800" fontSize="12" fill={C.navy}>
+          <text
+            x="23"
+            y="17"
+            fontFamily="var(--font-display), Inter, sans-serif"
+            fontWeight="800"
+            fontSize="12"
+            fill={C.navy}
+          >
             Kiko
           </text>
         </g>
@@ -511,8 +551,8 @@ export function MaskotKiko({
         </g>
 
         {/* Lengan di depan badan & kepala */}
-        <LenganSvg armRef={armLRef} foreRef={foreLRef} posisiAwal="translate(105 270) scale(-1 1) rotate(30)" />
-        <LenganSvg armRef={armRRef} foreRef={foreRRef} posisiAwal="translate(235 270) rotate(30)" />
+        <LenganSvg armRef={armLRef} foreRef={foreLRef} />
+        <LenganSvg armRef={armRRef} foreRef={foreRRef} />
       </g>
     </svg>
   );

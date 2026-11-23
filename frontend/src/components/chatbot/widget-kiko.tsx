@@ -821,7 +821,7 @@ export function WidgetKiko({
           aria-modal="false"
           aria-label={`Asisten ${namaBot}`}
           className={cx(
-            "flex h-[min(440px,calc(100dvh-13.5rem))] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-[24px] border border-[#1D4ED8]/40 bg-surface shadow-2xl sm:h-[min(500px,calc(100dvh-13.5rem))] sm:w-[400px]",
+            "flex h-[min(450px,calc(100dvh-11.5rem))] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-[24px] border border-[#1D4ED8]/40 bg-surface shadow-2xl sm:h-[min(510px,calc(100dvh-12rem))] sm:w-[400px]",
             menutup ? "kiko-panel-out" : "kiko-panel-in",
           )}
         >
@@ -1188,17 +1188,14 @@ export function WidgetKiko({
         </div>
       ) : null}
 
-      {/* Maskot 2D Interaktif Kiko sebagai pemicu utama pojok kanan bawah */}
+      {/* Maskot 2D Interaktif Kiko: ukuran lebih ringkas dan konsisten baik saat chat tertutup maupun terbuka */}
       <button
         type="button"
         onClick={togglePanel}
         aria-expanded={terbuka && !menutup}
         title={terbuka && !menutup ? `Tutup ${namaBot}` : `Klik untuk chat dengan ${namaBot}`}
         aria-label={terbuka && !menutup ? `Tutup ${namaBot}` : `Tanya ${namaBot}`}
-        className={cx(
-          "cursor-pointer transition-transform duration-200 hover:scale-105 focus-visible:rounded-2xl",
-          terbuka ? "h-[84px] w-[82px] sm:h-[112px] sm:w-[108px]" : "h-[118px] w-[114px] sm:h-[154px] sm:w-[148px]",
-        )}
+        className="h-[78px] w-[76px] shrink-0 cursor-pointer transition-transform duration-300 ease-out hover:scale-105 active:scale-95 focus-visible:rounded-2xl sm:h-[95px] sm:w-[92px]"
       >
         <MaskotKiko
           ekspresi={ekspresiKiko}
