@@ -1,6 +1,17 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, CalendarDays, ClipboardCheck, CreditCard, FileText, Video, type LucideIcon } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  ClipboardCheck,
+  CreditCard,
+  FileText,
+  ShieldCheck,
+  Users,
+  Video,
+  type LucideIcon,
+} from "lucide-react";
+import { cx } from "@/lib/cx";
 import { ambilDaftarProgram } from "@/lib/api/program";
 import { ambilDaftarPengajarPublik } from "@/lib/api/pengajar";
 import { Kerangka, Kontainer, StateKosong, StatusMemuat, Sorotan } from "@/components/ui/dasar";
@@ -38,78 +49,188 @@ export default function Beranda() {
   );
 }
 
+/**
+ * Hero beranda, mengikuti redesain `docs/kodie_landing_page_redesign.html` section 1 dengan perbaikan:
+ * badge melayang ditempatkan di luar area ubin (tidak menimpa ikon), teks minimal 14 px,
+ * pill "SD sampai SMA" tidak terlipat, keterangan "Gratis · 12 soal · Tanpa akun" diberi label
+ * agar jelas milik tes minat, dan tinggi hero pas satu layar.
+ */
 function Pahlawan() {
   return (
-    <section className="hero-layar blok-merek on-block flex overflow-hidden rounded-b-[32px] md:rounded-b-block">
-      <Kontainer className="grid w-full items-center gap-10 py-12 md:py-20 lg:grid-cols-[1.15fr_1fr]">
-        <div>
-          <h1 className="text-[32px] leading-[42px] font-extrabold tracking-tight sm:text-[40px] sm:leading-[52px] lg:text-[50px] lg:leading-[64px]">
-            Belajar coding dan teknologi{" "}
-            <span className="mt-1 inline-block md:whitespace-nowrap">
-              <Sorotan diBlok>SD sampai SMA</Sorotan>
-            </span>
-          </h1>
-          <p className="mt-4 max-w-xl text-base leading-7 md:mt-5 md:text-lg md:leading-8">
-            Kelas daring kelompok kecil, diajar mahasiswa terverifikasi, dengan laporan untuk orang tua setiap sesi.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3.5">
-            <TombolTautan href="/tes-minat" varian="ajakan" ukuran="lg" panah>
-              Coba tes minat
-            </TombolTautan>
-            <TombolTautan href="/kelas" varian="terang" ukuran="lg">
-              Lihat jadwal kelas
-            </TombolTautan>
+    <section className="px-0 sm:px-4 lg:px-6">
+      <div className="hero-kodie relative flex overflow-hidden rounded-b-[32px] shadow-xl md:rounded-b-block">
+        <div aria-hidden className="pola-titik pointer-events-none absolute inset-0 opacity-80" />
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-96 rounded-full bg-[#60a5fa]/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute right-10 top-1/2 size-[28rem] -translate-y-1/2 rounded-full bg-[#22d3ee]/15 blur-3xl" />
+
+        <Kontainer className="relative grid w-full items-center gap-12 py-12 md:py-16 lg:grid-cols-2 lg:gap-8">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-sm font-bold text-[#dbeafe]">
+              <span aria-hidden className="size-2 animate-pulse rounded-full bg-highlight-on-block-bg" />
+              Kurikulum interaktif dan praktik langsung
+            </p>
+            <h1 className="mt-6 text-[34px] leading-[1.15] font-extrabold tracking-tight sm:text-[46px] lg:text-[54px]">
+              Belajar coding
+              <br />
+              dan teknologi
+              <br />
+              <span className="mt-3 inline-block -rotate-1 whitespace-nowrap rounded-2xl bg-highlight-on-block-bg px-4 py-1 text-highlight-on-block-fg shadow-lg shadow-[#c6f64d]/20">
+                SD sampai SMA
+              </span>
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-[#dbeafe] md:text-lg md:leading-8">
+              Bantu anak mengasah logika, kreativitas, dan siap menghadapi masa depan digital lewat kelas daring interaktif yang seru dan
+              terarah.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3.5">
+              <TombolTautan href="/tes-minat" varian="ajakan" ukuran="lg" panah className="shadow-lg shadow-[#c6f64d]/25">
+                Coba tes minat
+              </TombolTautan>
+              <TombolTautan href="/kelas" varian="terang" ukuran="lg" className="shadow-md">
+                Lihat jadwal kelas
+              </TombolTautan>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-2.5 text-sm">
+              <span className="font-bold text-[#dbeafe]">Tes minat:</span>
+              <ul aria-label="Tentang tes minat" className="flex flex-wrap items-center gap-2 font-bold">
+                {["Gratis", "12 soal", "Tanpa akun"].map((t) => (
+                  <li key={t} className="rounded-full border border-white/15 bg-white/15 px-3.5 py-1">
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <ul aria-label="Tentang tes minat" className="mt-6 flex flex-wrap items-center gap-2.5 text-sm font-bold">
-            {["Gratis", "12 soal", "Tanpa akun"].map((t) => (
-              <li key={t} className="rounded-full bg-white/15 px-3.5 py-1 ring-1 ring-white/40">
-                {t}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div aria-hidden className="relative mx-auto hidden aspect-square w-full max-w-[420px] lg:block">
-          <div className="absolute inset-[6%] rounded-full border-2 border-dashed border-white/35 bg-white/5" />
-          <ObjekBidang bidang="software" ukuran={150} miring={-6} className="absolute left-[10%] top-[10%]" />
-          <ObjekBidang bidang="jaringan" ukuran={132} miring={6} className="absolute right-[6%] top-[8%]" />
-          <ObjekBidang bidang="iot" ukuran={136} miring={4} className="absolute left-[16%] bottom-[16%]" />
-          <ObjekBidang bidang="ai_data" ukuran={158} miring={-4} className="absolute right-[8%] bottom-[10%]" />
-        </div>
-      </Kontainer>
+
+          <IlustrasiHero />
+        </Kontainer>
+      </div>
     </section>
   );
 }
 
+/**
+ * Empat ubin bidang dengan orbit putus-putus. Kotak ilustrasi 460 px: ubin menempati area tengah
+ * (sekitar 78–382 px), badge berada di pojok kiri atas dan kanan bawah (0–60 px dan 400–460 px),
+ * jadi keduanya tidak pernah bertumpuk, termasuk saat melayang ±10 px.
+ */
+function IlustrasiHero() {
+  return (
+    <div aria-hidden className="relative mx-auto hidden aspect-square w-full max-w-[460px] lg:block">
+      <div className="orbit-putar absolute inset-[12%] rounded-full border-2 border-dashed border-white/25" />
+      <div className="absolute inset-[4%] rounded-full border border-white/10" />
+
+      <div className="absolute inset-0 grid place-items-center">
+        <div className="grid grid-cols-2 gap-6">
+          <span className="melayang-1 block">
+            <ObjekBidang bidang="software" ukuran={140} miring={-3} />
+          </span>
+          <span className="melayang-2 block">
+            <ObjekBidang bidang="jaringan" ukuran={140} miring={3} />
+          </span>
+          <span className="melayang-3 block">
+            <ObjekBidang bidang="iot" ukuran={140} miring={2} />
+          </span>
+          <span className="melayang-1 block">
+            <ObjekBidang bidang="ai_data" ukuran={140} miring={-2} />
+          </span>
+        </div>
+      </div>
+
+      <div className="melayang-2 absolute left-0 top-0 flex items-center gap-3 rounded-2xl bg-white px-4 py-2.5 text-[#0f172a] shadow-xl">
+        <span className="grid size-9 place-items-center rounded-xl bg-[#dbeafe] text-sm font-extrabold text-[#1d4ed8]">&lt;/&gt;</span>
+        <span>
+          <span className="block text-sm font-bold leading-tight">Logika dan Python</span>
+          <span className="block text-[13px] leading-tight text-[#475569]">Praktik bikin proyek</span>
+        </span>
+      </div>
+
+      <div className="melayang-3 absolute bottom-0 right-0 flex items-center gap-3 rounded-2xl border border-white/20 bg-[#0f2557]/90 px-4 py-2.5 text-white shadow-xl backdrop-blur-md">
+        <span className="size-2.5 rounded-full bg-highlight-on-block-bg" />
+        <span>
+          <span className="block text-sm font-bold leading-tight">Sesi live interaktif</span>
+          <span className="block text-[13px] leading-tight text-[#bfdbfe]">Tanya jawab langsung</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+const KEUNGGULAN: { ikon: LucideIcon; label: string; judul: string; ket: string; warnaIkon: string; warnaLabel: string }[] = [
+  {
+    ikon: Users,
+    label: "Maks. 10–15 siswa",
+    judul: "Fokus dan interaktif",
+    ket: "Maksimal 10 siswa untuk SD dan 15 siswa untuk SMP–SMA, jadi setiap anak sempat bertanya dan dibantu saat praktik.",
+    warnaIkon: "bg-primary-subtle text-primary",
+    warnaLabel: "bg-primary-subtle text-primary",
+  },
+  {
+    ikon: ShieldCheck,
+    label: "Dicek 3 tahap",
+    judul: "Aman dan terverifikasi",
+    ket: "Setiap pengajar dicek lewat KTP atau KTM, SKCK, dan wawancara sebelum boleh membuka kelas.",
+    warnaIkon: "bg-accent text-on-accent",
+    warnaLabel: "bg-accent text-on-accent",
+  },
+  {
+    ikon: FileText,
+    label: "Setiap sesi",
+    judul: "Laporan untuk orang tua",
+    ket: "Setelah kelas, orang tua menerima ringkasan materi, catatan kehadiran, catatan pengajar, dan tautan karya anak.",
+    warnaIkon: "bg-neutral-subtle text-text",
+    warnaLabel: "bg-neutral-subtle text-text",
+  },
+];
+
+/** Pill sorotan di judul section 2. Koma ikut dibungkus agar tidak terlipat sendirian ke baris baru. */
+function PillNilai({ warna, children }: { warna: string; children: React.ReactNode }) {
+  return (
+    <span className={cx("inline-block rounded-full px-[0.38em] py-[0.04em] leading-[1.18] align-baseline", warna)}>{children}</span>
+  );
+}
+
+/** Section 2, mengikuti redesain: judul dengan tiga sorotan, satu kalimat penjelas, lalu tiga kartu keunggulan. */
 function Nilai() {
   return (
     <section aria-labelledby="judul-nilai" className="py-16 md:py-24">
-      <Kontainer className="text-center">
-        <Muncul>
-        <h2
-          id="judul-nilai"
-          className="mx-auto max-w-3xl text-[24px] leading-[38px] font-extrabold sm:text-[30px] sm:leading-[46px] md:text-[36px] md:leading-[54px]"
-        >
-          Di Kodie, kelasnya{" "}
-          <span className="whitespace-nowrap">
-            <Sorotan>kelompok kecil</Sorotan>,
-          </span>{" "}
-          pengajarnya{" "}
-          <span className="whitespace-nowrap">
-            <span className="inline-block rounded-full bg-accent px-[0.38em] py-[0.04em] leading-[1.18] align-baseline text-on-accent">
-              terverifikasi
+      <Kontainer>
+        <Muncul className="mx-auto max-w-3xl text-center">
+          <h2
+            id="judul-nilai"
+            className="text-[26px] leading-[40px] font-extrabold tracking-tight sm:text-[32px] sm:leading-[48px] md:text-[38px] md:leading-[56px]"
+          >
+            Di Kodie, kelasnya{" "}
+            <span className="whitespace-nowrap">
+              <PillNilai warna="bg-highlight-bg text-highlight-fg">kelompok kecil</PillNilai>,
             </span>
-            ,
-          </span>{" "}
-          dan ada{" "}
-          <span className="inline-block rounded-full bg-primary-subtle px-[0.38em] py-[0.04em] leading-[1.18] align-baseline text-text">
-            laporan
-          </span>{" "}
-          setiap sesi.
-        </h2>
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-text-muted md:text-lg">
-          Maksimal 10 siswa untuk SD dan 15 untuk SMP–SMA. Pengajar dicek lewat KTP atau KTM, SKCK, dan wawancara.
-        </p>
+            <br className="hidden sm:inline" /> pengajarnya{" "}
+            <span className="whitespace-nowrap">
+              <PillNilai warna="bg-accent text-on-accent">terverifikasi</PillNilai>,
+            </span>
+            <br className="hidden sm:inline" /> dan ada <PillNilai warna="bg-primary-subtle text-text">laporan</PillNilai> setiap sesi.
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-text-muted md:text-lg md:leading-8">
+            Anak lebih leluasa bertanya, didampingi pengajar yang aman dan kompeten, dan perkembangannya mudah dipantau orang tua.
+          </p>
         </Muncul>
+
+        <ul className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
+          {KEUNGGULAN.map((k, i) => (
+            <Muncul as="li" key={k.judul} tunda={i * 0.08} className="flex">
+              <article className="flex w-full flex-col rounded-card border border-border bg-surface-sunken p-6 transition-[border-color,box-shadow] duration-300 hover:border-primary hover:shadow-lg">
+                <div className="flex items-center justify-between gap-3">
+                  <span aria-hidden className={cx("grid size-12 shrink-0 place-items-center rounded-2xl", k.warnaIkon)}>
+                    <k.ikon className="size-6" />
+                  </span>
+                  <span className={cx("rounded-full px-3 py-1 text-sm font-bold", k.warnaLabel)}>{k.label}</span>
+                </div>
+                <h3 className="mt-5 text-xl font-bold leading-snug">{k.judul}</h3>
+                <p className="mt-2 leading-relaxed text-text-muted">{k.ket}</p>
+              </article>
+            </Muncul>
+          ))}
+        </ul>
       </Kontainer>
     </section>
   );

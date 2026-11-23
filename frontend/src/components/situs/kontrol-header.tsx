@@ -109,7 +109,7 @@ function simpanTema(nilai: Tema) {
 function gantiTemaHalus(nilai: Tema, asal: HTMLElement) {
   const akar = document.documentElement;
   const kurangiGerak = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (typeof document.startViewTransition !== "function" || kurangiGerak) {
+  if (typeof document.startViewTransition !== "function" || kurangiGerak || document.hidden) {
     simpanTema(nilai);
     return;
   }
@@ -125,9 +125,13 @@ function gantiTemaHalus(nilai: Tema, asal: HTMLElement) {
     // Beri React waktu merender ulang komponen yang membaca tema (misalnya footer) sebelum snapshot baru.
     await new Promise((r) => setTimeout(r, 40));
   });
-  transisi.finished.finally(() => {
-    delete akar.dataset.vt;
-  });
+  // Transisi bisa dibatalkan browser (misalnya tab disembunyikan); tema tetap sudah tersimpan.
+  transisi.ready.catch(() => {});
+  transisi.finished
+    .catch(() => {})
+    .finally(() => {
+      delete akar.dataset.vt;
+    });
 }
 
 /** Toggle tema Terang / Gelap / Ikuti sistem di Header. Pill aktif bergeser dengan Motion. */
