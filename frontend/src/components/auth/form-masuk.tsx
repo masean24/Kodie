@@ -13,13 +13,16 @@ import { KartuAuth, PesanFormulir, fokusGalatPertama } from "./bagian";
 export function FormMasuk({
   lanjut,
   akunMock,
+  infoDemo,
   ringkas,
 }: {
   lanjut: string | null;
   akunMock?: string[];
+  infoDemo?: { judul: string; password: string; akun: string[] };
   /** Hanya formulir, tanpa kartu dan judul (dipakai di halaman persetujuan). */
   ringkas?: boolean;
 }) {
+  const demo = infoDemo ?? (akunMock ? { judul: "Mode mock: akun contoh", password: "kodie-mock-123", akun: akunMock } : undefined);
   const [galat, setGalat] = useState<string>();
   const [menunggu, mulai] = useTransition();
   const {
@@ -71,12 +74,12 @@ export function FormMasuk({
         </Link>
       </p>
       <p className="mt-2 text-center text-sm text-text-muted">Lupa password? Hubungi admin Kodie.</p>
-      {akunMock ? (
+      {demo ? (
         <details className="mt-6 rounded-card-sm bg-surface p-4 text-sm">
-          <summary className="cursor-pointer font-bold">Mode mock: akun contoh</summary>
-          <p className="mt-2">Password semua akun: kodie-mock-123</p>
+          <summary className="cursor-pointer font-bold">{demo.judul}</summary>
+          <p className="mt-2">Password semua akun: {demo.password}</p>
           <ul className="mt-1 list-disc pl-5">
-            {akunMock.map((a) => (
+            {demo.akun.map((a) => (
               <li key={a}>{a}</li>
             ))}
           </ul>

@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import type { HasilTesMinat, JawabanMinat, SoalMinatPublik } from "@/types/database";
 import { soalMinatMock } from "@/lib/mock/data";
 import { storeMock } from "@/lib/mock/store";
@@ -14,6 +15,12 @@ import {
 import { ambilPenggunaSaya } from "./auth";
 import { lemparJikaError, pakaiMock } from "./sumber";
 
+const NAMA_KE_SLUG_PROGRAM: Record<string, string> = {
+  "Coding Dasar": "coding-dasar",
+  "Kelas Reguler Teknologi": "kelas-reguler-teknologi",
+  "Simulasi Jurusan IT": "simulasi-jurusan-it",
+};
+
 /** View `soal_minat_publik`: 12 soal terurut, opsi tanpa bobot. */
 export async function ambilSoalMinat(): Promise<SoalMinatPublik[]> {
   if (pakaiMock) {
@@ -24,6 +31,7 @@ export async function ambilSoalMinat(): Promise<SoalMinatPublik[]> {
       opsi: opsi.map(({ kode, teks: t }) => ({ kode, teks: t })),
     }));
   }
+  await connection();
   const { data, error } = await clientPublik().from("soal_minat_publik").select("*").order("urutan");
   lemparJikaError(error);
   return (data ?? []) as SoalMinatPublik[];
@@ -64,5 +72,11 @@ export async function hitungTesMinat(jawaban: JawabanMinat, siswaId?: string | n
     ...(siswaId ? { p_siswa_id: siswaId } : {}),
   });
   lemparJikaError(error);
-  return data as HasilTesMinat;
+  const hasil = data as HasilTesMinat;
+  return {
+    ...hasil,
+    rekomendasi_program: siswaId
+      ? (hasil.rekomendasi_program ?? []).map((p) => NAMA_KE_SLUG_PROGRAM[p] ?? p)
+      : [],
+  };
 }

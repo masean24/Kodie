@@ -21,7 +21,6 @@ import { bolehSetujuiPengajar, urutkanAntreanWaktu, urutkanLaporanMasalah, type 
 import { STATUS_AKTIF } from "@/lib/booking";
 import { buatKelasMock, programMock } from "@/lib/mock/data";
 import { storeMock } from "@/lib/mock/store";
-import { clientPublik } from "@/lib/supabase/publik";
 import { buatClientServer } from "@/lib/supabase/server";
 import type {
   InputPengaturanRekening,
@@ -30,6 +29,7 @@ import type {
 } from "@/lib/validasi/admin";
 import { ambilPenggunaSaya, daftarPenggunaMock } from "./auth";
 import type { SiswaRingkas } from "./booking";
+import { ambilKelasByIds } from "./kelas";
 import { lemparJikaError, pakaiMock } from "./sumber";
 
 /** Area Admin (PRD F5–F8, F12–F14). Hanya untuk server (memakai sesi di cookie). */
@@ -74,23 +74,25 @@ export async function ambilRingkasanAdmin(): Promise<AdminRingkasan> {
   }
 
   const supabase = await buatClientServer();
-  const [ringRes, honorRes, sesiRes] = await Promise.all([
-    supabase.from("admin_ringkasan").select("*").maybeSingle(),
-    supabase.from("honor").select("id", { count: "exact", head: true }).eq("status", "belum_dibayar"),
-    supabase.from("sesi").select("id", { count: "exact", head: true }).is("meet_uri", null).neq("status", "dibatalkan"),
-  ]);
-  lemparJikaError(ringRes.error);
-  const r = (ringRes.data as AdminRingkasan | null) ?? {
+  const { data, error } = await supabase.from("admin_ringkasan").select("*").maybeSingle();
+  lemparJikaError(error);
+  const r = (data as AdminRingkasan | null) ?? {
     siswa_aktif: 0,
     kelas_berjalan: 0,
     booking_menunggu_verifikasi: 0,
     pengajar_menunggu_verifikasi: 0,
     laporan_masalah_baru: 0,
+    honor_belum_dibayar: 0,
+    sesi_tanpa_meet: 0,
   };
   return {
-    ...r,
-    honor_belum_dibayar: honorRes.count ?? 0,
-    sesi_tanpa_meet: sesiRes.count ?? 0,
+    siswa_aktif: r.siswa_aktif ?? 0,
+    kelas_berjalan: r.kelas_berjalan ?? 0,
+    booking_menunggu_verifikasi: r.booking_menunggu_verifikasi ?? 0,
+    pengajar_menunggu_verifikasi: r.pengajar_menunggu_verifikasi ?? 0,
+    laporan_masalah_baru: r.laporan_masalah_baru ?? 0,
+    honor_belum_dibayar: r.honor_belum_dibayar ?? 0,
+    sesi_tanpa_meet: r.sesi_tanpa_meet ?? 0,
   };
 }
 
@@ -141,14 +143,13 @@ export async function ambilAntreanPembayaran(
     const siswaIds = [...new Set(booking.map((b) => b.siswa_id))];
     const kelasIds = [...new Set(booking.map((b) => b.kelas_id))];
 
-    const [sRes, kRes] = await Promise.all([
+    const [sRes, kList] = await Promise.all([
       siswaIds.length ? supabase.from("siswa").select("id, nama, jenjang, kelas").in("id", siswaIds) : Promise.resolve({ data: [], error: null }),
-      kelasIds.length ? clientPublik().from("kelas_katalog").select("*").in("id", kelasIds) : Promise.resolve({ data: [], error: null }),
+      ambilKelasByIds(kelasIds),
     ]);
     lemparJikaError(sRes.error);
-    lemparJikaError(kRes.error);
     siswa = (sRes.data ?? []) as SiswaRingkas[];
-    kelas = (kRes.data ?? []) as KelasKatalog[];
+    kelas = kList;
   }
 
   const hasil: AntreanPembayaranItem[] = [];
@@ -301,7 +302,12 @@ export async function ambilAntreanPengajarAdmin(
     ]);
     lemparJikaError(pRes.error);
     lemparJikaError(ppRes.error);
-    profil = (pRes.data ?? []) as ProfilPengajar[];
+    profil = ((pRes.data ?? []) as (Omit<ProfilPengajar, "status_kerja"> & { status_kerja: ProfilPengajar["status_kerja"] | null })[]).map(
+      (pr) => ({
+        ...pr,
+        status_kerja: pr.status_kerja ?? "mahasiswa",
+      }),
+    );
     program = (ppRes.data ?? []) as PengajarProgram[];
   }
 
@@ -745,31 +751,37 @@ export async function ambilDaftarKelasAdmin(): Promise<{
     kapasitas: number;
     status: StatusKelas;
     dibuat_pada: string;
-    program: { nama: string; slug: string } | null;
-    pengguna: { nama: string } | null;
+    program: { nama: string; slug: string } | { nama: string; slug: string }[] | null;
+    pengguna: { nama: string } | { nama: string }[] | null;
   };
-  const barisKelas = (kRes.data ?? []) as BarisK[];
+  const barisKelas = (kRes.data ?? []) as unknown as BarisK[];
   const kMap = new Map(barisKelas.map((k) => [k.id, k]));
 
-  const kelas: KelasAdminItem[] = barisKelas.map((k) => ({
-    id: k.id,
-    programNama: k.program?.nama ?? "Program",
-    programSlug: k.program?.slug ?? "kelas-reguler-teknologi",
-    pengajarNama: k.pengguna?.nama ?? "Pengajar",
-    level: k.level ?? 1,
-    kapasitas: k.kapasitas,
-    status: k.status,
-    mulaiPada: k.dibuat_pada,
-  }));
+  const kelas: KelasAdminItem[] = barisKelas.map((k) => {
+    const prog = Array.isArray(k.program) ? (k.program[0] ?? null) : k.program;
+    const peng = Array.isArray(k.pengguna) ? (k.pengguna[0] ?? null) : k.pengguna;
+    return {
+      id: k.id,
+      programNama: prog?.nama ?? "Program",
+      programSlug: prog?.slug ?? "kelas-reguler-teknologi",
+      pengajarNama: peng?.nama ?? "Pengajar",
+      level: k.level ?? 1,
+      kapasitas: k.kapasitas,
+      status: k.status,
+      mulaiPada: k.dibuat_pada,
+    };
+  });
 
   const sesiTanpaMeet: SesiTanpaMeetItem[] = (
     (sRes.data ?? []) as Pick<SesiAdmin, "id" | "kelas_id" | "nomor" | "mulai_pada" | "meet_gagal_terakhir">[]
   ).map((s) => {
     const k = kMap.get(s.kelas_id);
+    const prog = k ? (Array.isArray(k.program) ? (k.program[0] ?? null) : k.program) : null;
+    const peng = k ? (Array.isArray(k.pengguna) ? (k.pengguna[0] ?? null) : k.pengguna) : null;
     return {
       sesi: s,
-      programNama: k?.program?.nama ?? "Program",
-      pengajarNama: k?.pengguna?.nama ?? "Pengajar",
+      programNama: prog?.nama ?? "Program",
+      pengajarNama: peng?.nama ?? "Pengajar",
     };
   });
 

@@ -73,7 +73,10 @@ export async function ambilProfilLengkapPengajar(): Promise<ProfilLengkapPengaja
   ]);
   lemparJikaError(profRes.error);
   lemparJikaError(progRes.error);
-  const profil = (profRes.data as ProfilPengajar | null) ?? null;
+  const profilRaw = (profRes.data as (Omit<ProfilPengajar, "status_kerja"> & { status_kerja: ProfilPengajar["status_kerja"] | null }) | null) ?? null;
+  const profil: ProfilPengajar | null = profilRaw
+    ? { ...profilRaw, status_kerja: profilRaw.status_kerja ?? "mahasiswa" }
+    : null;
   const fotoUrl = profil?.foto_path
     ? supabase.storage.from("foto-pengajar").getPublicUrl(profil.foto_path).data.publicUrl
     : null;
@@ -210,7 +213,7 @@ type BarisKelasSupabase = {
   status: StatusKelas;
   level: number;
   dibuat_pada: string;
-  program: Program;
+  program: Program | Program[];
 };
 
 async function ambilKelasMilikPengajar(pengajarId: string): Promise<KelasPengajarRinci[]> {
@@ -296,9 +299,10 @@ async function ambilKelasMilikPengajar(pengajarId: string): Promise<KelasPengaja
     for (const l of semuaLaporan) {
       if (sesi.some((s) => s.id === l.sesi_id)) laporanBySesi[l.sesi_id] = l;
     }
+    const prog = Array.isArray(k.program) ? k.program[0]! : k.program;
     return {
       id: k.id,
-      program: k.program,
+      program: prog,
       level: k.level ?? 1,
       kapasitas: k.kapasitas,
       jam_mulai: k.jam_mulai,

@@ -64,7 +64,7 @@ export function DaftarRapor({ daftar, basePath }: { daftar: RaporRinci[]; basePa
 /** Detail rapor rekomendasi jurusan berdampingan dengan hasil tes minat (PRD F11, print CSS). */
 export function DetailRapor({ item, basePath }: { item: RaporRinci; basePath: "/orang-tua" | "/siswa" }) {
   const { rapor, siswa, kelas, sesi, hasilMinat } = item;
-  const minatSkor = rapor.minat_skor ?? hasilMinat?.skor ?? null;
+  const minatSkor = rapor.tes_minat_skor ?? rapor.minat_skor ?? hasilMinat?.skor ?? null;
   const jurusanSaran = JURUSAN_PER_BIDANG[rapor.bidang_rekomendasi];
 
   return (

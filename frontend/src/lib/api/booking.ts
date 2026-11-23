@@ -9,9 +9,9 @@ import type {
 import { storeMock } from "@/lib/mock/store";
 import { buatKelasMock } from "@/lib/mock/data";
 import { buatClientServer } from "@/lib/supabase/server";
-import { clientPublik } from "@/lib/supabase/publik";
 import { STATUS_AKTIF, kodeBooking, statusEfektif } from "@/lib/booking";
 import { ambilPenggunaSaya } from "./auth";
+import { ambilKelasByIds } from "./kelas";
 import { lemparJikaError, pakaiMock } from "./sumber";
 
 /** Booking dan pembayaran (PRD F6). Hanya untuk server (memakai sesi di cookie). */
@@ -103,14 +103,13 @@ async function lengkapi(daftar: Booking[]): Promise<BookingRinci[]> {
   } else {
     const supabase = await buatClientServer();
     const [k, s, b] = await Promise.all([
-      clientPublik().from("kelas_katalog").select("*").in("id", kelasIds),
+      ambilKelasByIds(kelasIds),
       supabase.from("siswa").select("id, nama, jenjang, kelas").in("id", siswaIds),
       supabase.from("pembayaran").select("*").in("booking_id", bookingIds),
     ]);
-    lemparJikaError(k.error);
     lemparJikaError(s.error);
     lemparJikaError(b.error);
-    kelas = (k.data ?? []) as KelasKatalog[];
+    kelas = k;
     siswa = (s.data ?? []) as SiswaRingkas[];
     pembayaran = (b.data ?? []) as Pembayaran[];
   }

@@ -14,13 +14,29 @@ import { buatJadwal4Sesi, bisaMasukKelas } from "@/lib/mengajar";
 import { apakahLaporanBaru, prioritasMasalah } from "@/lib/sesi";
 import { buatKelasMock } from "@/lib/mock/data";
 import { storeMock } from "@/lib/mock/store";
-import { clientPublik } from "@/lib/supabase/publik";
 import { buatClientServer } from "@/lib/supabase/server";
 import type { InputLaporanMasalah, InputRating } from "@/lib/validasi/sesi";
 import { ambilPenggunaSaya } from "./auth";
 import type { SiswaRingkas } from "./booking";
+import { ambilKelasByIds } from "./kelas";
 import { ambilHasilMinatTerbaru } from "./siswa";
 import { lemparJikaError, pakaiMock } from "./sumber";
+
+function normalisasiLaporanSaya(row: LaporanSaya): LaporanSaya {
+  return {
+    ...row,
+    id: row.id ?? row.laporan_siswa_id ?? row.laporan_sesi_id ?? "",
+  };
+}
+
+function normalisasiRaporSaya(row: RaporSaya): RaporSaya {
+  return {
+    ...row,
+    minat_skor: row.tes_minat_skor ?? row.minat_skor ?? null,
+    minat_bidang_teratas: row.tes_minat_bidang_teratas ?? row.minat_bidang_teratas ?? null,
+    minat_dibuat_pada: row.tes_minat_dibuat_pada ?? row.minat_dibuat_pada ?? null,
+  };
+}
 
 /** Halaman sesi, laporan, rating, laporan masalah, dan rapor (PRD F8, F10–F12). Hanya untuk server. */
 
@@ -200,24 +216,23 @@ export async function ambilRingkasanSesiDanLaporan(): Promise<RingkasanSesiLapor
 
   const bookings = (bookingRes.data ?? []) as Booking[];
   const sesiList = (sesiRes.data ?? []) as SesiSaya[];
-  const lapList = (lapRes.data ?? []) as LaporanSaya[];
-  const raporList = (raporRes.data ?? []) as RaporSaya[];
+  const lapList = ((lapRes.data ?? []) as LaporanSaya[]).map(normalisasiLaporanSaya);
+  const raporList = ((raporRes.data ?? []) as RaporSaya[]).map(normalisasiRaporSaya);
 
-  const kelasIds = [...new Set(bookings.map((b) => b.kelas_id))];
+  const kelasIds = [...new Set([...bookings.map((b) => b.kelas_id), ...raporList.map((r) => r.kelas_id).filter(Boolean) as string[]])];
   const siswaIds = [...new Set([...bookings.map((b) => b.siswa_id), ...raporList.map((r) => r.siswa_id)])];
   if (kelasIds.length === 0 && raporList.length === 0) {
     return { sesiTerdekat: [], laporanTerbaru: [], raporDaftar: [] };
   }
 
-  const [kelasRes, siswaRes, hasilMinatMap] = await Promise.all([
-    kelasIds.length ? clientPublik().from("kelas_katalog").select("*").in("id", kelasIds) : Promise.resolve({ data: [], error: null }),
+  const [kelasList, siswaRes, hasilMinatMap] = await Promise.all([
+    ambilKelasByIds(kelasIds),
     siswaIds.length ? supabase.from("siswa").select("id, nama, jenjang, kelas").in("id", siswaIds) : Promise.resolve({ data: [], error: null }),
     ambilHasilMinatTerbaru(siswaIds),
   ]);
-  lemparJikaError(kelasRes.error);
   lemparJikaError(siswaRes.error);
 
-  const kelasMap = new Map(((kelasRes.data ?? []) as KelasKatalog[]).map((k) => [k.id, k]));
+  const kelasMap = new Map(kelasList.map((k) => [k.id, k]));
   const siswaMap = new Map(((siswaRes.data ?? []) as SiswaRingkas[]).map((s) => [s.id, s]));
   const sesiMap = new Map(sesiList.map((s) => [s.id, s]));
 
@@ -363,20 +378,19 @@ export async function ambilDetailSesiPengguna(sesiId: string): Promise<DetailSes
   if (!sesiData) return null;
   const sesi = sesiData as SesiSaya;
 
-  const [kelasRes, bookingRes, lapRes, ratingRes, raporRes] = await Promise.all([
-    clientPublik().from("kelas_katalog").select("*").eq("id", sesi.kelas_id).maybeSingle(),
+  const [kelasList, bookingRes, lapRes, ratingRes, raporRes] = await Promise.all([
+    ambilKelasByIds([sesi.kelas_id]),
     supabase.from("booking").select("*").eq("kelas_id", sesi.kelas_id).in("status", ["terkonfirmasi", "selesai"]),
     supabase.from("laporan_saya").select("*").eq("sesi_id", sesiId),
     supabase.from("rating").select("*").eq("sesi_id", sesiId),
     supabase.from("rapor_saya").select("id, siswa_id").eq("sesi_id", sesiId),
   ]);
-  lemparJikaError(kelasRes.error);
   lemparJikaError(bookingRes.error);
   lemparJikaError(lapRes.error);
   lemparJikaError(ratingRes.error);
   lemparJikaError(raporRes.error);
 
-  const kelas = kelasRes.data as KelasKatalog | null;
+  const kelas = kelasList[0] ?? null;
   const bookings = (bookingRes.data ?? []) as Booking[];
   if (!kelas || bookings.length === 0) return null;
 
@@ -384,7 +398,7 @@ export async function ambilDetailSesiPengguna(sesiId: string): Promise<DetailSes
   const { data: siswaData, error: siswaErr } = await supabase.from("siswa").select("id, nama, jenjang, kelas").in("id", siswaIds);
   lemparJikaError(siswaErr);
   const siswaList = (siswaData ?? []) as SiswaRingkas[];
-  const lapList = (lapRes.data ?? []) as LaporanSaya[];
+  const lapList = ((lapRes.data ?? []) as LaporanSaya[]).map(normalisasiLaporanSaya);
   const ratingList = (ratingRes.data ?? []) as Rating[];
   const raporList = (raporRes.data ?? []) as { id: string; siswa_id: string }[];
 
