@@ -434,7 +434,6 @@ h4 {
   --footer-border: #E2E8F0;
   --footer-btn-border: #CBD5E1;
   --footer-bracket: #1D4ED8;
-  --footer-badge-accent: #1D4ED8;
   --sky-top: rgba(219, 234, 254, 0.25);
   --sky-glow: rgba(147, 197, 253, 0.35);
   --building-wall: #FFFFFF;
@@ -450,31 +449,6 @@ h4 {
   --sun-opacity: 1;
 }
 
-[data-footer-theme="sunset"] {
-  --footer-bg: #FFF7ED;
-  --footer-surface: #FFEDD5;
-  --footer-text: #0F172A;
-  --footer-muted: #7C2D12;
-  --footer-link: #1D4ED8;
-  --footer-border: #FED7AA;
-  --footer-btn-border: #FDBA74;
-  --footer-bracket: #1D4ED8;
-  --footer-badge-accent: #1D4ED8;
-  --sky-top: rgba(254, 215, 170, 0.35);
-  --sky-glow: rgba(251, 146, 60, 0.32);
-  --building-wall: #FFFBEB;
-  --building-shade: #FDE68A;
-  --window-lit: #C6F64D;
-  --window-dim: #FDBA74;
-  --foliage-dark: #047857;
-  --foliage-mid: #059669;
-  --foliage-light: #10B981;
-  --lamp-opacity: 0.42;
-  --star-opacity: 0.3;
-  --moon-opacity: 0;
-  --sun-opacity: 0.9;
-}
-
 [data-footer-theme="night"] {
   --footer-bg: #0F172A;
   --footer-surface: #1E293B;
@@ -484,7 +458,6 @@ h4 {
   --footer-border: #1E293B;
   --footer-btn-border: #334155;
   --footer-bracket: #60A5FA;
-  --footer-badge-accent: #C6F64D;
   --sky-top: rgba(15, 23, 42, 0.95);
   --sky-glow: rgba(30, 58, 138, 0.38);
   --building-wall: #CBD5E1;
@@ -542,10 +515,6 @@ h4 {
   background-size: 360px 84px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='21' viewBox='0 0 90 21' shape-rendering='crispEdges'%3E%3Cpath fill='%23DBEAFE' d='M2 11h10v10H2zm14-4h12v14H16zm16 3h14v11H32zm18-5h11v16H50zm15 4h11v12H65zm14 3h9v9h-9z'/%3E%3Cpath fill='%23BFDBFE' d='M4 13h7v8H4zm14-3h9v11h-9zm16 2h10v9H34zm18-4h8v13h-8zm15 3h8v10h-8z'/%3E%3Cpath fill='%2393C5FD' d='M6 15h1v1H6zm3 0h1v1H9zm10-3h1v1h-1zm3 0h1v1h-1zm15 2h1v1h-1zm17-4h1v1h-1zm16 3h1v1h-1z'/%3E%3C/svg%3E");
   transition: opacity 0.4s ease;
-}
-
-[data-footer-theme="sunset"] .pixel-city-far {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='21' viewBox='0 0 90 21' shape-rendering='crispEdges'%3E%3Cpath fill='%23FED7AA' d='M2 11h10v10H2zm14-4h12v14H16zm16 3h14v11H32zm18-5h11v16H50zm15 4h11v12H65zm14 3h9v9h-9z'/%3E%3Cpath fill='%23FDBA74' d='M4 13h7v8H4zm14-3h9v11h-9zm16 2h10v9H34zm18-4h8v13h-8zm15 3h8v10h-8z'/%3E%3Cpath fill='%23FB923C' d='M6 15h1v1H6zm13-3h1v1h-1zm18 2h1v1h-1zm17-4h1v1h-1zm16 3h1v1h-1z'/%3E%3C/svg%3E");
 }
 
 [data-footer-theme="night"] .pixel-city-far {

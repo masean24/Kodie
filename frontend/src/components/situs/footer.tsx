@@ -97,7 +97,7 @@ function LangitPiksel() {
         preserveAspectRatio="xMidYMin slice"
         aria-hidden="true"
       >
-        {/* Matahari Siang/Senja */}
+        {/* Matahari Mode Light */}
         <g style={{ opacity: "var(--sun-opacity)" }} className="transition-opacity duration-500">
           <rect x="206" y="4" width="6" height="6" fill="#FDE047" />
           <rect x="205" y="5" width="8" height="4" fill="#FDE047" />
