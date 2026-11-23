@@ -42,6 +42,8 @@ const SOURCE_URL_MAP: Record<string, string> = {
   '03-tes-minat-dan-simulasi-jurusan.md': '/tes-minat',
   '04-booking-pembayaran-dan-masuk-kelas.md': '/kelas',
   '05-faq-dan-kebijakan-privasi.md': '/kebijakan-privasi',
+  '06-kodie-lab.md': '/lab',
+  '07-karier-pengajar.md': '/karier',
 };
 
 /**

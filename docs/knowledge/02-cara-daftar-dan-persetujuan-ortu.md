@@ -2,10 +2,10 @@
 
 ## Peran Pengguna di Kodie
 
-Di platform Kodie terdapat 3 peran pendaftaran publik:
-1. **Orang Tua / Wali Siswa** (`/daftar`)
-2. **Siswa Mandiri (khusus SMP dan SMA)** (`/daftar`)
-3. **Pengajar** (`/daftar`)
+Di platform Kodie terdapat 3 peran pendaftaran:
+1. **Orang Tua / Wali Siswa** — daftar melalui halaman `/daftar`.
+2. **Siswa Mandiri (khusus SMP dan SMA)** — daftar melalui halaman `/daftar`.
+3. **Pengajar** — melamar dan membuat akun pengajar melalui halaman rekrutmen **`/karier`** (tautan `/daftar?peran=pengajar` otomatis diarahkan ke `/karier`).
 
 ## Aturan Pendaftaran Siswa SD vs SMP/SMA
 
@@ -25,10 +25,10 @@ Sesuai **Pasal 25 UU Pelindungan Data Pribadi (UU PDP)**, akun siswa di bawah 18
    - **Tolak:** Status siswa berubah menjadi **`ditolak_orang_tua`** dan tidak dapat memesan kelas.
 6. Jika link sudah kedaluwarsa (lewat 7 hari), siswa dapat membuat link persetujuan baru dari halaman `/siswa/persetujuan` (link lama otomatis tidak berlaku).
 
-## Pendaftaran dan Verifikasi Pengajar
+## Pendaftaran dan Verifikasi Pengajar (`/karier`)
 
-Mahasiswa atau pencari kerja paruh waktu dapat bergabung menjadi pengajar di Kodie:
-1. Daftar di `/daftar` dengan memilih peran **Pengajar**. Status awal akun adalah **`menunggu_verifikasi`**.
+Mahasiswa, lulusan, atau pencari kerja paruh waktu dapat bergabung menjadi pengajar di Kodie:
+1. Buka halaman **Karier Pengajar** di `/karier`, pilih salah satu dari 6 posisi yang tersedia (misalnya *Pengajar Coding Dasar*, *Pengajar Python*, *Pengajar Pengembangan Web*, *Pengajar Jaringan Komputer*, *Pengajar IoT dan Arduino*, atau *Pengajar AI dan Data*), lalu buat akun pengajar pada halaman detail posisi tersebut (`/karier/[slug]`). Status awal akun adalah **`menunggu_verifikasi`**.
 2. Setelah login, buka halaman **Profil Pengajar** (`/mengajar/profil`) untuk melengkapi:
    - Status kerja (Mahasiswa, Lulusan, atau Pencari Kerja), nama kampus, dan jurusan.
    - Bidang keahlian (Software, Jaringan, IoT, AI & Data) dan **program yang ingin diajar**.
