@@ -1,0 +1,30 @@
+{
+  "name": "sevent-x-bimbel-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend Supabase (migrations, RLS, RPC, Edge Functions, seed) untuk platform bimbel teknologi daring SEVENT X",
+  "scripts": {
+    "supabase": "supabase",
+    "link": "supabase link",
+    "db:push": "supabase db push",
+    "db:reset": "supabase db reset",
+    "functions:deploy": "supabase functions deploy buat-meet --no-verify-jwt && supabase functions deploy chat --no-verify-jwt",
+    "gen:types:local": "supabase gen types typescript --local > supabase/types/database.ts",
+    "gen:types:linked": "supabase gen types typescript --linked > supabase/types/database.ts",
+    "seed:akun": "tsx scripts/seed-akun.ts",
+    "ingest:knowledge": "tsx scripts/ingest-knowledge.ts",
+    "test:rls": "tsx scripts/verify-backend.ts",
+    "test:chatbot": "tsx scripts/test-chatbot-unit.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "supabase": "^2.15.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,64 +1,140 @@
-# Bimbel Teknologi Daring SD, SMP, SMA — SEVENT X
+# Kodie — Platform Bimbel Teknologi Daring SD, SMP, SMA & Simulasi Jurusan IT
 
-Website bimbel teknologi daring yang terjangkau untuk siswa SD, SMP, dan SMA, termasuk program Simulasi Jurusan IT. Pengajarnya mahasiswa dan pencari kerja paruh waktu yang mengajar memakai Teaching Playbook terstandar.
+**Kodie** adalah platform bimbingan belajar (bimbel) teknologi daring yang terjangkau untuk siswa **SD, SMP, dan SMA** di seluruh Indonesia, dilengkapi program **Simulasi Jurusan IT** serta asisten belajar virtual **Kiko**. Pengajar di Kodie adalah mahasiswa bidang IT dan pencari kerja paruh waktu terverifikasi yang mengajar menggunakan **Teaching Playbook** terstandar.
 
-Karya ini untuk lomba Software Development SEVENT X, kategori website. Subtemanya SDG 4 (Quality Education) dan SDG 8 (Decent Work and Economic Growth).
+Karya ini dikembangkan untuk kompetisi **Software Development SEVENT X (Kategori Website)** dengan subtema:
+- **SDG 4 (Quality Education):** Memperluas akses pendidikan teknologi berkualitas dari jenjang SD hingga SMA dan membantu siswa memilih jurusan kuliah IT melalui pengalaman praktik langsung.
+- **SDG 8 (Decent Work and Economic Growth):** Membuka peluang kerja paruh waktu yang fleksibel, layak, dan terstandar bagi mahasiswa serta pencari kerja di bidang teknologi.
 
-> Nama website belum ditentukan. Ganti judul ini setelah nama dipilih (lihat `docs/PRD.md` bagian 12).
+---
 
-## Tim
+## Tautan Penting
+
+| Kategori | Tautan |
+| --- | --- |
+| **Website Produksi (Live Demo)** | *(Segera diperbarui setelah deployment Frontend selesai)* |
+| **Video Demo (YouTube)** | *(Segera diperbarui menjelang pengumpulan karya)* |
+| **Repository GitHub** | [https://github.com/masean24/Kodie](https://github.com/masean24/Kodie) |
+| **Dokumen Spesifikasi (PRD)** | [`docs/PRD.md`](docs/PRD.md) |
+| **Log Keputusan Arsitektur** | [`docs/KEPUTUSAN.md`](docs/KEPUTUSAN.md) |
+
+---
+
+## Tim Pengembang
 
 | Nama | Peran |
 | --- | --- |
-| Mgs. M. Fahim Rahmatullah | Frontend (Claude Code) |
-| Khalil Amin Adillah | Belum ditentukan: backend (Antigravity) atau proposal, konten, dan video |
-| Raihan Daris Ramadhan | Belum ditentukan: backend (Antigravity) atau proposal, konten, dan video |
+| **Mgs. M. Fahim Rahmatullah** | Frontend Engineer (Next.js App Router, UI/UX, Aksesibilitas) |
+| **Raihan Daris Ramadhan** | Backend Engineer & AI Integration (Supabase, Google Meet API, Hybrid RAG Chatbot) |
+| **Khalil Amin Adillah** | Product, Kurikulum Teaching Playbook, Proposal & Dokumentasi Video |
 
-## Struktur folder
+---
 
-```
+## Fitur Utama
+
+1. **Tiga Program Belajar Berjenjang:**
+   - **Coding Dasar (SD Kelas 5–6):** Logika & pemrograman blok interaktif dengan Scratch (maks. 10 siswa/kelas, 60 menit/sesi, Rp200.000/paket 4 sesi).
+   - **Kelas Reguler Teknologi (SMP & SMA Kelas 7–12):** Pemrograman web (HTML, CSS, JS), IoT virtual, dan AI dasar (maks. 15 siswa/kelas, 90 menit/sesi, Rp275.000/paket 4 sesi).
+   - **Simulasi Jurusan IT (SMP Kelas 9 & SMA Kelas 10–12):** Eksplorasi 4 bidang kuliah IT (*Software Engineering*, *Jaringan Komputer*, *IoT*, *AI & Data*) selama 4 sesi yang menghasilkan **Rapor Rekomendasi Jurusan Kuliah** (Rp300.000/paket 4 sesi).
+2. **Perlindungan Data Anak (Kepatuhan Pasal 25 UU PDP):**
+   - Siswa SD dikelola langsung melalui profil anak pada akun Orang Tua tanpa akun login terpisah.
+   - Siswa SMP & SMA yang mendaftar mandiri berstatus `menunggu_persetujuan` dan baru aktif setelah orang tua menyetujui melalui tautan verifikasi sekali pakai (`/persetujuan/[token]`).
+3. **Tes Minat Jurusan IT Interaktif:**
+   - Kuis 12 soal berbobot seimbang yang memetakan minat siswa ke 4 bidang IT beserta rekomendasi jurusan kuliah dan program belajar.
+4. **Otomatisasi Ruang Kelas Google Meet (`spaces.create`):**
+   - Setiap kelas yang dibuka pengajar terverifikasi otomatis dibuatkan 4 ruang Google Meet mingguan oleh akun platform melalui Google Meet REST API. Link dijaga ketat dan hanya dapat diakses peserta terkonfirmasi mulai 15 menit sebelum sesi hingga sesi berakhir.
+5. **Teaching Playbook, Laporan Sesi Real-time & Rapor Jurusan:**
+   - Panduan mengajar langkah demi langkah untuk menjaga standar kualitas pengajar.
+   - Laporan kehadiran dan catatan evaluasi siswa terkirim secara *real-time* ke dashboard siswa dan orang tua tanpa *refresh* (dengan isolasi privasi catatan antar siswa).
+6. **Asisten Virtual AI "Kiko" & Live Admin Takeover:**
+   - Chatbot berbasis **Hybrid RAG (`pgvector` + Full-Text Search Reciprocal Rank Fusion)** dengan *4-Layer Guardrail*, *Auto-Failover* LLM, *Context Injection* katalog kelas live & data pengguna (mematuhi RLS), serta fitur **Live Takeover Realtime** di mana Admin dapat mengambil alih percakapan langsung dari dashboard.
+
+---
+
+## Teknologi yang Digunakan
+
+| Lapisan | Teknologi |
+| --- | --- |
+| **Frontend** | Next.js (App Router), TypeScript, Tailwind CSS, `@supabase/ssr`, React Hook Form, Zod, Lucide Icons |
+| **Backend & Database** | Supabase (PostgreSQL 17, Row Level Security di 26 tabel, 8 View, 28 RPC PL/pgSQL, Supabase Auth, Storage, Realtime, `pg_cron` + `pg_net`) |
+| **Edge Functions** | Deno Edge Functions (`buat-meet` untuk Google Meet REST API v2 & `chat` untuk SSE Streaming AI Chatbot) |
+| **AI & RAG** | Hybrid Search `pgvector` (768d L2-normalized `gemini-embedding-001` + PostgreSQL FTS RRF), Agnes AI (`agnes-3.0-flash`) & Google Gemini (`gemini-3.8-flash`) |
+
+---
+
+## Akun Demo untuk Juri
+
+Seluruh akun demo di bawah ini sudah tersedia di database produksi beserta data kelas, sesi, booking, laporan, rapor jurusan, dan rating.
+
+- **Password untuk semua akun demo:** `DemoSeventX123!`
+
+| Peran | Email | Keterangan Skenario |
+| --- | --- | --- |
+| **Admin** | `admin@seventx.id` | Akses penuh dashboard `/admin`: verifikasi pengajar, verifikasi pembayaran, laporan masalah, honor, dan Live Takeover chat |
+| **Orang Tua 1** | `ortu1@seventx.id` | Memiliki profil anak SD (**Bima Aditya** kls 5), SMP (**Sinta Maharani** kls 8), serta terhubung dengan siswa SMA (**Fajar Nugroho** kls 11) |
+| **Orang Tua 2** | `ortu2@seventx.id` | Memiliki profil anak SMA (**Raka Pratama** kls 11) |
+| **Siswa Mandiri (Aktif)** | `siswa.aktif@seventx.id` | **Fajar Nugroho** (SMA kls 11) — memiliki hasil tes minat, booking selesai, laporan sesi, dan rapor rekomendasi jurusan |
+| **Siswa Mandiri (Menunggu Persetujuan)** | `siswa.baru@seventx.id` | **Laras Putri Kinanti** (SMP kls 9) — untuk menguji pembuatan link persetujuan orang tua (`/siswa/persetujuan`) |
+| **Pengajar Terverifikasi 1** | `pengajar1@seventx.id` | **Nadia Kusuma Putri** (Software & AI) — memiliki kelas aktif dengan link Google Meet asli |
+| **Pengajar Terverifikasi 2** | `pengajar2@seventx.id` | **Bagus Pratama Wijaya** (Jaringan & IoT) — memiliki 3 ulasan rating, laporan sesi, rapor jurusan, dan honor |
+| **Pengajar Terverifikasi 3** | `pengajar3@seventx.id` | **Citra Lestari Handayani** (Coding Dasar SD) — memiliki kelas terbuka dan kelas penuh |
+| **Pengajar (Menunggu Verifikasi)** | `pengajar.baru@seventx.id` | **Dimas Putra Mahendra** — dokumen KTP & SKCK contoh sudah terunggah, siap diuji verifikasi dari akun Admin |
+
+---
+
+## Struktur Monorepo
+
+```text
 .
-├── README.md                  ← file ini
-├── CLAUDE.md                  ← aturan umum untuk Claude Code (dibaca otomatis)
-├── .gitignore
+├── README.md                  ← Dokumentasi utama proyek
+├── CLAUDE.md                  ← Panduan kerja agent & aturan monorepo
 ├── docs/
-│   ├── PRD.md                 ← sumber kebenaran tunggal: fitur, data, kontrak backend
-│   ├── KEPUTUSAN.md           ← log keputusan dan perubahan kontrak
-│   ├── PROMPT-CLAUDE-CODE.md  ← prompt pertama dan lanjutan untuk frontend
-│   ├── PROMPT-ANTIGRAVITY.md  ← prompt pertama dan lanjutan untuk backend
-│   └── konten/
-│       ├── soal-tes-minat.md  ← template 12 soal tes minat (diisi tim)
-│       └── playbook/
-│           └── _TEMPLATE.md   ← template Teaching Playbook per sesi
-├── frontend/                  ← Next.js (dikerjakan dengan Claude Code)
-│   ├── CLAUDE.md              ← aturan khusus frontend
-│   └── .env.example
-└── backend/                   ← Supabase (dikerjakan dengan Antigravity)
-    ├── INSTRUKSI-AGENT.md     ← aturan khusus backend
-    └── .env.example
+│   ├── PRD.md                 ← Spesifikasi produk, model data, dan kontrak API (F1–F14)
+│   ├── KEPUTUSAN.md           ← Log keputusan arsitektur & perubahan kontrak
+│   ├── SERAH-TERIMA-FE.md     ← Dokumentasi kontrak integrasi Backend -> Frontend
+│   ├── PROMPT-CLAUDE-CODE.md  ← Rangkaian prompt terstruktur untuk pengembangan Frontend
+│   ├── PROMPT-CHATBOT-FE.md   ← Spesifikasi UI widget chatbot Kiko & Live Admin Takeover
+│   ├── PROMPT-ANTIGRAVITY.md  ← Rangkaian prompt pengembangan Backend
+│   ├── knowledge/             ← Basis pengetahuan publik untuk Hybrid RAG Chatbot Kiko
+│   └── konten/                ← 12 soal tes minat jurusan IT & Teaching Playbook per sesi
+├── frontend/                  ← Aplikasi web Next.js (App Router + TypeScript + Tailwind CSS)
+└── backend/                   ← Proyek Supabase (11 SQL migrations, Edge Functions, skrip seed & verifikasi)
 ```
 
-Folder `frontend/` dan `backend/` sengaja masih kosong. Isinya dibuat oleh prompt pertama masing-masing.
+---
 
-## Cara mulai
+## Cara Menjalankan Secara Lokal
 
-1. Buat repository GitHub **publik** (wajib menurut rulebook), lalu push isi folder ini.
-2. **Frontend:** buka Claude Code di root repository, lalu kirim Prompt 1 dari `docs/PROMPT-CLAUDE-CODE.md`.
-3. **Backend:** buka repository di Antigravity, lalu kirim Prompt 1 dari `docs/PROMPT-ANTIGRAVITY.md`.
-4. Selesaikan keputusan terbuka di `docs/PRD.md` bagian 12, terutama jenis akun Google untuk Meet dan pembagian peran tim.
+### 1. Backend (`backend/`)
 
-## Aturan kerja bersama
+Backend sudah terhubung dan ter-deploy di Supabase Cloud. Untuk menjalankan skrip verifikasi, seed ulang, atau regenerasi tipe dari lokal:
 
-- `docs/PRD.md` adalah acuan utama. Kalau ada yang bertentangan, PRD yang benar.
-- Perubahan nama tabel, view, RPC, atau parameter (PRD bagian 7–9) harus disepakati frontend dan backend, lalu dicatat di `docs/KEPUTUSAN.md`.
-- Branch: `fe/F6-pembayaran`, `be/F6-pembayaran`, dan seterusnya. Branch `main` harus selalu bisa di-deploy.
-- Pesan commit: `feat(F6): unggah bukti bayar`, `fix(F10): laporan tidak muncul realtime`.
-- Jangan pernah commit file `.env`. Pakai `.env.example`.
+```bash
+cd backend
+cp .env.example .env
+# Isi SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, dll. di .env
 
-## Bagian yang dilengkapi menjelang submission
+npm install
+npm run typecheck          # Cek tipe TypeScript
+npm run seed:akun          # Seed 9 akun demo & data kelas/booking/laporan (idempoten)
+npm run ingest:knowledge   # Ingest dokumen docs/knowledge/*.md ke pgvector
+npm run test:chatbot       # Jalankan unit test guardrail & L2 normalization chatbot
+npm run test:rls           # Jalankan 34 pengujian otomatis RLS, View, RPC & Live Chat
+```
 
-- [ ] Link website yang sudah di-deploy
-- [ ] Akun demo untuk setiap peran (orang tua, siswa, pengajar, admin)
-- [ ] Cara menjalankan frontend dan backend secara lokal
-- [ ] Teknologi yang dipakai
-- [ ] Link video demo
+Panduan detail deployment migration dan Edge Function tersedia di [`backend/README.md`](backend/README.md).
+
+### 2. Frontend (`frontend/`)
+
+```bash
+cd frontend
+cp .env.example .env.local
+# Isi NEXT_PUBLIC_SUPABASE_URL dan NEXT_PUBLIC_SUPABASE_ANON_KEY di .env.local
+# Set NEXT_PUBLIC_USE_MOCK=false untuk terhubung langsung ke Supabase Cloud
+
+npm install
+npm run dev                # Jalankan server pengembangan di http://localhost:3000
+npm run lint               # Cek linter
+npm run typecheck          # Cek tipe TypeScript
+npm run build              # Build produksi
+```

@@ -63,6 +63,16 @@ Catat setiap keputusan baru dan setiap perubahan kontrak (nama tabel, kolom, vie
 | 2026-11-23 | Tipografi v2: Display Lexend ExtraBold 76/80 (mobile 42), judul publik ExtraBold 60/52 (mobile 36/32), teks isi publik 20; heading dashboard Bold dengan ukuran v1 | Final | Gaya teks Figma `Display`, `Display Mobile`, `Publik/*`, `Heading/*` |
 | 2026-11-23 | Radius v2: kartu besar 28 (`radius/card`), kartu kecil 18 (`radius/card-sm`), blok halaman 40 (`radius/block`), tombol tetap pill | Final | Takik persegi di tepi atas kartu (layer `takik balok`) dihapus dari semua komponen |
 | 2026-11-23 | Token v2 hanya menambah, tidak ada nama token v1 yang berubah | Final | Token baru untuk frontend: lihat koleksi `Color` (`brand-block*`, `on-brand-block`, `highlight*`, `cta-*`, `focus-on-block`, `ink-block-to`), `Kategori`, dan `Dimension` (`radius/card-sm`, `radius/block`). Penerapan ke `frontend/` ditunda karena belum ada kode yang memakai token v1 |
+| 2026-11-23 | Nama dan identitas website ditetapkan sebagai **Kodie**, dengan asisten AI resmi bernama **Kiko** (dapat diatur dari tabel `pengaturan`) | Final | Menutup keputusan terbuka nama website di PRD bagian 12 |
+| 2026-11-23 | Fitur nilai tambah MVP: **AI Chatbot Single-Tenant ("Kiko")** berbasis Supabase Edge Function `chat` (SSE streaming), Primary LLM: Agnes AI (`agnes-3.0-flash`), Fallback LLM: Google Gemini (`gemini-3.8-flash`, `reasoning_effort: "low"`), Embedding: `gemini-embedding-001` (768d + L2 Normalization), Hybrid RAG RRF di Supabase `pgvector`, 4-Layer Guardrail, Context Injection (katalog live + data pengguna login via JWT/RLS), serta 3 jalur Handoff (WA/Email, tiket `laporan_masalah`, dan Live Takeover Realtime Admin untuk pengguna login) | Final | Tabel baru: `knowledge_sources`, `document_chunks`, `percakapan_chat`, `pesan_chat`; View: `chatbot_konfigurasi_publik` |
+| 2026-11-23 | Target deployment & pengembangan backend langsung menggunakan Supabase Cloud project (tanpa Docker lokal) | Final | Seluruh skema tetap dikelola lewat migration di `backend/supabase/migrations/` |
+| 2026-11-23 | Akun Google platform memakai Google One AI Pro (2 TB); durasi program tetap 60 menit (SD) dan 90 menit (SMP/SMA); `rekaman_url` di `laporan_sesi` opsional (nullable); laporan bisa dikirim sejak `mulai_pada`; `link_masuk_sesi` aktif H-15 menit s.d. `selesai_pada` | Final | Menghindari hambatan saat live demo 5 menit sekaligus menjaga standar durasi katalog |
+| 2026-11-23 | Konfigurasi ruang Google Meet (`spaces.create`) memakai `config.accessType = 'OPEN'` | Final | Pengajar dan siswa yang lolos RPC `link_masuk_sesi` bisa langsung masuk tanpa menunggu di-admit host akun platform |
+| 2026-11-23 | Tes minat hanya disarankan (tidak memblokir `buat_booking` untuk Simulasi Jurusan IT) | Final | Alur booking tetap lancar bagi pengguna yang langsung memesan |
+| 2026-11-23 | Harga paket (4 sesi) & honor per sesi seed: Coding Dasar (Rp200.000 / Rp50.000), Kelas Reguler Teknologi (Rp275.000 / Rp65.000), Simulasi Jurusan IT (Rp300.000 / Rp75.000) | Final | Tetap bisa diubah admin di tabel `program` |
+| 2026-11-23 | Penyelarasan skema: tambah kolom `level integer NOT NULL DEFAULT 1` di `kelas` dan parameter `p_level integer DEFAULT 1` di RPC `buka_kelas` | Final | Menyelaraskan relasi `kelas` ke `playbook(program_id, level, nomor_sesi)` dan F8 |
+| 2026-11-23 | Penyelarasan skema: tambah kolom `nama_orang_tua text` dan `email_orang_tua text` (nullable) di tabel `siswa` | Final | Menampung data input registrasi siswa mandiri F1 sebelum persetujuan F2 |
+| 2026-11-23 | Pendaftaran pengajar (F1 & F7): pilihan program (`pengajar_program`) dan unggah dokumen diisi di `/mengajar/profil` setelah login, bukan saat `signUp` awal | Final | Mengikuti alur rute frontend `/mengajar/profil` |
 | 2026-11-22 | Backend memakai Supabase (Auth, Postgres + RLS, RPC, Edge Function, Storage, Realtime, Cron) | Final | PRD bagian 8 |
 | 2026-11-22 | Monorepo: `frontend/` (Claude Code) dan `backend/` (Antigravity) dalam satu repository publik | Final | Rulebook meminta satu link repository |
 | 2026-11-22 | Link Google Meet dibuat otomatis per sesi lewat Google Meet REST API, memakai satu akun Google platform | Final | Edge Function `buat-meet` |
@@ -77,10 +87,10 @@ Catat setiap keputusan baru dan setiap perubahan kontrak (nama tabel, kolom, vie
 
 Detail lengkapnya ada di `PRD.md` bagian 12.
 
-- [ ] Jenis akun Google untuk Meet. Akun gratis membatasi rapat 3 peserta atau lebih maksimal 60 menit dan tidak bisa merekam. Rekomendasi sementara: semua sesi 55 menit.
+- [x] Jenis akun Google untuk Meet — diputuskan memakai Google One AI Pro (2 TB), durasi 60/90 menit, `rekaman_url` opsional.
 - [ ] Pembagian peran Khalil dan Raihan (backend, serta proposal, konten, dan video)
-- [ ] Pengaturan akses ruang Meet (siapa boleh langsung masuk)
-- [x] Harga paket dan honor per sesi: lihat entri 2026-11-23 (dari serah terima backend)
-- [x] Tes minat tidak menjadi syarat booking, hanya disarankan (2026-11-23, dari serah terima backend)
+- [x] Pengaturan akses ruang Meet — diputuskan `accessType = 'OPEN'` pada `spaces.create`.
+- [x] Harga paket dan honor per sesi setelah kapasitas berubah — diputuskan Rp200rb/50rb (SD), Rp275rb/65rb (Reguler), Rp300rb/75rb (Simulasi IT).
+- [x] Tes minat sebagai syarat booking Simulasi Jurusan IT atau hanya disarankan — diputuskan hanya disarankan.
 - [ ] Program SMK Tech-Booster
-- [x] Nama website dan identitas visual: Kodie, paket logo resmi final `Kodie_Logo_Packageasli` (From Hello World to Hello Future), serta maskot 2D interaktif & asisten AI Kiko (`src/components/chatbot/maskot-kiko.tsx` & `chatbot.config.ts` `mode: "kiko-2d"`)
+- [x] Nama dan identitas website — diputuskan bernama **Kodie** (asisten AI: **Kiko**).
