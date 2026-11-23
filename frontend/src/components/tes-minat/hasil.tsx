@@ -60,7 +60,7 @@ export function HasilTes({ namaProgram }: { namaProgram: Record<string, string> 
         <div>
           <TagBidang bidang={teratas} />
           <p className="mt-4 font-bold">Bidang IT yang paling cocok untukmu</p>
-          <h1 className="mt-2 text-[40px] leading-[44px] font-extrabold md:text-[60px] md:leading-[64px]">
+          <h1 className="mt-2 text-[28px] leading-[36px] font-extrabold tracking-tight sm:text-[36px] sm:leading-[46px] md:text-[44px] md:leading-[54px]">
             Paling cocok: {NAMA_BIDANG[teratas]}
           </h1>
         </div>

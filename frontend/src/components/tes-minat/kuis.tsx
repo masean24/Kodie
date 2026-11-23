@@ -32,7 +32,7 @@ export function Kuis({ soal, peserta }: { soal: SoalMinatPublik[]; peserta: Pese
 
   return (
     <div className="mx-auto max-w-[700px] rounded-card bg-gradient-to-b from-primary-subtle to-surface-sunken p-5 md:p-12">
-      <h2 className="text-[26px] leading-8 font-extrabold md:text-[36px] md:leading-[42px]">Tes minat untuk anak siapa?</h2>
+      <h2 className="text-[24px] leading-[32px] font-extrabold md:text-[30px] md:leading-[40px]">Tes minat untuk anak siapa?</h2>
       <p className="mt-3 text-text-muted">Hasilnya disimpan di profil anak dan dipakai untuk rekomendasi program sesuai jenjangnya.</p>
       {peserta.anak.length === 0 ? (
         <div className="mt-6 rounded-card-sm bg-surface p-5">
@@ -190,7 +190,7 @@ function KuisInti({
 
       <fieldset className="mt-6">
         <legend className="contents">
-          <h2 ref={judulRef} tabIndex={-1} className="text-[26px] leading-8 font-extrabold focus:outline-none md:text-[36px] md:leading-[42px]">
+          <h2 ref={judulRef} tabIndex={-1} className="text-[24px] leading-[32px] font-extrabold focus:outline-none md:text-[30px] md:leading-[40px]">
             {s.teks}
           </h2>
         </legend>

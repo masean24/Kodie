@@ -13,22 +13,24 @@ export function KartuProgram({ p, judulTag = "h3" }: { p: Program; judulTag?: "h
   const w = warnaProgram(p.slug);
   const Tag = judulTag;
   return (
-    <article className={cx("flex flex-col gap-4 rounded-card-sm bg-gradient-to-b p-5 text-on-block", w.blok)}>
+    <article className={cx("flex h-full flex-col gap-4 rounded-card-sm bg-gradient-to-b p-6 text-on-block", w.blok)}>
       <GambarProgram slug={p.slug} />
       <div>
         <span className="inline-flex rounded-full bg-surface px-3 py-0.5 text-sm font-bold text-text">
           {labelJenjang(p.jenjang, p.kelas_min, p.kelas_maks)}
         </span>
       </div>
-      <Tag className="text-2xl font-bold">{p.nama}</Tag>
-      <p>{kalimatPertama(p.deskripsi)}</p>
-      <ul className="flex flex-wrap gap-2 text-sm font-bold">
-        <li className="rounded-full bg-surface px-3 py-0.5 text-text">{p.durasi_menit} menit</li>
-        <li className="rounded-full bg-surface px-3 py-0.5 text-text">{p.jumlah_sesi} sesi</li>
-      </ul>
-      <TombolTautan href={`/program/${p.slug}`} varian="ajakan" panah className="mt-auto justify-between">
-        Lihat program<span className="sr-only"> {p.nama}</span>
-      </TombolTautan>
+      <Tag className="text-2xl font-bold leading-snug">{p.nama}</Tag>
+      <p className="leading-relaxed">{kalimatPertama(p.deskripsi)}</p>
+      <div className="mt-auto flex flex-col gap-4 pt-2">
+        <ul className="flex flex-wrap gap-2 text-sm font-bold">
+          <li className="rounded-full bg-surface px-3 py-0.5 text-text">{p.durasi_menit} menit</li>
+          <li className="rounded-full bg-surface px-3 py-0.5 text-text">{p.jumlah_sesi} sesi</li>
+        </ul>
+        <TombolTautan href={`/program/${p.slug}`} varian="ajakan" panah className="justify-between">
+          Lihat program<span className="sr-only"> {p.nama}</span>
+        </TombolTautan>
+      </div>
     </article>
   );
 }

@@ -63,8 +63,10 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
           <TagProgram slug={k.program_slug}>
             {k.program_nama} · {labelJenjang(k.jenjang)}
           </TagProgram>
-          <h1 className="mt-4 text-[36px] leading-[42px] font-extrabold md:text-[60px] md:leading-[64px]">{judulKelas(k)}</h1>
-          {program ? <p className="mt-4 max-w-2xl text-lg">{program.deskripsi}</p> : null}
+          <h1 className="mt-4 text-[28px] leading-[36px] font-extrabold tracking-tight sm:text-[36px] sm:leading-[46px] md:text-[42px] md:leading-[52px]">
+            {judulKelas(k)}
+          </h1>
+          {program ? <p className="mt-4 max-w-2xl text-base leading-7 md:text-lg">{program.deskripsi}</p> : null}
         </section>
 
         <Kartu>

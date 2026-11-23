@@ -53,7 +53,7 @@ export function Sorotan({ diBlok, children }: { diBlok?: boolean; children: Reac
   return (
     <span
       className={cx(
-        "inline rounded-full px-[0.3em] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]",
+        "inline-block rounded-full px-[0.38em] py-[0.04em] leading-[1.18] align-baseline [box-decoration-break:clone] [-webkit-box-decoration-break:clone]",
         diBlok ? "bg-highlight-on-block-bg text-highlight-on-block-fg" : "bg-highlight-bg text-highlight-fg",
       )}
     >

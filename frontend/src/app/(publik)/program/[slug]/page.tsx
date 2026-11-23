@@ -47,8 +47,10 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
           <span className="inline-flex rounded-full bg-surface px-3 py-0.5 text-sm font-bold text-text">
             {labelJenjang(p.jenjang, p.kelas_min, p.kelas_maks)}
           </span>
-          <h1 className="mt-4 text-[36px] leading-[42px] font-extrabold md:text-[60px] md:leading-[64px]">{p.nama}</h1>
-          <p className="mt-4 max-w-2xl text-lg">{p.deskripsi}</p>
+          <h1 className="mt-4 text-[28px] leading-[36px] font-extrabold tracking-tight sm:text-[36px] sm:leading-[46px] md:text-[42px] md:leading-[52px]">
+            {p.nama}
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 md:text-lg">{p.deskripsi}</p>
         </div>
         <GambarProgram slug={p.slug} />
       </section>

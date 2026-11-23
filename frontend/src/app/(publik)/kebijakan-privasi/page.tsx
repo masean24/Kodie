@@ -52,7 +52,9 @@ const BAGIAN = [
 export default function HalamanPrivasi() {
   return (
     <Kontainer className="max-w-[864px] py-10 md:py-16">
-      <h1 className="text-[36px] leading-[42px] font-extrabold md:text-[52px] md:leading-[58px]">Kebijakan privasi</h1>
+      <h1 className="text-[28px] leading-[36px] font-extrabold tracking-tight sm:text-[36px] sm:leading-[46px] md:text-[42px] md:leading-[52px]">
+        Kebijakan privasi
+      </h1>
       <div className="mt-6">
         <Catatan nada="peringatan" judul="Draf">
           Teks ini masih draf dan akan ditinjau tim sebelum final.
