@@ -430,6 +430,24 @@ export async function geserSesi(sesiId: string, mulaiPadaIso: string): Promise<v
     }
     sesi.mulai_pada = baruMulai.toISOString();
     sesi.selesai_pada = baruSelesai;
+    for (const st of kelasPemilik.siswa) {
+      const barisSiswa = store.siswa.find((x) => x.id === st.id);
+      const penerima: { id: string; prefix: string }[] = [];
+      if (barisSiswa?.orang_tua_id) penerima.push({ id: barisSiswa.orang_tua_id, prefix: "/orang-tua" });
+      if (barisSiswa?.pengguna_id) penerima.push({ id: barisSiswa.pengguna_id, prefix: "/siswa" });
+      for (const target of penerima) {
+        store.notifikasi.push({
+          id: crypto.randomUUID(),
+          pengguna_id: target.id,
+          tipe: "sesi_dijadwal_ulang",
+          judul: `Jadwal Sesi ${sesi.nomor} digeser`,
+          isi: `${kelasPemilik.program.nama} Sesi ${sesi.nomor} dipindahkan oleh ${p.nama}.`,
+          tautan: `${target.prefix}/sesi/${sesiId}`,
+          dibaca_pada: null,
+          dibuat_pada: new Date().toISOString(),
+        });
+      }
+    }
     return;
   }
 
@@ -665,6 +683,24 @@ export async function kirimAtauUbahLaporan(sesiId: string, data: InputLaporanFor
       if (sesi.nomor === 4) {
         for (const b of store.booking) {
           if (b.kelas_id === halaman.kelas.id && b.status === "terkonfirmasi") b.status = "selesai";
+        }
+      }
+      for (const st of halaman.siswa) {
+        const barisSiswa = store.siswa.find((x) => x.id === st.id);
+        const penerima: { id: string; prefix: string }[] = [];
+        if (barisSiswa?.orang_tua_id) penerima.push({ id: barisSiswa.orang_tua_id, prefix: "/orang-tua" });
+        if (barisSiswa?.pengguna_id) penerima.push({ id: barisSiswa.pengguna_id, prefix: "/siswa" });
+        for (const target of penerima) {
+          store.notifikasi.push({
+            id: crypto.randomUUID(),
+            pengguna_id: target.id,
+            tipe: "laporan_dikirim",
+            judul: `Laporan baru dari ${p.nama}`,
+            isi: `Laporan ${halaman.program.nama} Sesi ${sesi.nomor} untuk ${st.nama} sudah tersedia.`,
+            tautan: `${target.prefix}/sesi/${sesiId}`,
+            dibaca_pada: null,
+            dibuat_pada: sekarangIso,
+          });
         }
       }
     }

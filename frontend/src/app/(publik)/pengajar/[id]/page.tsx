@@ -1,12 +1,14 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ShieldCheck } from "lucide-react";
+import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilPengajarPublik } from "@/lib/api/pengajar";
 import { ambilKatalogKelas } from "@/lib/api/kelas";
 import { Kartu, Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
 import { TagBidang } from "@/components/kategori";
 import { Avatar, Rating, keteranganPengajar } from "@/components/pengajar/kartu-pengajar";
 import { KartuKelas } from "@/components/kelas/kartu-kelas";
+import { FormLaporMasalah } from "@/components/sesi/interaksi-sesi";
 
 export default function HalamanPengajar({ params }: PageProps<"/pengajar/[id]">) {
   return (
@@ -28,9 +30,10 @@ export default function HalamanPengajar({ params }: PageProps<"/pengajar/[id]">)
 
 async function Isi({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const p = await ambilPengajarPublik(id);
+  const [p, pengguna] = await Promise.all([ambilPengajarPublik(id), ambilPenggunaSaya()]);
   if (!p) notFound();
   const kelas = (await ambilKatalogKelas()).filter((k) => k.pengajar_id === p.id);
+  const bolehLapor = pengguna?.peran === "orang_tua" || pengguna?.peran === "siswa";
 
   return (
     <>
@@ -72,6 +75,12 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
           </div>
         )}
       </section>
+
+      {bolehLapor ? (
+        <div className="mt-10">
+          <FormLaporMasalah sesiId={null} pengajarId={p.id} namaPengajar={p.nama} />
+        </div>
+      ) : null}
     </>
   );
 }

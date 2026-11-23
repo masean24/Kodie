@@ -1,5 +1,5 @@
 /**
- * Penyimpanan data mock yang bisa berubah (siswa, token persetujuan, hasil tes minat, status pengguna, booking, pengajar).
+ * Penyimpanan data mock yang bisa berubah (siswa, token persetujuan, hasil tes minat, status pengguna, booking, pengajar, sesi, notifikasi).
  * Disimpan di globalThis supaya bertahan saat hot reload. Hilang saat server dimulai ulang.
  * Hanya dipakai di server.
  */
@@ -8,12 +8,15 @@ import type {
   HasilMinat,
   Honor,
   KelasKatalog,
+  LaporanMasalah,
   LaporanSesi,
   LaporanSiswa,
+  Notifikasi,
   Pembayaran,
   PengajarProgram,
   ProfilPengajar,
   RaporJurusan,
+  Rating,
   SesiSaya,
   Siswa,
   StatusPengguna,
@@ -46,9 +49,13 @@ type Store = {
   laporanSiswa: LaporanSiswa[];
   raporJurusan: RaporJurusan[];
   honor: Honor[];
+  rating: Rating[];
+  laporanMasalah: LaporanMasalah[];
+  notifikasi: Notifikasi[];
 };
 
 const ORTU = "00000000-0000-4000-c000-000000000001";
+const SISWA_RAKA = "00000000-0000-4000-c000-000000000002";
 const PENGAJAR_VERIFIED = "00000000-0000-4000-9000-000000000001";
 const PENGAJAR_BARU = "00000000-0000-4000-c000-000000000005";
 const ADMIN_MOCK = "00000000-0000-4000-c000-000000000006";
@@ -82,7 +89,7 @@ function awal(): Store {
     diverifikasi_pada: new Date(sekarang - 4 * jam).toISOString(),
   };
 
-  // Booking terkonfirmasi untuk kelas-kelas yang diajar Nadia Putri (untuk demo form laporan & rapor).
+  // Booking terkonfirmasi untuk kelas-kelas yang diajar Nadia Putri (untuk demo form laporan, halaman sesi, & rapor).
   const bookingDinda: Booking = {
     id: "00000000-0000-4000-f000-000000000002",
     kode: "BK-20261115-0002",
@@ -111,7 +118,7 @@ function awal(): Store {
     kelas_id: "00000000-0000-4000-a000-000000000006",
     siswa_id: "00000000-0000-4000-d000-000000000002",
     dibuat_oleh: ORTU,
-    status: "terkonfirmasi",
+    status: "selesai",
     total: 300_000,
     batas_bayar_pada: new Date(sekarang - 20 * hari).toISOString(),
     dibuat_pada: new Date(sekarang - 21 * hari).toISOString(),
@@ -128,8 +135,7 @@ function awal(): Store {
     dibuat_pada: new Date(sekarang - 3 * hari).toISOString(),
   };
 
-  // Sesi untuk 3 kelas Nadia Putri:
-  // 1) Coding Dasar Level 1 (a000-...0001): Sesi 1 selesai (berlaporan), Sesi 2 sedang berlangsung (mulai 10 mnt lalu, selesai 50 mnt lagi -> Masuk kelas + Playbook + Laporan aktif!).
+  // 1) Coding Dasar Level 1 (a000-...0001): Sesi 1 selesai (berlaporan), Sesi 2 sedang berlangsung (Masuk kelas aktif!).
   const sesiCoding1Mulai = sekarang - 7 * hari;
   const sesiCoding2Mulai = sekarang - 10 * menit;
   const sesiCoding: SesiSaya[] = [
@@ -186,7 +192,7 @@ function awal(): Store {
     };
   });
 
-  // 3) Simulasi Jurusan IT Level 1 (a000-...0006): Sesi 1–3 selesai, Sesi 4 berakhir 3 jam lalu belum ada laporan -> memicu pengingat 2 jam + form rapor F11!
+  // 3) Simulasi Jurusan IT Level 1 (a000-...0006): Sesi 1–4 selesai dengan 1 contoh rapor jurusan (masih bisa diedit pengajar 24 jam).
   const simSesi4Selesai = sekarang - 3 * jam;
   const simSesi4Mulai = simSesi4Selesai - 90 * menit;
   const sesiSimulasi: SesiSaya[] = [
@@ -223,12 +229,13 @@ function awal(): Store {
       nomor: 4,
       mulai_pada: new Date(simSesi4Mulai).toISOString(),
       selesai_pada: new Date(simSesi4Selesai).toISOString(),
-      status: "terjadwal",
+      status: "selesai",
       bisa_masuk_kelas: false,
     },
   ];
 
   const laporanContohId = "00000000-0000-4000-b200-000000000101";
+  const laporanSim4Id = "00000000-0000-4000-b200-000000000604";
   const laporanSesi: LaporanSesi[] = [
     {
       id: laporanContohId,
@@ -270,6 +277,16 @@ function awal(): Store {
       dikirim_pada: new Date(simSesi4Mulai - 7 * hari + 2 * jam).toISOString(),
       diubah_pada: null,
     },
+    {
+      id: laporanSim4Id,
+      sesi_id: sesiSimulasi[3].id,
+      pengajar_id: PENGAJAR_VERIFIED,
+      ringkasan: "Integrasi AI sederhana dengan notebook klasifikasi teks dan refleksi proyek lintas bidang.",
+      rekaman_url: null,
+      kendala: null,
+      dikirim_pada: new Date(sekarang - 2 * jam).toISOString(),
+      diubah_pada: null,
+    },
   ];
 
   const laporanSiswa: LaporanSiswa[] = [
@@ -288,6 +305,55 @@ function awal(): Store {
       hadir: true,
       catatan: "Bima berani mempresentasikan animasi pertamanya di akhir sesi.",
       karya_url: null,
+    },
+    {
+      id: "00000000-0000-4000-b300-000000000601",
+      laporan_sesi_id: "00000000-0000-4000-b200-000000000601",
+      siswa_id: "00000000-0000-4000-d000-000000000002",
+      hadir: true,
+      catatan: "Raka cepat memecah alur fitur halaman dan menemukan bug formulir dengan tepat.",
+      karya_url: "https://codesandbox.io/",
+    },
+    {
+      id: "00000000-0000-4000-b300-000000000602",
+      laporan_sesi_id: "00000000-0000-4000-b200-000000000602",
+      siswa_id: "00000000-0000-4000-d000-000000000002",
+      hadir: true,
+      catatan: "Raka memahami alur IP dan subnetting dasar dengan baik.",
+      karya_url: null,
+    },
+    {
+      id: "00000000-0000-4000-b300-000000000603",
+      laporan_sesi_id: "00000000-0000-4000-b200-000000000603",
+      siswa_id: "00000000-0000-4000-d000-000000000002",
+      hadir: true,
+      catatan: "Raka berhasil memprogram logika sensor jarak LED otomatis di Wokwi.",
+      karya_url: "https://wokwi.com/",
+    },
+    {
+      id: "00000000-0000-4000-b300-000000000604",
+      laporan_sesi_id: laporanSim4Id,
+      siswa_id: "00000000-0000-4000-d000-000000000002",
+      hadir: true,
+      catatan: "Raka sangat menonjol saat merancang alur integrasi aplikasi dan menguji kasus tepi model AI.",
+      karya_url: "https://colab.research.google.com/",
+    },
+  ];
+
+  const raporJurusan: RaporJurusan[] = [
+    {
+      id: "00000000-0000-4000-b600-000000000001",
+      sesi_id: sesiSimulasi[3].id,
+      siswa_id: "00000000-0000-4000-d000-000000000002",
+      skor_software: 5,
+      skor_jaringan: 3,
+      skor_iot: 4,
+      skor_ai_data: 4,
+      bidang_rekomendasi: "software",
+      alasan:
+        "Selama 4 sesi Simulasi Jurusan IT, Raka paling menonjol dalam menyusun logika program, debugging alur aplikasi, dan mengintegrasikan fitur baru dengan rapi.",
+      saran: "Lanjutkan ke Kelas Reguler Teknologi untuk memperdalam proyek web dan basis data sebelum memilih jurusan.",
+      dibuat_pada: new Date(sekarang - 2 * jam).toISOString(),
     },
   ];
 
@@ -328,6 +394,48 @@ function awal(): Store {
       dibayar_pada: null,
       dibayar_oleh: null,
     },
+    {
+      id: "00000000-0000-4000-b400-000000000005",
+      pengajar_id: PENGAJAR_VERIFIED,
+      sesi_id: sesiSimulasi[3].id,
+      jumlah: 75_000,
+      status: "belum_dibayar",
+      dibayar_pada: null,
+      dibayar_oleh: null,
+    },
+  ];
+
+  const notifikasi: Notifikasi[] = [
+    {
+      id: "00000000-0000-4000-b700-000000000001",
+      pengguna_id: ORTU,
+      tipe: "laporan_dikirim",
+      judul: "Laporan baru dari Kak Nadia",
+      isi: "Laporan dan rapor jurusan Raka untuk Simulasi Jurusan IT Sesi 4 sudah tersedia.",
+      tautan: `/orang-tua/sesi/${sesiSimulasi[3].id}`,
+      dibaca_pada: null,
+      dibuat_pada: new Date(sekarang - 2 * jam).toISOString(),
+    },
+    {
+      id: "00000000-0000-4000-b700-000000000002",
+      pengguna_id: ORTU,
+      tipe: "pengingat",
+      judul: "Sesi Coding Dasar Level 1 sedang berlangsung",
+      isi: "Dinda bisa masuk ke ruang Google Meet dari halaman sesi.",
+      tautan: `/orang-tua/sesi/${sesiCoding[1].id}`,
+      dibaca_pada: null,
+      dibuat_pada: new Date(sekarang - 20 * menit).toISOString(),
+    },
+    {
+      id: "00000000-0000-4000-b700-000000000003",
+      pengguna_id: SISWA_RAKA,
+      tipe: "laporan_dikirim",
+      judul: "Laporan & rapor sesi ke-4 tersedia",
+      isi: "Kak Nadia telah mengirim laporan Simulasi Jurusan IT Sesi 4 dan rapor rekomendasi jurusanmu.",
+      tautan: `/siswa/sesi/${sesiSimulasi[3].id}`,
+      dibaca_pada: null,
+      dibuat_pada: new Date(sekarang - 2 * jam).toISOString(),
+    },
   ];
 
   return {
@@ -352,7 +460,7 @@ function awal(): Store {
         kelas: 11,
         sekolah: "SMA Contoh 1",
         orang_tua_id: ORTU,
-        pengguna_id: "00000000-0000-4000-c000-000000000002",
+        pengguna_id: SISWA_RAKA,
         nama_orang_tua: "Sari Wulandari",
         email_orang_tua: null,
       },
@@ -386,7 +494,7 @@ function awal(): Store {
       {
         id: "00000000-0000-4000-e000-000000000001",
         siswa_id: "00000000-0000-4000-d000-000000000002",
-        dikerjakan_oleh: "00000000-0000-4000-c000-000000000002",
+        dikerjakan_oleh: SISWA_RAKA,
         jawaban: {},
         skor: { software: 38, jaringan: 15, iot: 20, ai_data: 27 },
         bidang_teratas: "software",
@@ -439,8 +547,11 @@ function awal(): Store {
     sesi: [...sesiCoding, ...sesiReguler, ...sesiSimulasi],
     laporanSesi,
     laporanSiswa,
-    raporJurusan: [],
+    raporJurusan,
     honor,
+    rating: [],
+    laporanMasalah: [],
+    notifikasi,
   };
 }
 
@@ -453,7 +564,8 @@ export function storeMock(): Store {
     g.__kodieMock.booking === undefined ||
     g.__kodieMock.pembayaran === undefined ||
     g.__kodieMock.profilPengajar === undefined ||
-    g.__kodieMock.sesi === undefined
+    g.__kodieMock.sesi === undefined ||
+    g.__kodieMock.notifikasi === undefined
   ) {
     const isi = awal();
     g.__kodieMock.booking ??= isi.booking;
@@ -467,6 +579,9 @@ export function storeMock(): Store {
     g.__kodieMock.laporanSiswa ??= isi.laporanSiswa;
     g.__kodieMock.raporJurusan ??= isi.raporJurusan;
     g.__kodieMock.honor ??= isi.honor;
+    g.__kodieMock.rating ??= isi.rating;
+    g.__kodieMock.laporanMasalah ??= isi.laporanMasalah;
+    g.__kodieMock.notifikasi ??= isi.notifikasi;
   }
   return g.__kodieMock;
 }

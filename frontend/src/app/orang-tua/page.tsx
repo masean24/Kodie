@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilDaftarAnak, ambilHasilMinatTerbaru } from "@/lib/api/siswa";
 import { ambilDaftarBooking } from "@/lib/api/booking";
+import { ambilRingkasanSesiDanLaporan } from "@/lib/api/sesi";
 import { KartuPerluBayar } from "@/components/booking/kartu-perlu-bayar";
 import { NAMA_BIDANG } from "@/lib/tes-minat";
 import { kelasTombol } from "@/components/ui/tombol";
@@ -13,7 +14,12 @@ import { KartuBagian, LaporanTerbaru, RaporJurusan, SesiTerdekat, sapaan } from 
 export const metadata: Metadata = { title: "Dashboard orang tua" };
 
 export default async function DashboardOrangTua() {
-  const [p, anak, booking] = await Promise.all([ambilPenggunaSaya(), ambilDaftarAnak(), ambilDaftarBooking()]);
+  const [p, anak, booking, ringkasan] = await Promise.all([
+    ambilPenggunaSaya(),
+    ambilDaftarAnak(),
+    ambilDaftarBooking(),
+    ambilRingkasanSesiDanLaporan(),
+  ]);
   const hasil = await ambilHasilMinatTerbaru(anak.map((a) => a.id));
 
   return (
@@ -27,8 +33,8 @@ export default async function DashboardOrangTua() {
       <KartuPerluBayar daftar={booking} basePath="/orang-tua/booking" />
       <div className="grid items-start gap-6 xl:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-6">
-          <SesiTerdekat />
-          <LaporanTerbaru />
+          <SesiTerdekat daftar={ringkasan.sesiTerdekat} basePath="/orang-tua" />
+          <LaporanTerbaru daftar={ringkasan.laporanTerbaru} basePath="/orang-tua" />
         </div>
         <div className="flex flex-col gap-6">
           <KartuBagian judul="Anak Anda" id="judul-anak">
@@ -67,7 +73,7 @@ export default async function DashboardOrangTua() {
               </Link>
             </div>
           </KartuBagian>
-          <RaporJurusan />
+          <RaporJurusan daftar={ringkasan.raporDaftar} basePath="/orang-tua" />
         </div>
       </div>
     </div>

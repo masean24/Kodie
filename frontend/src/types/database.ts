@@ -338,3 +338,93 @@ export interface Honor {
   dibayar_pada: string | null;
   dibayar_oleh: string | null;
 }
+
+/** View `laporan_saya` (PRD bagian 8 & SERAH-TERIMA-FE.md). */
+export interface LaporanSaya {
+  id: string;
+  sesi_id: string;
+  siswa_id: string;
+  ringkasan: string;
+  /** null bagi siswa & orang tua. */
+  rekaman_url: string | null;
+  kendala: string | null;
+  hadir: boolean;
+  catatan: string | null;
+  karya_url: string | null;
+  dikirim_pada: string;
+  diubah_pada: string | null;
+}
+
+/** View `rapor_saya`: menggabungkan `rapor_jurusan` dengan skor `hasil_minat` terbaru siswa. */
+export interface RaporSaya {
+  id: string;
+  sesi_id: string;
+  siswa_id: string;
+  skor_software: number;
+  skor_jaringan: number;
+  skor_iot: number;
+  skor_ai_data: number;
+  bidang_rekomendasi: Bidang;
+  alasan: string;
+  saran: string;
+  dibuat_pada: string;
+  // PERKIRAAN nama kolom hasil minat di view rapor_saya:
+  minat_skor?: SkorBidang | null;
+  minat_bidang_teratas?: Bidang | null;
+  minat_dibuat_pada?: string | null;
+}
+
+/** Tabel `rating` (PRD bagian 7). */
+export interface Rating {
+  id: string;
+  sesi_id: string;
+  siswa_id: string;
+  pemberi_id: string;
+  bintang: number;
+  komentar: string | null;
+  dibuat_pada: string;
+}
+
+export type KategoriMasalah =
+  | "perilaku_tidak_pantas"
+  | "pengajar_tidak_hadir"
+  | "masalah_teknis"
+  | "lainnya";
+
+export type PrioritasMasalah = "tinggi" | "normal";
+export type StatusMasalah = "baru" | "ditinjau" | "selesai";
+
+/** Tabel `laporan_masalah` (PRD bagian 7). */
+export interface LaporanMasalah {
+  id: string;
+  pelapor_id: string;
+  sesi_id: string | null;
+  pengajar_id: string;
+  kategori: KategoriMasalah;
+  deskripsi: string;
+  prioritas: PrioritasMasalah;
+  status: StatusMasalah;
+  dibuat_pada: string;
+}
+
+export type TipeNotifikasi =
+  | "laporan_dikirim"
+  | "booking_status"
+  | "sesi_dijadwal_ulang"
+  | "pembayaran_masuk"
+  | "persetujuan_diputuskan"
+  | "pengajar_status"
+  | "laporan_masalah_baru"
+  | "pengingat";
+
+/** Tabel `notifikasi` (PRD bagian 7 & 9). */
+export interface Notifikasi {
+  id: string;
+  pengguna_id: string;
+  tipe: TipeNotifikasi;
+  judul: string;
+  isi: string;
+  tautan: string | null;
+  dibaca_pada: string | null;
+  dibuat_pada: string;
+}

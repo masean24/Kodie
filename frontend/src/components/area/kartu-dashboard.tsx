@@ -2,9 +2,14 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CalendarDays, FileText, GraduationCap } from "lucide-react";
 import type { HasilMinat } from "@/types/database";
+import type { ItemLaporanDashboard, ItemSesiDashboard, RaporRinci } from "@/lib/api/sesi";
 import { NAMA_BIDANG } from "@/lib/tes-minat";
-import { formatTanggal } from "@/lib/format";
+import { formatTanggal, formatTanggalJam } from "@/lib/format";
+import { rentangJamWib } from "@/lib/mengajar";
 import { cx } from "@/lib/cx";
+import { TagProgram } from "@/components/kategori";
+import { Lencana } from "@/components/ui/dasar";
+import { kelasTombol } from "@/components/ui/tombol";
 
 /** Sapaan sesuai jam WIB, untuk judul dashboard. */
 export function sapaan(sekarang: Date): string {
@@ -52,36 +57,123 @@ function Kosong({ ikon: Ikon, children }: { ikon: typeof CalendarDays; children:
   );
 }
 
-/** Sementara kosong: diisi dari view `sesi_saya` di Prompt 6. */
-export function SesiTerdekat({ judul = "Sesi terdekat" }: { judul?: string }) {
+export function SesiTerdekat({
+  judul = "Sesi terdekat",
+  daftar = [],
+  basePath = "/orang-tua",
+}: {
+  judul?: string;
+  daftar?: ItemSesiDashboard[];
+  basePath?: "/orang-tua" | "/siswa";
+}) {
   return (
     <KartuBagian judul={judul} id="judul-sesi">
-      <Kosong ikon={CalendarDays}>
-        Belum ada sesi terjadwal.{" "}
-        <Link href="/kelas" className="font-bold text-primary underline-offset-4 hover:underline">
-          Lihat katalog kelas
-        </Link>
-      </Kosong>
+      {daftar.length === 0 ? (
+        <Kosong ikon={CalendarDays}>
+          Belum ada sesi terjadwal.{" "}
+          <Link href="/kelas" className="font-bold text-primary underline-offset-4 hover:underline">
+            Lihat katalog kelas
+          </Link>
+        </Kosong>
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {daftar.slice(0, 3).map((item) => (
+            <li
+              key={`${item.sesi.id}-${item.siswa.id}`}
+              className="flex flex-col gap-3 rounded-card-sm bg-surface-sunken p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <TagProgram slug={item.kelas.program_slug}>{item.kelas.program_nama}</TagProgram>
+                  {item.bisaMasuk ? <Lencana nada="aksen">Sedang berlangsung</Lencana> : null}
+                </div>
+                <p className="mt-2 font-display font-semibold">
+                  {item.kelas.program_nama} Level {item.kelas.level} · Sesi {item.sesi.nomor}
+                </p>
+                <p className="text-sm text-text-muted">
+                  {formatTanggal(item.sesi.mulai_pada)}, {rentangJamWib(item.sesi.mulai_pada, item.sesi.selesai_pada)} ·{" "}
+                  {item.siswa.nama.split(" ")[0]}
+                </p>
+              </div>
+              <Link
+                href={`${basePath}/sesi/${item.sesi.id}`}
+                className={kelasTombol(item.bisaMasuk ? "utama" : "kedua", "md", "shrink-0")}
+              >
+                {item.bisaMasuk ? "Masuk kelas" : "Buka sesi"}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </KartuBagian>
   );
 }
 
-/** Sementara kosong: diisi dari view `laporan_saya` di Prompt 6. */
-export function LaporanTerbaru() {
+export function LaporanTerbaru({
+  daftar = [],
+  basePath = "/orang-tua",
+}: {
+  daftar?: ItemLaporanDashboard[];
+  basePath?: "/orang-tua" | "/siswa";
+}) {
   return (
     <KartuBagian judul="Laporan terbaru" id="judul-laporan">
-      <Kosong ikon={FileText}>Laporan pengajar muncul di sini setelah sesi selesai.</Kosong>
+      {daftar.length === 0 ? (
+        <Kosong ikon={FileText}>Laporan pengajar muncul di sini setelah sesi selesai.</Kosong>
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {daftar.slice(0, 4).map((item) => (
+            <li key={`${item.laporan.id}-${item.siswa.id}`}>
+              <Link
+                href={`${basePath}/sesi/${item.sesi.id}`}
+                className="block rounded-card-sm bg-surface-sunken p-4 transition-colors hover:bg-primary-subtle"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="font-display font-semibold">
+                    {item.kelas.program_nama} · Sesi {item.sesi.nomor} ({item.siswa.nama.split(" ")[0]})
+                  </p>
+                  {item.baru ? <Lencana nada="aksen">Baru</Lencana> : null}
+                </div>
+                <p className="mt-1 line-clamp-2 text-sm text-text-muted">{item.laporan.ringkasan}</p>
+                <p className="mt-1 text-xs text-text-muted">{formatTanggalJam(item.laporan.dikirim_pada)}</p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </KartuBagian>
   );
 }
 
-export function RaporJurusan() {
+export function RaporJurusan({
+  daftar = [],
+  basePath = "/orang-tua",
+}: {
+  daftar?: RaporRinci[];
+  basePath?: "/orang-tua" | "/siswa";
+}) {
+  const terbaru = daftar[0];
   return (
     <section aria-labelledby="judul-rapor" className="rounded-card bg-primary-subtle p-6">
       <h2 id="judul-rapor" className="flex items-center gap-2 text-xl font-semibold">
         <GraduationCap aria-hidden className="size-5" /> Rapor jurusan
       </h2>
-      <p className="mt-2 text-text-muted">Tersedia setelah sesi ke-4 Simulasi Jurusan IT.</p>
+      {terbaru ? (
+        <>
+          <p className="mt-2 font-display text-lg font-bold text-primary">
+            {NAMA_BIDANG[terbaru.rapor.bidang_rekomendasi]} ({terbaru.siswa.nama.split(" ")[0]})
+          </p>
+          <p className="mt-1 text-sm text-text-muted">Hasil pengamatan Simulasi Jurusan IT tersedia.</p>
+          <Link
+            href={`${basePath}/rapor/${terbaru.rapor.id}`}
+            className="mt-3 flex min-h-touch items-center font-display font-semibold text-primary underline-offset-4 hover:underline"
+          >
+            Buka rapor jurusan
+          </Link>
+        </>
+      ) : (
+        <p className="mt-2 text-text-muted">Tersedia setelah sesi ke-4 Simulasi Jurusan IT.</p>
+      )}
     </section>
   );
 }

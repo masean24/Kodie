@@ -1,9 +1,11 @@
 import { Suspense, type ReactNode } from "react";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
+import { ambilDaftarNotifikasi } from "@/lib/api/notifikasi";
 import { DASHBOARD, NAMA_PERAN } from "@/lib/peran";
 import { TombolTautan } from "@/components/ui/tombol";
 import { Header } from "./header";
 import { Footer } from "./footer";
+import { LoncengNotifikasi } from "./lonceng-notifikasi";
 import { MenuAkun, MenuAkunPonsel } from "./menu-akun";
 
 function TombolTamu({ ponsel }: { ponsel?: boolean }) {
@@ -21,8 +23,14 @@ function TombolTamu({ ponsel }: { ponsel?: boolean }) {
 async function Akun({ ponsel }: { ponsel?: boolean }) {
   const p = await ambilPenggunaSaya();
   if (!p) return <TombolTamu ponsel={ponsel} />;
+  const notif = await ambilDaftarNotifikasi();
   const props = { nama: p.nama, peranLabel: NAMA_PERAN[p.peran], dashboard: DASHBOARD[p.peran] };
-  return ponsel ? <MenuAkunPonsel {...props} /> : <MenuAkun {...props} />;
+  return (
+    <>
+      <LoncengNotifikasi penggunaId={p.id} awal={notif} pantau={!ponsel} ponsel={ponsel} />
+      {ponsel ? <MenuAkunPonsel {...props} /> : <MenuAkun {...props} />}
+    </>
+  );
 }
 
 /** Header + main + footer untuk semua halaman. */
@@ -45,7 +53,7 @@ export function KerangkaSitus({ children, ruangBawah }: { children: ReactNode; r
         {children}
       </main>
       <Footer />
-      {ruangBawah ? <div aria-hidden className="h-16 lg:hidden" /> : null}
+      {ruangBawah ? <div aria-hidden className="tanpa-cetak h-16 lg:hidden" /> : null}
     </>
   );
 }
