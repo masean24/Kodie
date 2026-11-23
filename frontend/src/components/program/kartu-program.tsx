@@ -9,8 +9,9 @@ export function kalimatPertama(teks: string) {
   return i === -1 ? teks : teks.slice(0, i + 1);
 }
 
-export function KartuProgram({ p }: { p: Program }) {
+export function KartuProgram({ p, judulTag = "h3" }: { p: Program; judulTag?: "h2" | "h3" }) {
   const w = warnaProgram(p.slug);
+  const Tag = judulTag;
   return (
     <article className={cx("flex flex-col gap-4 rounded-card-sm bg-gradient-to-b p-5 text-on-block", w.blok)}>
       <GambarProgram slug={p.slug} />
@@ -19,7 +20,7 @@ export function KartuProgram({ p }: { p: Program }) {
           {labelJenjang(p.jenjang, p.kelas_min, p.kelas_maks)}
         </span>
       </div>
-      <h3 className="text-2xl font-bold">{p.nama}</h3>
+      <Tag className="text-2xl font-bold">{p.nama}</Tag>
       <p>{kalimatPertama(p.deskripsi)}</p>
       <ul className="flex flex-wrap gap-2 text-sm font-bold">
         <li className="rounded-full bg-surface px-3 py-0.5 text-text">{p.durasi_menit} menit</li>

@@ -44,7 +44,7 @@ async function Daftar() {
   return (
     <div className="grid gap-6 md:grid-cols-3">
       {daftar.map((p) => (
-        <KartuProgram key={p.id} p={p} />
+        <KartuProgram key={p.id} p={p} judulTag="h2" />
       ))}
     </div>
   );

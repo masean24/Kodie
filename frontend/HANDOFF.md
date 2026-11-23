@@ -35,12 +35,16 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kont
   - `src/components/chatbot/widget-kiko.tsx` & `markdown-aman.tsx`: widget floating kanan-bawah di atas bottom nav mobile, animasi buka-tutup dua arah (`prefers-reduced-motion` aman), streaming SSE (`fetch` + `ReadableStream` + `AbortController` ke Edge Function `chat`), tombol **Stop** high-contrast dark pill, Markdown aman tanpa `dangerouslySetInnerHTML` & sitasi `[n]` tersanitasi, penyimpanan riwayat `localStorage`, serta 3 jalur handoff (WhatsApp/Email, Buat Tiket, dan Live Chat Realtime via `minta_bantuan_admin_chat` + `kirim_pesan_live_chat` + `admin_selesaikan_chat`).
   - `src/app/admin/chat/page.tsx`, `src/app/admin/chat/[id]/page.tsx`, & `src/components/admin/panel-live-chat.tsx`: halaman antrean & ruang balas realtime Admin (ditambahkan ke `MENU_PERAN.admin`).
   - `src/app/admin/pengaturan/page.tsx` & `src/components/admin/aksi-kelola.tsx`: form **Asisten AI Kiko & Live Chat** (`chatbot_aktif`, `chatbot_nama`, `chatbot_sapaan`, `chatbot_kontak_wa`, `chatbot_kontak_email`).
-- **Verifikasi**:
-  - `npx next typegen`, `npm run lint`, `npm run typecheck`, `npm test` (9 file, 66 uji), dan `npm run build` (53 rute App Router Partial Prerender) lolos 100%.
-  - Verifikasi browser headless (`360 px` & `1440 px`, 0 px horizontal overflow, Dark/Light switch, 0 console/page error), streaming SSE live Edge Function `chat` di Supabase Cloud, serta render `/admin/chat` & `/admin/pengaturan` terautentikasi lolos.
-- **Catatan pasca-handoff**:
-  - Ketika gambar maskot Kiko sudah selesai dibuat, simpan gambar ke `frontend/public/logo/` lalu perbarui `CHATBOT_AVATAR_CONFIG` di `frontend/src/components/chatbot/chatbot.config.ts`.
-  - Deploy produksi Vercel dilakukan saat seluruh tim siap mempublikasikan URL domain (memasang env `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_USE_MOCK=false`, dan `NEXT_PUBLIC_SITE_URL`).
+- **Verifikasi, Audit Lighthouse, & Uji Alur Demo (PRD Bagian 11)**:
+  - `npx next typegen`, `npm run lint`, `npm run typecheck`, `npm test` (9 file, **67 uji** termasuk fallback `buatUuid` HTTP non-Secure Context), dan `npm run build` (53 rute App Router Partial Prerender) **lolos 100%**.
+  - **Skor Lighthouse (production build `next start`, mode mobile)**:
+    - `/`: Performance **100**, Accessibility **100**, Best Practices **100**, SEO **100** (LCP `1.1 s`, CLS `0`)
+    - `/program`: Performance **94**, Accessibility **100**, Best Practices **100**, SEO **100** (CLS `0`, setelah menyelaraskan `judulTag="h2"` pada `KartuProgram`)
+    - `/kelas`: Performance **100**, Accessibility **100**, Best Practices **100**, SEO **100** (LCP `0.9 s`, CLS `0`)
+    - `/tes-minat`: Performance **100**, Accessibility **100**, Best Practices **100**, SEO **100** (LCP `0.9 s`, CLS `0`, setelah caching soal via `"use cache"` `cacheLife("hours")` pada shell PPR)
+  - **Uji E2E Browser Headless pada Supabase Cloud (`DemoSeventX123!`)**:
+    - Tamu (`/`, `/kelas`, pengerjaan 12 soal `/tes-minat` → `/tes-minat/hasil` dengan kalimat penegasan saran & RPC `hitung_tes_minat`), `siswa.baru@seventx.id` (`/siswa/persetujuan`), `siswa.aktif@seventx.id` (`/siswa`, `/siswa/booking`, `/siswa/rapor`), `ortu1@seventx.id` (`/orang-tua`, `/orang-tua/anak`, `/orang-tua/booking`, `/orang-tua/rapor` + detail rapor + lonceng notifikasi), `pengajar1@seventx.id` (`/mengajar/kelas`, `/mengajar/profil`, `/mengajar/penghasilan`, detail kelas), dan `admin@seventx.id` (`/admin/pembayaran`, `/admin/pengajar`, `/admin/laporan-masalah`, `/admin/honor`, `/admin/chat`, `/admin/pengaturan`) seluruhnya lulus tanpa console/page error, serta akses HTTP LAN (`http://192.168.110.34:3000/`) & streaming SSE Widget Kiko terverifikasi.
+  - Deploy produksi Vercel dilakukan saat tim mempublikasikan domain (memasang env `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_USE_MOCK=false`, dan `NEXT_PUBLIC_SITE_URL`).
 
 ## Kontrak backend yang dipakai Prompt 8 & 9
 

@@ -1,4 +1,4 @@
-import { connection } from "next/server";
+import { cacheLife } from "next/cache";
 import type { HasilTesMinat, JawabanMinat, SoalMinatPublik } from "@/types/database";
 import { soalMinatMock } from "@/lib/mock/data";
 import { storeMock } from "@/lib/mock/store";
@@ -21,6 +21,14 @@ const NAMA_KE_SLUG_PROGRAM: Record<string, string> = {
   "Simulasi Jurusan IT": "simulasi-jurusan-it",
 };
 
+async function ambilSoalMinatCached(): Promise<SoalMinatPublik[]> {
+  "use cache";
+  cacheLife("hours");
+  const { data, error } = await clientPublik().from("soal_minat_publik").select("*").order("urutan");
+  lemparJikaError(error);
+  return (data ?? []) as SoalMinatPublik[];
+}
+
 /** View `soal_minat_publik`: 12 soal terurut, opsi tanpa bobot. */
 export async function ambilSoalMinat(): Promise<SoalMinatPublik[]> {
   if (pakaiMock) {
@@ -31,10 +39,7 @@ export async function ambilSoalMinat(): Promise<SoalMinatPublik[]> {
       opsi: opsi.map(({ kode, teks: t }) => ({ kode, teks: t })),
     }));
   }
-  await connection();
-  const { data, error } = await clientPublik().from("soal_minat_publik").select("*").order("urutan");
-  lemparJikaError(error);
-  return (data ?? []) as SoalMinatPublik[];
+  return ambilSoalMinatCached();
 }
 
 /**

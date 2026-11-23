@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import type { SoalMinatPublik } from "@/types/database";
 import { ambilSoalMinat } from "@/lib/api/tes-minat";
-import { Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
+import { Kontainer, StateKosong } from "@/components/ui/dasar";
 import { Kuis, type Peserta } from "@/components/tes-minat/kuis";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilDaftarAnak, ambilSiswaSaya } from "@/lib/api/siswa";
@@ -11,29 +12,24 @@ export const metadata: Metadata = {
   description: "12 soal, gratis, tanpa akun. Lihat bidang IT yang paling cocok untukmu.",
 };
 
-export default function HalamanTesMinat() {
+export default async function HalamanTesMinat() {
+  const soal = await ambilSoalMinat();
+
   return (
     <Kontainer className="py-10 md:py-16">
       <h1 className="sr-only">Tes minat jurusan IT</h1>
-      <Suspense
-        fallback={
-          <div className="mx-auto max-w-[700px]">
-            <StatusMemuat label="Memuat soal…" />
-            <Kerangka className="h-[560px] rounded-card" />
-          </div>
-        }
-      >
-        <Soal />
-      </Suspense>
+      {soal.length === 0 ? (
+        <StateKosong judul="Soal belum tersedia" keterangan="Tes minat sedang disiapkan. Coba lagi nanti." />
+      ) : (
+        <Suspense fallback={<Kuis soal={soal} peserta={{ mode: "tamu" }} />}>
+          <KuisDenganPeserta soal={soal} />
+        </Suspense>
+      )}
     </Kontainer>
   );
 }
 
-async function Soal() {
-  const soal = await ambilSoalMinat();
-  if (soal.length === 0) {
-    return <StateKosong judul="Soal belum tersedia" keterangan="Tes minat sedang disiapkan. Coba lagi nanti." />;
-  }
+async function KuisDenganPeserta({ soal }: { soal: SoalMinatPublik[] }) {
   return <Kuis soal={soal} peserta={await pesertaTes()} />;
 }
 
