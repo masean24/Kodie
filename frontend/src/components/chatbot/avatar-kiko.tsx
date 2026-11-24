@@ -43,6 +43,8 @@ export function AvatarKiko({
     >
       <svg
         viewBox="42 6 256 226"
+        width="40"
+        height="40"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
         className="size-full overflow-visible"

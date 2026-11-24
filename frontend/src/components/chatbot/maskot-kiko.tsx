@@ -489,6 +489,8 @@ export function MaskotKiko({
   return (
     <svg
       viewBox="-5 0 350 360"
+      width="78"
+      height="80"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
       aria-label="Kiko, maskot asisten interaktif Kodie"

@@ -1,6 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import type { Peran } from "@/types/database";
 import { Kerangka, Kontainer, StatusMemuat } from "@/components/ui/dasar";
+import { cx } from "@/lib/cx";
 import { KerangkaSitus } from "@/components/situs/kerangka-situs";
 import { PenjagaArea } from "./penjaga-area";
 import { NavPeran } from "./nav-peran";
@@ -11,7 +12,17 @@ export function LayoutArea({ peran, children }: { peran: Peran; children: ReactN
   const nav = adaNavPeran(peran);
   return (
     <KerangkaSitus ruangBawah={nav}>
-      <Kontainer className={nav ? "area-cetak grid gap-8 pb-24 lg:grid-cols-[260px_1fr] lg:items-start lg:pb-12" : ""}>
+      {/* Ruang bawah ekstra di /orang-tua dan /admin agar kartu terakhir tidak tertutup maskot Kiko. */}
+      <Kontainer
+        className={
+          nav
+            ? cx(
+                "area-cetak grid gap-8 pb-24 lg:grid-cols-[260px_1fr] lg:items-start",
+                peran === "orang_tua" || peran === "admin" ? "lg:pb-24" : "lg:pb-12",
+              )
+            : ""
+        }
+      >
         {nav ? (
           <>
             <nav aria-label="Menu akun" className="tanpa-cetak hidden pt-10 md:pt-12 lg:block">

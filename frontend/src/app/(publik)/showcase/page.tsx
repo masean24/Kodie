@@ -26,7 +26,7 @@ interface Karya {
 function PratinjauBunga() {
   const warna = ["#1d4ed8", "#84cc16", "#f97316", "#ec4899", "#0ea5e9", "#8b5cf6"];
   return (
-    <svg viewBox="0 0 160 160" className="h-full w-auto" aria-hidden>
+    <svg viewBox="0 0 160 160" width="160" height="160" className="h-full w-auto" aria-hidden>
       {Array.from({ length: 12 }, (_, i) => {
         const sudut = ((90 + i * 30) * Math.PI) / 180;
         return (
@@ -47,7 +47,7 @@ function PratinjauBunga() {
 
 function PratinjauPersegi() {
   return (
-    <svg viewBox="0 0 160 160" className="h-full w-auto" aria-hidden>
+    <svg viewBox="0 0 160 160" width="160" height="160" className="h-full w-auto" aria-hidden>
       <path d="M40 120 L120 120 L120 40 L40 40 Z" fill="none" stroke="#1d4ed8" strokeWidth={4} strokeLinejoin="round" />
       <circle cx={40} cy={120} r={7} fill="#c6f64d" stroke="#0f172a" strokeWidth={2} />
     </svg>

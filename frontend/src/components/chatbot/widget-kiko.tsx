@@ -64,8 +64,31 @@ const KEY_TAMU_RIWAYAT = "kodie_kiko_tamu_riwayat";
 // tidak pernah muncul lagi di sesi itu. Sekarang penanda hanya diisi saat pengguna menekan X di balon.
 const KEY_TOOLTIP_DITUTUP = "kodie_kiko_tooltip_tutup_v2";
 /** Batas tunggu token pertama dari layanan chat, lalu jeda maksimal antarpotongan jawaban. */
-const BATAS_TOKEN_PERTAMA_MS = 10_000;
-const BATAS_JEDA_MS = 20_000;
+/** Balasan harus mulai tampil dalam 7 detik; lewat dari itu jawaban cadangan lokal dipakai. */
+const BATAS_TOKEN_PERTAMA_MS = 7_000;
+/** Jeda maksimal antarpotongan saat jawaban sedang mengalir. */
+const BATAS_JEDA_MS = 7_000;
+/** Jeda setelah balon pesan Kiko hilang sebelum boleh muncul lagi. */
+const JEDA_BALON_MS = 8_000;
+/** `getSession` Supabase bisa menggantung (kunci auth antar-tab); jangan biarkan ia menahan pesan. */
+const BATAS_SESI_MS = 2_000;
+
+/** Selesaikan `janji` atau tolak setelah `ms` milidetik. */
+function denganBatas<T>(janji: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((selesai, gagal) => {
+    const t = setTimeout(() => gagal(new Error("BATAS_WAKTU")), ms);
+    janji.then(
+      (v) => {
+        clearTimeout(t);
+        selesai(v);
+      },
+      (e: unknown) => {
+        clearTimeout(t);
+        gagal(e);
+      },
+    );
+  });
+}
 
 function ekstrakKonteksHalaman(pathname: string) {
   if (typeof window === "undefined") {
@@ -97,6 +120,9 @@ export function WidgetKiko({
   // Di Kodie Lab maskot pemicu disembunyikan agar tidak menutupi tombol editor dan panel keluaran.
   // Chat tetap bisa dibuka dari tombol "Tanya Kiko AI" di footer.
   const diLab = pathname === "/lab" || pathname.startsWith("/lab/");
+  // Halaman padat kartu: balon proaktif dimatikan (cukup maskot) agar tidak menutupi harga atau isi kartu.
+  const tanpaBalon =
+    /^\/(orang-tua|admin|mengajar|siswa)(\/|$)/.test(pathname) || pathname === "/program" || pathname.startsWith("/program/");
   const [terbuka, setTerbuka] = useState(false);
   const [menutup, setMenutup] = useState(false);
   const [tooltipTampil, setTooltipTampil] = useState(false);
@@ -194,25 +220,32 @@ export function WidgetKiko({
     else bukaPanel();
   };
 
-  // Balon pesan Kiko. Muncul lagi setiap kali Kiko berganti pesan (tip berkala, sapaan bangun tidur),
-  // tampil 4 detik lalu hilang sendiri. Selama halaman di-scroll balon disembunyikan (lihat `menciut` di markup),
-  // dan tidak muncul lagi di sesi ini hanya jika pengguna menutupnya lewat tombol X.
+  // Balon pesan Kiko (halaman publik). Tampil 5 detik lalu hilang sendiri, kemudian jeda JEDA_BALON_MS sebelum
+  // pesan Kiko berikutnya boleh muncul lagi, supaya balon tidak menempel terus. Selama scroll balon disembunyikan
+  // (lihat `menciut` di markup) dan tidak muncul lagi di sesi ini bila pengguna menutupnya lewat tombol X.
+  const jedaBalonSampai = useRef(0);
   useEffect(() => {
-    if (!konfigurasi.chatbot_aktif || terbuka) return;
+    if (!konfigurasi.chatbot_aktif || terbuka || tooltipTampil) return;
     let ditutup = false;
     try {
       ditutup = sessionStorage.getItem(KEY_TOOLTIP_DITUTUP) === "1";
     } catch {
       ditutup = false;
     }
-    if (ditutup) return;
+    if (ditutup || Date.now() < jedaBalonSampai.current) return;
     const tampil = setTimeout(() => setTooltipTampil(true), 500);
-    const habis = setTimeout(() => setTooltipTampil(false), 500 + 4000);
-    return () => {
-      clearTimeout(tampil);
-      clearTimeout(habis);
-    };
-  }, [konfigurasi.chatbot_aktif, terbuka, tooltipTeks]);
+    return () => clearTimeout(tampil);
+  }, [konfigurasi.chatbot_aktif, terbuka, tooltipTeks, tooltipTampil]);
+
+  // Batas tampil 5 detik dihitung sejak balon muncul; pergantian pesan tidak memperpanjangnya.
+  useEffect(() => {
+    if (!tooltipTampil) return;
+    const habis = setTimeout(() => {
+      setTooltipTampil(false);
+      jedaBalonSampai.current = Date.now() + JEDA_BALON_MS;
+    }, 5000);
+    return () => clearTimeout(habis);
+  }, [tooltipTampil]);
 
   // Esc menutup widget
   useEffect(() => {
@@ -494,21 +527,29 @@ export function WidgetKiko({
     if (pakaiMock) {
       setStreaming(true);
       setMenungguTokenPertama(true);
-      const balas = await aksiBalasMockKiko(teks, namaBot);
-      setStreaming(false);
-      setMenungguTokenPertama(false);
-      setPesanList((prev) =>
-        prev.map((m) =>
-          m.id === botTempId
-            ? {
-                ...m,
-                isi: balas.isi,
-                sitasi: balas.sitasi,
-                tampilkanHandoff: balas.lowConfidence,
-              }
-            : m,
-        ),
-      );
+      try {
+        const balas = await denganBatas(aksiBalasMockKiko(teks, namaBot), BATAS_TOKEN_PERTAMA_MS);
+        setPesanList((prev) =>
+          prev.map((m) =>
+            m.id === botTempId
+              ? {
+                  ...m,
+                  isi: balas.isi,
+                  sitasi: balas.sitasi,
+                  tampilkanHandoff: balas.lowConfidence,
+                }
+              : m,
+          ),
+        );
+      } catch {
+        const c = jawabanCadanganKiko(teks);
+        setPesanList((prev) =>
+          prev.map((m) => (m.id === botTempId ? { ...m, isi: c.isi, sitasi: c.sitasi, galat: false } : m)),
+        );
+      } finally {
+        setStreaming(false);
+        setMenungguTokenPertama(false);
+      }
       picuBicaraSenang(true);
       return;
     }
@@ -518,24 +559,9 @@ export function WidgetKiko({
     setStreaming(true);
     setMenungguTokenPertama(true);
 
-    // Batas waktu: indikator mengetik tidak boleh menggantung. Jika layanan tidak memberi token pertama
-    // dalam BATAS_TOKEN_PERTAMA_MS, atau aliran berhenti lebih dari BATAS_JEDA_MS, permintaan dibatalkan.
-    let habisWaktu = false;
-    let adaIsi = false;
-    let pengatur: ReturnType<typeof setTimeout> | undefined;
-    const aturBatas = (ms: number) => {
-      clearTimeout(pengatur);
-      pengatur = setTimeout(() => {
-        habisWaktu = true;
-        controller.abort();
-      }, ms);
-    };
-    aturBatas(BATAS_TOKEN_PERTAMA_MS);
-
-    // Untuk pertanyaan populer, jawaban lokal dipakai bila layanan lambat atau gagal.
+    // Jawaban lokal (pertanyaan populer, kata kunci, atau info inti Kodie) dipakai bila layanan lambat atau gagal.
     const cadangan = jawabanCadanganKiko(teks);
     const pakaiCadangan = () => {
-      if (!cadangan) return false;
       setPesanList((prev) =>
         prev.map((m) =>
           m.id === botTempId
@@ -547,11 +573,43 @@ export function WidgetKiko({
       return true;
     };
 
+    // Batas waktu: indikator mengetik tidak boleh menggantung. Jika token pertama tidak datang dalam
+    // BATAS_TOKEN_PERTAMA_MS, atau aliran berhenti lebih dari BATAS_JEDA_MS, permintaan dibatalkan DAN UI langsung
+    // diselesaikan di sini (bukan menunggu `await` yang mungkin tidak pernah kembali).
+    let habisWaktu = false;
+    let adaIsi = false;
+    let pengatur: ReturnType<typeof setTimeout> | undefined;
+    const selesaikanUi = () => {
+      clearTimeout(pengatur);
+      if (abortRef.current === controller) abortRef.current = null;
+      setStreaming(false);
+      setMenungguTokenPertama(false);
+    };
+    const aturBatas = (ms: number) => {
+      clearTimeout(pengatur);
+      pengatur = setTimeout(() => {
+        habisWaktu = true;
+        controller.abort();
+        if (!adaIsi) {
+          adaIsi = true;
+          pakaiCadangan();
+        } else {
+          setPesanList((prev) =>
+            prev.map((m) =>
+              m.id === botTempId ? { ...m, isi: `${m.isi}\n\n_Jawaban terputus karena koneksi lambat._`, pertanyaanUlang: teks } : m,
+            ),
+          );
+        }
+        selesaikanUi();
+      }, ms);
+    };
+    aturBatas(BATAS_TOKEN_PERTAMA_MS);
+
     try {
       const supabase = buatClientBrowser();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const sesi = await denganBatas(supabase.auth.getSession(), BATAS_SESI_MS).catch(() => null);
+      if (habisWaktu) return;
+      const session = sesi?.data.session ?? null;
 
       const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -571,7 +629,9 @@ export function WidgetKiko({
         }),
       });
 
+      if (habisWaktu) return;
       if (!resp.ok || !resp.body) {
+        adaIsi = true;
         if (pakaiCadangan()) return;
         let pesanServer = `Layanan ${namaBot} sedang sibuk. Silakan coba lagi atau hubungi Admin.`;
         try {
@@ -617,6 +677,7 @@ export function WidgetKiko({
           return;
         }
 
+        if (habisWaktu) return;
         if (jenisEvent === "delta") {
           const chunk = typeof parsed.content === "string" ? parsed.content : "";
           if (!chunk) return;
@@ -724,23 +785,7 @@ export function WidgetKiko({
       );
     } catch (err) {
       if (habisWaktu) {
-        if (!adaIsi && pakaiCadangan()) return;
-        setEkspresiKiko("surprised");
-        setPesanList((prev) =>
-          prev.map((m) =>
-            m.id !== botTempId
-              ? m
-              : m.isi.trim() === ""
-                ? {
-                    ...m,
-                    isi: `${namaBot} sedang lambat menjawab. Coba ulangi sebentar lagi atau hubungi Admin melalui opsi di bawah.`,
-                    galat: true,
-                    tampilkanHandoff: true,
-                    pertanyaanUlang: teks,
-                  }
-                : { ...m, isi: `${m.isi}\n\n_Jawaban terputus karena koneksi lambat._`, pertanyaanUlang: teks },
-          ),
-        );
+        // Sudah ditangani oleh pengatur batas waktu (jawaban cadangan atau tanda terputus).
       } else if ((err as { name?: string })?.name === "AbortError") {
         setEkspresiKiko("smile");
         setPesanList((prev) =>
@@ -768,10 +813,7 @@ export function WidgetKiko({
         );
       }
     } finally {
-      clearTimeout(pengatur);
-      abortRef.current = null;
-      setStreaming(false);
-      setMenungguTokenPertama(false);
+      selesaikanUi();
     }
   };
 
@@ -1265,7 +1307,7 @@ export function WidgetKiko({
       ) : null}
 
       {/* Balon sapaan mengambang (mengikuti referensi widget HTML). Disembunyikan di layar < 640 px agar tidak menutupi konten. */}
-      {!terbuka && tooltipTampil && !diLab && !menciut ? (
+      {!terbuka && tooltipTampil && !diLab && !tanpaBalon && !menciut ? (
         <div className="kiko-animate-float hidden max-w-[260px] sm:flex items-center gap-2 rounded-2xl rounded-br-none border border-[#1D4ED8] bg-[#0F172A] py-2 pr-2 pl-3.5 text-xs font-semibold text-white shadow-lg">
           <span className="size-2 shrink-0 rounded-full bg-[#C6F64D]" aria-hidden />
           <button type="button" onClick={bukaPanel} className="text-left leading-snug hover:underline">

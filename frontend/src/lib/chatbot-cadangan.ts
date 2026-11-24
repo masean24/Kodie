@@ -57,8 +57,67 @@ const JAWABAN: JawabanCadangan[] = [
   },
 ];
 
-/** Jawaban lokal untuk pertanyaan populer, atau `null` jika pesan bukan salah satunya. */
-export function jawabanCadanganKiko(pesan: string): JawabanCadangan | null {
+/** Info inti Kodie untuk pertanyaan bebas saat layanan chat lambat, dibatasi, atau gagal. */
+const INFO_BIAYA: JawabanCadangan = {
+  isi:
+    "Biaya per paket (4 sesi, seminggu sekali) [1]:\n\n" +
+    "- **Coding Dasar** (SD kelas 5–6): mulai **Rp200.000**\n" +
+    "- **Kelas Reguler Teknologi** (SMP–SMA): mulai **Rp275.000**\n" +
+    "- **Simulasi Jurusan IT** (SMP kelas 9 dan SMA): mulai **Rp300.000**\n\n" +
+    "Jadwal dan sisa kursi tiap kelas ada di katalog kelas [2].",
+  sitasi: [
+    { index: 1, title: "Program", url: "/program" },
+    { index: 2, title: "Katalog kelas", url: "/kelas" },
+  ],
+};
+
+const INFO_TES_MINAT: JawabanCadangan = {
+  isi:
+    "**Tes Minat Jurusan IT** berisi 12 soal, gratis, dan tanpa akun [1]. Hasilnya langsung keluar: bidang IT yang " +
+    "paling cocok (Software, Jaringan, IoT, atau AI & Data) beserta saran program. Hasilnya saran, bukan keputusan.",
+  sitasi: [{ index: 1, title: "Tes Minat", url: "/tes-minat" }],
+};
+
+const INFO_LAB: JawabanCadangan = {
+  isi:
+    "**Kodie Lab** adalah tempat latihan coding langsung di browser, gratis dan tanpa akun [1]. Ada 4 mode: " +
+    "Blok, Python Turtle, HTML/CSS/JS, dan Python. Hasil kerja tersimpan sementara di browser perangkat itu.",
+  sitasi: [{ index: 1, title: "Kodie Lab", url: "/lab" }],
+};
+
+const INFO_UMUM: JawabanCadangan = {
+  isi:
+    "Kiko sedang tidak bisa terhubung ke layanan jawaban, jadi ini ringkasan info Kodie:\n\n" +
+    "- **Program**: Coding Dasar mulai Rp200.000, Kelas Reguler Teknologi mulai Rp275.000, Simulasi Jurusan IT mulai " +
+    "Rp300.000 per paket 4 sesi [1].\n" +
+    "- **Tes Minat**: 12 soal, gratis, tanpa akun [2].\n" +
+    "- **Kodie Lab**: latihan coding di browser, gratis tanpa akun [3].\n" +
+    "- **Daftar**: orang tua mendaftar lalu menambah profil anak; siswa SMP/SMA boleh daftar sendiri lalu meminta " +
+    "persetujuan orang tua lewat link [4].\n\n" +
+    "Untuk pertanyaan lain, hubungi Admin lewat opsi di bawah.",
+  sitasi: [
+    { index: 1, title: "Program", url: "/program" },
+    { index: 2, title: "Tes Minat", url: "/tes-minat" },
+    { index: 3, title: "Kodie Lab", url: "/lab" },
+    { index: 4, title: "Daftar akun", url: "/daftar" },
+  ],
+};
+
+/**
+ * Jawaban lokal untuk pesan apa pun: jawaban pertanyaan populer bila cocok persis, lalu topik berdasarkan
+ * kata kunci (biaya, tes minat, Lab, daftar, bayar), dan ringkasan info inti Kodie sebagai cadangan terakhir.
+ */
+export function jawabanCadanganKiko(pesan: string): JawabanCadangan {
   const i = CHATBOT_LAUNCHER_CONFIG.suggestedPrompts.findIndex((p) => p === pesan.trim());
-  return i >= 0 ? (JAWABAN[i] ?? null) : null;
+  const populer = i >= 0 ? JAWABAN[i] : undefined;
+  if (populer) return populer;
+  const q = pesan.toLowerCase();
+  if (/biaya|harga|tarif|bayar berapa|berapa(an)? (biaya|harga)|\brp|mahal|murah/.test(q)) return INFO_BIAYA;
+  if (/tes minat|tes jurusan|kuis minat/.test(q)) return INFO_TES_MINAT;
+  if (/\blab\b|kodie lab|latihan coding|playground/.test(q)) return INFO_LAB;
+  if (/daftar|registrasi|akun|persetujuan/.test(q) && JAWABAN[2]) return JAWABAN[2];
+  if (/transfer|qris|bukti bayar|pembayaran|cara bayar|masuk kelas|google meet/.test(q) && JAWABAN[3]) return JAWABAN[3];
+  if (/simulasi|jurusan|rapor/.test(q) && JAWABAN[1]) return JAWABAN[1];
+  if (/\bsd\b|kelas 5|kelas 6|coding dasar|scratch/.test(q) && JAWABAN[0]) return JAWABAN[0];
+  return INFO_UMUM;
 }

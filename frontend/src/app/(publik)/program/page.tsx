@@ -20,7 +20,7 @@ export default function HalamanProgram() {
         }
         keterangan="Setiap paket berisi 4 sesi daring, seminggu sekali, dalam kelompok kecil."
       />
-      <Kontainer className="py-12 md:py-16">
+      <Kontainer className="pb-24 pt-12 md:pt-16">
         <Suspense
           fallback={
             <div className="grid gap-6 md:grid-cols-3">

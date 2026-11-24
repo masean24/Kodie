@@ -43,6 +43,8 @@ export function SimbolKodie({
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 282 160"
+      width="56"
+      height="32"
       aria-hidden="true"
       className={cx("h-8 w-auto min-w-[24px] shrink-0", className)}
     >
@@ -57,6 +59,8 @@ export function LogoKodieSlogan({ className }: { className?: string }) {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="-22 -22 1013.77 328.40"
+      width="440"
+      height="143"
       role="img"
       aria-label="Kodie — From Hello World to Hello Future"
       className={cx("w-full min-w-[240px] max-w-[440px] h-auto", className)}
@@ -84,6 +88,8 @@ export function Logo({ ringkasSaatMasukPonsel = false }: { ringkasSaatMasukPonse
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 969.77 195.20"
+        width="179"
+        height="36"
         aria-hidden="true"
         className={cx(
           "h-7 w-auto min-w-[139px] md:h-9 md:min-w-[179px]",
