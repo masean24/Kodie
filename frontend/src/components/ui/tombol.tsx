@@ -3,7 +3,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { cx } from "@/lib/cx";
 
-type Varian = "utama" | "kedua" | "ajakan" | "terang" | "bahaya" | "tautan";
+/** `khusus`: tanpa warna bawaan; warna diberikan lewat `className` (cx tidak menggabungkan kelas yang bentrok). */
+type Varian = "utama" | "kedua" | "ajakan" | "terang" | "bahaya" | "tautan" | "khusus";
 type Ukuran = "md" | "lg";
 
 const DASAR =
@@ -17,6 +18,7 @@ const VARIAN: Record<Varian, string> = {
   terang: "bg-white text-[#0f172a] hover:bg-primary-subtle",
   bahaya: "bg-danger text-danger-foreground hover:bg-danger-hover",
   tautan: "min-h-touch px-0 text-primary underline-offset-4 hover:underline",
+  khusus: "",
 };
 
 const UKURAN: Record<Ukuran, string> = {
@@ -28,9 +30,16 @@ export function kelasTombol(varian: Varian = "utama", ukuran: Ukuran = "md", tam
   return cx(DASAR, VARIAN[varian], varian === "tautan" ? "" : UKURAN[ukuran], tambahan);
 }
 
-type Umum = { varian?: Varian; ukuran?: Ukuran; panah?: boolean; children: ReactNode };
+type Umum = {
+  varian?: Varian;
+  ukuran?: Ukuran;
+  panah?: boolean;
+  /** Ganti warna lingkaran panah (misalnya tombol berwarna khusus per program). */
+  kelasPanah?: string;
+  children: ReactNode;
+};
 
-function Isi({ panah, varian, children }: { panah?: boolean; varian: Varian; children: ReactNode }) {
+function Isi({ panah, varian, kelasPanah, children }: { panah?: boolean; varian: Varian; kelasPanah?: string; children: ReactNode }) {
   return (
     <>
       {children}
@@ -39,7 +48,7 @@ function Isi({ panah, varian, children }: { panah?: boolean; varian: Varian; chi
           aria-hidden
           className={cx(
             "-mr-2 grid size-8 place-items-center rounded-full",
-            varian === "ajakan" ? "bg-[#0f172a] text-cta" : "bg-black/10",
+            kelasPanah ?? (varian === "ajakan" ? "bg-[#0f172a] text-cta" : "bg-black/10"),
           )}
         >
           <ArrowRight className="size-4" />
@@ -53,6 +62,7 @@ export function Tombol({
   varian = "utama",
   ukuran = "md",
   panah,
+  kelasPanah,
   className,
   children,
   type = "button",
@@ -60,7 +70,7 @@ export function Tombol({
 }: Umum & ComponentProps<"button">) {
   return (
     <button type={type} className={kelasTombol(varian, ukuran, className)} {...props}>
-      <Isi panah={panah} varian={varian}>
+      <Isi panah={panah} varian={varian} kelasPanah={kelasPanah}>
         {children}
       </Isi>
     </button>
@@ -71,13 +81,14 @@ export function TombolTautan({
   varian = "utama",
   ukuran = "md",
   panah,
+  kelasPanah,
   className,
   children,
   ...props
 }: Umum & ComponentProps<typeof Link>) {
   return (
     <Link className={kelasTombol(varian, ukuran, className)} {...props}>
-      <Isi panah={panah} varian={varian}>
+      <Isi panah={panah} varian={varian} kelasPanah={kelasPanah}>
         {children}
       </Isi>
     </Link>

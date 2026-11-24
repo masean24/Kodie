@@ -95,18 +95,18 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  /* Color — Dark */
-  --k-bg: #0b1220;
-  --k-surface: #111c33;
-  --k-surface-raised: #16233f;
-  --k-surface-sunken: #070d18;
-  --k-text: #f1f5f9;
-  --k-text-muted: #94a3b8;
-  --k-border: #24344f;
-  --k-border-strong: #64748b;
-  --k-primary: #60a5fa;
-  --k-primary-hover: #93c5fd;
-  --k-primary-foreground: #0b1220;
+  /* Color — Dark: palet Obsidian Color-Block */
+  --k-bg: #0a0a0c;
+  --k-surface: #141417;
+  --k-surface-raised: #1c1c21;
+  --k-surface-sunken: #050507;
+  --k-text: #fafafa;
+  --k-text-muted: #a1a1aa;
+  --k-border: #26262b;
+  --k-border-strong: #52525b;
+  --k-primary: #3b82f6;
+  --k-primary-hover: #60a5fa;
+  --k-primary-foreground: #ffffff;
   --k-primary-subtle: #172554;
   --k-success: #86db9d;
   --k-success-subtle: #112d1a;
@@ -118,7 +118,7 @@
   --k-danger-subtle: #421c19;
   --k-info: #60a5fa;
   --k-info-subtle: #172554;
-  --k-neutral-subtle: #1e293b;
+  --k-neutral-subtle: #222227;
   --k-disabled: #1e293b;
   --k-focus: #93c5fd;
   --k-overlay: #000000b2;
@@ -127,22 +127,28 @@
   --k-on-brand-block: #f1f5f9;
   --k-brand-block-from: #0b1220;
   --k-brand-block-to: #1d4ed8;
-  --k-highlight-bg: #3b82f6;
+  --k-highlight-bg: #1d4ed8;
   --k-accent-subtle: #26310b;
+
+  /* Obsidian Color-Block (docs/kodie_dark_mode_explorer_anti_ai_slop.html) */
+  --k-highlight-fg: #ffffff;
+  --k-cta-bg: #c6f64d;
+  --k-cta-hover: #b8ec36;
+  --k-cta-fg: #0f172a;
 
   /* Kategori — Dark */
   --k-coding-dasar-soft: #26310b;
   --k-coding-dasar-deep: #eeffc2;
-  --k-coding-dasar-block: #2a330b;
-  --k-coding-dasar-block-to: #3a440f;
+  --k-coding-dasar-block: #e2ff8a;
+  --k-coding-dasar-block-to: #e2ff8a;
   --k-kelas-reguler-soft: #0f1e33;
   --k-kelas-reguler-deep: #dbeafe;
-  --k-kelas-reguler-block: #0f1e33;
-  --k-kelas-reguler-block-to: #16233f;
+  --k-kelas-reguler-block: #97c5ff;
+  --k-kelas-reguler-block-to: #97c5ff;
   --k-simulasi-jurusan-soft: #111c33;
   --k-simulasi-jurusan-deep: #eff6ff;
-  --k-simulasi-jurusan-block: #111c33;
-  --k-simulasi-jurusan-block-to: #1e293b;
+  --k-simulasi-jurusan-block: #dcebff;
+  --k-simulasi-jurusan-block-to: #dcebff;
   --k-software-soft: #111c33;
   --k-software-deep: #dbeafe;
   --k-jaringan-soft: #111c33;
@@ -152,9 +158,9 @@
   --k-ai-data-soft: #1e293b;
   --k-ai-data-deep: #e2e8f0;
   --k-on-soft: #f1f5f9;
-  --k-on-block: #f1f5f9;
+  --k-on-block: #0f172a;
 
-  --k-shadow-kartu: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 16px -4px rgb(0 0 0 / 0.45);
+  --k-shadow-kartu: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 24px -8px rgb(0 0 0 / 0.55);
   --k-shadow-kartu-hover: 0 2px 4px rgb(0 0 0 / 0.3), 0 14px 28px -8px rgb(0 0 0 / 0.6);
 }
 
@@ -162,18 +168,18 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    /* Color — Dark */
-    --k-bg: #0b1220;
-    --k-surface: #111c33;
-    --k-surface-raised: #16233f;
-    --k-surface-sunken: #070d18;
-    --k-text: #f1f5f9;
-    --k-text-muted: #94a3b8;
-    --k-border: #24344f;
-    --k-border-strong: #64748b;
-    --k-primary: #60a5fa;
-    --k-primary-hover: #93c5fd;
-    --k-primary-foreground: #0b1220;
+    /* Color — Dark: palet Obsidian Color-Block */
+    --k-bg: #0a0a0c;
+    --k-surface: #141417;
+    --k-surface-raised: #1c1c21;
+    --k-surface-sunken: #050507;
+    --k-text: #fafafa;
+    --k-text-muted: #a1a1aa;
+    --k-border: #26262b;
+    --k-border-strong: #52525b;
+    --k-primary: #3b82f6;
+    --k-primary-hover: #60a5fa;
+    --k-primary-foreground: #ffffff;
     --k-primary-subtle: #172554;
     --k-success: #86db9d;
     --k-success-subtle: #112d1a;
@@ -185,7 +191,7 @@
     --k-danger-subtle: #421c19;
     --k-info: #60a5fa;
     --k-info-subtle: #172554;
-    --k-neutral-subtle: #1e293b;
+    --k-neutral-subtle: #222227;
     --k-disabled: #1e293b;
     --k-focus: #93c5fd;
     --k-overlay: #000000b2;
@@ -194,22 +200,28 @@
     --k-on-brand-block: #f1f5f9;
     --k-brand-block-from: #0b1220;
     --k-brand-block-to: #1d4ed8;
-    --k-highlight-bg: #3b82f6;
+    --k-highlight-bg: #1d4ed8;
     --k-accent-subtle: #26310b;
+
+    /* Obsidian Color-Block (docs/kodie_dark_mode_explorer_anti_ai_slop.html) */
+    --k-highlight-fg: #ffffff;
+    --k-cta-bg: #c6f64d;
+    --k-cta-hover: #b8ec36;
+    --k-cta-fg: #0f172a;
 
     /* Kategori — Dark */
     --k-coding-dasar-soft: #26310b;
     --k-coding-dasar-deep: #eeffc2;
-    --k-coding-dasar-block: #2a330b;
-    --k-coding-dasar-block-to: #3a440f;
+    --k-coding-dasar-block: #e2ff8a;
+    --k-coding-dasar-block-to: #e2ff8a;
     --k-kelas-reguler-soft: #0f1e33;
     --k-kelas-reguler-deep: #dbeafe;
-    --k-kelas-reguler-block: #0f1e33;
-    --k-kelas-reguler-block-to: #16233f;
+    --k-kelas-reguler-block: #97c5ff;
+    --k-kelas-reguler-block-to: #97c5ff;
     --k-simulasi-jurusan-soft: #111c33;
     --k-simulasi-jurusan-deep: #eff6ff;
-    --k-simulasi-jurusan-block: #111c33;
-    --k-simulasi-jurusan-block-to: #1e293b;
+    --k-simulasi-jurusan-block: #dcebff;
+    --k-simulasi-jurusan-block-to: #dcebff;
     --k-software-soft: #111c33;
     --k-software-deep: #dbeafe;
     --k-jaringan-soft: #111c33;
@@ -219,9 +231,9 @@
     --k-ai-data-soft: #1e293b;
     --k-ai-data-deep: #e2e8f0;
     --k-on-soft: #f1f5f9;
-    --k-on-block: #f1f5f9;
+    --k-on-block: #0f172a;
 
-    --k-shadow-kartu: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 16px -4px rgb(0 0 0 / 0.45);
+    --k-shadow-kartu: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 24px -8px rgb(0 0 0 / 0.55);
     --k-shadow-kartu-hover: 0 2px 4px rgb(0 0 0 / 0.3), 0 14px 28px -8px rgb(0 0 0 / 0.6);
   }
 }
@@ -1044,12 +1056,12 @@ html[data-vt="tema"]::view-transition-new(root) {
 }
 
 [data-footer-theme="night"] {
-  --footer-bg: #0F172A;
-  --footer-surface: #1E293B;
-  --footer-text: #E2E8F0;
-  --footer-muted: #94A3B8;
-  --footer-link: #93C5FD;
-  --footer-border: #1E293B;
+  --footer-bg: #070709;
+  --footer-surface: #141417;
+  --footer-text: #fafafa;
+  --footer-muted: #a1a1aa;
+  --footer-link: #3b82f6;
+  --footer-border: #1e1e22;
   --footer-btn-border: #334155;
   --footer-bracket: #60A5FA;
   --sky-top: rgba(15, 23, 42, 0.95);
