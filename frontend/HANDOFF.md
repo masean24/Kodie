@@ -5,9 +5,9 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 ## Lokasi kerja & status Git
 
 - Repository: monorepo `sevent-x-bimbel`. Area kerja frontend hanya `frontend/` (plus catatan keputusan di `docs/KEPUTUSAN.md`). **Jangan ubah** `backend/` dan `docs/PRD.md`.
-- Worktree aktif: `.claude/worktrees/prompt-revision-design-c2bf99`
-- Branch lokal: `claude/frontend-fondasi`. Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
-- Commit terakhir yang sudah di-push ke `main`: `8a62333` (24 November 2026).
+- Worktree aktif: `.claude/worktrees/baca-handoff-md-315ddd`
+- Branch lokal: `claude/baca-handoff-md-315ddd`. Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
+- Commit terakhir yang sudah di-push ke `main`: `79135f4` (24 November 2026).
 - Produksi: `https://kodie.xevora.me` (Coolify, auto-redeploy setiap push ke `main`; lihat `frontend/DEPLOY-COOLIFY.md`).
 - **Jangan pernah commit**: `.claude/`, `frontend/.env.local`, dan `docs/SERAH-TERIMA-FE.md`.
 - **Jangan pernah** menambahkan atribusi Claude (`Co-Authored-By`, "Generated with Claude") di commit atau PR.
@@ -38,8 +38,36 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 9 | Kodie Lab mode **Blok** (Blockly) & **Python Turtle** | Selesai | `851a5c7` |
 | Revisi 10 | Form login/daftar `method="post"`, tema tanpa kedip, judul tab dinamis, `loading.tsx` area login | Selesai | `c0b0684`, `6b21c24` |
 | Revisi 11 | Navbar **kaca melayang** saat scroll + perbaikan audit QA Gemini (`docs/audit_qa_kodie_revisi.md`) | Selesai | `ea65e22`, `8a62333` |
+| Revisi 12 | GSAP, footer menyatu dengan konten, tema hanya Terang/Gelap, logo navbar lebih kecil, animasi panel notifikasi, hero kata demi kata, band halaman seragam | Selesai | `46302cf` |
+| Revisi 13 | Animasi masuk GSAP untuk semua elemen di semua halaman + ilustrasi hero | Selesai | `114253f` |
+| Revisi 14 | Simulasi kelas live ala Google Meet (karakter pixel) di section 3 beranda | Selesai | `79135f4` |
 
-## Checkpoint terbaru (setelah `a988a43` hingga `8a62333`)
+## Checkpoint terbaru (setelah `8a62333` hingga `79135f4`)
+
+1. **GSAP & revisi tampilan (`46302cf`)**
+   - Paket `gsap` + `@gsap/react`; pengaturan bersama di `src/lib/gsap.ts` (`kurangiGerak()` untuk `prefers-reduced-motion`).
+   - Tema hanya **Terang/Gelap** (`ThemeSwitch` di `kontrol-header.tsx`). Tanpa pilihan tersimpan, skrip `<head>` di `layout.tsx` mengambil tema awal sekali dari preferensi sistem lalu memasang `data-theme` eksplisit.
+   - Logo navbar 36 px desktop, 28 px ponsel (`logo.tsx`).
+   - Panel notifikasi (`lonceng-notifikasi.tsx`): buka/tutup GSAP lewat `autoAlpha`, item muncul berurutan (`data-item-notif`).
+   - Hero beranda: `RevealHero` + `KataHero` (`src/components/situs/reveal-hero.tsx`), judul dan paragraf muncul kata demi kata. Elemen `.kata-hero`/`.hero-muncul` mulai transparan lewat CSS dengan cadangan tampil sendiri setelah 3 detik.
+   - Band halaman publik: `BandKodie` di `judul-halaman.tsx` (gradien, lebar, pola titik sama dengan hero). Dipakai di Program, Kelas, Tes minat (band baru), Kodie Lab, Showcase, Karier.
+   - Footer: gradasi dari `--k-bg` ke `--footer-bg` 260 px dengan titik antara `color-mix`, dan lapisan pendaran langit di-mask dari transparan. Penyebab garis patah sebelumnya: pendaran radial masih berwarna tepat di garis atas footer.
+2. **Animasi elemen global (`114253f`)**
+   - `AnimasiElemen` (`src/components/situs/animasi-elemen.tsx`) dipasang di `KerangkaSitus`, jadi berlaku di semua halaman publik, auth, area login, dan footer. Blok konten (judul, paragraf, `li`, kartu, form, tabel, gambar, tombol) naik + memudar saat masuk layar (IntersectionObserver + `gsap.to`, stagger 0,06 dtk). Jika leluhur sudah dianimasikan, anaknya dilewati.
+   - **Hanya node yang sudah dihidrasi React** (punya properti `__reactFiber$`) yang diubah gayanya; mengubah node yang belum dihidrasi memicu hydration mismatch dan elemen tertinggal transparan. Pemindaian ulang 8 detik setelah dimuat + `MutationObserver` untuk konten Suspense/navigasi.
+   - Cleanup mengembalikan elemen yang belum muncul (`clearProps`); tanpa itu StrictMode menjalankan efek dua kali dan footer tidak pernah tampil.
+   - Pra-sembunyi `#konten` lewat `html[data-gerak="pra"]` (skrip `<head>`), dilepas paling lama 0,9 dtk; cadangan CSS 1,2 dtk.
+   - Pengecualian: tambahkan `data-tanpa-animasi` pada wilayah yang tidak boleh dianimasikan. Hero, editor Lab (CodeMirror/Blockly), dialog, `aria-live`, dan elemen yang sudah dianimasikan Motion otomatis dilewati.
+   - Ilustrasi hero (orbit, empat ubin, dua lencana) ikut timeline `RevealHero`; pembungkus luar dianimasikan GSAP agar animasi CSS `melayang-*` tetap jalan.
+3. **Simulasi kelas live (`79135f4`)**, `src/components/simulasi-kelas/`
+   - Section baru `SimulasiKelasLive` di `page.tsx` (setelah Keunggulan, sebelum "Tiga program"), berlabel "Simulasi interaktif, bukan rekaman kelas asli".
+   - `simulasi-kelas-malas.tsx`: dimuat dengan `next/dynamic` (`ssr: false`) hanya saat ±600 px dari layar; kerangka berukuran tetap.
+   - `simulasi-kelas.tsx`: tata letak Google Meet (tanpa logo Google). Kiko mempresentasikan layar **tiruan** Kodie Lab mode Python (HTML/CSS, bukan CodeMirror/Blockly/Pyodide), mengetik kode, menekan Jalankan, lalu menjelaskan. Peserta bertanya bergantian (12 dtk); pengunjung bisa bertanya di obrolan (jawaban kata kunci `jawabanKikoUntuk`, tanpa AI), angkat tangan, reaksi, CC, mikrofon/kamera, keluar.
+   - `pixel.tsx`: karakter pixel art diporting dari `docs/kodie_live_class_simulasi_google_meet_zoom.html` (grid 64 × 40). Persegi berurutan berwarna sama digabung menjadi satu `<path>` (±580 elemen DOM total, referensi ±824).
+   - `data.ts`: materi, peserta (Mgs. M. Fahim R, Raihan Daris Ramadhan, Khalil Amin Adillah, Ica Septriani, Davina), dan ruangan. Gaya rambut/kacamata dipilih bebas, belum dicek pengguna.
+   - Timer dan animasi CSS berhenti di luar layar (`.sk-jeda`). Panel samping dirender sekali sesuai lebar layar (`useSyncExternalStore` + `matchMedia`) agar tidak ada id ganda. CSS di blok `SIMULASI KELAS LIVE` dan `px-*` di `globals.css`.
+
+## Checkpoint sebelumnya (setelah `a988a43` hingga `8a62333`)
 
 1. **Karier, Kodie Lab, tema, transisi (`b7db252`)**
    - `/daftar` hanya untuk orang tua dan siswa; `?peran=pengajar` dialihkan ke `/karier`. Posisi statis di `src/lib/karier.ts`, detail `/karier/[slug]` memakai `FormPengajar`.
@@ -90,6 +118,9 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 ## Status verifikasi terkini
 
+- **Pemeriksaan di `79135f4`**: `npm run lint`, `npx tsc --noEmit`, `npx vitest run` (11 file / 88 tes), dan `npm run build` lulus.
+- **Cek browser (Chrome headless lewat CDP, mode mock)**: setelah scroll penuh, 0 elemen tertinggal transparan di `/`, `/program`, `/kelas`, `/tes-minat`, `/lab`, `/karier`, `/showcase`, `/masuk`, `/daftar`, area orang tua, admin, pengajar, dan siswa; navigasi klien aman; konsol bersih dari hydration error. Simulasi: dimuat malas, 0 animasi berjalan saat di luar layar, panel obrolan/orang/keluar berfungsi, 0 scroll horizontal di 375 px.
+- **Belum dicek**: produksi setelah deploy, Lighthouse ulang (pra-sembunyi `#konten` ≤0,9 dtk bisa menurunkan LCP).
 - **Pemeriksaan di `8a62333`**: `npm run lint` lulus, `npx tsc --noEmit` lulus, `npx vitest run` **11 file / 88 tes** lulus, `npm run build` lulus (termasuk `/showcase`). Jika build gagal "Failed to fetch … from Google Fonts", ulangi dengan `NODE_OPTIONS=--dns-result-order=ipv4first npm run build` (masalah jaringan lokal, bukan kode).
 - **Cek browser di `8a62333`**: navbar puncak/scroll di 1440, 1280, 375 px (terang & gelap), laci ponsel, header login dengan nama panjang tanpa overflow, `/lab` tombol Bersihkan bisa diklik, fallback Kiko saat layanan chat disimulasikan macet, `/showcase`.
 - **Pemeriksaan lama (`a988a43`) di `frontend/`**:
@@ -119,7 +150,9 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 
 - **Hook backslash**: perintah Bash yang memuat backslash (heredoc, `node -e`, `\n` di sed) diblokir. Tulis lewat Write/Edit atau file skrip.
 - **React Compiler (lint `preserve-manual-memoization`)**: ekspresi `cx(kondisi && "hidden", …)` di `widget-kiko.tsx` membuat lint gagal; pakai atribut `hidden={…}`.
-- **Pane browser tersembunyi**: rAF dan transisi CSS berhenti, View Transition melempar "Document hidden". Itu bukan bug kode.
+- **Pane browser tersembunyi**: rAF dan transisi CSS berhenti, View Transition melempar "Document hidden". Itu bukan bug kode. Untuk tangkapan layar saat pane tersembunyi, pakai Chrome headless lewat CDP (`--remote-debugging-port`).
+- **GSAP + hidrasi**: jangan mengubah `style` node yang belum dihidrasi React; ikuti pola `terhidrasi()` di `animasi-elemen.tsx`.
+- **React Compiler**: jangan me-reassign variabel lokal saat render (lint `react-hooks/immutability`); pindahkan ke fungsi murni di luar komponen.
 - Mode mock: `NEXT_PUBLIC_USE_MOCK=true`, akun di `src/lib/mock/akun.ts` (password `kodie-mock-123`). Jangan login ke Supabase produksi dengan password dari sesi Claude.
 - `.claude/launch.json` (lokal, tidak di-commit): `kodie-dev` (Supabase) dan `kodie-dev-mock`, keduanya port 3000.
 
@@ -128,7 +161,8 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - **Playbook H-1 akun demo (audit P0-1)**: aturan H-1 adalah kriteria PRD F9 dan dicek RPC `playbook_sesi`, jadi tidak di-bypass di frontend. Butuh tim backend menyeed sesi `pengajar1@seventx.id` yang mulai < 24 jam dari waktu penjurian.
 - Tautan footer "Panduan belajar" masih ke `/program` (halaman valid, label kurang pas); belum diputuskan.
 - Daftar "Verifikasi tambahan" di `docs/audit_qa_kodie_revisi.md` yang belum dijalankan penuh: semua halaman di 375/768 px, mode Turtle/HTML/Python di `/lab` pada produksi, dashboard admin, halaman sekunder footer.
-- README utama belum mencakup Kodie Lab, Karier, Showcase, dan Coolify.
+- README utama belum mencakup Kodie Lab, Karier, Showcase, Coolify, GSAP, dan simulasi kelas.
+- Penampilan karakter pixel tiap anggota tim (rambut, kacamata, hijab) perlu dikonfirmasi pengguna di `simulasi-kelas/data.ts`.
 - Lighthouse ulang setelah perubahan besar; uji realtime skenario demo 5–6 di Supabase Cloud.
 - Password admin demo: ditunda oleh pengguna ("nanti saja").
 - Batas lomba 30 November 2026 (target internal 28 November 2026).
