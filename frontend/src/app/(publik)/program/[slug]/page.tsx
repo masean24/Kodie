@@ -91,6 +91,26 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
         </Kartu>
       </div>
 
+      {p.silabus && p.silabus.length > 0 ? (
+        <section aria-labelledby="judul-silabus" className="mt-12">
+          <h2 id="judul-silabus" className="text-2xl font-bold md:text-[32px] md:leading-10">
+            Silabus {p.silabus.length} sesi
+          </h2>
+          <ol className="mt-6 grid gap-4 md:grid-cols-2">
+            {p.silabus.map((s) => (
+              <li key={s.sesi} className="flex flex-col gap-2 rounded-card-sm bg-surface p-6 shadow-kartu">
+                <p className="text-sm font-bold text-primary">Sesi {s.sesi}</p>
+                <h3 className="text-xl font-semibold leading-snug">{s.judul}</h3>
+                <p className="leading-7 text-text-muted">{s.topik}</p>
+                <p className="mt-auto rounded-md bg-primary-subtle px-3 py-2 text-sm">
+                  <span className="font-bold">Hasil proyek:</span> {s.hasil_proyek}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
+
       <section aria-labelledby="judul-kelas-program" className="mt-12">
         <h2 id="judul-kelas-program" className="text-2xl font-bold md:text-[32px] md:leading-10">
           Kelas yang dibuka

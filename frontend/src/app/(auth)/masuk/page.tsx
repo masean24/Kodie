@@ -36,6 +36,7 @@ async function Isi({ searchParams }: { searchParams: Promise<Record<string, stri
   return (
     <FormMasuk
       lanjut={lanjut}
+      passwordDiubah={q.password === "diubah"}
       infoDemo={
         pakaiMock
           ? { judul: "Mode mock: akun contoh", password: "kodie-mock-123", akun: akunMock.map((a) => a.email) }

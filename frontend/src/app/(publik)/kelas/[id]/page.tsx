@@ -15,6 +15,9 @@ import { TombolTautan, kelasTombol } from "@/components/ui/tombol";
 import { TagProgram, labelJenjang, warnaProgram } from "@/components/kategori";
 import { SisaKursi, judulKelas } from "@/components/kelas/kartu-kelas";
 import { KartuPengajar } from "@/components/pengajar/kartu-pengajar";
+import { TombolWaitlist } from "@/components/kelas/tombol-waitlist";
+import { ambilWaitlistSaya } from "@/lib/api/waitlist";
+import { ambilDaftarAnak } from "@/lib/api/siswa";
 
 export async function generateMetadata({ params }: PageProps<"/kelas/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -62,6 +65,12 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
       ? pengguna.peran
       : "lain";
   const sesi = jadwalSesi(k.mulai_pada, k.jumlah_sesi);
+  // Kelas terbuka yang kursinya habis: tawarkan daftar tunggu (RPC daftar_waitlist_kelas, migration 12).
+  const penuh = k.status === "terbuka" && k.sisa_kursi <= 0;
+  const [waitlist, anak] =
+    penuh && (pemesan === "orang_tua" || pemesan === "siswa")
+      ? await Promise.all([ambilWaitlistSaya(k.id), pemesan === "orang_tua" ? ambilDaftarAnak() : Promise.resolve(undefined)])
+      : [null, undefined];
 
   return (
     <div className="mt-4 grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
@@ -115,7 +124,30 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
             <p className="text-sm text-text-muted">per paket {k.jumlah_sesi} sesi</p>
           </div>
           <SisaKursi k={k} />
-          {alasan ? (
+          {penuh && (pemesan === "orang_tua" || pemesan === "siswa") ? (
+            <TombolWaitlist
+              kelasId={k.id}
+              waitlist={waitlist}
+              // Hanya anak yang jenjang dan kelasnya sesuai program (aturan yang sama dengan pemesanan).
+              anak={anak
+                ?.filter(
+                  (a) =>
+                    k.jenjang.includes(a.jenjang) &&
+                    (program ? a.kelas >= program.kelas_min && a.kelas <= program.kelas_maks : true),
+                )
+                .map((a) => ({ id: a.id, nama: a.nama }))}
+            />
+          ) : penuh && pemesan === "tamu" ? (
+            <>
+              <p className="rounded-card-sm bg-surface-sunken px-4 py-3 text-sm">
+                <span className="font-bold">Kelas penuh.</span> Masuk dulu untuk bergabung ke daftar tunggu dan dapat notifikasi
+                saat ada kursi kosong.
+              </p>
+              <TombolTautan href={`/masuk?lanjut=/kelas/${k.id}`} ukuran="lg" className="w-full">
+                Masuk untuk daftar tunggu
+              </TombolTautan>
+            </>
+          ) : alasan ? (
             <p className={kelasTombol("utama", "lg", "w-full")} aria-disabled="true">
               {alasan}
             </p>

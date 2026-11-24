@@ -100,7 +100,7 @@ describe("skemaDaftar", () => {
 });
 
 describe("dataSignUp", () => {
-  it("membuang email, password, ulangi password, dan isian kosong", () => {
+  it("membuang email, password, ulangi password, dan isian kosong; mengirim privasi_disetujui", () => {
     expect(
       dataSignUp({
         peran: "orang_tua",
@@ -111,6 +111,6 @@ describe("dataSignUp", () => {
         no_wa: "081234567890",
         setuju_privasi: true,
       }),
-    ).toEqual({ peran: "orang_tua", nama: "Sari", no_wa: "081234567890" });
+    ).toEqual({ peran: "orang_tua", nama: "Sari", no_wa: "081234567890", privasi_disetujui: true });
   });
 });

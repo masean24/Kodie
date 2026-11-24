@@ -2,9 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Star } from "lucide-react";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
-import { ambilPengajarPublik } from "@/lib/api/pengajar";
+import { ambilPengajarPublik, ambilUlasanPengajar } from "@/lib/api/pengajar";
+import { formatTanggal } from "@/lib/format";
 import { ambilKatalogKelas } from "@/lib/api/kelas";
 import { Kartu, Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
 import { TagBidang } from "@/components/kategori";
@@ -40,7 +41,8 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [p, pengguna] = await Promise.all([ambilPengajarPublik(id), ambilPenggunaSaya()]);
   if (!p) notFound();
-  const kelas = (await ambilKatalogKelas()).filter((k) => k.pengajar_id === p.id);
+  const [semuaKelas, ulasan] = await Promise.all([ambilKatalogKelas(), ambilUlasanPengajar(p.id)]);
+  const kelas = semuaKelas.filter((k) => k.pengajar_id === p.id);
   const bolehLapor = pengguna?.peran === "orang_tua" || pengguna?.peran === "siswa";
 
   return (
@@ -85,6 +87,46 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
           <Rating p={p} />
         </div>
       </Kartu>
+
+      {p.bio ? (
+        <section aria-labelledby="judul-bio" className="mt-10">
+          <h2 id="judul-bio" className="text-2xl font-bold">
+            Gaya mengajar
+          </h2>
+          <p className="mt-3 max-w-3xl text-lg leading-8">{p.bio}</p>
+        </section>
+      ) : null}
+
+      <section aria-labelledby="judul-ulasan" className="mt-10">
+        <h2 id="judul-ulasan" className="text-2xl font-bold">
+          Ulasan orang tua dan siswa
+        </h2>
+        {ulasan.length === 0 ? (
+          <p className="mt-3 text-text-muted">Ulasan tampil setelah pengajar menerima minimal 3 rating dari kelas yang selesai.</p>
+        ) : (
+          <ul className="mt-4 grid gap-4 md:grid-cols-2">
+            {ulasan.map((u) => (
+              <li key={u.id} className="flex flex-col gap-2 rounded-card-sm bg-surface p-5 shadow-kartu">
+                <p className="flex items-center gap-1" aria-label={`${u.bintang} dari 5 bintang`}>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star
+                      key={i}
+                      aria-hidden
+                      className={i <= u.bintang ? "size-4 fill-warning text-warning" : "size-4 text-border-strong"}
+                    />
+                  ))}
+                </p>
+                <p className="leading-7">&ldquo;{u.komentar}&rdquo;</p>
+                <p className="mt-auto text-sm text-text-muted">
+                  {u.pemberi_label}
+                  {u.program_nama ? ` · ${u.program_nama}` : ""} · {formatTanggal(u.dibuat_pada)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 text-sm text-text-muted">Nama pemberi ulasan disamarkan untuk menjaga privasi.</p>
+      </section>
 
       <section aria-labelledby="judul-kelas-pengajar" className="mt-10">
         <h2 id="judul-kelas-pengajar" className="text-2xl font-bold">

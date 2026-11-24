@@ -167,3 +167,25 @@ export async function keluar(): Promise<void> {
   const supabase = await buatClientServer();
   await supabase.auth.signOut({ scope: "local" });
 }
+
+/**
+ * Kirim email atur ulang password (Supabase `resetPasswordForEmail`). Tautan di email membuka
+ * `redirectTo` (`/auth/atur-ulang`), yang menukar kode menjadi sesi lalu ke `/atur-ulang-password`.
+ * Mode mock tidak mengirim email.
+ */
+export async function mintaAturUlangPassword(email: string, redirectTo: string): Promise<void> {
+  if (pakaiMock) return;
+  const supabase = await buatClientServer();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  if (error) throw new Error(kodeErrorAuth(error));
+}
+
+/** Simpan password baru untuk sesi pemulihan yang aktif. */
+export async function aturUlangPassword(password: string): Promise<void> {
+  if (pakaiMock) throw new Error("MOCK_TANPA_EMAIL");
+  const supabase = await buatClientServer();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) throw new Error("TAUTAN_KEDALUWARSA");
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw new Error(kodeErrorAuth(error));
+}

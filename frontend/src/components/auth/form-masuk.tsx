@@ -16,12 +16,15 @@ export function FormMasuk({
   akunMock,
   infoDemo,
   ringkas,
+  passwordDiubah,
 }: {
   lanjut: string | null;
   akunMock?: string[];
   infoDemo?: { judul: string; password: string; akun: string[] };
   /** Hanya formulir, tanpa kartu dan judul (dipakai di halaman persetujuan). */
   ringkas?: boolean;
+  /** Setelah atur ulang password berhasil (`/masuk?password=diubah`). */
+  passwordDiubah?: boolean;
 }) {
   const demo = infoDemo ?? (akunMock ? { judul: "Mode mock: akun contoh", password: "kodie-mock-123", akun: akunMock } : undefined);
   const [galat, setGalat] = useState<string>();
@@ -68,6 +71,11 @@ export function FormMasuk({
     <KartuAuth>
       <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Masuk</h1>
       <p className="mt-2 text-text-muted">Masuk untuk memesan kelas, melihat laporan, atau mengajar.</p>
+      {passwordDiubah ? (
+        <p role="status" className="mt-4 rounded-card-sm bg-success-subtle px-4 py-3 text-sm font-bold text-text">
+          Password baru tersimpan. Silakan masuk dengan password baru Anda.
+        </p>
+      ) : null}
       {lanjut ? (
         <p role="status" className="mt-4 rounded-card-sm bg-primary-subtle px-4 py-3 text-sm font-bold text-text">
           Masuk dulu untuk melanjutkan ke halaman yang tadi Anda buka.
@@ -80,7 +88,11 @@ export function FormMasuk({
           Daftar
         </Link>
       </p>
-      <p className="mt-2 text-center text-sm text-text-muted">Lupa password? Hubungi admin Kodie.</p>
+      <p className="mt-2 text-center text-sm">
+        <Link href="/lupa-password" className="font-bold text-primary underline-offset-4 hover:underline">
+          Lupa password?
+        </Link>
+      </p>
       {demo ? (
         <details className="mt-6 rounded-card-sm bg-surface p-4 text-sm">
           <summary className="cursor-pointer font-bold">{demo.judul}</summary>

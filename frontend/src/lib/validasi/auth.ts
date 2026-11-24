@@ -34,6 +34,14 @@ export const skemaMasuk = z.object({
   password: z.string().min(1, "Password wajib diisi."),
 });
 
+/** Lupa password: hanya email. */
+export const skemaLupaPassword = z.object({ email });
+
+/** Atur ulang password dari tautan email: aturan kekuatan sama dengan saat daftar. */
+export const skemaAturUlangPassword = z
+  .object({ password, ulangi_password: ulangiPassword })
+  .refine(cocokPassword.cek, cocokPassword.pesan);
+
 export const skemaOrangTua = z
   .object({
     peran: z.literal("orang_tua"),
@@ -98,6 +106,8 @@ export const skemaPengajar = z
 export const skemaDaftar = z.discriminatedUnion("peran", [skemaOrangTua, skemaSiswa, skemaPengajar]);
 
 export type InputMasuk = z.infer<typeof skemaMasuk>;
+export type InputLupaPassword = z.infer<typeof skemaLupaPassword>;
+export type InputAturUlangPassword = z.infer<typeof skemaAturUlangPassword>;
 export type InputDaftar = z.infer<typeof skemaDaftar>;
 export type InputOrangTua = z.infer<typeof skemaOrangTua>;
 export type InputSiswa = z.infer<typeof skemaSiswa>;
@@ -106,8 +116,10 @@ export type InputPengajar = z.infer<typeof skemaPengajar>;
 /** Data `options.data` untuk supabase.auth.signUp (docs/SERAH-TERIMA-FE.md). Email dan password tidak ikut. */
 export function dataSignUp(input: InputDaftar): Record<string, unknown> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { email: _e, password: _p, ulangi_password: _u, setuju_privasi: _s, ...data } = input;
+  const { email: _e, password: _p, ulangi_password: _u, setuju_privasi, ...data } = input;
   const bersih: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(data)) if (v !== "" && v !== undefined) bersih[k] = v;
+  // Audit persetujuan privasi (`pengguna.privasi_disetujui_pada`, migration 12).
+  bersih.privasi_disetujui = setuju_privasi;
   return bersih;
 }
