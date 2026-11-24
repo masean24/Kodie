@@ -74,7 +74,7 @@ const KOLOM_NAVIGASI: {
     judul: "Komunitas",
     item: [
       { jenis: "kiko", label: "Tanya Kiko AI", sumber: "halo" },
-      { jenis: "link", href: "/kelas", label: "Showcase Karya", sumber: "showcase" },
+      { jenis: "link", href: "/showcase", label: "Showcase Karya", sumber: "showcase" },
     ],
   },
 ];

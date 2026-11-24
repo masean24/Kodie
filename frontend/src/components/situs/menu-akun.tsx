@@ -57,17 +57,17 @@ export function MenuAkun({ nama, peranLabel, dashboard }: Props) {
   }, [buka]);
 
   return (
-    <div ref={akar} className="relative">
+    <div ref={akar} className="relative min-w-0">
       <button
         type="button"
         aria-expanded={buka}
         aria-controls="menu-akun"
         onClick={() => setBuka((b) => !b)}
-        className="flex min-h-[44px] items-center gap-2 rounded-full px-2 py-1 transition-colors hover:bg-surface-sunken"
+        className="flex min-h-[44px] min-w-0 items-center gap-2 rounded-full px-2 py-1 transition-colors hover:bg-surface-sunken"
       >
         <Inisial nama={nama} />
-        <span className="max-w-40 truncate text-base font-bold text-text">{nama}</span>
-        <ChevronDown aria-hidden className="size-4" />
+        <span className="min-w-0 max-w-[140px] truncate text-base font-bold text-text 2xl:max-w-[180px]">{nama}</span>
+        <ChevronDown aria-hidden className="size-4 shrink-0" />
         <span className="sr-only">, menu akun</span>
       </button>
       <div
@@ -95,8 +95,8 @@ export function MenuAkunPonsel({ nama, peranLabel, dashboard }: Props) {
     <div className="flex flex-col gap-3 border-t border-border pt-4">
       <div className="flex items-center gap-3">
         <Inisial nama={nama} />
-        <div>
-          <p className="font-display font-semibold">{nama}</p>
+        <div className="min-w-0">
+          <p className="truncate font-display font-semibold">{nama}</p>
           <p className="text-sm text-text-muted">{peranLabel}</p>
         </div>
       </div>
