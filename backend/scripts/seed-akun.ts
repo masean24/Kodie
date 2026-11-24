@@ -116,6 +116,36 @@ async function ensureStaticSeed() {
         harga_paket: 200000,
         honor_per_sesi: 50000,
         aktif: true,
+        silabus: [
+          {
+            sesi: 1,
+            judul: 'Logika Urutan & Karakter Pertama',
+            topik:
+              'Mengenal instruksi berurutan (sequence), Stage, Sprite, serta blok Events, Motion, dan Looks di Scratch.',
+            hasil_proyek: 'Animasi karakter menyapa dan berjalan mengikuti urutan perintah.',
+          },
+          {
+            sesi: 2,
+            judul: 'Perulangan (Loop) & Animasi Halus',
+            topik:
+              'Menggunakan blok repeat dan forever, pergantian kostum, dan pantulan otomatis saat menyentuh tepi layar.',
+            hasil_proyek: 'Animasi akuarium atau karakter bergerak terus dengan latar kustom.',
+          },
+          {
+            sesi: 3,
+            judul: 'Percabangan Kondisi (If-Then) & Kontrol Keyboard',
+            topik:
+              'Memahami logika sebab-akibat dengan blok if-then, sensor sentuh objek/warna, dan kontrol tombol arah.',
+            hasil_proyek: 'Karakter interaktif yang merespons tombol dan rintangan.',
+          },
+          {
+            sesi: 4,
+            judul: 'Variabel Skor & Game Mini Interaktif',
+            topik:
+              'Membuat variabel skor/nyawa, menggabungkan urutan, loop, dan kondisi menjadi game mini utuh.',
+            hasil_proyek: 'Game tangkap objek sederhana siap dipamerkan ke orang tua.',
+          },
+        ] as unknown as Json,
       },
       {
         id: PROGRAM_IDS.kelasReguler,
@@ -132,6 +162,36 @@ async function ensureStaticSeed() {
         harga_paket: 275000,
         honor_per_sesi: 65000,
         aktif: true,
+        silabus: [
+          {
+            sesi: 1,
+            judul: 'Fondasi Struktur Web HTML5',
+            topik:
+              'Memahami cara browser membaca HTML, struktur tag semantik (heading, paragraf, daftar, gambar, tautan), dan Inspect Element.',
+            hasil_proyek: 'Halaman web profil pelajar satu halaman.',
+          },
+          {
+            sesi: 2,
+            judul: 'Styling Modern dengan CSS & Flexbox',
+            topik:
+              'Menerapkan selektor CSS, Box Model (margin, padding, border), serta penataan responsif memakai Flexbox.',
+            hasil_proyek: 'Kartu profil dan galeri hobi modern yang rapi di laptop dan ponsel.',
+          },
+          {
+            sesi: 3,
+            judul: 'Interaktivitas Web dengan JavaScript & DOM',
+            topik:
+              'Mengenal variabel, fungsi, event listener tombol/form, dan manipulasi elemen DOM secara langsung.',
+            hasil_proyek: 'Aplikasi web catatan atau daftar tugas interaktif di browser.',
+          },
+          {
+            sesi: 4,
+            judul: 'Simulasi IoT Virtual & Pengenalan AI Dasar',
+            topik:
+              'Merancang logika sensor dan LED di simulator Wokwi serta mencoba klasifikasi teks sederhana dengan AI.',
+            hasil_proyek: 'Purwarupa lampu otomatis virtual dan demo asisten teks sederhana.',
+          },
+        ] as unknown as Json,
       },
       {
         id: PROGRAM_IDS.simulasiIt,
@@ -148,6 +208,36 @@ async function ensureStaticSeed() {
         harga_paket: 300000,
         honor_per_sesi: 75000,
         aktif: true,
+        silabus: [
+          {
+            sesi: 1,
+            judul: 'Simulasi 1: Software Engineering',
+            topik:
+              'Mengenal alur kerja Software Engineer, logika pemrograman antarmuka web, penanganan event, dan debugging dasar.',
+            hasil_proyek: 'Aplikasi web mini Kalkulator Target Tabungan.',
+          },
+          {
+            sesi: 2,
+            judul: 'Simulasi 2: Jaringan Komputer & Keamanan Siber',
+            topik:
+              'Memahami IP Address, DNS, router, protokol HTTP/HTTPS, inspeksi Network Tab, serta mengenali ancaman phishing.',
+            hasil_proyek: 'Analisis lalu lintas request browser dan investigasi keamanan tautan.',
+          },
+          {
+            sesi: 3,
+            judul: 'Simulasi 3: Internet of Things (IoT) Virtual',
+            topik:
+              'Mengenal mikrokontroler ESP32/Arduino, wiring sensor jarak & suhu, serta pemrograman logika perangkat di Wokwi.',
+            hasil_proyek: 'Simulasi perangkat rumah pintar berbasis sensor otomatis.',
+          },
+          {
+            sesi: 4,
+            judul: 'Simulasi 4: AI & Sains Data + Rapor Jurusan',
+            topik:
+              'Mencoba eksperimen klasifikasi teks AI, evaluasi kesalahan model, dan refleksi minat keempat bidang IT.',
+            hasil_proyek: 'Notebook klasifikasi AI dan Rapor Rekomendasi Jurusan Kuliah.',
+          },
+        ] as unknown as Json,
       },
     ],
     { onConflict: 'slug' },
@@ -307,7 +397,7 @@ async function ensureStaticSeed() {
     if (soalErr) throw soalErr;
   }
 
-  // Pastikan playbook sesi 1-2 setiap program tersinkron dari docs/konten/playbook
+  // Pastikan playbook sesi 1-4 setiap program tersinkron dari docs/konten/playbook
   const playbookDir = path.resolve(__dirname, '../../docs/konten/playbook');
   const playbookFiles: Array<{
     file: string;
@@ -334,6 +424,22 @@ async function ensureStaticSeed() {
       starter_url: 'https://scratch.mit.edu/projects/editor/',
     },
     {
+      file: 'coding-dasar-l1-s3.md',
+      program_id: PROGRAM_IDS.codingDasar,
+      level: 1,
+      nomor_sesi: 3,
+      judul: 'Coding Dasar Sesi 3: Percabangan Kondisi (If-Then) & Kontrol Keyboard',
+      starter_url: 'https://scratch.mit.edu/projects/editor/',
+    },
+    {
+      file: 'coding-dasar-l1-s4.md',
+      program_id: PROGRAM_IDS.codingDasar,
+      level: 1,
+      nomor_sesi: 4,
+      judul: 'Coding Dasar Sesi 4: Variabel Skor & Game Mini Interaktif',
+      starter_url: 'https://scratch.mit.edu/projects/editor/',
+    },
+    {
       file: 'kelas-reguler-l1-s1.md',
       program_id: PROGRAM_IDS.kelasReguler,
       level: 1,
@@ -350,6 +456,22 @@ async function ensureStaticSeed() {
       starter_url: 'https://codesandbox.io/s/vanilla',
     },
     {
+      file: 'kelas-reguler-l1-s3.md',
+      program_id: PROGRAM_IDS.kelasReguler,
+      level: 1,
+      nomor_sesi: 3,
+      judul: 'Kelas Reguler Teknologi Sesi 3: Interaktivitas Web dengan JavaScript & DOM',
+      starter_url: 'https://codesandbox.io/s/vanilla',
+    },
+    {
+      file: 'kelas-reguler-l1-s4.md',
+      program_id: PROGRAM_IDS.kelasReguler,
+      level: 1,
+      nomor_sesi: 4,
+      judul: 'Kelas Reguler Teknologi Sesi 4: Simulasi IoT Virtual & Pengenalan AI Dasar',
+      starter_url: 'https://wokwi.com/',
+    },
+    {
       file: 'simulasi-jurusan-it-l1-s1.md',
       program_id: PROGRAM_IDS.simulasiIt,
       level: 1,
@@ -364,6 +486,22 @@ async function ensureStaticSeed() {
       nomor_sesi: 2,
       judul: 'Simulasi Jurusan IT Sesi 2: Jaringan Komputer & Keamanan Siber',
       starter_url: 'https://www.packettracernetwork.com/',
+    },
+    {
+      file: 'simulasi-jurusan-it-l1-s3.md',
+      program_id: PROGRAM_IDS.simulasiIt,
+      level: 1,
+      nomor_sesi: 3,
+      judul: 'Simulasi Jurusan IT Sesi 3: Internet of Things (IoT) Virtual',
+      starter_url: 'https://wokwi.com/',
+    },
+    {
+      file: 'simulasi-jurusan-it-l1-s4.md',
+      program_id: PROGRAM_IDS.simulasiIt,
+      level: 1,
+      nomor_sesi: 4,
+      judul: 'Simulasi Jurusan IT Sesi 4: AI & Sains Data + Rapor Jurusan',
+      starter_url: 'https://colab.research.google.com/',
     },
   ];
 
@@ -487,6 +625,17 @@ async function main() {
       .upload(`${pid}/avatar-demo.png`, DUMMY_PNG, { contentType: 'image/png', upsert: true });
   }
 
+  const bioPengajar: Record<string, string> = {
+    [pengajar1Id]:
+      'Mahasiswa tingkat akhir Teknik Informatika ITB yang aktif membimbing proyek web & AI tingkat pemula. Gaya mengajar terstruktur berbasis analogi sehari-hari dan demo langsung sebelum praktik.',
+    [pengajar2Id]:
+      'Lulusan Teknik Komputer UI yang fokus di bidang jaringan komputer dan Internet of Things. Suka mengajak siswa memecahkan kasus nyata serta debugging bareng dengan sabar.',
+    [pengajar3Id]:
+      'Mahasiswa Ilmu Komputer UGM yang berpengalaman mengenalkan berpikir komputasional ke siswa SD melalui storytelling, game visual Scratch, dan eksperimen interaktif.',
+    [pengajarPendingId]:
+      'Lulusan Sistem Informasi ITS dengan pengalaman mentoring hackathon pelajar SMA dan penyusunan arsitektur aplikasi web modern.',
+  };
+
   for (const [pid, progs] of [
     [pengajar1Id, [PROGRAM_IDS.kelasReguler, PROGRAM_IDS.simulasiIt]],
     [pengajar2Id, [PROGRAM_IDS.kelasReguler, PROGRAM_IDS.simulasiIt]],
@@ -502,6 +651,7 @@ async function main() {
         wawancara_selesai: true,
         diverifikasi_pada: new Date().toISOString(),
         diverifikasi_oleh: adminId,
+        bio: bioPengajar[pid],
       })
       .eq('pengguna_id', pid);
 
@@ -519,6 +669,7 @@ async function main() {
       identitas_path: `${pengajarPendingId}/ktp-demo.png`,
       skck_path: `${pengajarPendingId}/skck-demo.png`,
       wawancara_selesai: false,
+      bio: bioPengajar[pengajarPendingId],
     })
     .eq('pengguna_id', pengajarPendingId);
   await supabase.from('pengajar_program').upsert({

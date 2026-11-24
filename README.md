@@ -12,11 +12,12 @@ Karya ini dikembangkan untuk kompetisi **Software Development SEVENT X (Kategori
 
 | Kategori | Tautan |
 | --- | --- |
-| **Website Produksi (Live Demo)** | *(Segera diperbarui setelah deployment Frontend selesai)* |
+| **Website Produksi (Live Demo)** | [https://kodie.xevora.me](https://kodie.xevora.me) |
 | **Video Demo (YouTube)** | *(Segera diperbarui menjelang pengumpulan karya)* |
 | **Repository GitHub** | [https://github.com/masean24/Kodie](https://github.com/masean24/Kodie) |
 | **Dokumen Spesifikasi (PRD)** | [`docs/PRD.md`](docs/PRD.md) |
 | **Log Keputusan Arsitektur** | [`docs/KEPUTUSAN.md`](docs/KEPUTUSAN.md) |
+| **Serah Terima Kontrak BE → FE** | [`docs/SERAH-TERIMA-FE.md`](docs/SERAH-TERIMA-FE.md) |
 
 ---
 
@@ -32,22 +33,27 @@ Karya ini dikembangkan untuk kompetisi **Software Development SEVENT X (Kategori
 
 ## Fitur Utama
 
-1. **Tiga Program Belajar Berjenjang:**
+1. **Tiga Program Belajar Berjenjang, Silabus Sesi 1–4 & Waitlist Kelas Penuh:**
    - **Coding Dasar (SD Kelas 5–6):** Logika & pemrograman blok interaktif dengan Scratch (maks. 10 siswa/kelas, 60 menit/sesi, Rp200.000/paket 4 sesi).
    - **Kelas Reguler Teknologi (SMP & SMA Kelas 7–12):** Pemrograman web (HTML, CSS, JS), IoT virtual, dan AI dasar (maks. 15 siswa/kelas, 90 menit/sesi, Rp275.000/paket 4 sesi).
    - **Simulasi Jurusan IT (SMP Kelas 9 & SMA Kelas 10–12):** Eksplorasi 4 bidang kuliah IT (*Software Engineering*, *Jaringan Komputer*, *IoT*, *AI & Data*) selama 4 sesi yang menghasilkan **Rapor Rekomendasi Jurusan Kuliah** (Rp300.000/paket 4 sesi).
+   - Setiap program dilengkapi **silabus publik Sesi 1–4** (`program.silabus`) serta fitur **Waitlist Kelas Penuh** (`waitlist_kelas`, RPC `daftar_waitlist_kelas` & `batal_waitlist_kelas`) yang mengirim notifikasi otomatis saat kursi kosong kembali.
 2. **Perlindungan Data Anak (Kepatuhan Pasal 25 UU PDP):**
    - Siswa SD dikelola langsung melalui profil anak pada akun Orang Tua tanpa akun login terpisah.
    - Siswa SMP & SMA yang mendaftar mandiri berstatus `menunggu_persetujuan` dan baru aktif setelah orang tua menyetujui melalui tautan verifikasi sekali pakai (`/persetujuan/[token]`).
+   - Persetujuan Kebijakan Privasi dicatat pada `pengguna.privasi_disetujui_pada`, dan asisten AI Kiko menyensor otomatis data pribadi anak (PII) sebelum penyimpanan pesan maupun pemanggilan model AI.
 3. **Tes Minat Jurusan IT Interaktif:**
    - Kuis 12 soal berbobot seimbang yang memetakan minat siswa ke 4 bidang IT beserta rekomendasi jurusan kuliah dan program belajar.
 4. **Otomatisasi Ruang Kelas Google Meet (`spaces.create`):**
    - Setiap kelas yang dibuka pengajar terverifikasi otomatis dibuatkan 4 ruang Google Meet mingguan oleh akun platform melalui Google Meet REST API. Link dijaga ketat dan hanya dapat diakses peserta terkonfirmasi mulai 15 menit sebelum sesi hingga sesi berakhir.
-5. **Teaching Playbook, Laporan Sesi Real-time & Rapor Jurusan:**
-   - Panduan mengajar langkah demi langkah untuk menjaga standar kualitas pengajar.
+5. **12 Teaching Playbook, Bio & Ulasan Pengajar, Laporan Sesi & Rapor Jurusan:**
+   - Panduan mengajar lengkap (**12 Teaching Playbook** Sesi 1–4 untuk seluruh 3 program) guna menjaga standar kualitas pengajar, ditambah **bio gaya mengajar** (`pengajar_publik.bio`) serta **ulasan publik anonim terverifikasi** (`ulasan_pengajar_publik`) untuk pengajar dengan minimal 3 rating tanpa membuka identitas anak.
    - Laporan kehadiran dan catatan evaluasi siswa terkirim secara *real-time* ke dashboard siswa dan orang tua tanpa *refresh* (dengan isolasi privasi catatan antar siswa).
 6. **Asisten Virtual AI "Kiko" & Live Admin Takeover:**
-   - Chatbot berbasis **Hybrid RAG (`pgvector` + Full-Text Search Reciprocal Rank Fusion)** dengan *4-Layer Guardrail*, *Auto-Failover* LLM, *Context Injection* katalog kelas live & data pengguna (mematuhi RLS), serta fitur **Live Takeover Realtime** di mana Admin dapat mengambil alih percakapan langsung dari dashboard.
+   - Chatbot berbasis **Hybrid RAG (`pgvector` + Full-Text Search Reciprocal Rank Fusion)** dengan **Guardrail 4+ lapis** termasuk **Guardrail Privasi Anak (PII Auto-Masking)** — nomor HP/WA, NIK, email pribadi, alamat rumah, serta sandi/OTP disensor menjadi `[DATA PRIBADI DISENSOR]` sebelum disimpan dan tidak pernah dikirim ke LLM atau Embedding API — *Auto-Failover* LLM, *Context Injection* katalog kelas live & data pengguna (mematuhi RLS), serta **Live Takeover Realtime** oleh Admin.
+7. **Kodie Lab (Coding Playground Tanpa Login), Showcase Karya & Karier Pengajar:**
+   - **Kodie Lab (`/lab`):** 4 mode praktik langsung di browser — **Blok visual (Blockly)**, **Python Turtle**, **Web (HTML/CSS/JS live preview)**, dan **Python (Pyodide WebAssembly)** — dengan penyimpanan sementara lokal di `localStorage` perangkat tanpa mengunggah data pribadi anak.
+   - Halaman publik **Showcase Karya (`/showcase`)** untuk menampilkan karya siswa dan **Karier (`/karier`)** untuk pendaftaran pengajar IT.
 
 ---
 
@@ -56,9 +62,10 @@ Karya ini dikembangkan untuk kompetisi **Software Development SEVENT X (Kategori
 | Lapisan | Teknologi |
 | --- | --- |
 | **Frontend** | Next.js (App Router), TypeScript, Tailwind CSS, `@supabase/ssr`, React Hook Form, Zod, Lucide Icons |
-| **Backend & Database** | Supabase (PostgreSQL 17, Row Level Security di 26 tabel, 8 View, 28 RPC PL/pgSQL, Supabase Auth, Storage, Realtime, `pg_cron` + `pg_net`) |
-| **Edge Functions** | Deno Edge Functions (`buat-meet` untuk Google Meet REST API v2 & `chat` untuk SSE Streaming AI Chatbot) |
-| **AI & RAG** | Hybrid Search `pgvector` (768d L2-normalized `gemini-embedding-001` + PostgreSQL FTS RRF), Agnes AI (`agnes-3.0-flash`) & Google Gemini (`gemini-3.8-flash`) |
+| **Backend & Database** | Supabase (PostgreSQL 17, **12 SQL migrations**, Row Level Security di **27 tabel**, **9 View**, **29 RPC client-callable PL/pgSQL**, Supabase Auth, Storage, Realtime `notifikasi`/`percakapan_chat`/`pesan_chat`, `pg_cron` + `pg_net`) |
+| **Edge Functions** | Deno Edge Functions (`buat-meet` untuk Google Meet REST API v2 & `chat` untuk SSE Streaming AI Chatbot + Guardrail PII) |
+| **AI & RAG** | Hybrid Search `pgvector` (768d L2-normalized `gemini-embedding-001` + PostgreSQL FTS RRF), Guardrail Privasi Anak (PII Auto-Masking) & Anti-Injection, Auto-Failover LLM (Agnes AI → Gemini → Groq) |
+| **Deployment Produksi** | Frontend Next.js (Docker standalone via Coolify VPS di `https://kodie.xevora.me`) & Backend Supabase Cloud |
 
 ---
 
@@ -96,9 +103,9 @@ Seluruh akun demo di bawah ini sudah tersedia di database produksi beserta data 
 │   ├── PROMPT-CHATBOT-FE.md   ← Spesifikasi UI widget chatbot Kiko & Live Admin Takeover
 │   ├── PROMPT-ANTIGRAVITY.md  ← Rangkaian prompt pengembangan Backend
 │   ├── knowledge/             ← Basis pengetahuan publik untuk Hybrid RAG Chatbot Kiko
-│   └── konten/                ← 12 soal tes minat jurusan IT & Teaching Playbook per sesi
+│   └── konten/                ← 12 soal tes minat jurusan IT & 12 Teaching Playbook (Sesi 1–4)
 ├── frontend/                  ← Aplikasi web Next.js (App Router + TypeScript + Tailwind CSS)
-└── backend/                   ← Proyek Supabase (11 SQL migrations, Edge Functions, skrip seed & verifikasi)
+└── backend/                   ← Proyek Supabase (12 SQL migrations, 2 Edge Functions, skrip seed, demo:reset & verifikasi)
 ```
 
 ---
@@ -107,7 +114,7 @@ Seluruh akun demo di bawah ini sudah tersedia di database produksi beserta data 
 
 ### 1. Backend (`backend/`)
 
-Backend sudah terhubung dan ter-deploy di Supabase Cloud. Untuk menjalankan skrip verifikasi, seed ulang, atau regenerasi tipe dari lokal:
+Backend sudah terhubung dan ter-deploy di Supabase Cloud. Untuk menjalankan skrip verifikasi, reset jadwal demo QA, seed ulang, atau regenerasi tipe dari lokal:
 
 ```bash
 cd backend
@@ -117,9 +124,10 @@ cp .env.example .env
 npm install
 npm run typecheck          # Cek tipe TypeScript
 npm run seed:akun          # Seed 9 akun demo & data kelas/booking/laporan (idempoten)
+npm run demo:reset         # Reset jadwal QA & Live Demo (k1 pending +24j, k7Live +5m, k5 +18j, k2Penuh +5h)
 npm run ingest:knowledge   # Ingest dokumen docs/knowledge/*.md ke pgvector
-npm run test:chatbot       # Jalankan unit test guardrail & L2 normalization chatbot
-npm run test:rls           # Jalankan 34 pengujian otomatis RLS, View, RPC & Live Chat
+npm run test:chatbot       # Jalankan 28 unit test guardrail (termasuk PII) & L2 normalization Kiko
+npm run test:rls           # Jalankan 45 pengujian otomatis RLS, View, RPC, Waitlist, PII & Live Chat
 ```
 
 Panduan detail deployment migration dan Edge Function tersedia di [`backend/README.md`](backend/README.md).

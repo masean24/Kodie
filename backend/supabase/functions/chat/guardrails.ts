@@ -1,7 +1,15 @@
 // ============================================================================
-// Modul Guardrails, L2 Normalization, Fast-Path & Citation Verifier
+// Modul Guardrails, L2 Normalization, PII Redaction, Fast-Path & Citation Verifier
 // Dipakai bersama oleh Edge Function `chat` dan unit test backend.
 // ============================================================================
+
+export type PiiType = 'nik' | 'no_hp' | 'email' | 'kata_sandi' | 'alamat';
+
+export interface PiiDetectionResult {
+  hasPii: boolean;
+  detectedTypes: PiiType[];
+  redactedText: string;
+}
 
 export interface CitationSource {
   index: number;
@@ -45,6 +53,86 @@ export function sanitizeUserInput(raw: string): string {
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+const PII_MASK = '[DATA PRIBADI DISENSOR]';
+const NIK_REGEX = /\b\d{16}\b/g;
+const PHONE_REGEX = /(?:^|(?<=[\s:,;("']))(?:\+62|62|0)\s*8(?:[\s-]?\d){7,13}\b/g;
+const EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
+const PASSWORD_ASSIGN_REGEX =
+  /\b(?:password|kata\s*sandi|passcode|pin|otp|kode\s*verifikasi)\s*(?:(?:saya|aku|ku)\s*)?[:=]\s*\S{3,}/gi;
+const PASSWORD_PHRASE_REGEX =
+  /\b(?:password|kata\s*sandi|passcode)\s+(?:(?:saya|aku|ku|anak)\s+)?(?:adalah|yaitu)\s+\S{3,}/gi;
+const PIN_OTP_REGEX =
+  /\b(?:pin|otp|kode\s*verifikasi)\s+(?:(?:saya|aku|ku)\s+)?(?:(?:adalah|yaitu)\s+)?\d{4,8}\b/gi;
+const ADDRESS_REGEX =
+  /\b(?:alamat(?:\s+rumah)?(?:\s+(?:saya|aku|ku))?\s*(?::|adalah|di)\s+|(?:jl\.|jalan)\s+)[a-z0-9\s.,/-]{4,}(?:no\.?\s*\d+|rt\.?\s*\d+|rw\.?\s*\d+)/gi;
+
+/**
+ * Layer 2A-PII: Deteksi dan sensor data pribadi sensitif (NIK, no HP/WA, email, sandi/OTP, alamat rumah)
+ * sebelum disimpan ke DB atau dikirim ke layanan AI eksternal.
+ */
+export function detectAndRedactPii(
+  cleanText: string,
+  allowedEmails: string[] = ['bantuan@kodie.id'],
+): PiiDetectionResult {
+  if (!cleanText) {
+    return { hasPii: false, detectedTypes: [], redactedText: '' };
+  }
+
+  const detected = new Set<PiiType>();
+  const allowSet = new Set(allowedEmails.map((e) => e.trim().toLowerCase()).filter(Boolean));
+  allowSet.add('bantuan@kodie.id');
+
+  let redacted = cleanText;
+
+  redacted = redacted.replace(NIK_REGEX, () => {
+    detected.add('nik');
+    return PII_MASK;
+  });
+
+  redacted = redacted.replace(PHONE_REGEX, () => {
+    detected.add('no_hp');
+    return PII_MASK;
+  });
+
+  redacted = redacted.replace(EMAIL_REGEX, (match) => {
+    if (allowSet.has(match.toLowerCase())) {
+      return match;
+    }
+    detected.add('email');
+    return PII_MASK;
+  });
+
+  for (const re of [PASSWORD_ASSIGN_REGEX, PASSWORD_PHRASE_REGEX, PIN_OTP_REGEX]) {
+    redacted = redacted.replace(re, () => {
+      detected.add('kata_sandi');
+      return PII_MASK;
+    });
+  }
+
+  redacted = redacted.replace(ADDRESS_REGEX, () => {
+    detected.add('alamat');
+    return PII_MASK;
+  });
+
+  return {
+    hasPii: detected.size > 0,
+    detectedTypes: Array.from(detected),
+    redactedText: redacted,
+  };
+}
+
+/**
+ * Pesan balasan deterministik (tanpa memanggil LLM) ketika pengguna mengetik data pribadi sensitif.
+ */
+export function buildPiiWarningMessage(botName = 'Kiko'): string {
+  return (
+    `Demi keamanan dan perlindungan data anak di **Kodie**, aku menyensor otomatis informasi pribadi sensitif ` +
+    `(seperti nomor HP/WA, NIK, email pribadi, alamat rumah, atau kata sandi/OTP) dari pesanmu dan **tidak mengirimkannya ke AI**.\n\n` +
+    `Silakan tulis ulang pertanyaanmu tanpa menyertakan data pribadi ya! Jika kamu butuh bantuan terkait akun atau pembayaran secara privat, ` +
+    `kamu bisa menghubungi tim resmi kami lewat tombol bantuan di bawah atau membaca [Kebijakan Privasi](/kebijakan-privasi). — **${botName}**`
+  );
 }
 
 const INJECTION_PATTERNS: RegExp[] = [

@@ -24,3 +24,10 @@ Tidak perlu. Siswa SD tidak membuat akun sendiri. Orang tua cukup membuat 1 akun
    - Tautan Google Meet bersifat tertutup dan hanya dapat diakses peserta terkonfirmasi mulai 15 menit sebelum sesi hingga sesi berakhir.
    - Pengajar dilarang meminta kontak pribadi siswa atau menghubungi siswa di luar platform resmi Kodie.
 4. **Kerahasiaan Laporan Belajar:** Catatan evaluasi individu siswa dari pengajar hanya dapat diakses oleh siswa yang bersangkutan dan orang tuanya melalui proteksi Row Level Security (RLS).
+
+## Asisten AI Kiko: Batasan & Perlindungan Data Anak
+
+1. **Fungsi & Batasan Asisten AI:** **Kiko** adalah asisten virtual berbasis kecerdasan buatan (*AI*) yang bertugas membantu menjawab pertanyaan seputar program, katalog kelas, tes minat, Kodie Lab, dan alur penggunaan Kodie berdasarkan dokumen resmi Kodie. Jawaban Kiko bersifat panduan informasi dan tidak menggantikan verifikasi admin maupun keputusan orang tua.
+2. **Larangan Mengirim Data Pribadi Sensitif di Chat:** Demi keamanan anak, siswa maupun orang tua **dilarang membagikan data pribadi sensitif** di kolom chat Kiko, seperti nomor HP/WhatsApp pribadi, NIK/nomor identitas, email pribadi, alamat rumah lengkap, foto wajah, atau kata sandi/OTP.
+3. **Penyensoran Otomatis (Guardrail Server):** Server Kodie secara otomatis mendeteksi dan menyensor pola data pribadi sensitif menjadi `[DATA PRIBADI DISENSOR]` sebelum pesan disimpan, dan **tidak meneruskan pesan tersebut ke layanan AI eksternal**.
+4. **Bantuan Tim Manusia:** Untuk pertanyaan spesifik terkait akun, verifikasi pembayaran, atau kendala sensitif, gunakan tombol **Hubungi via WhatsApp**, email resmi (`bantuan@kodie.id`), atau **Minta Bantuan Admin (Live Chat)** bagi pengguna yang sudah login.

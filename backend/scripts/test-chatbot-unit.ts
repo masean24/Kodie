@@ -3,6 +3,8 @@
 // ============================================================================
 
 import {
+  buildPiiWarningMessage,
+  detectAndRedactPii,
   detectPromptInjection,
   escapePromptData,
   extractVerifiedCitations,
@@ -120,6 +122,75 @@ function main() {
       mdSplit.chunks.length === 2 &&
       mdSplit.chunks[1].headingPath === 'Judul Utama > Bagian A > Sub A1',
     'Markdown splitter mempertahankan hierarki headingPath dengan benar',
+  );
+
+  // 8. Uji Deteksi & Penyensoran PII Anak (detectAndRedactPii & buildPiiWarningMessage)
+  console.log('\n8. Menguji detectAndRedactPii & buildPiiWarningMessage...');
+  const piiPhone = detectAndRedactPii('Hubungi nomor WA saya 081234567890 atau +62 812-9876-5432 ya');
+  assert(
+    piiPhone.hasPii &&
+      piiPhone.detectedTypes.includes('no_hp') &&
+      !piiPhone.redactedText.includes('081234567890') &&
+      !piiPhone.redactedText.includes('9876-5432') &&
+      piiPhone.redactedText.includes('[DATA PRIBADI DISENSOR]'),
+    'Nomor HP/WA terdeteksi dan disensor otomatis menjadi [DATA PRIBADI DISENSOR]',
+  );
+
+  const piiNik = detectAndRedactPii('Ini NIK anak saya 3174012345678901 untuk verifikasi');
+  assert(
+    piiNik.hasPii &&
+      piiNik.detectedTypes.includes('nik') &&
+      !piiNik.redactedText.includes('3174012345678901'),
+    'NIK 16 digit terdeteksi dan disensor',
+  );
+
+  const piiEmail = detectAndRedactPii('Tolong kirim ke email budi.parent@gmail.com dong');
+  assert(
+    piiEmail.hasPii &&
+      piiEmail.detectedTypes.includes('email') &&
+      !piiEmail.redactedText.includes('budi.parent@gmail.com'),
+    'Email pribadi terdeteksi dan disensor',
+  );
+
+  const allowOfficialEmail = detectAndRedactPii('Apakah benar email resmi Kodie adalah bantuan@kodie.id?');
+  assert(
+    !allowOfficialEmail.hasPii && allowOfficialEmail.redactedText.includes('bantuan@kodie.id'),
+    'Email resmi bantuan@kodie.id dikecualikan (tidak false-positive)',
+  );
+
+  const piiSecret = detectAndRedactPii('password saya adalah Rahasia123! dan kode otp saya 492811');
+  assert(
+    piiSecret.hasPii &&
+      piiSecret.detectedTypes.includes('kata_sandi') &&
+      !piiSecret.redactedText.includes('Rahasia123!') &&
+      !piiSecret.redactedText.includes('492811'),
+    'Pengungkapan password dan kode OTP terdeteksi dan disensor',
+  );
+
+  const allowResetQuestion = detectAndRedactPii('Bagaimana cara reset password saya yang lupa?');
+  assert(
+    !allowResetQuestion.hasPii,
+    'Pertanyaan cara reset password / lupa kata sandi diizinkan tanpa false-positive',
+  );
+
+  const piiAddr = detectAndRedactPii('Alamat rumah saya di Jl. Merdeka No. 12 RT 01 RW 02');
+  assert(
+    piiAddr.hasPii &&
+      piiAddr.detectedTypes.includes('alamat') &&
+      !piiAddr.redactedText.includes('Merdeka No. 12'),
+    'Alamat rumah lengkap dengan nomor/RT/RW terdeteksi dan disensor',
+  );
+
+  const cleanProgramAsk = detectAndRedactPii('Berapa biaya paket Coding Dasar Rp200.000 untuk SD kelas 5?');
+  assert(
+    !cleanProgramAsk.hasPii && cleanProgramAsk.redactedText.includes('Rp200.000'),
+    'Pertanyaan normal berisi harga paket tidak dianggap PII',
+  );
+
+  const piiWarn = buildPiiWarningMessage('Kiko');
+  assert(
+    piiWarn.includes('Kiko') && piiWarn.includes('/kebijakan-privasi') && !/gemini|agnes|groq/i.test(piiWarn),
+    'Pesan peringatan PII mengandung tautan Kebijakan Privasi & menjaga kerahasiaan vendor',
   );
 
   console.log('\nSEMUA UNIT TEST CHATBOT LOLOS!');

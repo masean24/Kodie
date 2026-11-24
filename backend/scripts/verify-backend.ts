@@ -44,6 +44,39 @@ async function main() {
     !Object.prototype.hasOwnProperty.call(pengajarPub?.[0] ?? {}, 'identitas_path'),
     'pengajar_publik tidak membocorkan identitas_path / SKCK',
   );
+  assert(
+    pengajarPub!.every((p) => typeof p.bio === 'string' && p.bio.length > 10),
+    'pengajar_publik menyertakan bio gaya mengajar pengajar terverifikasi',
+  );
+
+  const { data: progPub, error: progErr } = await anon.from('program').select('slug, silabus');
+  assert(
+    !progErr &&
+      (progPub?.length ?? 0) === 3 &&
+      progPub!.every((p) => Array.isArray(p.silabus) && p.silabus.length === 4),
+    'Tabel program menyertakan silabus publik Sesi 1–4 untuk seluruh 3 program',
+  );
+
+  const { data: ulasanPub, error: ulErr } = await anon.from('ulasan_pengajar_publik').select('*');
+  const bagus = pengajarPub!.find((p) => p.nama?.includes('Bagus'));
+  const nadia = pengajarPub!.find((p) => p.nama?.includes('Nadia'));
+  const bagusReviews = (ulasanPub ?? []).filter((u) => u.pengajar_id === bagus?.id);
+  const nadiaReviews = (ulasanPub ?? []).filter((u) => u.pengajar_id === nadia?.id);
+  assert(
+    !ulErr &&
+      bagusReviews.length >= 3 &&
+      nadiaReviews.length === 0 &&
+      bagusReviews.every(
+        (u) =>
+          !Object.prototype.hasOwnProperty.call(u, 'siswa_id') &&
+          !Object.prototype.hasOwnProperty.call(u, 'pemberi_id') &&
+          /^[A-Z]\*\*\* · (Orang Tua|Siswa|Peserta)$/.test(u.pemberi_label ?? ''),
+      ),
+    'View ulasan_pengajar_publik menampilkan ulasan anonim (>= 3 rating) tanpa membocorkan identitas anak/pemberi',
+  );
+
+  const { data: rawWaitlistAnon } = await anon.from('waitlist_kelas').select('id');
+  assert((rawWaitlistAnon?.length ?? 0) === 0, 'Tamu TIDAK bisa membaca tabel waitlist_kelas langsung');
 
   const { data: soalPub, error: spErr } = await anon.from('soal_minat_publik').select('*');
   assert(!spErr && (soalPub?.length ?? 0) === 12, 'Tamu bisa membaca 12 soal dari soal_minat_publik');
@@ -163,6 +196,63 @@ async function main() {
   assert(
     cegahHapusErr?.message === 'VALIDASI_GAGAL',
     'Trigger menolak penghapusan profil anak yang memiliki booking aktif',
+  );
+
+  // Uji Waitlist Kelas Penuh (Migration 12: daftar_waitlist_kelas, batal_waitlist_kelas & RLS)
+  const { error: wlOpenErr } = await ortu2.rpc('daftar_waitlist_kelas', {
+    p_kelas_id: '22222222-2222-4222-8222-000000000001',
+  });
+  assert(
+    wlOpenErr?.message === 'KELAS_MASIH_TERSEDIA',
+    'daftar_waitlist_kelas menolak kelas yang masih punya kuota dengan KELAS_MASIH_TERSEDIA',
+  );
+
+  const { error: wlDupBookErr } = await ortu1.rpc('daftar_waitlist_kelas', {
+    p_kelas_id: '22222222-2222-4222-8222-000000000002',
+  });
+  assert(
+    wlDupBookErr?.message === 'SUDAH_TERDAFTAR',
+    'daftar_waitlist_kelas menolak pengguna yang sudah punya booking aktif dengan SUDAH_TERDAFTAR',
+  );
+
+  const { data: wlJoin1, error: wlJoin1Err } = await ortu2.rpc('daftar_waitlist_kelas', {
+    p_kelas_id: '22222222-2222-4222-8222-000000000002',
+  });
+  assert(
+    !wlJoin1Err &&
+      (wlJoin1 as { status?: string; sudah_terdaftar?: boolean })?.status === 'menunggu' &&
+      (wlJoin1 as { sudah_terdaftar?: boolean })?.sudah_terdaftar === false,
+    'Orang tua bisa mendaftar waitlist pada kelas penuh',
+  );
+
+  const { data: wlJoin2, error: wlJoin2Err } = await ortu2.rpc('daftar_waitlist_kelas', {
+    p_kelas_id: '22222222-2222-4222-8222-000000000002',
+  });
+  assert(
+    !wlJoin2Err && (wlJoin2 as { sudah_terdaftar?: boolean })?.sudah_terdaftar === true,
+    'daftar_waitlist_kelas bersifat idempoten saat didaftar ulang oleh pengguna sama',
+  );
+
+  const { data: wlOrtu2Rows } = await ortu2
+    .from('waitlist_kelas')
+    .select('id, status')
+    .eq('kelas_id', '22222222-2222-4222-8222-000000000002')
+    .eq('status', 'menunggu');
+  const { data: wlOrtu1Rows } = await ortu1
+    .from('waitlist_kelas')
+    .select('id')
+    .eq('kelas_id', '22222222-2222-4222-8222-000000000002');
+  assert(
+    (wlOrtu2Rows?.length ?? 0) === 1 && (wlOrtu1Rows?.length ?? 0) === 0,
+    'RLS waitlist_kelas hanya mengizinkan pemilik melihat antreannya sendiri',
+  );
+
+  const { data: wlCancel, error: wlCancelErr } = await ortu2.rpc('batal_waitlist_kelas', {
+    p_kelas_id: '22222222-2222-4222-8222-000000000002',
+  });
+  assert(
+    !wlCancelErr && (wlCancel as { status?: string })?.status === 'dibatalkan',
+    'Pengguna bisa membatalkan waitlist dengan batal_waitlist_kelas',
   );
 
   // Uji penolakan signUp peran admin
@@ -307,6 +397,33 @@ async function main() {
   assert(
     !finErr && (finData as { status?: string })?.status === 'bot',
     'Admin bisa mengembalikan percakapan ke mode bot Kiko',
+  );
+
+  // Uji penyensoran PII anak end-to-end di Edge Function chat (tidak dikirim ke LLM & tidak tersimpan mentah)
+  const piiChatRes = await fetch(`${SUPABASE_URL}/functions/v1/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: SUPABASE_ANON_KEY!,
+      Authorization: `Bearer ${sSess.session!.access_token}`,
+    },
+    body: JSON.stringify({
+      message: 'Nomor WA pribadi saya 081299887766 tolong simpan ya',
+      percakapan_id: percakapanId,
+    }),
+  });
+  const piiChatText = await piiChatRes.text();
+  const { data: storedMsgs } = await siswaAktif
+    .from('pesan_chat')
+    .select('isi, pengirim_peran')
+    .eq('percakapan_id', percakapanId!);
+  assert(
+    piiChatRes.status === 200 &&
+      piiChatText.includes('guardrail_refusal') &&
+      piiChatText.includes('PII_DETECTED') &&
+      Boolean(storedMsgs?.some((m) => m.isi.includes('[DATA PRIBADI DISENSOR]'))) &&
+      Boolean(storedMsgs?.every((m) => !m.isi.includes('081299887766'))),
+    'Edge Function chat menyensor PII anak sebelum simpan ke DB & memblokir pengiriman ke LLM',
   );
 
   console.log('\nSEMUA PENGUJIAN VERIFIKASI BACKEND LOLOS!');

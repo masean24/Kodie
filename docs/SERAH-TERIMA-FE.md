@@ -8,7 +8,13 @@ Dokumen ini merangkum informasi koneksi, tipe data, kontrak API/RPC, penyesuaian
 
 ## 1. Status & Konfigurasi Supabase Cloud
 
-Backend sudah ter-deploy penuh (9 migration SQL, 22 tabel + RLS, 7 view, 23 RPC, 4 Storage bucket, Realtime publication `notifikasi`, 6 job `pg_cron`, Edge Function `buat-meet`, serta data seed demo).
+Backend sudah ter-deploy penuh (**12 migration SQL**, **27 tabel + RLS**, **9 view**, **29 RPC client-callable**, **4 Storage bucket**, Realtime publication `notifikasi`, `percakapan_chat` & `pesan_chat`, **6 job `pg_cron`**, Edge Function `buat-meet` & `chat`, serta data seed demo + knowledge RAG `pgvector`).
+
+### Checklist Auth URL Configuration (Supabase Dashboard)
+
+Pastikan di **Supabase Dashboard → Authentication → URL Configuration** nilai berikut sudah terdaftar agar alur login, konfirmasi, dan **Lupa Password (`resetPasswordForEmail`)** berjalan lancar di produksi:
+- **Site URL:** `https://kodie.xevora.me`
+- **Redirect URLs:** `https://kodie.xevora.me/**`, `http://localhost:3000/**`
 
 ### Setup `frontend/.env.local`
 
@@ -77,28 +83,33 @@ Pastikan implementasi Frontend mengikuti detail berikut:
 
 ### A. Auth (`supabase.auth.signUp`)
 
-Kirim field berikut di `options.data` (wajib ada `peran` dan `nama`):
+Kirim field berikut di `options.data` (wajib ada `peran` dan `nama`). Opsional dapat menyertakan `privasi_disetujui: true` untuk audit kepatuhan (`pengguna.privasi_disetujui_pada`); bila dikirim eksplisit `false`, trigger menolak pendaftaran dengan `VALIDASI_GAGAL`:
 
-- **Orang tua:** `{ peran: 'orang_tua', nama, no_wa }`
+- **Orang tua:** `{ peran: 'orang_tua', nama, no_wa, privasi_disetujui?: true }`
 - **Siswa (hanya `SMP` / `SMA`; `SD` ditolak trigger):**
-  `{ peran: 'siswa', nama, no_wa?, tanggal_lahir: 'YYYY-MM-DD', jenjang: 'SMP' | 'SMA', kelas: number, sekolah?, nama_orang_tua?, email_orang_tua? }`
+  `{ peran: 'siswa', nama, no_wa?, tanggal_lahir: 'YYYY-MM-DD', jenjang: 'SMP' | 'SMA', kelas: number, sekolah?, nama_orang_tua?, email_orang_tua?, privasi_disetujui?: true }`
 - **Pengajar:**
-  `{ peran: 'pengajar', nama, no_wa?, status_kerja?: 'mahasiswa' | 'lulusan' | 'pencari_kerja', kampus?, jurusan?, keahlian?: ('software'|'jaringan'|'iot'|'ai_data')[], cv_url? }`
+  `{ peran: 'pengajar', nama, no_wa?, status_kerja?: 'mahasiswa' | 'lulusan' | 'pencari_kerja', kampus?, jurusan?, keahlian?: ('software'|'jaringan'|'iot'|'ai_data')[], cv_url?, bio?, privasi_disetujui?: true }`
 - Peran `admin` akan selalu ditolak oleh trigger database.
 
-### B. 7 View untuk Read Data (`supabase.from('<nama_view>').select(...)`)
+### B. 9 View untuk Read Data (`supabase.from('<nama_view>').select(...)`)
 
 | View | Akses | Catatan Penting |
 | --- | --- | --- |
 | `kelas_katalog` | Publik (`anon`, `authenticated`) | Berisi `sisa_kursi`, `kursi_terpakai`, `bisa_dibooking`, `hari_mingguan` (1=Senin..7=Minggu WIB), nama & foto pengajar. **Tanpa `meet_uri`.** |
-| `pengajar_publik` | Publik | Hanya pengajar `terverifikasi`. `rata_rata_rating` bernilai `null` jika `jumlah_rating < 3`. Tanpa dokumen sensitif. |
+| `pengajar_publik` | Publik | Hanya pengajar `terverifikasi`. Kini menyertakan `bio` (teks gaya mengajar). `rata_rata_rating` bernilai `null` jika `jumlah_rating < 3`. Tanpa dokumen sensitif. |
+| `ulasan_pengajar_publik` | Publik | Ulasan terverifikasi berkomentar non-kosong untuk pengajar dengan `jumlah_rating >= 3`. Kolom: `id`, `pengajar_id`, `program_slug`, `program_nama`, `bintang`, `komentar`, `pemberi_label` (contoh `R*** · Orang Tua`), `dibuat_pada`. Tanpa `siswa_id`/`pemberi_id`. |
 | `soal_minat_publik` | Publik | 12 soal terurut, kolom `opsi` hanya berisi `[{ kode, teks }]` tanpa bobot. |
+| `chatbot_konfigurasi_publik` | Publik | Pengaturan aman widget Kiko (`chatbot_aktif`, `chatbot_nama`, `chatbot_sapaan`, `chatbot_kontak_wa`, `chatbot_kontak_email`). |
 | `sesi_saya` | Login (pemilik / admin) | Berisi jadwal sesi & flag `bisa_masuk_kelas` (boolean). **Tanpa `meet_uri`.** |
 | `laporan_saya` | Login (pemilik / admin) | Hanya mengembalikan catatan siswa milik peminta. Kolom `rekaman_url` otomatis `null` bagi siswa/orang tua. |
 | `rapor_saya` | Login (pemilik / admin) | Menggabungkan `rapor_jurusan` dengan skor `hasil_minat` terbaru siswa. |
 | `admin_ringkasan` | Admin saja | Angka statistik dashboard admin (non-admin mendapat 0 baris). |
 
-> **Catatan keamanan:** Tabel `sesi`, `playbook`, dan `soal_minat` tidak dapat di-`select` langsung oleh non-admin. Gunakan `sesi_saya`, `soal_minat_publik`, serta RPC `link_masuk_sesi` dan `playbook_sesi`.
+> **Catatan tambahan tabel `program` & `waitlist_kelas`:**
+> - Tabel `program` kini memiliki kolom **`silabus`** (`Array<{ sesi: number; judul: string; topik: string; hasil_proyek: string }>`) untuk Sesi 1–4 yang aman dibaca publik tanpa membuka `playbook`.
+> - Tabel `waitlist_kelas` dapat di-`select` oleh pengguna login untuk mengecek status antreannya (`menunggu` / `diberitahu` / `dibatalkan`) per `kelas_id`.
+> - Tabel `sesi`, `playbook`, dan `soal_minat` tetap terkunci dari `select` langsung non-admin. Gunakan `sesi_saya`, `soal_minat_publik`, serta RPC `link_masuk_sesi` dan `playbook_sesi`.
 
 ### C. Daftar RPC (`supabase.rpc('<nama>', { ... })`)
 
@@ -112,10 +123,12 @@ Error bisnis dilempar di `error.message` sesuai kode error PRD Bagian 8 (`VALIDA
   - `hitung_tes_minat({ p_jawaban, p_siswa_id? })` *(publik/login)*
     - `p_jawaban` mendukung objek `{"1": "A", ..., "12": "D"}` atau array `[{ urutan: 1, kode: "A" }, ...]`.
     - Return: `{ id, tersimpan, skor: { software, jaringan, iot, ai_data }, skor_mentah, bidang_teratas, rekomendasi_jurusan, rekomendasi_program }`.
-- **Booking & Pembayaran (F6):**
+- **Booking, Pembayaran & Waitlist (F6, QA T-11/T-16/T-17):**
   - `buat_booking({ p_kelas_id, p_siswa_id })` → `{ id, kode, status, total, batas_bayar_pada }`
   - `batalkan_booking({ p_booking_id })` → `{ id, status: 'dibatalkan' }`
   - `kirim_bukti_bayar({ p_booking_id, p_path })` → `{ pembayaran_id, booking_id, status: 'menunggu_verifikasi' }`
+  - `daftar_waitlist_kelas({ p_kelas_id, p_siswa_id? })` *(khusus `orang_tua` / `siswa` aktif ketika kelas berstatus `terbuka` dengan `sisa_kursi = 0`)* → `{ id, kelas_id, siswa_id, status: 'menunggu', sudah_terdaftar: boolean }`. Error tambahan: `KELAS_MASIH_TERSEDIA`, `SUDAH_TERDAFTAR`. Notifikasi otomatis dikirim saat ada booking dibatalkan/kedaluwarsa (`tipe: 'booking_status'`).
+  - `batal_waitlist_kelas({ p_kelas_id })` → `{ id, kelas_id, status: 'dibatalkan' }`
 - **Kelas, Sesi & Meet (F8, F9):**
   - `buka_kelas({ p_program_id, p_tanggal_mulai, p_jam_mulai, p_kapasitas, p_level? })` → `{ kelas_id, sesi_ids }`
     - `p_tanggal_mulai` format `'YYYY-MM-DD'`, `p_jam_mulai` format `'HH:mm:ss'` (dalam WIB).
@@ -165,6 +178,7 @@ Berlangganan `postgres_changes` untuk event `INSERT` pada tabel `notifikasi` den
 Detail prompt siap-pakai untuk membangun widget UI dan dashboard `/admin/chat` di Frontend tersedia di **`docs/PROMPT-CHATBOT-FE.md`**.
 
 - **Endpoint SSE:** `POST ${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/chat`
+- **Guardrail Privasi Anak (PII):** Jika pesan mengandung no HP/WA, NIK, email pribadi, alamat rumah, atau sandi/OTP, Edge Function otomatis menyensor teks menjadi `[DATA PRIBADI DISENSOR]` sebelum menyimpannya, **tidak memanggil LLM/Embedding**, lalu mengembalikan event `guardrail_refusal` dengan `{ reason: "PII_DETECTED", pii_types: string[], message: string }`.
 - **View Konfigurasi Publik:** `chatbot_konfigurasi_publik` (`chatbot_aktif`, `chatbot_nama`, `chatbot_sapaan`, `chatbot_kontak_wa`, `chatbot_kontak_email`)
 - **Tabel Live Chat (Realtime aktif):** `percakapan_chat` dan `pesan_chat`
 - **RPC Live Takeover:**

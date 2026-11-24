@@ -768,6 +768,7 @@ export type Database = {
           nama: string
           no_wa: string | null
           peran: Database["public"]["Enums"]["peran_pengguna"]
+          privasi_disetujui_pada: string
           status: Database["public"]["Enums"]["status_pengguna"]
         }
         Insert: {
@@ -776,6 +777,7 @@ export type Database = {
           nama: string
           no_wa?: string | null
           peran: Database["public"]["Enums"]["peran_pengguna"]
+          privasi_disetujui_pada?: string
           status: Database["public"]["Enums"]["status_pengguna"]
         }
         Update: {
@@ -784,6 +786,7 @@ export type Database = {
           nama?: string
           no_wa?: string | null
           peran?: Database["public"]["Enums"]["peran_pengguna"]
+          privasi_disetujui_pada?: string
           status?: Database["public"]["Enums"]["status_pengguna"]
         }
         Relationships: []
@@ -1005,6 +1008,7 @@ export type Database = {
       profil_pengajar: {
         Row: {
           alasan_penolakan: string | null
+          bio: string | null
           cv_url: string | null
           diverifikasi_oleh: string | null
           diverifikasi_pada: string | null
@@ -1022,6 +1026,7 @@ export type Database = {
         }
         Insert: {
           alasan_penolakan?: string | null
+          bio?: string | null
           cv_url?: string | null
           diverifikasi_oleh?: string | null
           diverifikasi_pada?: string | null
@@ -1039,6 +1044,7 @@ export type Database = {
         }
         Update: {
           alasan_penolakan?: string | null
+          bio?: string | null
           cv_url?: string | null
           diverifikasi_oleh?: string | null
           diverifikasi_pada?: string | null
@@ -1099,6 +1105,7 @@ export type Database = {
           kelas_min: number
           level: number
           nama: string
+          silabus: Json
           slug: string
         }
         Insert: {
@@ -1114,6 +1121,7 @@ export type Database = {
           kelas_min: number
           level?: number
           nama: string
+          silabus?: Json
           slug: string
         }
         Update: {
@@ -1129,6 +1137,7 @@ export type Database = {
           kelas_min?: number
           level?: number
           nama?: string
+          silabus?: Json
           slug?: string
         }
         Relationships: []
@@ -1409,6 +1418,72 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist_kelas: {
+        Row: {
+          diberitahu_pada: string | null
+          dibuat_pada: string
+          id: string
+          kelas_id: string
+          pengguna_id: string
+          siswa_id: string | null
+          status: Database["public"]["Enums"]["status_waitlist"]
+        }
+        Insert: {
+          diberitahu_pada?: string | null
+          dibuat_pada?: string
+          id?: string
+          kelas_id: string
+          pengguna_id: string
+          siswa_id?: string | null
+          status?: Database["public"]["Enums"]["status_waitlist"]
+        }
+        Update: {
+          diberitahu_pada?: string | null
+          dibuat_pada?: string
+          id?: string
+          kelas_id?: string
+          pengguna_id?: string
+          siswa_id?: string | null
+          status?: Database["public"]["Enums"]["status_waitlist"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_kelas_kelas_id_fkey"
+            columns: ["kelas_id"]
+            isOneToOne: false
+            referencedRelation: "kelas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_kelas_kelas_id_fkey"
+            columns: ["kelas_id"]
+            isOneToOne: false
+            referencedRelation: "kelas_katalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_kelas_pengguna_id_fkey"
+            columns: ["pengguna_id"]
+            isOneToOne: false
+            referencedRelation: "pengajar_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_kelas_pengguna_id_fkey"
+            columns: ["pengguna_id"]
+            isOneToOne: false
+            referencedRelation: "pengguna"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_kelas_siswa_id_fkey"
+            columns: ["siswa_id"]
+            isOneToOne: false
+            referencedRelation: "siswa"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       admin_ringkasan: {
@@ -1567,6 +1642,7 @@ export type Database = {
       }
       pengajar_publik: {
         Row: {
+          bio: string | null
           cv_url: string | null
           diverifikasi_pada: string | null
           foto_path: string | null
@@ -1740,6 +1816,34 @@ export type Database = {
         }
         Relationships: []
       }
+      ulasan_pengajar_publik: {
+        Row: {
+          bintang: number | null
+          dibuat_pada: string | null
+          id: string | null
+          komentar: string | null
+          pemberi_label: string | null
+          pengajar_id: string | null
+          program_nama: string | null
+          program_slug: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kelas_pengajar_id_fkey"
+            columns: ["pengajar_id"]
+            isOneToOne: false
+            referencedRelation: "pengajar_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kelas_pengajar_id_fkey"
+            columns: ["pengajar_id"]
+            isOneToOne: false
+            referencedRelation: "pengguna"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       adalah_booking_saya: { Args: { p_booking_id: string }; Returns: boolean }
@@ -1801,6 +1905,7 @@ export type Database = {
         Returns: Json
       }
       baca_semua_notifikasi: { Args: never; Returns: number }
+      batal_waitlist_kelas: { Args: { p_kelas_id: string }; Returns: Json }
       batalkan_booking: { Args: { p_booking_id: string }; Returns: Json }
       beri_rating: {
         Args: {
@@ -1849,6 +1954,10 @@ export type Database = {
       cron_pengingat_laporan: { Args: never; Returns: undefined }
       cron_pengingat_sesi: { Args: never; Returns: undefined }
       cron_status_kelas: { Args: never; Returns: undefined }
+      daftar_waitlist_kelas: {
+        Args: { p_kelas_id: string; p_siswa_id?: string }
+        Returns: Json
+      }
       geser_sesi: {
         Args: { p_mulai_pada: string; p_sesi_id: string }
         Returns: Json
@@ -1951,6 +2060,7 @@ export type Database = {
         | "selesai"
       status_persetujuan: "menunggu" | "disetujui" | "ditolak" | "kedaluwarsa"
       status_sesi: "terjadwal" | "selesai" | "dibatalkan"
+      status_waitlist: "menunggu" | "diberitahu" | "dibatalkan"
       tipe_notifikasi:
         | "laporan_dikirim"
         | "booking_status"
@@ -2132,6 +2242,7 @@ export const Constants = {
       ],
       status_persetujuan: ["menunggu", "disetujui", "ditolak", "kedaluwarsa"],
       status_sesi: ["terjadwal", "selesai", "dibatalkan"],
+      status_waitlist: ["menunggu", "diberitahu", "dibatalkan"],
       tipe_notifikasi: [
         "laporan_dikirim",
         "booking_status",

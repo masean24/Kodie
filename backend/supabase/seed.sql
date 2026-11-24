@@ -22,7 +22,8 @@ INSERT INTO public.program (
   jumlah_sesi,
   harga_paket,
   honor_per_sesi,
-  aktif
+  aktif,
+  silabus
 )
 VALUES
   (
@@ -38,7 +39,13 @@ VALUES
     4,
     200000,
     50000,
-    true
+    true,
+    '[
+      {"sesi":1,"judul":"Logika Urutan & Karakter Pertama","topik":"Mengenal instruksi berurutan (sequence), Stage, Sprite, serta blok Events, Motion, dan Looks di Scratch.","hasil_proyek":"Animasi karakter menyapa dan berjalan mengikuti urutan perintah."},
+      {"sesi":2,"judul":"Perulangan (Loop) & Animasi Halus","topik":"Menggunakan blok repeat dan forever, pergantian kostum, dan pantulan otomatis saat menyentuh tepi layar.","hasil_proyek":"Animasi akuarium atau karakter bergerak terus dengan latar kustom."},
+      {"sesi":3,"judul":"Percabangan Kondisi (If-Then) & Kontrol Keyboard","topik":"Memahami logika sebab-akibat dengan blok if-then, sensor sentuh objek/warna, dan kontrol tombol arah.","hasil_proyek":"Karakter interaktif yang merespons tombol dan rintangan."},
+      {"sesi":4,"judul":"Variabel Skor & Game Mini Interaktif","topik":"Membuat variabel skor/nyawa, menggabungkan urutan, loop, dan kondisi menjadi game mini utuh.","hasil_proyek":"Game tangkap objek sederhana siap dipamerkan ke orang tua."}
+    ]'::jsonb
   ),
   (
     '11111111-1111-4111-8111-000000000002',
@@ -53,7 +60,13 @@ VALUES
     4,
     275000,
     65000,
-    true
+    true,
+    '[
+      {"sesi":1,"judul":"Fondasi Struktur Web HTML5","topik":"Memahami cara browser membaca HTML, struktur tag semantik (heading, paragraf, daftar, gambar, tautan), dan Inspect Element.","hasil_proyek":"Halaman web profil pelajar satu halaman."},
+      {"sesi":2,"judul":"Styling Modern dengan CSS & Flexbox","topik":"Menerapkan selektor CSS, Box Model (margin, padding, border), serta penataan responsif memakai Flexbox.","hasil_proyek":"Kartu profil dan galeri hobi modern yang rapi di laptop dan ponsel."},
+      {"sesi":3,"judul":"Interaktivitas Web dengan JavaScript & DOM","topik":"Mengenal variabel, fungsi, event listener tombol/form, dan manipulasi elemen DOM secara langsung.","hasil_proyek":"Aplikasi web catatan atau daftar tugas interaktif di browser."},
+      {"sesi":4,"judul":"Simulasi IoT Virtual & Pengenalan AI Dasar","topik":"Merancang logika sensor dan LED di simulator Wokwi serta mencoba klasifikasi teks sederhana dengan AI.","hasil_proyek":"Purwarupa lampu otomatis virtual dan demo asisten teks sederhana."}
+    ]'::jsonb
   ),
   (
     '11111111-1111-4111-8111-000000000003',
@@ -68,7 +81,13 @@ VALUES
     4,
     300000,
     75000,
-    true
+    true,
+    '[
+      {"sesi":1,"judul":"Simulasi 1: Software Engineering","topik":"Mengenal alur kerja Software Engineer, logika pemrograman antarmuka web, penanganan event, dan debugging dasar.","hasil_proyek":"Aplikasi web mini Kalkulator Target Tabungan."},
+      {"sesi":2,"judul":"Simulasi 2: Jaringan Komputer & Keamanan Siber","topik":"Memahami IP Address, DNS, router, protokol HTTP/HTTPS, inspeksi Network Tab, serta mengenali ancaman phishing.","hasil_proyek":"Analisis lalu lintas request browser dan investigasi keamanan tautan."},
+      {"sesi":3,"judul":"Simulasi 3: Internet of Things (IoT) Virtual","topik":"Mengenal mikrokontroler ESP32/Arduino, wiring sensor jarak & suhu, serta pemrograman logika perangkat di Wokwi.","hasil_proyek":"Simulasi perangkat rumah pintar berbasis sensor otomatis."},
+      {"sesi":4,"judul":"Simulasi 4: AI & Sains Data + Rapor Jurusan","topik":"Mencoba eksperimen klasifikasi teks AI, evaluasi kesalahan model, dan refleksi minat keempat bidang IT.","hasil_proyek":"Notebook klasifikasi AI dan Rapor Rekomendasi Jurusan Kuliah."}
+    ]'::jsonb
   )
 ON CONFLICT (slug) DO UPDATE SET
   nama = EXCLUDED.nama,
@@ -81,7 +100,8 @@ ON CONFLICT (slug) DO UPDATE SET
   jumlah_sesi = EXCLUDED.jumlah_sesi,
   harga_paket = EXCLUDED.harga_paket,
   honor_per_sesi = EXCLUDED.honor_per_sesi,
-  aktif = EXCLUDED.aktif;
+  aktif = EXCLUDED.aktif,
+  silabus = EXCLUDED.silabus;
 
 -- ----------------------------------------------------------------------------
 -- 2. SOAL TES MINAT (12 soal sesuai docs/konten/soal-tes-minat.md)
@@ -214,7 +234,7 @@ ON CONFLICT (urutan) DO UPDATE SET
   opsi = EXCLUDED.opsi;
 
 -- ----------------------------------------------------------------------------
--- 3. PLAYBOOK (Sesi 1 dan 2 setiap program)
+-- 3. PLAYBOOK (Lengkap Sesi 1 sampai 4 setiap program)
 -- ----------------------------------------------------------------------------
 
 INSERT INTO public.playbook (program_id, level, nomor_sesi, judul, konten_md, starter_url)
@@ -286,6 +306,72 @@ Setelah sesi ini, siswa bisa:
     'https://scratch.mit.edu/projects/editor/'
   ),
   (
+    '11111111-1111-4111-8111-000000000001',
+    1,
+    3,
+    'Coding Dasar Sesi 3: Percabangan Kondisi (If-Then) & Kontrol Keyboard',
+    $md$## Tujuan sesi
+Setelah sesi ini, siswa bisa:
+1. Memahami konsep percabangan kondisi (*if-then*) di Scratch sebagai cara komputer mengambil keputusan.
+2. Membuat interaksi karakter yang merespons sentuhan warna/rintangan serta tombol arah keyboard.
+
+## Persiapan pengajar
+- Buka starter Scratch dan siapkan proyek contoh "Kucing Hindari Rintangan".
+- Baca catatan siswa dari sesi 2.
+
+## Alur kelas (60 menit)
+- **00–08 Pembukaan:** Kuis sebab-akibat harian (*jika hujan -> buka payung*) untuk mengenalkan *if-then*.
+- **08–32 Praktik terpandu:** Blok `if ... then`, `touching color?`, dan `when arrow key pressed`.
+- **32–47 Tantangan:** Tambahkan objek bintang bonus dan rintangan warna merah.
+- **47–55 Pamer hasil:** 3–4 siswa mendemokan kontrol keyboard karyanya.
+- **55–60 Penutup:** Rangkuman *if-then* dan pratinjau variabel skor di sesi 4.
+
+## Tantangan untuk siswa
+1. **Dasar:** Gerakkan karakter dengan 4 tombol panah dan kembali ke titik awal jika menyentuh warna merah.
+2. **Lanjutan:** Tambahkan rintangan kedua yang bergerak perlahan dengan loop `forever`.
+
+## Kunci jawaban dan solusi umum
+- *Deteksi warna cuma jalan sekali:* Bungkus `if touching color` di dalam `forever`.
+- *Warna tidak terdeteksi:* Pilih warna rintangan memakai ikon pipet (*eyedropper*).
+
+## Catatan keamanan
+- Kelas hanya lewat link resmi platform. Jangan meminta kontak pribadi siswa.$md$,
+    'https://scratch.mit.edu/projects/editor/'
+  ),
+  (
+    '11111111-1111-4111-8111-000000000001',
+    1,
+    4,
+    'Coding Dasar Sesi 4: Variabel Skor & Game Mini Interaktif',
+    $md$## Tujuan sesi
+Setelah sesi ini, siswa bisa:
+1. Memahami konsep **variabel** untuk menyimpan data skor dan nyawa pemain.
+2. Menggabungkan *sequence*, *loop*, *if-then*, dan variabel menjadi satu game mini utuh.
+
+## Persiapan pengajar
+- Buka proyek contoh "Game Tangkap Bintang" dengan variabel `Skor`.
+- Ingatkan siswa tentang showcase karya untuk laporan orang tua.
+
+## Alur kelas (60 menit)
+- **00–08 Pembukaan:** Analogi variabel sebagai kotak penyimpan angka skor.
+- **08–30 Praktik terpandu:** Buat variabel `Skor`, `set Skor to 0`, dan `change Skor by 1`.
+- **30–45 Tantangan:** Tambahkan kondisi menang saat `Skor = 10`.
+- **45–55 Pamer hasil:** Mini showcase karya game masing-masing.
+- **55–60 Penutup:** Rangkuman Sesi 1–4 dan ajakan bereksperimen di Kodie Lab mode Blok.
+
+## Tantangan untuk siswa
+1. **Dasar:** Tambahkan variabel `Skor` yang dimulai dari `0` dan bertambah `1` tiap kali target tertangkap.
+2. **Lanjutan:** Tambahkan suara tepuk tangan dan `stop all` saat skor mencapai 10.
+
+## Kunci jawaban dan solusi umum
+- *Skor langsung melesat ratusan:* Pindahkan sprite ke posisi acak (`go to random position`) tepat setelah menyentuh karakter.
+- *Skor tidak reset:* Pasang `set Skor to 0` tepat di bawah `when green flag clicked`.
+
+## Catatan keamanan
+- Pastikan proyek Scratch tidak memuat nama lengkap atau kontak pribadi siswa sebelum dibagikan.$md$,
+    'https://scratch.mit.edu/projects/editor/'
+  ),
+  (
     '11111111-1111-4111-8111-000000000002',
     1,
     1,
@@ -350,6 +436,72 @@ Setelah sesi ini, siswa bisa:
     'https://codesandbox.io/s/vanilla'
   ),
   (
+    '11111111-1111-4111-8111-000000000002',
+    1,
+    3,
+    'Kelas Reguler Teknologi Sesi 3: Interaktivitas Web dengan JavaScript & DOM',
+    $md$## Tujuan sesi
+Setelah sesi ini, siswa bisa:
+1. Memahami dasar JavaScript (`const`, `let`, fungsi, manipulasi DOM dengan `querySelector`, serta `addEventListener`).
+2. Menambahkan interaktivitas nyata pada halaman web agar tombol dan form merespons pengguna.
+
+## Persiapan pengajar
+- Buka starter CodeSandbox / mode HTML, CSS, JS di `/lab` Kodie Lab.
+- Baca catatan siswa dari sesi 2.
+
+## Alur kelas (90 menit)
+- **00–12 Pembukaan:** Peran HTML, CSS, dan JS lewat demo tombol interaktif.
+- **12–48 Praktik terpandu:** `document.querySelector()`, event `submit`, validasi input kosong, dan `createElement('li')`.
+- **48–72 Tantangan:** Tambahkan fitur coret item selesai dan penghitung total item aktif.
+- **72–84 Pamer hasil:** 3–4 siswa mendemokan aplikasi catatan/to-do list buatannya.
+- **84–90 Penutup:** Rangkuman Event -> Logika -> Update DOM, pratinjau IoT virtual & AI di sesi 4.
+
+## Tantangan untuk siswa
+1. **Dasar:** Buat tombol Tambah yang membaca input, menolak spasi kosong, dan menampilkannya ke daftar `<ul>`.
+2. **Lanjutan:** Tambahkan klik item untuk menandai selesai (`classList.toggle('selesai')`).
+
+## Kunci jawaban dan solusi umum
+- *Error Cannot read properties of null:* Letakkan script dengan atribut `defer` atau di akhir `<body>`, dan cek selector `#id`.
+- *Halaman reload saat submit:* Panggil `event.preventDefault()`.
+
+## Catatan keamanan
+- Gunakan `textContent` (bukan `innerHTML`) untuk menampilkan teks input agar aman dari injeksi HTML.$md$,
+    'https://codesandbox.io/s/vanilla'
+  ),
+  (
+    '11111111-1111-4111-8111-000000000002',
+    1,
+    4,
+    'Kelas Reguler Teknologi Sesi 4: Simulasi IoT Virtual & Pengenalan AI Dasar',
+    $md$## Tujuan sesi
+Setelah sesi ini, siswa bisa:
+1. Memahami alur sistem IoT virtual (sensor -> mikrokontroler -> LED/aktuator) di **Wokwi**.
+2. Mengenal cara kerja klasifikasi teks AI sederhana dan mempraktikkannya di browser.
+
+## Persiapan pengajar
+- Buka simulator Wokwi starter (sensor LDR + LED) dan tab `/lab` Kodie Lab.
+- Tinjau catatan Sesi 1–3 tiap siswa untuk evaluasi akhir paket.
+
+## Alur kelas (90 menit)
+- **00–12 Pembukaan:** Cara komputer membaca sensor fisik (IoT) dan pola bahasa (AI).
+- **12–48 Praktik terpandu:** Merakit LED + LDR di Wokwi dan menulis kondisi ambang batas cahaya.
+- **48–72 Tantangan:** Tambahkan indikator ke Serial Monitor dan uji klasifikasi teks sederhana di Kodie Lab.
+- **72–84 Pamer hasil:** Showcase akhir Level 1 & refleksi minat teknologi.
+- **84–90 Penutup:** Saran lanjut Level 2 atau paket Simulasi Jurusan IT.
+
+## Tantangan untuk siswa
+1. **Dasar:** Buat LED menyala otomatis saat pembacaan sensor LDR < 500 di Wokwi.
+2. **Lanjutan:** Cetak status pembacaan sensor tiap 1 detik ke Serial Monitor.
+
+## Kunci jawaban dan solusi umum
+- *LED tidak menyala:* Cocokkan pin GPIO pada diagram Wokwi dan cek arah kaki resistor/GND.
+- *Serial Monitor kosong:* Tambahkan `Serial.begin(115200);` di `setup()`.
+
+## Catatan keamanan
+- Pastikan siswa tidak menaruh data pribadi asli saat menguji simulasi web atau AI.$md$,
+    'https://wokwi.com/'
+  ),
+  (
     '11111111-1111-4111-8111-000000000003',
     1,
     1,
@@ -412,6 +564,69 @@ Setelah sesi ini, siswa bisa:
 ## Catatan keamanan
 - Tekankan etika keamanan siber: uji hanya pada simulator atau sistem milik sendiri.$md$,
     'https://www.packettracernetwork.com/'
+  ),
+  (
+    '11111111-1111-4111-8111-000000000003',
+    1,
+    3,
+    'Simulasi Jurusan IT Sesi 3: Internet of Things (IoT) Virtual',
+    $md$## Tujuan sesi
+Setelah sesi ini, siswa bisa:
+1. Mengenal peran engineer IoT & Sistem Tertanam beserta gambaran mata kuliah Teknik Komputer / Teknik Elektro.
+2. Merancang simulasi sistem rumah pintar otomatis menggunakan sensor jarak/suhu dan LED/buzzer di **Wokwi**.
+
+## Persiapan pengajar
+- Buka simulator Wokwi dengan starter ESP32 + sensor HC-SR04 + LED & Buzzer.
+- Catat observasi siswa di bidang Hardware/IoT sebagai perbandingan menuju rapor Sesi 4.
+
+## Alur kelas (90 menit)
+- **00–12 Pembukaan:** Pengenalan bidang IoT dan sistem tertanam di sekitar kita.
+- **12–48 Praktik terpandu:** Wiring sensor HC-SR04 + LED pada ESP32 di Wokwi dan menulis logika `pulseIn`.
+- **48–72 Tantangan:** Skenario "Peringatan Garasi Pintar" dengan ambang jarak 50 cm dan buzzer.
+- **72–84 Pamer hasil:** Refleksi ketertarikan terhadap kombinasi perangkat keras dan kode.
+- **84–90 Penutup:** Pratinjau Sesi 4 (AI, Sains Data & Rapor Rekomendasi Jurusan).
+
+## Tantangan untuk siswa
+1. **Dasar:** Nyalakan LED merah jika jarak objek < `50 cm`, LED hijau jika aman.
+2. **Lanjutan:** Bunyikan buzzer makin cepat saat jarak < `25 cm`.
+
+## Kunci jawaban dan solusi umum
+- *Jarak terbaca 0 cm:* Cek pin `TRIG`/`ECHO` dan pastikan pulsa `10 microseconds` di `TRIG`.
+- *LED tidak berubah:* Pastikan pin `GND` tersambung melalui resistor.
+
+## Catatan keamanan
+- Kelas hanya lewat link resmi platform. Catat ketertarikan siswa pada IoT untuk bahan Rapor Jurusan Sesi 4.$md$,
+    'https://wokwi.com/'
+  ),
+  (
+    '11111111-1111-4111-8111-000000000003',
+    1,
+    4,
+    'Simulasi Jurusan IT Sesi 4: AI & Sains Data + Rapor Jurusan',
+    $md$## Tujuan sesi
+Setelah sesi ini, siswa mencoba klasifikasi teks sederhana berbasis AI, menghubungkannya dengan pengalaman 3 bidang sebelumnya, dan merefleksikan minat jurusan IT.
+
+## Persiapan pengajar
+- Buka Google Colab starter (atau mode Python di `/lab` Kodie Lab) dan tinjau catatan Sesi 1–3 tiap siswa.
+
+## Alur kelas (90 menit)
+- **00–12 Pembukaan:** Review pengalaman bidang Software, Jaringan, dan IoT.
+- **12–48 Praktik terpandu:** Jalankan contoh klasifikasi sentimen kalimat dan amati efek data latih terhadap akurasi.
+- **48–72 Tantangan:** Siswa menguji 5 kalimat jebakan (sarkasme/negasi seperti *"tidak buruk"*) dan menjelaskan kapan model salah menebak.
+- **72–84 Pamer hasil & refleksi:** Diskusi peringkat bidang minat masing-masing untuk bekal rapor jurusan.
+- **84–90 Penutup:** Sampaikan bahwa **Rapor Rekomendasi Jurusan** akan dikirim ke dashboard siswa & orang tua sebagai saran.
+
+## Tantangan untuk siswa
+1. **Dasar:** Uji minimal 5 kalimat dan catat kapan model salah klasifikasi.
+2. **Lanjutan:** Tambahkan 4 kalimat bernegasi ke data latih lalu amati perbaikan akurasi.
+
+## Kunci jawaban dan solusi umum
+- *Kalimat "tidak buruk" tertebak negatif:* Model *bag-of-words* membaca kata terpisah tanpa memahami konteks urutan kata.
+- *Tidak punya akses Colab:* Jalankan skrip langsung di `/lab` Kodie Lab mode Python tanpa login.
+
+## Setelah kelas (WAJIB)
+Isi laporan sesi sekaligus **Rapor Rekomendasi Jurusan** (skor 1–5 Software, Jaringan, IoT, AI & Data, bidang rekomendasi, alasan, saran) untuk setiap siswa yang hadir.$md$,
+    'https://colab.research.google.com/'
   )
 ON CONFLICT (program_id, level, nomor_sesi) DO UPDATE SET
   judul = EXCLUDED.judul,
