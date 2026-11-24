@@ -47,6 +47,16 @@ const BAGIAN = [
       "Hasil tes minat tamu tidak disimpan di server.",
     ],
   },
+  {
+    judul: "Asisten AI Kiko",
+    isi: [
+      "Kiko adalah asisten berbasis AI yang menjawab pertanyaan seputar program, kelas, dan cara memakai situs Kodie.",
+      "Jawaban Kiko dibuat otomatis dan bisa keliru. Untuk hal penting seperti pembayaran atau jadwal, cek halaman terkait atau minta bantuan admin.",
+      "Pesan yang ditulis di chat dikirim ke layanan AI untuk dibuatkan jawaban. Jangan menulis data pribadi seperti nomor HP, alamat, password, atau data anak.",
+      "Riwayat chat tamu disimpan sementara di browser perangkat ini dan terhapus saat menekan tombol mulai percakapan baru.",
+      "Jika meminta bantuan admin lewat live chat, percakapan itu disimpan di sistem Kodie agar admin bisa membalas.",
+    ],
+  },
 ];
 
 export default function HalamanPrivasi() {

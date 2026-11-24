@@ -9,10 +9,22 @@ export const RENTANG_JAM: Record<RentangJam, { label: string; dari: number; samp
 };
 
 export interface FilterKelas {
+  /** Kata kunci bebas: nama program, nama pengajar, atau jenjang. */
+  cari?: string;
   program?: string;
   jenjang?: Jenjang;
   hari?: number;
   jam?: RentangJam;
+}
+
+/** Saring dengan kata kunci (tidak peka huruf besar/kecil) pada program, pengajar, level, dan jenjang. */
+export function saringCari(daftar: KelasKatalog[], cari?: string): KelasKatalog[] {
+  const kata = cari?.trim().toLowerCase().split(/\s+/).filter(Boolean) ?? [];
+  if (kata.length === 0) return daftar;
+  return daftar.filter((k) => {
+    const teks = `${k.program_nama} level ${k.level} ${k.pengajar_nama} ${k.jenjang.join(" ")}`.toLowerCase();
+    return kata.every((w) => teks.includes(w));
+  });
 }
 
 export function saringKelas(daftar: KelasKatalog[], f: FilterKelas): KelasKatalog[] {

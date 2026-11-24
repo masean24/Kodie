@@ -5,6 +5,7 @@ import { saringKelas, urutkanKelas, type FilterKelas } from "@/lib/kelas";
 import { clientPublik } from "@/lib/supabase/publik";
 import { buatClientServer } from "@/lib/supabase/server";
 import { lemparJikaError, pakaiMock } from "./sumber";
+import { ambilDaftarProgram } from "./program";
 
 type BarisKelasKatalog = Omit<KelasKatalog, "mulai_pada" | "pengajar_foto_url"> & {
   mulai_pada?: string | null;
@@ -31,12 +32,26 @@ export function normalisasiKelasKatalog(row: BarisKelasKatalog): KelasKatalog {
  * Hanya untuk Server Component. Sisa kursi dan status bisa dipesan bergantung waktu,
  * jadi data dibaca saat request (connection()), bukan saat build.
  */
+/**
+ * Lengkapi `kelas_min`/`kelas_maks` dari data program bila view tidak menyertakannya, supaya label jenjang
+ * kartu kelas sama dengan kartu program (misalnya "SMP kelas 9 dan SMA" untuk Simulasi Jurusan IT).
+ */
+async function lengkapiRentangKelas(daftar: KelasKatalog[]): Promise<KelasKatalog[]> {
+  if (daftar.every((k) => k.kelas_min != null)) return daftar;
+  const program = new Map((await ambilDaftarProgram()).map((p) => [p.id, p]));
+  return daftar.map((k) => {
+    if (k.kelas_min != null) return k;
+    const p = program.get(k.program_id);
+    return p ? { ...k, kelas_min: p.kelas_min, kelas_maks: p.kelas_maks } : k;
+  });
+}
+
 async function semuaKelas(): Promise<KelasKatalog[]> {
   await connection();
-  if (pakaiMock) return buatKelasMock(new Date());
+  if (pakaiMock) return lengkapiRentangKelas(buatKelasMock(new Date()));
   const { data, error } = await clientPublik().from("kelas_katalog").select("*");
   lemparJikaError(error);
-  return ((data ?? []) as BarisKelasKatalog[]).map(normalisasiKelasKatalog);
+  return lengkapiRentangKelas(((data ?? []) as BarisKelasKatalog[]).map(normalisasiKelasKatalog));
 }
 
 /** View `kelas_katalog` (tanpa link Meet), disaring dan diurutkan. */
@@ -49,7 +64,7 @@ export async function ambilKelas(id: string): Promise<KelasKatalog | null> {
   await connection();
   const { data, error } = await clientPublik().from("kelas_katalog").select("*").eq("id", id).maybeSingle();
   lemparJikaError(error);
-  return data ? normalisasiKelasKatalog(data as BarisKelasKatalog) : null;
+  return data ? ((await lengkapiRentangKelas([normalisasiKelasKatalog(data as BarisKelasKatalog)]))[0] ?? null) : null;
 }
 
 /**

@@ -2,6 +2,7 @@ import type { Program } from "@/types/database";
 import { labelJenjang, warnaProgram } from "@/components/kategori";
 import { TombolTautan } from "@/components/ui/tombol";
 import { cx } from "@/lib/cx";
+import { formatRupiah } from "@/lib/format";
 import { GambarProgram } from "./gambar-program";
 
 export function kalimatPertama(teks: string) {
@@ -32,6 +33,11 @@ export function KartuProgram({ p, judulTag = "h3" }: { p: Program; judulTag?: "h
       <Tag className="text-2xl font-bold leading-snug">{p.nama}</Tag>
       <p className="leading-relaxed">{kalimatPertama(p.deskripsi)}</p>
       <div className="mt-auto flex flex-col gap-4 pt-2">
+        <p className="leading-tight">
+          <span className="text-sm font-bold">Mulai</span>{" "}
+          <span className="font-display text-xl font-semibold">{formatRupiah(p.harga_paket)}</span>
+          <span className="text-sm"> / paket {p.jumlah_sesi} sesi</span>
+        </p>
         <ul className="flex flex-wrap gap-2 text-sm font-bold">
           <li className="rounded-full bg-white px-3 py-0.5 text-[#0f172a]">{p.durasi_menit} menit</li>
           <li className="rounded-full bg-white px-3 py-0.5 text-[#0f172a]">{p.jumlah_sesi} sesi</li>

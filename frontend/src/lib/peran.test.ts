@@ -41,7 +41,7 @@ describe("tujuanSetelahMasuk", () => {
 });
 
 describe("skemaDaftar", () => {
-  const dasar = { nama: "Raka Pratama", email: "raka@contoh.id", password: "Belajar#Kode26", ulangi_password: "Belajar#Kode26" };
+  const dasar = { nama: "Raka Pratama", email: "raka@contoh.id", password: "Belajar#Kode26", ulangi_password: "Belajar#Kode26", setuju_privasi: true };
 
   it("menerima orang tua yang lengkap dan menolak nomor WA salah", () => {
     expect(skemaDaftar.safeParse({ ...dasar, peran: "orang_tua", no_wa: "081234567890" }).success).toBe(true);
@@ -51,6 +51,12 @@ describe("skemaDaftar", () => {
   it("menolak password kurang dari 8 karakter", () => {
     const r = skemaDaftar.safeParse({ ...dasar, password: "1234567", ulangi_password: "1234567", peran: "orang_tua", no_wa: "081234567890" });
     expect(r.success).toBe(false);
+  });
+
+  it("mewajibkan persetujuan Kebijakan Privasi", () => {
+    const r = skemaDaftar.safeParse({ ...dasar, setuju_privasi: false, peran: "orang_tua", no_wa: "081234567890" });
+    expect(r.success).toBe(false);
+    expect(r.error?.issues.some((i) => i.path.join(".") === "setuju_privasi")).toBe(true);
   });
 
   it("menolak password yang mudah ditebak", () => {
@@ -103,6 +109,7 @@ describe("dataSignUp", () => {
         password: "Belajar#Kode26",
         ulangi_password: "Belajar#Kode26",
         no_wa: "081234567890",
+        setuju_privasi: true,
       }),
     ).toEqual({ peran: "orang_tua", nama: "Sari", no_wa: "081234567890" });
   });

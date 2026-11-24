@@ -14,6 +14,8 @@ const password = z
     if (alasan) ctx.addIssue({ code: "custom", message: `Password terlalu mudah ditebak. ${alasan}` });
   });
 const ulangiPassword = z.string().min(1, "Ulangi password Anda.");
+/** Centang wajib persetujuan Kebijakan Privasi sebelum membuat akun. */
+const setujuPrivasi = z.literal(true, { message: "Centang persetujuan Kebijakan Privasi untuk melanjutkan." });
 
 /** Ulangi password harus sama persis dengan password. */
 const cocokPassword = {
@@ -40,6 +42,7 @@ export const skemaOrangTua = z
     password,
     ulangi_password: ulangiPassword,
     no_wa: noWa,
+    setuju_privasi: setujuPrivasi,
   })
   .refine(cocokPassword.cek, cocokPassword.pesan);
 
@@ -65,6 +68,7 @@ export const skemaSiswa = z
     sekolah: opsional(z.string().trim().max(120, "Nama sekolah terlalu panjang.")),
     nama_orang_tua: nama,
     email_orang_tua: opsional(email),
+    setuju_privasi: setujuPrivasi,
   })
   .refine((d) => (KELAS_PER_JENJANG[d.jenjang] as readonly number[]).includes(d.kelas), {
     path: ["kelas"],
@@ -87,6 +91,7 @@ export const skemaPengajar = z
   jurusan: z.string().trim().min(2, "Isi jurusan.").max(120),
   keahlian: z.array(z.enum(BIDANG_PILIHAN)).min(1, "Pilih minimal satu bidang keahlian."),
   cv_url: opsional(z.string().trim().url("Tulis link lengkap, misalnya https://…")),
+  setuju_privasi: setujuPrivasi,
   })
   .refine(cocokPassword.cek, cocokPassword.pesan);
 
@@ -101,7 +106,7 @@ export type InputPengajar = z.infer<typeof skemaPengajar>;
 /** Data `options.data` untuk supabase.auth.signUp (docs/SERAH-TERIMA-FE.md). Email dan password tidak ikut. */
 export function dataSignUp(input: InputDaftar): Record<string, unknown> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { email: _e, password: _p, ulangi_password: _u, ...data } = input;
+  const { email: _e, password: _p, ulangi_password: _u, setuju_privasi: _s, ...data } = input;
   const bersih: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(data)) if (v !== "" && v !== undefined) bersih[k] = v;
   return bersih;

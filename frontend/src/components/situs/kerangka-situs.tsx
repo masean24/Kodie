@@ -13,7 +13,12 @@ import { MenuAkun, MenuAkunPonsel } from "./menu-akun";
 function TombolTamu({ ponsel }: { ponsel?: boolean }) {
   return (
     <div className={ponsel ? "grid grid-cols-2 gap-3" : "flex items-center gap-3"}>
-      <TombolTautan href="/masuk" varian="kedua">
+      {/* Saat header melayang, tombol Masuk ikut transparan seperti kaca header (bukan putih solid). */}
+      <TombolTautan
+        href="/masuk"
+        varian="kedua"
+        className={ponsel ? undefined : "transition-colors group-data-[mengambang]/hdr:border-border-strong/60 group-data-[mengambang]/hdr:bg-surface/35 group-data-[mengambang]/hdr:hover:bg-surface/70"}
+      >
         Masuk
       </TombolTautan>
       <TombolTautan href="/daftar">Daftar</TombolTautan>

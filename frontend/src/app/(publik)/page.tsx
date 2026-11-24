@@ -70,7 +70,7 @@ function SimulasiKelasLive() {
           Coba langsung: tanya Kiko di chat, angkat tangan, atau kirim reaksi. Begini rasanya belajar bareng di Kodie.
         </p>
         <p className="mx-auto mt-3 w-fit rounded-full bg-surface-sunken px-3 py-1 text-center text-xs font-bold text-text-muted">
-          Simulasi interaktif, bukan rekaman kelas asli
+          Mode Simulasi Interaktif · bukan rekaman kelas asli
         </p>
         <div className="mt-8">
           <SimulasiKelasMalas />

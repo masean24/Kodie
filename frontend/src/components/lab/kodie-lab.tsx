@@ -392,7 +392,7 @@ export function KodieLab() {
 
         <div className="flex flex-wrap items-center gap-2">
           <span aria-live="polite" className="text-sm text-text-muted">
-            {tersimpan ? "Tersimpan di browser ini" : "Menyimpan…"}
+            {tersimpan ? "Tersimpan sementara di browser perangkat ini" : "Menyimpan…"}
           </span>
           <button
             type="button"

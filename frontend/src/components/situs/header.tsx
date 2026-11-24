@@ -14,6 +14,7 @@ const MENU = [
   { href: "/kelas", label: "Kelas" },
   { href: "/tes-minat", label: "Tes minat" },
   { href: "/lab", label: "Kodie Lab" },
+  { href: "/showcase", label: "Showcase" },
 ];
 
 function aktif(pathname: string, href: string) {
@@ -145,7 +146,8 @@ export function Header({
         id="menu-ponsel"
         hidden={!buka}
         className={cx(
-          "hdr-laci hdr-isi relative border-t border-border bg-surface xl:hidden",
+          // Absolute di bawah bar: laci menimpa konten halaman, tinggi header (dan posisi halaman) tidak berubah.
+          "hdr-laci hdr-isi absolute inset-x-0 top-full max-h-[calc(100dvh-80px)] overflow-y-auto border-t border-border bg-surface shadow-kartu-hover xl:hidden",
           mengambang && "backdrop-blur-lg backdrop-saturate-150",
         )}
         onClick={(e) => {

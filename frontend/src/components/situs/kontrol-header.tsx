@@ -177,8 +177,9 @@ export function ThemeSwitch({ penuh }: { penuh?: boolean }) {
       role="radiogroup"
       aria-label="Tema tampilan"
       className={cx(
-        "relative grid grid-cols-2 items-center rounded-full border-[1.5px] border-border-strong bg-surface p-[3px]",
-        penuh ? "w-full" : "w-[88px] shrink-0",
+        "relative grid grid-cols-2 items-center rounded-full border-[1.5px] border-border-strong bg-surface p-[3px] transition-colors",
+        // Di header yang melayang, latar pengalih tema ikut transparan seperti kaca header.
+        penuh ? "w-full" : "w-[88px] shrink-0 group-data-[mengambang]/hdr:border-border-strong/60 group-data-[mengambang]/hdr:bg-surface/35",
       )}
     >
       {/* Pill aktif digeser dengan transisi CSS (easing pegas): posisinya ikut state, termasuk setelah hidrasi. */}

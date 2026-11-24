@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { aksiMasuk } from "@/app/(auth)/aksi";
 import { skemaMasuk, type InputMasuk } from "@/lib/validasi/auth";
 import { Input } from "@/components/ui/formulir";
+import { InputPassword } from "@/components/ui/input-password";
 import { Tombol } from "@/components/ui/tombol";
 import { KartuAuth, PesanFormulir, fokusGalatPertama } from "./bagian";
 
@@ -49,9 +50,8 @@ export function FormMasuk({
       <form method="post" onSubmit={kirim} noValidate className={ringkas ? "flex flex-col gap-4" : "mt-6 flex flex-col gap-4 rounded-card-sm bg-surface p-5"}>
         <PesanFormulir galat={galat} />
         <Input id="email" type="email" label="Email" autoComplete="email" galat={errors.email?.message} {...register("email")} />
-        <Input
+        <InputPassword
           id="password"
-          type="password"
           label="Password"
           autoComplete="current-password"
           galat={errors.password?.message}
@@ -68,6 +68,11 @@ export function FormMasuk({
     <KartuAuth>
       <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Masuk</h1>
       <p className="mt-2 text-text-muted">Masuk untuk memesan kelas, melihat laporan, atau mengajar.</p>
+      {lanjut ? (
+        <p role="status" className="mt-4 rounded-card-sm bg-primary-subtle px-4 py-3 text-sm font-bold text-text">
+          Masuk dulu untuk melanjutkan ke halaman yang tadi Anda buka.
+        </p>
+      ) : null}
       {form}
       <p className="mt-6 text-center">
         Belum punya akun?{" "}

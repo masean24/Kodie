@@ -10,6 +10,7 @@ import { Catatan, Kerangka, StateKosong } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { ObjekBidang, TagBidang, WARNA_BATANG_BIDANG } from "@/components/kategori";
 import { bacaHasil, hapusTes } from "./penyimpanan";
+import { SalinRingkasan, teksRingkasan } from "./salin-ringkasan";
 
 const kosong = () => () => {};
 
@@ -66,6 +67,8 @@ export function HasilTes({ namaProgram }: { namaProgram: Record<string, string> 
         </div>
         <ObjekBidang bidang={teratas} ukuran={140} miring={6} className="hidden sm:block" />
       </section>
+
+      <SalinRingkasan teks={teksRingkasan(teratas, urut, hasil.skor, hasil.rekomendasi_program.map(nama))} />
 
       <Catatan judul="Hasil ini saran, bukan keputusan">
         Kamu tetap bebas memilih kelas dan jurusan.{" "}

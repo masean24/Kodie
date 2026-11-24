@@ -5,6 +5,7 @@ import { Kontainer, Sorotan } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { Muncul } from "@/components/ui/gerak";
 import { BandKodie } from "@/components/situs/judul-halaman";
+import { FilterKarya } from "./filter-karya";
 
 export const metadata: Metadata = {
   title: "Showcase karya",
@@ -133,9 +134,12 @@ export default function HalamanShowcase() {
       </BandKodie>
 
       <Kontainer className="py-10 md:py-14">
-        <ul className="grid gap-6 md:grid-cols-2">
-          {KARYA.map((k, i) => (
-            <Muncul as="li" key={k.judul} tunda={i * 0.06} className="flex">
+        <FilterKarya
+          karya={KARYA.map((k, i) => ({
+            kunci: k.judul,
+            jenjang: k.jenjang,
+            isi: (
+            <Muncul key={k.judul} tunda={i * 0.06} className="flex w-full">
               <article className="flex w-full flex-col overflow-hidden rounded-card border border-border bg-surface shadow-kartu">
                 <div className="grid h-44 place-items-center border-b border-border bg-surface-sunken p-3">{k.pratinjau}</div>
                 <div className="flex flex-1 flex-col gap-3 p-6">
@@ -157,8 +161,9 @@ export default function HalamanShowcase() {
                 </div>
               </article>
             </Muncul>
-          ))}
-        </ul>
+            ),
+          }))}
+        />
       </Kontainer>
     </>
   );

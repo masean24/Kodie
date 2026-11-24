@@ -155,6 +155,42 @@ function useKirim<T extends FieldValues>(setError: UseFormSetError<T>, lanjut: s
   return { kirim, menunggu, galat, info };
 }
 
+/** Centang wajib persetujuan Kebijakan Privasi, tepat sebelum tombol Buat akun (tautan dibuka di tab baru). */
+function PersetujuanPrivasi<T extends FieldValues>({
+  register,
+  galat,
+}: {
+  register: (n: Path<T>) => object;
+  galat?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor="setuju_privasi" className="flex items-start gap-3 rounded-card-sm bg-surface p-4">
+        <input
+          id="setuju_privasi"
+          type="checkbox"
+          aria-invalid={galat ? true : undefined}
+          aria-describedby={galat ? "setuju_privasi-galat" : undefined}
+          className="mt-1 size-5 shrink-0 accent-[var(--color-primary)]"
+          {...register("setuju_privasi" as Path<T>)}
+        />
+        <span>
+          Saya sudah membaca dan menyetujui{" "}
+          <Link href="/kebijakan-privasi" target="_blank" rel="noopener" className="font-bold text-primary underline underline-offset-4">
+            Kebijakan Privasi
+          </Link>{" "}
+          Kodie, termasuk cara data anak disimpan dan dipakai.
+        </span>
+      </label>
+      {galat ? (
+        <p id="setuju_privasi-galat" className="text-sm font-bold text-danger">
+          {galat}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function Aksi({ kembali, menunggu }: { kembali?: () => void; menunggu: boolean }) {
   return (
     <div className={kembali ? "flex items-center justify-between gap-3" : "flex"}>
@@ -226,6 +262,7 @@ export function FormOrangTua({ kembali, lanjut = null }: { kembali?: () => void;
           {...register("no_wa")}
         />
       </Kelompok>
+      <PersetujuanPrivasi<I> register={register} galat={formState.errors.setuju_privasi?.message} />
       <Aksi kembali={kembali} menunggu={menunggu} />
     </form>
   );
@@ -310,6 +347,7 @@ function FormSiswa({ kembali, pindahKeOrangTua }: { kembali: () => void; pindahK
               {...register("email_orang_tua")}
             />
           </Kelompok>
+          <PersetujuanPrivasi<I> register={register} galat={e.setuju_privasi?.message} />
           <Aksi kembali={kembali} menunggu={menunggu} />
         </>
       )}
@@ -389,6 +427,7 @@ export function FormPengajar({ kembali, keahlianAwal = [] }: { kembali?: () => v
           {...register("cv_url")}
         />
       </Kelompok>
+      <PersetujuanPrivasi<I> register={register} galat={e.setuju_privasi?.message} />
       <Aksi kembali={kembali} menunggu={menunggu} />
     </form>
   );

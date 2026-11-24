@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, CalendarDays, Clock, User } from "lucide-react";
+import { AlertTriangle, CalendarDays, Clock, User, ShieldCheck } from "lucide-react";
 import type { KelasKatalog } from "@/types/database";
 import { TagProgram, labelJenjang } from "@/components/kategori";
 import { kelasTombol } from "@/components/ui/tombol";
@@ -44,7 +44,7 @@ export function KartuKelas({ k }: { k: KelasKatalog }) {
   return (
     <article className="flex flex-col gap-4 rounded-card-sm bg-surface p-6 shadow-kartu">
       <div>
-        <TagProgram slug={k.program_slug}>{labelJenjang(k.jenjang)}</TagProgram>
+        <TagProgram slug={k.program_slug}>{labelJenjang(k.jenjang, k.kelas_min, k.kelas_maks)}</TagProgram>
       </div>
       <h3 className="text-xl font-semibold">
         <Link href={`/kelas/${k.id}`} className="hover:underline">
@@ -62,7 +62,17 @@ export function KartuKelas({ k }: { k: KelasKatalog }) {
         </li>
         <li className="flex items-start gap-2">
           <User aria-hidden className="mt-1 size-4 shrink-0" />
-          Pengajar: {k.pengajar_nama}
+          <span>
+            Pengajar:{" "}
+            <Link
+              href={`/pengajar/${k.pengajar_id}`}
+              className="inline-flex items-center gap-1 font-bold text-primary underline-offset-4 hover:underline"
+            >
+              {k.pengajar_nama}
+              <ShieldCheck aria-hidden className="size-4 text-success" />
+              <span className="sr-only"> (terverifikasi, lihat profil)</span>
+            </Link>
+          </span>
         </li>
       </ul>
       <SisaKursi k={k} />

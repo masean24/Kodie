@@ -144,6 +144,10 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
               <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-success" /> Kursi ditahan 24 jam setelah Anda memesan.
             </li>
             <li className="flex gap-2">
+              <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-success" /> Belum dibayar dalam 24 jam? Pesanan otomatis batal
+              tanpa biaya apa pun.
+            </li>
+            <li className="flex gap-2">
               <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-success" /> Bayar lewat transfer bank atau QRIS, lalu unggah
               bukti bayar.
             </li>

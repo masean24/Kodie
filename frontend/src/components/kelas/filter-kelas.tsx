@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useRef, useTransition } from "react";
+import { Search } from "lucide-react";
 import { Pilihan } from "@/components/ui/formulir";
 import { RENTANG_JAM, type FilterKelas as Filter } from "@/lib/kelas";
 import { namaHari } from "@/lib/format";
@@ -12,6 +13,7 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
   const router = useRouter();
   const pathname = usePathname();
   const [menunggu, mulai] = useTransition();
+  const tundaCari = useRef(0);
 
   function ubah(form: HTMLFormElement) {
     const data = new FormData(form);
@@ -27,7 +29,11 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
       method="get"
       aria-labelledby="judul-filter"
       aria-busy={menunggu}
-      onChange={(e) => ubah(e.currentTarget)}
+      onChange={(e) => {
+        // Kolom cari diproses dengan jeda agar URL tidak diganti di setiap ketukan.
+        if ((e.target as HTMLElement).getAttribute("name") === "cari") return;
+        ubah(e.currentTarget);
+      }}
       onSubmit={(e) => {
         e.preventDefault();
         ubah(e.currentTarget);
@@ -37,6 +43,29 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
       <h2 id="judul-filter" className="text-xl font-semibold">
         Saring kelas
       </h2>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="f-cari" className="font-bold">
+          Cari kelas
+        </label>
+        <div className="relative">
+          <Search aria-hidden className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-text-muted" />
+          <input
+            id="f-cari"
+            name="cari"
+            type="search"
+            defaultValue={nilai.cari ?? ""}
+            placeholder="Program, pengajar, atau jenjang"
+            autoComplete="off"
+            maxLength={60}
+            onChange={(e) => {
+              const form = e.currentTarget.form;
+              window.clearTimeout(tundaCari.current);
+              tundaCari.current = window.setTimeout(() => form && ubah(form), 400);
+            }}
+            className="min-h-control w-full rounded-md border-[1.5px] border-border-strong bg-surface pl-11 pr-4 text-base text-text placeholder:text-text-muted"
+          />
+        </div>
+      </div>
       <Pilihan id="f-program" name="program" label="Program" defaultValue={nilai.program ?? ""}>
         <option value="">Semua program</option>
         {program.map((p) => (

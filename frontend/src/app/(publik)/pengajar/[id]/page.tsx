@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -44,6 +45,25 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <>
+      <nav aria-label="Breadcrumb" className="mb-4 text-sm">
+        <ol className="flex flex-wrap items-center gap-1.5 text-text-muted">
+          <li>
+            <Link href="/" className="underline-offset-4 hover:text-text hover:underline">
+              Beranda
+            </Link>
+          </li>
+          <li aria-hidden>/</li>
+          <li>
+            <Link href="/kelas" className="underline-offset-4 hover:text-text hover:underline">
+              Katalog kelas
+            </Link>
+          </li>
+          <li aria-hidden>/</li>
+          <li aria-current="page" className="font-bold text-text">
+            {p.nama}
+          </li>
+        </ol>
+      </nav>
       <Kartu className="flex flex-col gap-6 md:flex-row md:items-center md:p-10">
         <Avatar nama={p.nama} foto={p.foto_url} besar />
         <div className="flex flex-col gap-3">

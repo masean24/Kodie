@@ -41,8 +41,8 @@ export function RevealHero({ children, className }: { children: ReactNode; class
       tl.fromTo(q("[data-hero='badge']"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.45 })
         .fromTo(
           q("h1 .kata-hero"),
-          { autoAlpha: 0, yPercent: 60, filter: "blur(8px)" },
-          { autoAlpha: 1, yPercent: 0, filter: "blur(0px)", duration: 0.6, stagger: 0.09, clearProps: "filter" },
+          { autoAlpha: 0, yPercent: 40 },
+          { autoAlpha: 1, yPercent: 0, duration: 0.6, stagger: 0.09 },
           "-=0.15",
         )
         .fromTo(

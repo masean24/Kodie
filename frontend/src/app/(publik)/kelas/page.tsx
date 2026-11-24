@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import type { Jenjang } from "@/types/database";
 import { ambilKatalogKelas } from "@/lib/api/kelas";
 import { ambilDaftarProgram } from "@/lib/api/program";
-import { RENTANG_JAM, type FilterKelas as Filter, type RentangJam } from "@/lib/kelas";
+import { RENTANG_JAM, type FilterKelas as Filter, type RentangJam, saringCari } from "@/lib/kelas";
 import { namaHari } from "@/lib/format";
 import { Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
@@ -24,6 +24,7 @@ function bacaFilter(q: CariParam): Filter {
   const hari = Number(satu(q.hari));
   const jam = satu(q.jam);
   return {
+    cari: satu(q.cari)?.trim().slice(0, 60) || undefined,
     program: satu(q.program) || undefined,
     jenjang: jenjang === "SD" || jenjang === "SMP" || jenjang === "SMA" ? (jenjang as Jenjang) : undefined,
     hari: Number.isInteger(hari) && hari >= 1 && hari <= 7 ? hari : undefined,
@@ -58,9 +59,11 @@ export default function HalamanKatalog({ searchParams }: PageProps<"/kelas">) {
 
 async function Katalog({ searchParams }: { searchParams: Promise<CariParam> }) {
   const filter = bacaFilter(await searchParams);
-  const [daftar, program] = await Promise.all([ambilKatalogKelas(filter), ambilDaftarProgram()]);
+  const [semua, program] = await Promise.all([ambilKatalogKelas(filter), ambilDaftarProgram()]);
+  const daftar = saringCari(semua, filter.cari);
   const namaProgram = program.find((p) => p.slug === filter.program)?.nama;
   const ringkasan = [
+    filter.cari && `cocok dengan "${filter.cari}"`,
     namaProgram,
     filter.jenjang && `untuk ${filter.jenjang}`,
     filter.hari && `pada hari ${namaHari(filter.hari)}`,

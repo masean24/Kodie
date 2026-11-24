@@ -60,7 +60,9 @@ interface ItemPesanUI {
 
 const KEY_PERCAKAPAN = "kodie_kiko_percakapan_id";
 const KEY_TAMU_RIWAYAT = "kodie_kiko_tamu_riwayat";
-const KEY_TOOLTIP_DITUTUP = "kodie_kiko_tooltip_tutup";
+// Versi 2: penanda lama ("…_tutup") dulu ikut terpasang otomatis saat scroll/klik di luar, sehingga sapaan
+// tidak pernah muncul lagi di sesi itu. Sekarang penanda hanya diisi saat pengguna menekan X di balon.
+const KEY_TOOLTIP_DITUTUP = "kodie_kiko_tooltip_tutup_v2";
 /** Batas tunggu token pertama dari layanan chat, lalu jeda maksimal antarpotongan jawaban. */
 const BATAS_TOKEN_PERTAMA_MS = 10_000;
 const BATAS_JEDA_MS = 20_000;
@@ -98,6 +100,22 @@ export function WidgetKiko({
   const [terbuka, setTerbuka] = useState(false);
   const [menutup, setMenutup] = useState(false);
   const [tooltipTampil, setTooltipTampil] = useState(false);
+  // Saat halaman di-scroll, maskot menciut ke pojok supaya tidak menutupi tombol di bawahnya,
+  // lalu kembali ke ukuran normal setelah scroll berhenti.
+  const [menciut, setMenciut] = useState(false);
+  useEffect(() => {
+    let jeda = 0;
+    const saatGulir = () => {
+      setMenciut(true);
+      window.clearTimeout(jeda);
+      jeda = window.setTimeout(() => setMenciut(false), 900);
+    };
+    window.addEventListener("scroll", saatGulir, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", saatGulir);
+      window.clearTimeout(jeda);
+    };
+  }, []);
   const akarWidget = useRef<HTMLDivElement>(null);
   const [tooltipTeks, setTooltipTeks] = useState(CHATBOT_LAUNCHER_CONFIG.proactiveTooltip);
   const [panelHandoffBuka, setPanelHandoffBuka] = useState(false);
@@ -165,13 +183,7 @@ export function WidgetKiko({
     if (tutupTimerRef.current) clearTimeout(tutupTimerRef.current);
     setMenutup(false);
     setTerbuka(true);
-    // Pengguna sudah berinteraksi dengan Kiko: sapaan tidak perlu muncul lagi di sesi ini.
     setTooltipTampil(false);
-    try {
-      sessionStorage.setItem(KEY_TOOLTIP_DITUTUP, "1");
-    } catch {
-      // Abaikan
-    }
     setEkspresiKiko("curious");
     setJumpSignal((n) => n + 1);
     setTimeout(() => inputRef.current?.focus(), 60);
@@ -182,52 +194,25 @@ export function WidgetKiko({
     else bukaPanel();
   };
 
-  // Tooltip sapaan mengambang. Supaya tidak menutupi konten halaman:
-  // tampil sekali per sesi, hilang sendiri setelah 8 detik, dan hilang begitu pengguna
-  // scroll, mengetik, atau mengeklik di luar widget. Di layar < 640 px tidak ditampilkan (lihat markup).
+  // Balon pesan Kiko. Muncul lagi setiap kali Kiko berganti pesan (tip berkala, sapaan bangun tidur),
+  // tampil 4 detik lalu hilang sendiri. Selama halaman di-scroll balon disembunyikan (lihat `menciut` di markup),
+  // dan tidak muncul lagi di sesi ini hanya jika pengguna menutupnya lewat tombol X.
   useEffect(() => {
     if (!konfigurasi.chatbot_aktif || terbuka) return;
-    let sudahDitutup = false;
+    let ditutup = false;
     try {
-      sudahDitutup = sessionStorage.getItem(KEY_TOOLTIP_DITUTUP) === "1";
+      ditutup = sessionStorage.getItem(KEY_TOOLTIP_DITUTUP) === "1";
     } catch {
-      sudahDitutup = false;
+      ditutup = false;
     }
-    if (sudahDitutup) return;
-
-    const sembunyikan = () => {
-      setTooltipTampil(false);
-      try {
-        sessionStorage.setItem(KEY_TOOLTIP_DITUTUP, "1");
-      } catch {
-        // Abaikan
-      }
-      lepas();
-    };
-    const posisiAwal = window.scrollY;
-    const onScroll = () => {
-      if (Math.abs(window.scrollY - posisiAwal) > 80) sembunyikan();
-    };
-    const onPointer = (e: PointerEvent) => {
-      if (!akarWidget.current?.contains(e.target as Node)) sembunyikan();
-    };
-    const lepas = () => {
+    if (ditutup) return;
+    const tampil = setTimeout(() => setTooltipTampil(true), 500);
+    const habis = setTimeout(() => setTooltipTampil(false), 500 + 4000);
+    return () => {
       clearTimeout(tampil);
       clearTimeout(habis);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("pointerdown", onPointer);
-      window.removeEventListener("keydown", sembunyikan);
     };
-
-    const tampil = setTimeout(() => {
-      setTooltipTampil(true);
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("pointerdown", onPointer);
-      window.addEventListener("keydown", sembunyikan);
-    }, 800);
-    const habis = setTimeout(sembunyikan, 800 + 8000);
-    return lepas;
-  }, [konfigurasi.chatbot_aktif, terbuka]);
+  }, [konfigurasi.chatbot_aktif, terbuka, tooltipTeks]);
 
   // Esc menutup widget
   useEffect(() => {
@@ -996,6 +981,14 @@ export function WidgetKiko({
             </div>
           </div>
 
+          {/* Batasan AI dan larangan mengirim data pribadi (kebijakan privasi: Asisten AI Kiko). */}
+          <p className="border-b border-border bg-surface-sunken px-4 py-2 text-xs leading-snug text-text-muted">
+            Kiko adalah AI dan bisa keliru. Jangan kirim data pribadi seperti nomor HP, alamat, atau password.{" "}
+            <a href="/kebijakan-privasi" target="_blank" rel="noopener" className="font-bold text-primary underline underline-offset-2">
+              Kebijakan privasi
+            </a>
+          </p>
+
           {/* Banner Status Live Admin */}
           {dalamModeAdmin ? (
             <div
@@ -1272,7 +1265,7 @@ export function WidgetKiko({
       ) : null}
 
       {/* Balon sapaan mengambang (mengikuti referensi widget HTML). Disembunyikan di layar < 640 px agar tidak menutupi konten. */}
-      {!terbuka && tooltipTampil && !diLab ? (
+      {!terbuka && tooltipTampil && !diLab && !menciut ? (
         <div className="kiko-animate-float hidden max-w-[260px] sm:flex items-center gap-2 rounded-2xl rounded-br-none border border-[#1D4ED8] bg-[#0F172A] py-2 pr-2 pl-3.5 text-xs font-semibold text-white shadow-lg">
           <span className="size-2 shrink-0 rounded-full bg-[#C6F64D]" aria-hidden />
           <button type="button" onClick={bukaPanel} className="text-left leading-snug hover:underline">
@@ -1304,7 +1297,14 @@ export function WidgetKiko({
         title={terbuka && !menutup ? `Tutup ${namaBot}` : `Klik untuk chat dengan ${namaBot}`}
         aria-label={terbuka && !menutup ? `Tutup ${namaBot}` : `Tanya ${namaBot}`}
         hidden={diLab && !terbuka}
-        className="shrink-0 cursor-pointer rounded-full border-[2.5px] border-[#C6F64D] bg-white p-2.5 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.45),0_0_0_3px_rgba(255,255,255,0.25)] transition-transform duration-300 ease-out hover:scale-105 active:scale-95"
+        className={cx(
+          "origin-bottom-right shrink-0 cursor-pointer rounded-full border-[2.5px] border-[#C6F64D] bg-white p-2.5 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.45),0_0_0_3px_rgba(255,255,255,0.25)] transition-[scale,opacity,transform] motion-reduce:transition-none",
+          // `scale` Tailwind v4 adalah properti CSS `scale` (bukan `transform`), jadi wajib ikut di daftar transisi.
+          // Mengecil cepat dan halus; membesar sedikit lebih lama dengan pantulan pegas agar tidak terasa melompat.
+          menciut && !terbuka
+            ? "scale-[0.55] opacity-80 duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:scale-[0.6]"
+            : "duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-105 active:scale-95",
+        )}
       >
         {/* Wadah lingkaran putih + ring lime (opsi warna 2, docs/kiko_2d_mascot_perbandingan_opsi_warna_palet_kodie.html):
             Kiko biru tetap kontras di hero biru, latar putih, maupun mode gelap. */}
