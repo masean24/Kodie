@@ -4,6 +4,7 @@ import { Blocks, Code2, PenTool, Terminal, type LucideIcon } from "lucide-react"
 import { Kontainer, Sorotan } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { Muncul } from "@/components/ui/gerak";
+import { BandKodie } from "@/components/situs/judul-halaman";
 
 export const metadata: Metadata = {
   title: "Showcase karya",
@@ -118,18 +119,18 @@ const KARYA: Karya[] = [
 export default function HalamanShowcase() {
   return (
     <>
-      <section className="blok-merek on-block rounded-b-[32px] md:rounded-b-block">
-        <Kontainer className="py-10 md:py-14">
+      <BandKodie>
+        <Kontainer className="relative py-10 md:py-14">
           <p className="inline-flex rounded-full bg-white/15 px-4 py-1 text-sm font-bold ring-1 ring-white/40">Dibuat di Kodie Lab</p>
           <h1 className="mt-4 text-[30px] leading-[40px] font-extrabold tracking-tight sm:text-[38px] sm:leading-[48px] md:text-[46px] md:leading-[58px]">
             Showcase <Sorotan diBlok>karya</Sorotan>
           </h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 md:text-lg">
+          <p className="mt-3 max-w-2xl text-base leading-7 text-[#dbeafe] md:text-lg">
             Contoh proyek yang bisa dibuat siswa di Kodie Lab, dari menyusun blok sampai menulis Python. Semuanya berjalan langsung di
             browser, gratis, tanpa akun.
           </p>
         </Kontainer>
-      </section>
+      </BandKodie>
 
       <Kontainer className="py-10 md:py-14">
         <ul className="grid gap-6 md:grid-cols-2">

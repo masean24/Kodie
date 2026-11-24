@@ -587,18 +587,23 @@ export function Footer() {
       data-footer-theme={temaFooter}
       style={{
         // Peralihan bergradasi dari warna halaman ke warna footer, menggantikan garis batas.
+        // Tiga titik antara (ease-out) agar peralihan warna tidak terlihat sebagai pita.
         backgroundColor: "var(--footer-bg)",
-        backgroundImage: "linear-gradient(180deg, var(--k-bg) 0px, var(--footer-bg) 140px)",
+        backgroundImage:
+          "linear-gradient(180deg, var(--k-bg) 0px, color-mix(in oklab, var(--k-bg) 70%, var(--footer-bg)) 80px, color-mix(in oklab, var(--k-bg) 30%, var(--footer-bg)) 170px, var(--footer-bg) 260px)",
         color: "var(--footer-text)",
       }}
       className="mt-auto w-full transition-colors duration-300 relative overflow-hidden"
     >
-      {/* Pendaran Langit Halus (mulai transparan agar gradasi atas tetap mulus) */}
+      {/* Pendaran Langit Halus. Lapisan ini di-mask dari transparan di tepi atas: tanpa mask, pendaran radial
+          masih punya warna tepat di garis atas footer dan membentuk garis patah dengan konten di atasnya. */}
       <div
         aria-hidden="true"
         style={{
           background:
-            "linear-gradient(180deg, transparent 0px, var(--sky-top) 140px, transparent 65%), radial-gradient(circle at 75% 85%, var(--sky-glow), transparent 60%)",
+            "linear-gradient(180deg, transparent 0px, var(--sky-top) 260px, transparent 75%), radial-gradient(circle at 75% 85%, var(--sky-glow), transparent 60%)",
+          maskImage: "linear-gradient(180deg, transparent 0px, #000 280px)",
+          WebkitMaskImage: "linear-gradient(180deg, transparent 0px, #000 280px)",
         }}
         className="absolute inset-0 pointer-events-none"
       />

@@ -8,6 +8,7 @@ import type { Notifikasi } from "@/types/database";
 import { aksiAmbilNotifikasi, aksiBacaNotifikasi, aksiBacaSemuaNotifikasi } from "@/lib/aksi/sesi";
 import { pakaiMock } from "@/lib/api/sumber";
 import { cx } from "@/lib/cx";
+import { gsap, kurangiGerak, useGSAP } from "@/lib/gsap";
 import { formatTanggalJam } from "@/lib/format";
 import { jumlahBelumDibaca } from "@/lib/sesi";
 import { buatClientBrowser } from "@/lib/supabase/browser";
@@ -42,6 +43,7 @@ export function LoncengNotifikasi({
   const [, mulai] = useTransition();
 
   const akar = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
   const diketahui = useRef(new Set(awal.map((n) => n.id)));
   const realtimeTerhubung = useRef(false);
 
@@ -143,6 +145,48 @@ export function LoncengNotifikasi({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- pantau hanya bergantung pada penggunaId & router
   }, [pantau, penggunaId, router]);
 
+  // Buka/tutup panel dengan GSAP: panel memuai dari pojok lonceng, lalu item muncul berurutan.
+  // `autoAlpha` mengatur `visibility`, jadi panel tertutup tidak bisa difokus atau dibaca pembaca layar.
+  useGSAP(
+    () => {
+      const el = panel.current;
+      if (!el) return;
+      const instan = kurangiGerak();
+      gsap.killTweensOf(el);
+      if (buka) {
+        const item = el.querySelectorAll("[data-item-notif]");
+        gsap.killTweensOf(item);
+        if (instan) {
+          gsap.set(el, { autoAlpha: 1, y: 0, scale: 1 });
+          gsap.set(item, { autoAlpha: 1, y: 0 });
+          return;
+        }
+        gsap
+          .timeline()
+          .fromTo(
+            el,
+            { autoAlpha: 0, y: -10, scale: 0.94 },
+            { autoAlpha: 1, y: 0, scale: 1, duration: 0.32, ease: "back.out(1.6)" },
+          )
+          .fromTo(
+            item,
+            { autoAlpha: 0, y: 8 },
+            { autoAlpha: 1, y: 0, duration: 0.24, ease: "power2.out", stagger: 0.035 },
+            "-=0.18",
+          );
+      } else {
+        gsap.to(el, {
+          autoAlpha: 0,
+          y: -6,
+          scale: 0.97,
+          duration: instan ? 0 : 0.16,
+          ease: "power2.in",
+        });
+      }
+    },
+    { dependencies: [buka] },
+  );
+
   const belumDibaca = jumlahBelumDibaca(daftar);
 
   const bacaSatu = (n: Notifikasi) => {
@@ -199,10 +243,10 @@ export function LoncengNotifikasi({
         </button>
 
         <div
+          ref={panel}
           id={ponsel ? "panel-notif-ponsel" : "panel-notif-desktop"}
-          hidden={!buka}
           className={cx(
-            "z-40 rounded-[10px] border border-border bg-surface-raised p-3 shadow-lg",
+            "invisible z-40 origin-top-right rounded-[10px] opacity-0 border border-border bg-surface-raised p-3 shadow-lg",
             ponsel
               ? "fixed inset-x-4 top-[76px] sm:inset-auto sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[360px]"
               : "absolute right-0 top-full mt-2 w-[360px]",
@@ -222,7 +266,7 @@ export function LoncengNotifikasi({
           </div>
 
           {daftar.length === 0 ? (
-            <p className="px-2 py-6 text-center text-sm text-text-muted">Belum ada notifikasi.</p>
+            <p data-item-notif className="px-2 py-6 text-center text-sm text-text-muted">Belum ada notifikasi.</p>
           ) : (
             <ul className="flex max-h-80 flex-col gap-1 overflow-y-auto">
               {daftar.map((n) => {
@@ -243,7 +287,7 @@ export function LoncengNotifikasi({
                   </div>
                 );
                 return (
-                  <li key={n.id}>
+                  <li key={n.id} data-item-notif>
                     {n.tautan ? (
                       <Link href={n.tautan} onClick={() => bacaSatu(n)} className="block">
                         {isiItem}

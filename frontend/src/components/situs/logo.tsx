@@ -70,7 +70,7 @@ export function LogoKodieSlogan({ className }: { className?: string }) {
   );
 }
 
-/** Logo resmi Kodie versi `6_Web_Navbar_Tight` (desktop 44 px, mobile 32 px; simbol saat masuk di ponsel). */
+/** Logo resmi Kodie versi `6_Web_Navbar_Tight` (desktop 36 px, mobile 28 px; simbol saat masuk di ponsel). */
 export function Logo({ ringkasSaatMasukPonsel = false }: { ringkasSaatMasukPonsel?: boolean }) {
   return (
     <Link
@@ -79,14 +79,14 @@ export function Logo({ ringkasSaatMasukPonsel = false }: { ringkasSaatMasukPonse
       className="flex min-h-[44px] shrink-0 items-center rounded-md text-text"
     >
       {ringkasSaatMasukPonsel ? (
-        <SimbolKodie className="hidden h-8 w-auto max-sm:group-has-[[data-masuk]]/hdr:block" />
+        <SimbolKodie className="hidden h-7 w-auto max-sm:group-has-[[data-masuk]]/hdr:block" />
       ) : null}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 969.77 195.20"
         aria-hidden="true"
         className={cx(
-          "h-8 w-auto min-w-[150px] md:h-11",
+          "h-7 w-auto min-w-[139px] md:h-9 md:min-w-[179px]",
           ringkasSaatMasukPonsel && "max-sm:group-has-[[data-masuk]]/hdr:hidden",
         )}
       >

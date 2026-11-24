@@ -402,10 +402,35 @@ h4 {
   min-height: calc(100svh - 72px);
 }
 
+/* ===== HERO REVEAL (GSAP, components/situs/reveal-hero.tsx) =====
+ * Mulai transparan agar tidak berkedip sebelum hidrasi. Cadangan tanpa JavaScript: tampil sendiri setelah 3 detik.
+ */
+.kata-hero,
+.hero-muncul {
+  opacity: 0;
+  animation: hero-cadangan 0s 3s forwards;
+}
+@keyframes hero-cadangan {
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kata-hero,
+  .hero-muncul {
+    opacity: 1;
+    animation: none;
+  }
+}
+
 /* Hero beranda (redesain): gradien navy ke biru, pola titik, dan cahaya lembut. */
 /* Tingginya menyisakan 32px di bawah agar sudut membulat dan latar halaman sedikit terlihat (tanda bisa di-scroll). */
 .hero-kodie {
   min-height: calc(100svh - 72px - 32px);
+}
+/* Band halaman publik lain (BandKodie di components/situs/judul-halaman.tsx) memakai gradien yang sama dengan hero. */
+.hero-kodie,
+.band-kodie {
   background: linear-gradient(125deg, #0d1f4b 0%, #15368a 48%, #2155d6 100%);
   color: #ffffff;
 }

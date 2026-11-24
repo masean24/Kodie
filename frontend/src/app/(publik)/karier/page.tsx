@@ -6,6 +6,7 @@ import { TombolTautan } from "@/components/ui/tombol";
 import { ObjekBidang } from "@/components/kategori";
 import { Muncul } from "@/components/ui/gerak";
 import { DaftarPosisi } from "@/components/karier/daftar-posisi";
+import { BandKodie } from "@/components/situs/judul-halaman";
 
 export const metadata: Metadata = {
   title: "Karier pengajar",
@@ -17,7 +18,7 @@ const IKON_KEUNTUNGAN: LucideIcon[] = [CalendarClock, Laptop, BookOpenCheck, Spa
 export default function HalamanKarier() {
   return (
     <>
-      <section className="hero-layar blok-merek on-block relative flex overflow-hidden rounded-b-[32px] md:rounded-b-block">
+      <BandKodie className="hero-layar flex">
         <ObjekBidang bidang="software" ukuran={120} miring={-8} className="absolute -left-6 top-10 hidden lg:block" />
         <ObjekBidang bidang="jaringan" ukuran={96} miring={8} className="absolute right-[6%] top-12 hidden lg:block" />
         <ObjekBidang bidang="iot" ukuran={104} miring={6} className="absolute bottom-14 left-[8%] hidden xl:block" />
@@ -27,7 +28,7 @@ export default function HalamanKarier() {
           <h1 className="mt-5 max-w-3xl text-[32px] leading-[42px] font-extrabold tracking-tight sm:text-[42px] sm:leading-[54px] lg:text-[54px] lg:leading-[68px]">
             Bagikan ilmumu, <Sorotan diBlok>jadi pengajar</Sorotan> Kodie
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 md:text-lg md:leading-8">
+          <p className="mt-5 max-w-2xl text-base leading-7 text-[#dbeafe] md:text-lg md:leading-8">
             Untuk mahasiswa, lulusan, dan pencari kerja yang ingin mengajar coding dan teknologi ke siswa SD sampai SMA. Daring, paruh
             waktu, dengan jadwal yang kamu atur sendiri.
           </p>
@@ -40,7 +41,7 @@ export default function HalamanKarier() {
             </TombolTautan>
           </div>
         </Kontainer>
-      </section>
+      </BandKodie>
 
       <section aria-labelledby="judul-keuntungan" className="py-16 md:py-24">
         <Kontainer>

@@ -45,9 +45,10 @@ export const viewport: Viewport = {
 
 /**
  * Pasang tema pilihan pengguna (localStorage "kodie:tema", lihat ThemeSwitch) sebelum halaman dilukis,
- * agar tidak berkedip ke tema sistem saat dimuat. Tanpa pilihan, CSS mengikuti prefers-color-scheme.
+ * agar tidak berkedip saat dimuat. Hanya ada Terang/Gelap; tanpa pilihan tersimpan, tema awal diambil sekali
+ * dari preferensi sistem lalu dipasang eksplisit di `data-theme`.
  */
-const SKRIP_TEMA = `try{var t=localStorage.getItem("kodie:tema");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
+const SKRIP_TEMA = `try{var t=localStorage.getItem("kodie:tema");if(t!=="light"&&t!=="dark")t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

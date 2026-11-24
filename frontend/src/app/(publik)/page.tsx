@@ -20,6 +20,7 @@ import { ObjekBidang } from "@/components/kategori";
 import { KartuProgram } from "@/components/program/kartu-program";
 import { KartuPengajar } from "@/components/pengajar/kartu-pengajar";
 import { AngkatHover, Muncul } from "@/components/ui/gerak";
+import { KataHero, RevealHero } from "@/components/situs/reveal-hero";
 
 export default function Beranda() {
   return (
@@ -64,25 +65,26 @@ function Pahlawan() {
         <div aria-hidden className="pointer-events-none absolute right-10 top-1/2 size-[28rem] -translate-y-1/2 rounded-full bg-[#22d3ee]/15 blur-3xl" />
 
         <Kontainer className="relative grid w-full items-center gap-12 py-12 md:py-16 lg:grid-cols-2 lg:gap-8">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-sm font-bold text-[#dbeafe]">
+          <RevealHero>
+            <p data-hero="badge" className="hero-muncul inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-sm font-bold text-[#dbeafe]">
               <span aria-hidden className="size-2 animate-pulse rounded-full bg-highlight-on-block-bg" />
               Kurikulum interaktif dan praktik langsung
             </p>
             <h1 className="mt-6 text-[34px] leading-[1.15] font-extrabold tracking-tight sm:text-[46px] lg:text-[54px]">
-              Belajar coding
+              <KataHero teks="Belajar coding" />
               <br />
-              dan teknologi
+              <KataHero teks="dan teknologi" />
               <br />
-              <span className="mt-3 inline-block -rotate-1 whitespace-nowrap rounded-2xl bg-highlight-on-block-bg px-4 py-1 text-highlight-on-block-fg shadow-lg shadow-[#c6f64d]/20">
-                SD sampai SMA
+              <span data-hero="pil" className="hero-muncul mt-3 inline-block">
+                <span className="inline-block -rotate-1 whitespace-nowrap rounded-2xl bg-highlight-on-block-bg px-4 py-1 text-highlight-on-block-fg shadow-lg shadow-[#c6f64d]/20">
+                  SD sampai SMA
+                </span>
               </span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-[#dbeafe] md:text-lg md:leading-8">
-              Bantu anak mengasah logika, kreativitas, dan siap menghadapi masa depan digital lewat kelas daring interaktif yang seru dan
-              terarah.
+              <KataHero teks="Bantu anak mengasah logika, kreativitas, dan siap menghadapi masa depan digital lewat kelas daring interaktif yang seru dan terarah." />
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3.5">
+            <div data-hero="aksi" className="hero-muncul mt-8 flex flex-wrap items-center gap-3.5">
               <TombolTautan href="/tes-minat" varian="ajakan" ukuran="lg" panah className="shadow-lg shadow-[#c6f64d]/25">
                 Coba tes minat
               </TombolTautan>
@@ -90,7 +92,7 @@ function Pahlawan() {
                 Lihat jadwal kelas
               </TombolTautan>
             </div>
-            <div className="mt-6 flex flex-wrap items-center gap-2.5 text-sm">
+            <div data-hero="aksi" className="hero-muncul mt-6 flex flex-wrap items-center gap-2.5 text-sm">
               <span className="font-bold text-[#dbeafe]">Tes minat:</span>
               <ul aria-label="Tentang tes minat" className="flex flex-wrap items-center gap-2 font-bold">
                 {["Gratis", "12 soal", "Tanpa akun"].map((t) => (
@@ -100,7 +102,7 @@ function Pahlawan() {
                 ))}
               </ul>
             </div>
-          </div>
+          </RevealHero>
 
           <IlustrasiHero />
         </Kontainer>

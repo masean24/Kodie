@@ -6,6 +6,7 @@ import { Kontainer, StateKosong } from "@/components/ui/dasar";
 import { Kuis, type Peserta } from "@/components/tes-minat/kuis";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilDaftarAnak, ambilSiswaSaya } from "@/lib/api/siswa";
+import { JudulHalaman } from "@/components/situs/judul-halaman";
 
 export const metadata: Metadata = {
   title: "Tes minat jurusan IT",
@@ -16,8 +17,9 @@ export default async function HalamanTesMinat() {
   const soal = await ambilSoalMinat();
 
   return (
+    <>
+    <JudulHalaman judul="Tes minat jurusan IT" keterangan="12 soal, gratis, tanpa akun. Lihat bidang IT yang paling cocok untukmu." />
     <Kontainer className="py-10 md:py-16">
-      <h1 className="sr-only">Tes minat jurusan IT</h1>
       {soal.length === 0 ? (
         <StateKosong judul="Soal belum tersedia" keterangan="Tes minat sedang disiapkan. Coba lagi nanti." />
       ) : (
@@ -26,6 +28,7 @@ export default async function HalamanTesMinat() {
         </Suspense>
       )}
     </Kontainer>
+    </>
   );
 }
 

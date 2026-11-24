@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent as KeyboardEventReact } from "react";
-import { Monitor, Moon, Sun, type LucideIcon } from "lucide-react";
+import { Moon, Sun, type LucideIcon } from "lucide-react";
 import { cx } from "@/lib/cx";
 
-type Tema = "light" | "dark" | "system";
+type Tema = "light" | "dark";
 
 const KUNCI_TEMA = "kodie:tema";
 const EVENT_TEMA = "kodie:tema-ubah";
@@ -12,13 +12,14 @@ const EVENT_TEMA = "kodie:tema-ubah";
 const OPSI_TEMA: { nilai: Tema; label: string; ikon: LucideIcon }[] = [
   { nilai: "light", label: "Terang", ikon: Sun },
   { nilai: "dark", label: "Gelap", ikon: Moon },
-  { nilai: "system", label: "Ikuti sistem", ikon: Monitor },
 ];
 
 function bacaTema(): Tema {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
   const v = localStorage.getItem(KUNCI_TEMA);
-  return v === "light" || v === "dark" ? v : "system";
+  if (v === "light" || v === "dark") return v;
+  // Belum pernah memilih: pakai tema yang sudah dipasang skrip `<head>` (diambil sekali dari preferensi sistem).
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
 }
 
 function langgananTema(callback: () => void) {
@@ -31,8 +32,7 @@ function langgananTema(callback: () => void) {
 }
 
 function terapkanTema(tema: Tema) {
-  if (tema === "system") document.documentElement.removeAttribute("data-theme");
-  else document.documentElement.setAttribute("data-theme", tema);
+  document.documentElement.setAttribute("data-theme", tema);
 }
 
 /**
@@ -137,9 +137,9 @@ function gantiTemaHalus(nilai: Tema, asal: HTMLElement) {
     });
 }
 
-/** Toggle tema Terang / Gelap / Ikuti sistem di Header. Pill aktif bergeser dengan Motion. */
+/** Toggle tema Terang / Gelap di Header. Pill aktif bergeser dengan Motion. */
 export function ThemeSwitch({ penuh }: { penuh?: boolean }) {
-  const tema = useSyncExternalStore(langgananTema, bacaTema, (): Tema => "system");
+  const tema = useSyncExternalStore(langgananTema, bacaTema, (): Tema => "light");
   const tombol = useRef<(HTMLButtonElement | null)[]>([]);
   const indeks = Math.max(
     0,
@@ -172,15 +172,15 @@ export function ThemeSwitch({ penuh }: { penuh?: boolean }) {
       role="radiogroup"
       aria-label="Tema tampilan"
       className={cx(
-        "relative grid grid-cols-3 items-center rounded-full border-[1.5px] border-border-strong bg-surface p-[3px]",
-        penuh ? "w-full" : "w-[126px] shrink-0",
+        "relative grid grid-cols-2 items-center rounded-full border-[1.5px] border-border-strong bg-surface p-[3px]",
+        penuh ? "w-full" : "w-[88px] shrink-0",
       )}
     >
       {/* Pill aktif digeser dengan transisi CSS (easing pegas): posisinya ikut state, termasuk setelah hidrasi. */}
       <span
         aria-hidden
         className="absolute bottom-[3px] left-[3px] top-[3px] rounded-full bg-primary shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.34,1.36,0.64,1)] motion-reduce:transition-none"
-        style={{ width: "calc((100% - 6px) / 3)", transform: `translateX(${indeks * 100}%)` }}
+        style={{ width: "calc((100% - 6px) / 2)", transform: `translateX(${indeks * 100}%)` }}
       />
       {OPSI_TEMA.map((o, i) => {
         const terpilih = i === indeks;
