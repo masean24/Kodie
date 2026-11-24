@@ -65,7 +65,8 @@ function Pahlawan() {
         <div aria-hidden className="pointer-events-none absolute right-10 top-1/2 size-[28rem] -translate-y-1/2 rounded-full bg-[#22d3ee]/15 blur-3xl" />
 
         <Kontainer className="relative grid w-full items-center gap-12 py-12 md:py-16 lg:grid-cols-2 lg:gap-8">
-          <RevealHero>
+          <RevealHero className="contents">
+            <div>
             <p data-hero="badge" className="hero-muncul inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-sm font-bold text-[#dbeafe]">
               <span aria-hidden className="size-2 animate-pulse rounded-full bg-highlight-on-block-bg" />
               Kurikulum interaktif dan praktik langsung
@@ -102,9 +103,10 @@ function Pahlawan() {
                 ))}
               </ul>
             </div>
-          </RevealHero>
+            </div>
 
-          <IlustrasiHero />
+            <IlustrasiHero />
+          </RevealHero>
         </Kontainer>
       </div>
     </section>
@@ -119,40 +121,55 @@ function Pahlawan() {
 function IlustrasiHero() {
   return (
     <div aria-hidden className="relative mx-auto hidden aspect-square w-full max-w-[460px] lg:block">
-      <div className="orbit-putar absolute inset-[12%] rounded-full border-2 border-dashed border-white/25" />
-      <div className="absolute inset-[4%] rounded-full border border-white/10" />
+      <div data-hero="orbit" className="hero-muncul absolute inset-0">
+        <div className="orbit-putar absolute inset-[12%] rounded-full border-2 border-dashed border-white/25" />
+        <div className="absolute inset-[4%] rounded-full border border-white/10" />
+      </div>
 
       <div className="absolute inset-0 grid place-items-center">
         <div className="grid grid-cols-2 gap-6">
-          <span className="melayang-1 block">
-            <ObjekBidang bidang="software" ukuran={140} miring={-3} />
+          {/* Pembungkus luar dianimasikan GSAP saat masuk; `melayang-*` di dalamnya tetap memakai animasi CSS. */}
+          <span data-hero="ubin" className="hero-muncul block">
+            <span className="melayang-1 block">
+              <ObjekBidang bidang="software" ukuran={140} miring={-3} />
+            </span>
           </span>
-          <span className="melayang-2 block">
-            <ObjekBidang bidang="jaringan" ukuran={140} miring={3} />
+          <span data-hero="ubin" className="hero-muncul block">
+            <span className="melayang-2 block">
+              <ObjekBidang bidang="jaringan" ukuran={140} miring={3} />
+            </span>
           </span>
-          <span className="melayang-3 block">
-            <ObjekBidang bidang="iot" ukuran={140} miring={2} />
+          <span data-hero="ubin" className="hero-muncul block">
+            <span className="melayang-3 block">
+              <ObjekBidang bidang="iot" ukuran={140} miring={2} />
+            </span>
           </span>
-          <span className="melayang-1 block">
-            <ObjekBidang bidang="ai_data" ukuran={140} miring={-2} />
+          <span data-hero="ubin" className="hero-muncul block">
+            <span className="melayang-1 block">
+              <ObjekBidang bidang="ai_data" ukuran={140} miring={-2} />
+            </span>
           </span>
         </div>
       </div>
 
-      <div className="melayang-2 absolute left-0 top-0 flex items-center gap-3 rounded-2xl bg-white px-4 py-2.5 text-[#0f172a] shadow-xl">
+      <div data-hero="lencana-kiri" className="hero-muncul absolute left-0 top-0">
+      <div className="melayang-2 flex items-center gap-3 rounded-2xl bg-white px-4 py-2.5 text-[#0f172a] shadow-xl">
         <span className="grid size-9 place-items-center rounded-xl bg-[#dbeafe] text-sm font-extrabold text-[#1d4ed8]">&lt;/&gt;</span>
         <span>
           <span className="block text-sm font-bold leading-tight">Logika dan Python</span>
           <span className="block text-[13px] leading-tight text-[#475569]">Praktik bikin proyek</span>
         </span>
       </div>
+      </div>
 
-      <div className="melayang-3 absolute bottom-0 right-0 flex items-center gap-3 rounded-2xl border border-white/20 bg-[#0f2557]/90 px-4 py-2.5 text-white shadow-xl backdrop-blur-md">
+      <div data-hero="lencana-kanan" className="hero-muncul absolute bottom-0 right-0">
+      <div className="melayang-3 flex items-center gap-3 rounded-2xl border border-white/20 bg-[#0f2557]/90 px-4 py-2.5 text-white shadow-xl backdrop-blur-md">
         <span className="size-2.5 rounded-full bg-highlight-on-block-bg" />
         <span>
           <span className="block text-sm font-bold leading-tight">Sesi live interaktif</span>
           <span className="block text-[13px] leading-tight text-[#bfdbfe]">Tanya jawab langsung</span>
         </span>
+      </div>
       </div>
     </div>
   );

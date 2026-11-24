@@ -7,6 +7,7 @@ import { TombolTautan } from "@/components/ui/tombol";
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { LoncengNotifikasi } from "./lonceng-notifikasi";
+import { AnimasiElemen } from "./animasi-elemen";
 import { MenuAkun, MenuAkunPonsel } from "./menu-akun";
 
 function TombolTamu({ ponsel }: { ponsel?: boolean }) {
@@ -72,6 +73,7 @@ export function KerangkaSitus({ children, ruangBawah }: { children: ReactNode; r
         {children}
       </main>
       <Footer />
+      <AnimasiElemen />
       <Suspense fallback={null}>
         <ChatbotSitus />
       </Suspense>

@@ -23,11 +23,12 @@ export function KataHero({ teks }: { teks: string }) {
 
 /**
  * Entrance hero beranda dengan GSAP: badge muncul, judul terungkap kata demi kata, pill "SD sampai SMA"
- * meletup, paragraf menyusul kata demi kata, lalu tombol dan chip naik.
+ * meletup, paragraf menyusul kata demi kata, lalu tombol dan chip naik. Bersamaan dengan itu ilustrasi kanan
+ * masuk: orbit membesar, empat ubin bidang meletup berurutan, lalu dua lencana meluncur dari sisi masing-masing.
  *
  * Elemen `.kata-hero` dan `.hero-muncul` mulai transparan lewat CSS (`globals.css`, blok HERO REVEAL)
  * supaya tidak berkedip sebelum hidrasi. CSS juga punya cadangan: bila JavaScript tidak berjalan,
- * elemen tampil sendiri setelah ±2,6 detik; dengan `prefers-reduced-motion` semuanya langsung tampil.
+ * elemen tampil sendiri setelah 3 detik; dengan `prefers-reduced-motion` semuanya langsung tampil.
  */
 export function RevealHero({ children, className }: { children: ReactNode; className?: string }) {
   const akar = useRef<HTMLDivElement>(null);
@@ -61,6 +62,31 @@ export function RevealHero({ children, className }: { children: ReactNode; class
           { autoAlpha: 0, y: 16 },
           { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.1 },
           "-=0.35",
+        )
+        // Ilustrasi kanan (desktop), berjalan paralel dengan teks sejak detik 0,2.
+        .fromTo(
+          q("[data-hero='orbit']"),
+          { autoAlpha: 0, scale: 0.6 },
+          { autoAlpha: 1, scale: 1, duration: 1, ease: "power3.out" },
+          0.2,
+        )
+        .fromTo(
+          q("[data-hero='ubin']"),
+          { autoAlpha: 0, scale: 0.4, y: 40, rotate: -12 },
+          { autoAlpha: 1, scale: 1, y: 0, rotate: 0, duration: 0.75, ease: "back.out(1.7)", stagger: 0.12 },
+          0.35,
+        )
+        .fromTo(
+          q("[data-hero='lencana-kiri']"),
+          { autoAlpha: 0, x: -40, y: -10 },
+          { autoAlpha: 1, x: 0, y: 0, duration: 0.6 },
+          1.0,
+        )
+        .fromTo(
+          q("[data-hero='lencana-kanan']"),
+          { autoAlpha: 0, x: 40, y: 10 },
+          { autoAlpha: 1, x: 0, y: 0, duration: 0.6 },
+          1.15,
         );
     },
     { scope: akar },
