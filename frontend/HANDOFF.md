@@ -6,8 +6,12 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 - Repository: monorepo `sevent-x-bimbel`. Area kerja frontend hanya `frontend/` (plus catatan keputusan di `docs/KEPUTUSAN.md`). **Jangan ubah** `backend/` dan `docs/PRD.md`.
 - Worktree aktif: `.claude/worktrees/prompt-revision-design-c2bf99`
-- Branch aktif: `claude/frontend-fondasi` (berbasis di atas `8dd0b95` pada `claude/prompt-revision-design-c2bf99`). Saat handoff ini dibuat, commit pada `claude/frontend-fondasi` baru tersimpan secara lokal — belum di-push ke `origin` dan belum di-merge ke `main`.
-- **Jangan pernah commit**: `.claude/` dan `frontend/.env.local`.
+- Branch lokal: `claude/frontend-fondasi`. Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
+- Commit terakhir yang sudah di-push ke `main`: `8a62333` (24 November 2026).
+- Produksi: `https://kodie.xevora.me` (Coolify, auto-redeploy setiap push ke `main`; lihat `frontend/DEPLOY-COOLIFY.md`).
+- **Jangan pernah commit**: `.claude/`, `frontend/.env.local`, dan `docs/SERAH-TERIMA-FE.md`.
+- **Jangan pernah** menambahkan atribusi Claude (`Co-Authored-By`, "Generated with Claude") di commit atau PR.
+- Pengguna meminta kerja persis sesuai permintaan ("make no mistake"), tanpa mengerjakan hal di luar yang diminta. Tanyakan dulu bila menyangkut keputusan produk.
 - Aturan & rujukan wajib: `CLAUDE.md` (root), `frontend/CLAUDE.md`, `docs/PRD.md`, `docs/KEPUTUSAN.md`, `docs/PROMPT-CLAUDE-CODE.md`, dan `docs/PROMPT-CHATBOT-FE.md`.
 
 ## Status per prompt & revisi lanjutan
@@ -26,8 +30,38 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi UI 1 | Maskot 2D interaktif SVG Kiko pada Widget Kiko (ukuran konsisten & gerak delta waktu) | Selesai | `93fe743`, `507ac73` |
 | Revisi UI 2 | Footer lanskap piksel 8-bit (`#pixel-stage`, 2 mode Light/Dark otomatis, tanpa kartu *Komunitas Belajar Aktif*) | Selesai | `0ef80ea`, `c454cd0` |
 | Revisi UI 3 | Skala font, `line-height` pill `<Sorotan>` (hindari huruf `g` tertimpa), koma `#judul-nilai`, serta alignment kartu & `ObjekBidang` halaman publik | Selesai | `a988a43` |
+| Revisi 4 | Halaman `/karier` (pengajar tidak lagi lewat `/daftar`), Kodie Lab `/lab` (HTML/CSS/JS + Python/Pyodide), toggle tema 3 opsi dengan reveal melingkar, transisi halaman, Motion | Selesai | `b7db252` |
+| Revisi 5 | Redesain hero & section keunggulan beranda (`docs/kodie_landing_page_redesign.html`) | Selesai | `1886ce4` |
+| Revisi 6 | Sapaan Kiko tidak menutupi konten, judul ganda verifikasi pembayaran | Selesai | `7daf2c2` |
+| Revisi 7 | Deploy Coolify (Dockerfile standalone, `/api/sehat`, tutorial) | Selesai | `80e5d75` |
+| Revisi 8 | Shadow tipis kartu publik (`shadow-kartu`) | Selesai | `4ba2d0d` |
+| Revisi 9 | Kodie Lab mode **Blok** (Blockly) & **Python Turtle** | Selesai | `851a5c7` |
+| Revisi 10 | Form login/daftar `method="post"`, tema tanpa kedip, judul tab dinamis, `loading.tsx` area login | Selesai | `c0b0684`, `6b21c24` |
+| Revisi 11 | Navbar **kaca melayang** saat scroll + perbaikan audit QA Gemini (`docs/audit_qa_kodie_revisi.md`) | Selesai | `ea65e22`, `8a62333` |
 
-## Checkpoint terakhir (perubahan setelah Prompt 8 hingga `a988a43`)
+## Checkpoint terbaru (setelah `a988a43` hingga `8a62333`)
+
+1. **Karier, Kodie Lab, tema, transisi (`b7db252`)**
+   - `/daftar` hanya untuk orang tua dan siswa; `?peran=pengajar` dialihkan ke `/karier`. Posisi statis di `src/lib/karier.ts`, detail `/karier/[slug]` memakai `FormPengajar`.
+   - `/lab` publik tanpa akun: CodeMirror 6, pratinjau HTML/CSS/JS di iframe, Python lewat Pyodide di module worker `public/lab/python-worker.js`, simpanan `localStorage` kunci `kodie:lab:v1`.
+   - `ThemeSwitch` (`src/components/situs/kontrol-header.tsx`): Terang/Gelap/Ikuti sistem, kunci `kodie:tema`, reveal melingkar via View Transitions API. Skrip tema di `<head>` (`layout.tsx`) mencegah kedip.
+   - Transisi halaman: `<ViewTransition>` di `template.tsx` tiap grup (`src/components/situs/transisi-halaman.tsx`), CSS di `globals.css`.
+2. **Beranda (`1886ce4`)**: hero `.hero-kodie` (sisa 32 px di bawah agar latar terlihat), section keunggulan dengan 3 pill. Teks "diajar oleh mahasiswa..." dilarang di hero.
+3. **Deploy Coolify (`80e5d75`)**: `frontend/Dockerfile` (node:22-alpine, `output: "standalone"`, non-root, HEALTHCHECK `/api/sehat`), `frontend/.dockerignore`, `frontend/DEPLOY-COOLIFY.md`. Base Directory `/frontend`.
+4. **Kodie Lab Blok & Turtle (`851a5c7`)**: mesin turtle bersama `src/lib/lab/turtle.ts`, blok Kiko `src/lib/lab/blok.ts` + `src/components/lab/blok-kiko.ts`, editor `editor-blok.tsx`, kanvas `kanvas-turtle.tsx`, modul Python `public/lab/turtle_kodie.py`. Tanpa XP/misi/login.
+5. **Perbaikan kecil (`c0b0684`, `6b21c24`)**: form auth `method="post"` (kredensial tak pernah masuk URL sebelum hidrasi), `generateMetadata` di `kelas/[id]`, `program/[slug]`, `pengajar/[id]`, 35 `loading.tsx` di area login (`KerangkaHalamanArea`).
+6. **Navbar kaca melayang (`ea65e22`)**
+   - `src/components/situs/header.tsx` + blok `HEADER` di `globals.css`. Di puncak: bar penuh. Setelah scroll (`useMengambang`, histeresis 24/4 px): panel latar `.hdr-panel` menyusut ke kaca membulat; isi header tidak bergeser. Laci ponsel `.hdr-laci` ikut jadi kartu kaca.
+   - `view-transition-name` dipasang di `.hdr-panel` (`site-header-panel`) dan bar (`site-header`), **bukan** di `<header>`: elemen bernama menjadi backdrop root sehingga blur anak tidak melihat halaman.
+   - Blur memakai utilitas Tailwind `backdrop-blur-lg backdrop-saturate-150`. Deklarasi `backdrop-filter` manual di `globals.css` dibuang Lightning CSS (hanya `-webkit-` tersisa) — jangan pakai.
+   - Tombol ID/EN disembunyikan (komponen `LanguageSwitch` tetap ada).
+7. **Revisi audit QA (`8a62333`)**
+   - Kiko (`widget-kiko.tsx`): batas 10 dtk token pertama, 20 dtk jeda; jawaban lokal untuk 4 pertanyaan populer di `src/lib/chatbot-cadangan.ts` (diringkas dari `docs/knowledge/01–04`, perbarui bila harga berubah). Maskot pemicu disembunyikan di `/lab` saat chat tertutup; chat tetap bisa dibuka dari footer.
+   - `src/components/pengajar/avatar-pengajar.tsx`: foto rusak atau ≤ 8 px (seed demo backend berupa PNG 1×1) jatuh ke inisial. Label kartu: "Terverifikasi KTP/KTM & SKCK".
+   - `menu-akun.tsx`: nama panjang dipotong (`max-w-[140px]`, `2xl:180px`), chevron `shrink-0`.
+   - Halaman statis `/showcase` (4 contoh proyek Lab), tautan footer "Showcase Karya" ke sana.
+
+## Checkpoint lama (perubahan setelah Prompt 8 hingga `a988a43`)
 
 1. **Logo Resmi Final, Favicon & OpenGraph (`Kodie_Logo_Packageasli`, `277df3d`, `d5fbf22`)**:
    - Aset disalin ke `frontend/src/app/favicon.ico`, `frontend/public/` (`favicon.ico`, `favicon.svg`, `favicon_small.svg`, `site.webmanifest`, ikon PNG `180/192/512/maskable`, `og-kodie.png`, `og-kodie-dark.png`), dan `frontend/public/logo/` (varian SVG Horizontal, Horizontal_Slogan, Symbol full-color/reverse, serta varian `*_tight.svg` light-bg/dark-bg).
@@ -56,7 +90,9 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 ## Status verifikasi terkini
 
-- **Pemeriksaan setelah edit terakhir (`a988a43`) di `frontend/`**:
+- **Pemeriksaan di `8a62333`**: `npm run lint` lulus, `npx tsc --noEmit` lulus, `npx vitest run` **11 file / 88 tes** lulus, `npm run build` lulus (termasuk `/showcase`). Jika build gagal "Failed to fetch … from Google Fonts", ulangi dengan `NODE_OPTIONS=--dns-result-order=ipv4first npm run build` (masalah jaringan lokal, bukan kode).
+- **Cek browser di `8a62333`**: navbar puncak/scroll di 1440, 1280, 375 px (terang & gelap), laci ponsel, header login dengan nama panjang tanpa overflow, `/lab` tombol Bersihkan bisa diklik, fallback Kiko saat layanan chat disimulasikan macet, `/showcase`.
+- **Pemeriksaan lama (`a988a43`) di `frontend/`**:
   - `npm run lint` (`eslint`) — lulus.
   - `npm run typecheck` (`tsc --noEmit`) — lulus.
   - `npm test` (`vitest run`) — 9 file pengujian, **67 tes** lulus (termasuk uji `buatUuid()` fallback).
@@ -79,12 +115,23 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - Next.js 16 dengan Cache Components (`cacheComponents: true` di `next.config.ts`): data yang membaca cookie, `searchParams`, `params`, atau waktu harus di dalam `<Suspense>` atau memanggil `await connection()`; data publik statis memakai `"use cache"` + `cacheLife("hours")` (misal `ambilSoalMinat()` di `src/lib/api/tes-minat.ts`).
 - Token desain di `src/app/globals.css`; teks antarmuka bahasa Indonesia, tanggal WIB (`src/lib/format.ts`), uang `Rp275.000`.
 
-## Langkah lanjutan untuk Claude (opsional sesuai kebutuhan tim)
+## Catatan teknis penting
 
-- Jalankan server lokal jika ingin meninjau perubahan secara interaktif (server latar belakang sebelumnya terhenti saat restart).
-- Review diff `claude/prompt-revision-design-c2bf99..claude/frontend-fondasi` bila akan merge ke `main` atau push ke `origin`.
-- Jika ingin verifikasi metrik terbaru setelah `93fe743`–`a988a43`, jalankan ulang audit Lighthouse mobile pada `/`, `/program`, `/kelas`, `/tes-minat` serta spot-check alur E2E.
-- Saat deploy produksi (mis. Vercel): pasang env `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_USE_MOCK=false`, dan `NEXT_PUBLIC_SITE_URL`, serta pastikan firewall Windows tidak memblokir port `3000` jika pengujian lokal dibuka dari perangkat LAN.
+- **Hook backslash**: perintah Bash yang memuat backslash (heredoc, `node -e`, `\n` di sed) diblokir. Tulis lewat Write/Edit atau file skrip.
+- **React Compiler (lint `preserve-manual-memoization`)**: ekspresi `cx(kondisi && "hidden", …)` di `widget-kiko.tsx` membuat lint gagal; pakai atribut `hidden={…}`.
+- **Pane browser tersembunyi**: rAF dan transisi CSS berhenti, View Transition melempar "Document hidden". Itu bukan bug kode.
+- Mode mock: `NEXT_PUBLIC_USE_MOCK=true`, akun di `src/lib/mock/akun.ts` (password `kodie-mock-123`). Jangan login ke Supabase produksi dengan password dari sesi Claude.
+- `.claude/launch.json` (lokal, tidak di-commit): `kodie-dev` (Supabase) dan `kodie-dev-mock`, keduanya port 3000.
+
+## Pekerjaan tertunda
+
+- **Playbook H-1 akun demo (audit P0-1)**: aturan H-1 adalah kriteria PRD F9 dan dicek RPC `playbook_sesi`, jadi tidak di-bypass di frontend. Butuh tim backend menyeed sesi `pengajar1@seventx.id` yang mulai < 24 jam dari waktu penjurian.
+- Tautan footer "Panduan belajar" masih ke `/program` (halaman valid, label kurang pas); belum diputuskan.
+- Daftar "Verifikasi tambahan" di `docs/audit_qa_kodie_revisi.md` yang belum dijalankan penuh: semua halaman di 375/768 px, mode Turtle/HTML/Python di `/lab` pada produksi, dashboard admin, halaman sekunder footer.
+- README utama belum mencakup Kodie Lab, Karier, Showcase, dan Coolify.
+- Lighthouse ulang setelah perubahan besar; uji realtime skenario demo 5–6 di Supabase Cloud.
+- Password admin demo: ditunda oleh pengguna ("nanti saja").
+- Batas lomba 30 November 2026 (target internal 28 November 2026).
 
 ## Cara menjalankan
 
