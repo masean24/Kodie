@@ -21,12 +21,14 @@ import { KartuProgram } from "@/components/program/kartu-program";
 import { KartuPengajar } from "@/components/pengajar/kartu-pengajar";
 import { AngkatHover, Muncul } from "@/components/ui/gerak";
 import { KataHero, RevealHero } from "@/components/situs/reveal-hero";
+import { SimulasiKelasMalas } from "@/components/simulasi-kelas/simulasi-kelas-malas";
 
 export default function Beranda() {
   return (
     <>
       <Pahlawan />
       <Nilai />
+      <SimulasiKelasLive />
       <section aria-labelledby="judul-program" className="py-16 md:py-24">
         <Kontainer>
           <h2
@@ -47,6 +49,33 @@ export default function Beranda() {
       <Pengajar />
       <AjakanTes />
     </>
+  );
+}
+
+/**
+ * Section 3: simulasi kelas live. Judul dirender server; simulasinya dimuat malas saat mendekati layar.
+ */
+function SimulasiKelasLive() {
+  return (
+    <section aria-labelledby="judul-simulasi" className="pb-4 pt-16 md:pt-24">
+      <Kontainer>
+        <h2
+          id="judul-simulasi"
+          className="text-center text-[28px] leading-[38px] font-extrabold tracking-tight sm:text-[34px] sm:leading-[44px] md:text-[40px] md:leading-[52px]"
+        >
+          Intip suasana <Sorotan>kelas live</Sorotan>
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-base leading-7 text-text-muted md:text-lg">
+          Coba langsung: tanya Kiko di chat, angkat tangan, atau kirim reaksi. Begini rasanya belajar bareng di Kodie.
+        </p>
+        <p className="mx-auto mt-3 w-fit rounded-full bg-surface-sunken px-3 py-1 text-center text-xs font-bold text-text-muted">
+          Simulasi interaktif, bukan rekaman kelas asli
+        </p>
+        <div className="mt-8">
+          <SimulasiKelasMalas />
+        </div>
+      </Kontainer>
+    </section>
   );
 }
 

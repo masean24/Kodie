@@ -416,6 +416,279 @@ h4 {
   }
 }
 
+/* ===== SIMULASI KELAS LIVE (components/simulasi-kelas) =====
+ * Semua animasi dijeda saat simulasi di luar layar (`.sk-jeda`). `prefers-reduced-motion` sudah dimatikan
+ * oleh aturan global di atas.
+ */
+.sk-jeda,
+.sk-jeda * {
+  animation-play-state: paused !important;
+}
+/* Karakter pixel art (components/simulasi-kelas/pixel.tsx), gerakan mengikuti referensi simulasi.
+ * Elemen SVG memakai transform-box view-box, jadi origin dalam satuan grid 64 x 40. */
+.px-napas {
+  animation: px-napas 3.2s ease-in-out infinite;
+}
+.px-kepala {
+  transform-origin: 32px 25px;
+  animation: px-goyang 4.6s ease-in-out infinite;
+}
+.px-bicara .px-kepala {
+  animation: px-bicara-angguk 1.35s ease-in-out infinite;
+}
+.px-setuju .px-kepala {
+  animation: px-setuju 0.65s ease-in-out infinite;
+}
+.px-lirik {
+  animation: px-lirik 7.5s ease-in-out infinite;
+}
+.px-mata-buka {
+  animation: px-kedip-buka 4.8s steps(1) infinite;
+}
+.px-mata-tutup {
+  opacity: 0;
+  animation: px-kedip-tutup 4.8s steps(1) infinite;
+}
+.px-mata-senang {
+  opacity: 0;
+}
+.px-setuju .px-mata-senang {
+  opacity: 1;
+}
+.px-setuju .px-mata-buka,
+.px-setuju .px-mata-tutup {
+  opacity: 0;
+  animation: none;
+}
+.px-mulut-buka {
+  opacity: 0;
+}
+.px-bicara .px-mulut-diam {
+  animation: px-bicara-a 0.3s steps(1) infinite;
+}
+.px-bicara .px-mulut-buka {
+  animation: px-bicara-b 0.3s steps(1) infinite;
+}
+.px-kelip {
+  animation: px-kelip 2.6s ease-in-out infinite;
+}
+.px-lambai {
+  transform-origin: 46px 31px;
+  animation: px-lambai 0.85s ease-in-out infinite;
+}
+.px-catat {
+  animation: px-catat 1.9s ease-in-out infinite;
+}
+.px-bicara .px-lengan-kanan {
+  transform-origin: 45px 34px;
+  animation: px-lambai 0.95s ease-in-out infinite;
+}
+.px-bicara .px-lengan-kiri {
+  transform-origin: 19px 36px;
+  animation: px-lambai 1.25s ease-in-out -0.4s infinite reverse;
+}
+@keyframes px-napas {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.4px);
+  }
+}
+@keyframes px-goyang {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  28% {
+    transform: rotate(-2.2deg) translateY(-0.4px);
+  }
+  68% {
+    transform: rotate(2deg) translateY(0.2px);
+  }
+}
+@keyframes px-bicara-angguk {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  25% {
+    transform: rotate(-2.6deg) translateY(-0.9px);
+  }
+  55% {
+    transform: rotate(2.4deg) translateY(0.6px);
+  }
+  80% {
+    transform: rotate(-1.2deg) translateY(-0.5px);
+  }
+}
+@keyframes px-setuju {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translateY(1.4px) rotate(1.5deg);
+  }
+  60% {
+    transform: translateY(-0.5px) rotate(-1deg);
+  }
+}
+@keyframes px-lirik {
+  0%,
+  62%,
+  100% {
+    transform: translateX(0);
+  }
+  68%,
+  82% {
+    transform: translateX(0.9px);
+  }
+  88%,
+  95% {
+    transform: translateX(-0.7px);
+  }
+}
+@keyframes px-kedip-buka {
+  0%,
+  93% {
+    opacity: 1;
+  }
+  94%,
+  99% {
+    opacity: 0;
+  }
+}
+@keyframes px-kedip-tutup {
+  0%,
+  93% {
+    opacity: 0;
+  }
+  94%,
+  99% {
+    opacity: 1;
+  }
+}
+@keyframes px-bicara-a {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes px-bicara-b {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes px-kelip {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes px-lambai {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-9deg);
+  }
+}
+@keyframes px-catat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.6px);
+  }
+}
+.sk-kedip {
+  animation: sk-kedip 1.4s ease-in-out infinite;
+}
+.sk-kursor {
+  animation: sk-kedip 1s steps(1) infinite;
+}
+.sk-gelombang {
+  height: 40%;
+  animation: sk-gelombang 0.6s ease-in-out infinite;
+}
+.sk-gelombang-2 {
+  animation-duration: 0.5s;
+}
+.sk-gelombang-3 {
+  animation-duration: 0.7s;
+}
+.sk-muncul {
+  animation: sk-muncul 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sk-terbang {
+  animation: sk-terbang 2.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.sk-tekan {
+  animation: sk-tekan 0.9s ease-in-out;
+}
+@keyframes sk-kedip {
+  50% {
+    opacity: 0.25;
+  }
+}
+@keyframes sk-gelombang {
+  0%,
+  100% {
+    height: 30%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+@keyframes sk-muncul {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sk-terbang {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-180px) scale(1);
+  }
+}
+@keyframes sk-tekan {
+  20% {
+    transform: scale(0.94);
+  }
+  45% {
+    transform: scale(1.04);
+  }
+  70%,
+  100% {
+    transform: scale(1);
+  }
+}
+
 /* ===== HERO REVEAL (GSAP, components/situs/reveal-hero.tsx) =====
  * Mulai transparan agar tidak berkedip sebelum hidrasi. Cadangan tanpa JavaScript: tampil sendiri setelah 3 detik.
  */
