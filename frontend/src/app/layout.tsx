@@ -46,10 +46,9 @@ export const viewport: Viewport = {
 /**
  * Pasang tema pilihan pengguna (localStorage "kodie:tema", lihat ThemeSwitch) sebelum halaman dilukis,
  * agar tidak berkedip saat dimuat. Hanya ada Terang/Gelap; tanpa pilihan tersimpan, tema awal diambil sekali
- * dari preferensi sistem lalu dipasang eksplisit di `data-theme`. `data-gerak="pra"` menyembunyikan konten
- * sebentar sampai animasi elemen GSAP siap (lihat `components/situs/animasi-elemen.tsx`).
+ * dari preferensi sistem lalu dipasang eksplisit di `data-theme`.
  */
-const SKRIP_TEMA = `try{var t=localStorage.getItem("kodie:tema");if(t!=="light"&&t!=="dark")t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t);if(!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches))document.documentElement.setAttribute("data-gerak","pra")}catch(e){}`;
+const SKRIP_TEMA = `try{var t=localStorage.getItem("kodie:tema");if(t!=="light"&&t!=="dark")t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

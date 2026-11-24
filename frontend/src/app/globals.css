@@ -463,20 +463,6 @@ h4 {
   min-height: calc(100svh - 72px);
 }
 
-/* ===== ANIMASI ELEMEN (GSAP, components/situs/animasi-elemen.tsx) =====
- * Konten utama disembunyikan sampai skrip menyiapkan animasi, lalu atribut `data-gerak` dihapus.
- * Cadangan: bila skrip tidak berjalan, konten tampil sendiri setelah 1,2 detik.
- */
-[data-gerak="pra"] #konten {
-  opacity: 0;
-  animation: gerak-cadangan 0s 1.2s forwards;
-}
-@keyframes gerak-cadangan {
-  to {
-    opacity: 1;
-  }
-}
-
 /* ===== SIMULASI KELAS LIVE (components/simulasi-kelas) =====
  * Semua animasi dijeda saat simulasi di luar layar (`.sk-jeda`). `prefers-reduced-motion` sudah dimatikan
  * oleh aturan global di atas.

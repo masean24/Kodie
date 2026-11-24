@@ -48,8 +48,6 @@ const AKAR = ["#konten", "#kodie-footer"];
 
 /** Lama pemindaian ulang setelah halaman dimuat, menunggu bagian Suspense selesai dihidrasi React. */
 const MASA_TUNGGU_HIDRASI = 8000;
-/** Batas paling lama konten awal disembunyikan sebelum tetap ditampilkan. */
-const BATAS_PRA = 900;
 
 function kandidat(el: Element): boolean {
   return el.matches(PILIH) && !el.closest(LUAR) && !el.classList.contains("sr-only");
@@ -101,17 +99,12 @@ function diLayar(el: Element) {
  * semua halaman publik, auth, dan area login. Konten yang datang belakangan (Suspense, navigasi, daftar
  * realtime) ditangkap `MutationObserver` dan pemindaian ulang singkat setelah dimuat.
  *
- * `#konten` disembunyikan sebentar lewat `[data-gerak="pra"]` (skrip `<head>` di `app/layout.tsx`) agar
- * konten awal tidak berkedip; CSS punya cadangan yang menampilkannya sendiri bila skrip ini tidak berjalan.
- * Dengan `prefers-reduced-motion`, tidak ada yang dianimasikan.
+ * Tidak ada pra-sembunyi konten: konten yang sudah terlihat saat halaman dimuat dibiarkan apa adanya (lihat
+ * `muatAwal`), sehingga refresh tidak berkedip. Dengan `prefers-reduced-motion`, tidak ada yang dianimasikan.
  */
 export function AnimasiElemen() {
   useEffect(() => {
-    const html = document.documentElement;
-    if (kurangiGerak()) {
-      delete html.dataset.gerak;
-      return;
-    }
+    if (kurangiGerak()) return;
 
     const sudah = new WeakSet<Element>();
     /** Elemen yang sudah disembunyikan tetapi belum muncul; dikembalikan saat cleanup (StrictMode, unmount). */
@@ -163,8 +156,20 @@ export function AnimasiElemen() {
     const saatTerlihat = () => document.visibilityState === "visible" && amankan();
     document.addEventListener("visibilitychange", saatTerlihat);
 
+    /**
+     * Saat halaman pertama dimuat, konten yang sudah terlihat di layar TIDAK dianimasikan: konten itu sudah
+     * dilukis server, jadi menyembunyikannya lalu memunculkan lagi justru tampak berkedip (misalnya latar biru
+     * hero hilang sesaat saat refresh). Hanya konten di bawah layar yang muncul dengan animasi saat di-scroll.
+     * Konten yang datang lewat navigasi atau Suspense (MutationObserver) belum dilukis, jadi tetap dianimasikan.
+     */
+    let muatAwal = true;
+    const akhiriMuatAwal = () => {
+      muatAwal = false;
+    };
+    window.addEventListener("scroll", akhiriMuatAwal, { passive: true, once: true });
+
     /** Siapkan elemen yang layak; kembalikan jumlah elemen di layar yang masih menunggu hidrasi. */
-    const pindai = (dari: Element) => {
+    const pindai = (dari: Element, dariMutasi = false) => {
       const akar = akarAda.find((a) => a === dari || a.contains(dari));
       if (!akar) return 0;
       const calon = dari.matches(PILIH) ? [dari, ...dari.querySelectorAll(PILIH)] : [...dari.querySelectorAll(PILIH)];
@@ -172,8 +177,10 @@ export function AnimasiElemen() {
       let tertunda = 0;
       for (const el of calon) {
         const h = periksa(el, akar, sudah);
-        if (h === "ya") siap.push(el as HTMLElement);
-        else if (h === "tunggu" && diLayar(el)) tertunda++;
+        if (h === "ya") {
+          if (muatAwal && !dariMutasi && diLayar(el)) sudah.add(el);
+          else siap.push(el as HTMLElement);
+        } else if (h === "tunggu" && diLayar(el)) tertunda++;
       }
       if (siap.length > 0) {
         for (const el of siap) sudah.add(el);
@@ -189,27 +196,23 @@ export function AnimasiElemen() {
     const pindaiSemua = () => akarAda.reduce((n, akar) => n + pindai(akar), 0);
 
     const mulai = performance.now();
-    let praAktif = "gerak" in html.dataset;
-    const lepasPra = () => {
-      if (!praAktif) return;
-      praAktif = false;
-      delete html.dataset.gerak;
-    };
-
-    if (pindaiSemua() === 0) lepasPra();
+    pindaiSemua();
 
     // Pindai ulang sampai bagian Suspense selesai dihidrasi; hidrasi tidak memicu MutationObserver.
     const timer = window.setInterval(() => {
       const tertunda = pindaiSemua();
       const lama = performance.now() - mulai;
-      if (tertunda === 0 || lama > BATAS_PRA) lepasPra();
-      if (lama > MASA_TUNGGU_HIDRASI) window.clearInterval(timer);
+      if (tertunda === 0 && lama > 1500) akhiriMuatAwal();
+      if (lama > MASA_TUNGGU_HIDRASI) {
+        akhiriMuatAwal();
+        window.clearInterval(timer);
+      }
     }, 120);
 
     const pengamat = new MutationObserver((catatan) => {
       for (const c of catatan) {
         for (const n of c.addedNodes) {
-          if (n instanceof Element && !n.closest(LUAR)) pindai(n);
+          if (n instanceof Element && !n.closest(LUAR)) pindai(n, true);
         }
       }
     });
@@ -223,9 +226,9 @@ export function AnimasiElemen() {
       document.removeEventListener("visibilitychange", saatTerlihat);
       pengamat.disconnect();
       pengintai.disconnect();
+      window.removeEventListener("scroll", akhiriMuatAwal);
       if (menunggu.size > 0) gsap.set([...menunggu], { clearProps: "opacity,transform" });
       menunggu.clear();
-      lepasPra();
     };
   }, []);
 
