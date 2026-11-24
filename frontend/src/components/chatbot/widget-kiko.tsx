@@ -1304,8 +1304,11 @@ export function WidgetKiko({
         title={terbuka && !menutup ? `Tutup ${namaBot}` : `Klik untuk chat dengan ${namaBot}`}
         aria-label={terbuka && !menutup ? `Tutup ${namaBot}` : `Tanya ${namaBot}`}
         hidden={diLab && !terbuka}
-        className="h-[78px] w-[76px] shrink-0 cursor-pointer transition-transform duration-300 ease-out hover:scale-105 active:scale-95 focus-visible:rounded-2xl sm:h-[95px] sm:w-[92px]"
+        className="shrink-0 cursor-pointer rounded-full border-[2.5px] border-[#C6F64D] bg-white p-2.5 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.45),0_0_0_3px_rgba(255,255,255,0.25)] transition-transform duration-300 ease-out hover:scale-105 active:scale-95"
       >
+        {/* Wadah lingkaran putih + ring lime (opsi warna 2, docs/kiko_2d_mascot_perbandingan_opsi_warna_palet_kodie.html):
+            Kiko biru tetap kontras di hero biru, latar putih, maupun mode gelap. */}
+        <span className="block h-[64px] w-[62px] sm:h-[80px] sm:w-[78px]">
         <MaskotKiko
           ekspresi={ekspresiKiko}
           isTypingChat={isTypingChat}
@@ -1317,6 +1320,7 @@ export function WidgetKiko({
           onEkspresiOtomatis={setEkspresiKiko}
           onTipBerubah={setTooltipTeks}
         />
+        </span>
         <span className="sr-only">
           {terbuka && !menutup ? `Tutup ${namaBot}` : `${CHATBOT_LAUNCHER_CONFIG.labelPrefix} ${namaBot}`}
         </span>
