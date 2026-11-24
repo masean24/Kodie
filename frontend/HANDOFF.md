@@ -7,7 +7,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 - Repository: monorepo `sevent-x-bimbel`. Area kerja frontend hanya `frontend/` (plus catatan keputusan di `docs/KEPUTUSAN.md`). **Jangan ubah** `backend/` dan `docs/PRD.md`.
 - Worktree aktif: `.claude/worktrees/baca-handoff-md-315ddd`
 - Branch lokal: `claude/baca-handoff-md-315ddd`. Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
-- Commit terakhir yang sudah di-push ke `main`: `79135f4` (24 November 2026).
+- Commit terakhir yang sudah di-push ke `main`: `9dd0b38` (25 November 2026). Commit backend terakhir yang sudah di-pull: `f241df3` (Migration 12).
 - Produksi: `https://kodie.xevora.me` (Coolify, auto-redeploy setiap push ke `main`; lihat `frontend/DEPLOY-COOLIFY.md`).
 - **Jangan pernah commit**: `.claude/`, `frontend/.env.local`, dan `docs/SERAH-TERIMA-FE.md`.
 - **Jangan pernah** menambahkan atribusi Claude (`Co-Authored-By`, "Generated with Claude") di commit atau PR.
@@ -41,8 +41,39 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 12 | GSAP, footer menyatu dengan konten, tema hanya Terang/Gelap, logo navbar lebih kecil, animasi panel notifikasi, hero kata demi kata, band halaman seragam | Selesai | `46302cf` |
 | Revisi 13 | Animasi masuk GSAP untuk semua elemen di semua halaman + ilustrasi hero | Selesai | `114253f` |
 | Revisi 14 | Simulasi kelas live ala Google Meet (karakter pixel) di section 3 beranda | Selesai | `79135f4` |
+| Revisi 15 | Aksen grid beranda, wadah putih Kiko, perbaikan audit Gemini (tema gelap, playbook Markdown, privasi, koma) | Selesai | `9622f8d`, `8653774`, `a1702a5` |
+| Revisi 16 | Dark mode Obsidian Color-Block, warna tombol Lihat program, ulangi password + indikator kekuatan | Selesai | `537d29b`, `d15f52e` |
+| Revisi 17 | Header (kursor, kaca, laci ponsel), butir frontend `docs/rangkuman_perbaikan_kodie.md`, animasi & pesan Kiko | Selesai | `a1a2e92` |
+| Revisi 18 | Kiko tidak stuck (batas 7 dtk + jawaban cadangan), pengaman FOUC, balon Kiko tidak menutupi kartu | Selesai | `a3aa2cc` |
+| Revisi 19 | Sambungan Migration 12: silabus, bio & ulasan, waitlist, `privasi_disetujui`, lupa password | Selesai | `9dd0b38` |
 
-## Checkpoint terbaru (setelah `8a62333` hingga `79135f4`)
+## Checkpoint terbaru (setelah `79135f4` hingga `9dd0b38`)
+
+1. **Beranda & Kiko (`9622f8d`, `8653774`)**: kelas `.aksen-grid` (garis biru 11% per 64 px, mask radial, hanya mode terang) di section keunggulan dan "Tiga program"; tombol maskot Kiko memakai wadah lingkaran putih + ring lime (opsi warna 2 di `docs/kiko_2d_mascot_perbandingan_opsi_warna_palet_kodie.html`).
+2. **Audit Gemini (`a1702a5`)**
+   - Tema: efek di `ThemeSwitch` yang memasang server snapshot `"light"` saat hidrasi dihapus, sehingga perangkat bermode gelap tidak berbalik ke terang. `data-theme` hanya dipasang skrip `<head>` dan aksi pengguna.
+   - `AnimasiElemen` punya pengaman: elemen di layar yang belum dimunculkan IntersectionObserver tetap dimunculkan (scroll, tiap 1,5 dtk, `visibilitychange`).
+   - Playbook: `uraiKontenPlaybook` (`src/lib/mengajar.ts`) mengenali tabel alur, checkbox `- [ ]`/`✓`, dan `**00–08 Judul:**`; `TeksMd` (`src/components/mengajar/teks-md.tsx`) merender `kode`, **tebal**, *miring* tanpa `dangerouslySetInnerHTML`.
+   - Banner "Draf" kebijakan privasi dihapus; koma setelah badge judul keunggulan dirapatkan (`KomaRapat`).
+3. **Dark mode & daftar (`537d29b`, `d15f52e`)**
+   - Token dark (dua blok di `globals.css`) memakai preset **Obsidian Color-Block** dari `docs/kodie_dark_mode_explorer_anti_ai_slop.html` (latar `#0a0a0c`, kartu program gaya pop, footer malam). Catatan kontras: teks putih di atas primer `#3b82f6` hanya 3,7:1.
+   - Tombol "Lihat program" per program (navy / lime / biru) lewat varian tombol `khusus` + prop `kelasPanah` (`cx` tidak menggabungkan kelas yang bentrok).
+   - `InputPassword` (`src/components/ui/input-password.tsx`): tombol tampilkan, indikator kekuatan dari `src/lib/validasi/password.ts` (terlalu pendek, mudah ditebak, cukup, kuat). Skema daftar menolak password umum/berpola dan ulangi password yang tidak sama. Berlaku untuk orang tua, siswa, dan pengajar.
+4. **Header & rangkuman audit (`a1a2e92`)**
+   - Kursor tangan global di `@layer base` (preflight Tailwind v4 memberi `button` kursor default); pengalih tema & Masuk transparan saat header melayang; laci ponsel `absolute` di bawah bar.
+   - Dari `docs/rangkuman_perbaikan_kodie.md`: centang wajib Kebijakan Privasi saat daftar, kartu "Asisten AI Kiko" + banner batasan AI di chat, label jenjang kelas dari rentang kelas program, nama pengajar menaut ke profil + breadcrumb, Showcase di navbar + filter jenjang, harga mulai + tabel perbandingan `/program`, tampilkan password + banner `?lanjut=` di `/masuk`, salin ringkasan hasil tes minat, pencarian `/kelas` (`?cari=`), skip link solid, hero tanpa blur.
+   - Kiko menciut saat scroll (transisi properti `scale`, membesar dengan pantulan). Kunci sesi balon pesan `kodie_kiko_tooltip_tutup_v2` (penanda lama memblokir balon).
+5. **Kiko & FOUC (`a3aa2cc`)**
+   - Chat: batas 7 dtk (token pertama & jeda); saat habis, UI diselesaikan langsung oleh timer dengan jawaban cadangan; `getSession` dibatasi 2 dtk (bisa menggantung). `jawabanCadanganKiko` selalu mengembalikan jawaban (populer → kata kunci → info inti Kodie).
+   - SVG logo, simbol, maskot, avatar Kiko, ikon sosial, Showcase diberi `width`/`height` bawaan. HTML produksi `no-store` (Cloudflare `DYNAMIC`), CSS `immutable`, stylesheet di `<head>`.
+   - Balon Kiko mati di dashboard & `/program`; di publik tampil 5 dtk lalu jeda 8 dtk. `pb-24` di `/program`, `/orang-tua`, `/admin`.
+6. **Migration 12 (`9dd0b38`)**
+   - `src/types/database.ts`: bagian hasil generate diganti dari `backend/supabase/types/database.ts`; tipe aplikasi (baris atas) tetap ditulis tangan. **Jangan menyalin file backend mentah-mentah.**
+   - `dataSignUp` mengirim `privasi_disetujui`. Silabus di `/program/[slug]` (mock: `src/lib/mock/silabus.ts`, disalin dari seed). Bio & `ulasan_pengajar_publik` di `/pengajar/[id]`.
+   - Waitlist: `src/lib/api/waitlist.ts`, `src/lib/aksi/waitlist.ts`, `TombolWaitlist` di `/kelas/[id]` untuk kelas `terbuka` dengan `sisa_kursi = 0` (mock menyimpan antrean di cookie).
+   - Lupa password: `/lupa-password` → `resetPasswordForEmail(redirectTo = {origin}/auth/atur-ulang)` → Route Handler `src/app/auth/atur-ulang/route.ts` (tukar kode PKCE) → `/atur-ulang-password` (`updateUser`) → `/masuk?password=diubah`.
+
+## Checkpoint sebelumnya (setelah `8a62333` hingga `79135f4`)
 
 1. **GSAP & revisi tampilan (`46302cf`)**
    - Paket `gsap` + `@gsap/react`; pengaturan bersama di `src/lib/gsap.ts` (`kurangiGerak()` untuk `prefers-reduced-motion`).
@@ -67,7 +98,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
    - `data.ts`: materi, peserta (Mgs. M. Fahim R, Raihan Daris Ramadhan, Khalil Amin Adillah, Ica Septriani, Davina), dan ruangan. Gaya rambut/kacamata dipilih bebas, belum dicek pengguna.
    - Timer dan animasi CSS berhenti di luar layar (`.sk-jeda`). Panel samping dirender sekali sesuai lebar layar (`useSyncExternalStore` + `matchMedia`) agar tidak ada id ganda. CSS di blok `SIMULASI KELAS LIVE` dan `px-*` di `globals.css`.
 
-## Checkpoint sebelumnya (setelah `a988a43` hingga `8a62333`)
+## Checkpoint lebih lama (setelah `a988a43` hingga `8a62333`)
 
 1. **Karier, Kodie Lab, tema, transisi (`b7db252`)**
    - `/daftar` hanya untuk orang tua dan siswa; `?peran=pengajar` dialihkan ke `/karier`. Posisi statis di `src/lib/karier.ts`, detail `/karier/[slug]` memakai `FormPengajar`.
@@ -118,6 +149,9 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 ## Status verifikasi terkini
 
+- **Pemeriksaan di `9dd0b38`**: `npm run lint`, `npx tsc --noEmit`, `npx vitest run` (14 file / 103 tes), dan `npm run build` lulus.
+- **Cek browser (mode mock, Chrome headless lewat CDP)**: dark first load tetap gelap + toggle dua arah; kursor tangan, kaca header, laci ponsel tidak menggeser konten; daftar tanpa centang privasi ditolak lalu berhasil setelah dicentang; silabus 4 sesi, bio + 3 ulasan, masuk/keluar daftar tunggu (orang tua), alur `/lupa-password`; chat Kiko mock menjawab ±0,3 dtk; balon tampil 5 dtk lalu jeda; tanpa CSS logo 179×36.
+- **Belum dicek di produksi (Supabase)**: email reset password sampai `/atur-ulang-password`, waitlist di kelas `k2Penuh`, ulasan pengajar Bagus, chat Kiko < 7 dtk, Lighthouse ulang.
 - **Pemeriksaan di `79135f4`**: `npm run lint`, `npx tsc --noEmit`, `npx vitest run` (11 file / 88 tes), dan `npm run build` lulus.
 - **Cek browser (Chrome headless lewat CDP, mode mock)**: setelah scroll penuh, 0 elemen tertinggal transparan di `/`, `/program`, `/kelas`, `/tes-minat`, `/lab`, `/karier`, `/showcase`, `/masuk`, `/daftar`, area orang tua, admin, pengajar, dan siswa; navigasi klien aman; konsol bersih dari hydration error. Simulasi: dimuat malas, 0 animasi berjalan saat di luar layar, panel obrolan/orang/keluar berfungsi, 0 scroll horizontal di 375 px.
 - **Belum dicek**: produksi setelah deploy, Lighthouse ulang (pra-sembunyi `#konten` ≤0,9 dtk bisa menurunkan LCP).
@@ -138,6 +172,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-CHATBOT-FE.md`.
 
 - **Chatbot & Live Chat**: Edge Function `POST /functions/v1/chat` (SSE events `delta`, `citations`, `guardrail_refusal`, `done`, `error`), view `chatbot_konfigurasi_publik`, tabel Realtime `percakapan_chat` & `pesan_chat`, serta RPC `minta_bantuan_admin_chat`, `kirim_pesan_live_chat`, `admin_ambil_alih_chat`, `admin_selesaikan_chat`.
+- **Migration 12**: kolom `program.silabus`, `pengajar_publik.bio`, `pengguna.privasi_disetujui_pada`; view `ulasan_pengajar_publik`; tabel `waitlist_kelas` + RPC `daftar_waitlist_kelas({ p_kelas_id, p_siswa_id? })` / `batal_waitlist_kelas({ p_kelas_id })` (error `KELAS_MASIH_TERSEDIA`, `SUDAH_TERDAFTAR`); `options.data.privasi_disetujui` saat signUp; guardrail PII di Edge Function `chat` (`guardrail_refusal`, `reason: "PII_DETECTED"`).
 - **Inti Platform**: View `admin_ringkasan`, `kelas_katalog`, `pengajar_publik`, `soal_minat_publik`, `sesi_saya`, `laporan_saya`, `rapor_saya`; RPC transaksi & verifikasi admin (`admin_setujui_pembayaran`, `admin_tolak_pembayaran`, `admin_wawancara_selesai`, `admin_setujui_pengajar`, `admin_tolak_pengajar`, `admin_nonaktifkan_pengguna`, `admin_ubah_laporan_masalah`, `admin_tandai_honor_dibayar`), Edge Function `buat-meet`, serta signed URL bucket privat.
 
 ## Pola kode yang sudah dipakai (ikuti)
@@ -152,16 +187,22 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - **React Compiler (lint `preserve-manual-memoization`)**: ekspresi `cx(kondisi && "hidden", …)` di `widget-kiko.tsx` membuat lint gagal; pakai atribut `hidden={…}`.
 - **Pane browser tersembunyi**: rAF dan transisi CSS berhenti, View Transition melempar "Document hidden". Itu bukan bug kode. Untuk tangkapan layar saat pane tersembunyi, pakai Chrome headless lewat CDP (`--remote-debugging-port`).
 - **GSAP + hidrasi**: jangan mengubah `style` node yang belum dihidrasi React; ikuti pola `terhidrasi()` di `animasi-elemen.tsx`.
+- **Tipe database**: setelah backend memperbarui tipe, ganti hanya bagian mulai `export type Json =` di `src/types/database.ts`, lalu tambahkan field baru ke tipe aplikasi di atasnya.
+- **Tailwind v4 `scale-*`** memakai properti CSS `scale`, bukan `transform`; masukkan `scale` ke `transition-[...]`. `cx` tidak menggabungkan kelas yang bentrok (tidak ada tailwind-merge).
+- **Server dev bisa menyajikan CSS lama** setelah perubahan `globals.css` + `npm run build` berjalan bersamaan; restart server dev bila perubahan CSS tidak terlihat.
 - **React Compiler**: jangan me-reassign variabel lokal saat render (lint `react-hooks/immutability`); pindahkan ke fungsi murni di luar komponen.
 - Mode mock: `NEXT_PUBLIC_USE_MOCK=true`, akun di `src/lib/mock/akun.ts` (password `kodie-mock-123`). Jangan login ke Supabase produksi dengan password dari sesi Claude.
 - `.claude/launch.json` (lokal, tidak di-commit): `kodie-dev` (Supabase) dan `kodie-dev-mock`, keduanya port 3000.
 
 ## Pekerjaan tertunda
 
-- **Playbook H-1 akun demo (audit P0-1)**: aturan H-1 adalah kriteria PRD F9 dan dicek RPC `playbook_sesi`, jadi tidak di-bypass di frontend. Butuh tim backend menyeed sesi `pengajar1@seventx.id` yang mulai < 24 jam dari waktu penjurian.
+- **Playbook H-1 akun demo**: backend menyediakan `npm run demo:reset` (sesi `k5` +18 jam untuk Nadia, `k7Live` live +5 menit). Jalankan ulang mendekati penjurian.
 - Tautan footer "Panduan belajar" masih ke `/program` (halaman valid, label kurang pas); belum diputuskan.
 - Daftar "Verifikasi tambahan" di `docs/audit_qa_kodie_revisi.md` yang belum dijalankan penuh: semua halaman di 375/768 px, mode Turtle/HTML/Python di `/lab` pada produksi, dashboard admin, halaman sekunder footer.
-- README utama belum mencakup Kodie Lab, Karier, Showcase, Coolify, GSAP, dan simulasi kelas.
+- README utama belum mencakup Kodie Lab, Karier, Showcase, Coolify, GSAP, simulasi kelas, waitlist, dan lupa password.
+- Uji produksi untuk fitur Migration 12 dan chat Kiko (lihat "Belum dicek di produksi").
+- Kontras dark mode: teks putih di atas primer `#3b82f6` 3,7:1 (di bawah 4,5:1 PRD); belum diputuskan apakah primer digelapkan.
+- Dari rangkuman audit yang belum: audit lanjutan LH-04 (touch target 48 px, og-image, checkout), reset error state `/masuk` (tidak tereproduksi).
 - Penampilan karakter pixel tiap anggota tim (rambut, kacamata, hijab) perlu dikonfirmasi pengguna di `simulasi-kelas/data.ts`.
 - Lighthouse ulang setelah perubahan besar; uji realtime skenario demo 5–6 di Supabase Cloud.
 - Password admin demo: ditunda oleh pengguna ("nanti saja").
