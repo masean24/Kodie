@@ -118,27 +118,50 @@ export function AnimasiElemen() {
     const menunggu = new Set<Element>();
     const akarAda = AKAR.map((s) => document.querySelector(s)).filter((x): x is Element => x !== null);
 
+    const munculkan = (masuk: Element[]) => {
+      if (masuk.length === 0) return;
+      for (const el of masuk) {
+        pengintai.unobserve(el);
+        menunggu.delete(el);
+      }
+      masuk.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+      gsap.to(masuk, {
+        opacity: 1,
+        y: 0,
+        duration: 0.55,
+        ease: "power2.out",
+        stagger: 0.06,
+        overwrite: true,
+        clearProps: "opacity,transform",
+      });
+    };
+
     const pengintai = new IntersectionObserver(
-      (catatan) => {
-        const masuk = catatan.filter((c) => c.isIntersecting).map((c) => c.target);
-        if (masuk.length === 0) return;
-        for (const el of masuk) {
-          pengintai.unobserve(el);
-          menunggu.delete(el);
-        }
-        masuk.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
-        gsap.to(masuk, {
-          opacity: 1,
-          y: 0,
-          duration: 0.55,
-          ease: "power2.out",
-          stagger: 0.06,
-          overwrite: true,
-          clearProps: "opacity,transform",
-        });
-      },
+      (catatan) => munculkan(catatan.filter((c) => c.isIntersecting).map((c) => c.target)),
       { rootMargin: "0px 0px -6% 0px" },
     );
+
+    /**
+     * Pengaman: elemen yang sudah berada di layar tetapi belum dimunculkan IntersectionObserver
+     * (misalnya browser menunda callback saat View Transition atau tab baru aktif) tetap dimunculkan,
+     * supaya konten tidak pernah tertinggal transparan.
+     */
+    const amankan = () => {
+      if (menunggu.size === 0) return;
+      munculkan([...menunggu].filter((el) => diLayar(el)));
+    };
+    let bingkaiAman = 0;
+    const saatGulir = () => {
+      if (bingkaiAman) return;
+      bingkaiAman = window.setTimeout(() => {
+        bingkaiAman = 0;
+        amankan();
+      }, 400);
+    };
+    window.addEventListener("scroll", saatGulir, { passive: true });
+    const timerAman = window.setInterval(amankan, 1500);
+    const saatTerlihat = () => document.visibilityState === "visible" && amankan();
+    document.addEventListener("visibilitychange", saatTerlihat);
 
     /** Siapkan elemen yang layak; kembalikan jumlah elemen di layar yang masih menunggu hidrasi. */
     const pindai = (dari: Element) => {
@@ -194,6 +217,10 @@ export function AnimasiElemen() {
 
     return () => {
       window.clearInterval(timer);
+      window.clearInterval(timerAman);
+      window.clearTimeout(bingkaiAman);
+      window.removeEventListener("scroll", saatGulir);
+      document.removeEventListener("visibilitychange", saatTerlihat);
       pengamat.disconnect();
       pengintai.disconnect();
       if (menunggu.size > 0) gsap.set([...menunggu], { clearProps: "opacity,transform" });

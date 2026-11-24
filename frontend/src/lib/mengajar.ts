@@ -179,6 +179,8 @@ export interface SegmenAlurPlaybook {
 
 export interface PlaybookTerurai {
   tujuan: string;
+  /** Baris tujuan apa adanya; `nomor` true untuk item daftar bernomor/berpoin. */
+  tujuanBaris: { teks: string; nomor: boolean }[];
   alur: SegmenAlurPlaybook[];
   tantangan: string;
   kunciJawaban: string;
@@ -188,15 +190,53 @@ export interface PlaybookTerurai {
   tambahan: { judul: string; baris: string[] }[];
 }
 
+/** Hapus penanda daftar: poin, nomor, dan checkbox Markdown (`- [ ]`, `- [x]`, `✓`). */
 function bersihkanBullet(baris: string): string {
-  return baris.replace(/^[-*•]\s*/, "").replace(/^\d+[.)]\s*/, "").trim();
+  return baris
+    .replace(/^[-*•+]\s+/, "")
+    .replace(/^\d+[.)]\s+/, "")
+    .replace(/^\[[ xX]\]\s*/, "")
+    .replace(/^[✓✔☐☑]\s*/, "")
+    .trim();
+}
+
+/** Sel baris tabel Markdown (`| a | b |`), atau null bila bukan baris tabel. */
+function selTabel(baris: string): string[] | null {
+  if (!baris.startsWith("|")) return null;
+  return baris
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((c) => c.trim());
+}
+
+/** Baris pemisah tabel (`| --- | :---: |`) tidak berisi konten. */
+function pemisahTabel(sel: string[]) {
+  return sel.every((c) => /^:?-{2,}:?$/.test(c));
+}
+
+/** Baris judul tabel alur, misalnya `| Menit | Segmen | Kegiatan |`. */
+function judulTabelAlur(sel: string[]) {
+  return /^(menit|waktu|durasi)$/i.test(sel[0] ?? "");
 }
 
 function uraiSegmen(baris: string): SegmenAlurPlaybook | null {
+  const sel = selTabel(baris);
+  if (sel) {
+    if (pemisahTabel(sel) || judulTabelAlur(sel)) return null;
+    const [waktu = "", judul = "", ...sisa] = sel.map((c) => c.replace(/\*\*/g, "").trim());
+    if (!waktu && !judul) return null;
+    return {
+      waktu: waktu.replace("-", "–") || "Segmen",
+      judul: judul || waktu,
+      deskripsi: sisa.filter(Boolean).join(" · "),
+      utama: /praktik|inti|proyek/i.test(judul),
+    };
+  }
   const bersih = bersihkanBullet(baris).replace(/\*\*/g, "").trim();
   if (!bersih) return null;
-  // Format: "00–10 · Pembukaan: deskripsi" atau "00-10 | Pembukaan | deskripsi"
-  const cocok = bersih.match(/^(\d{2}[–-]\d{2})\s*[·|:-]\s*([^:|]+?)\s*[:|-]\s*(.+)$/);
+  // Format: "00–10 · Pembukaan: deskripsi", "00–10 Pembukaan: deskripsi", atau "00-10 | Pembukaan | deskripsi"
+  const cocok = bersih.match(/^(\d{2}[–-]\d{2})\s*[·|:-]?\s*([^:|]+?)\s*[:|-]\s*(.+)$/);
   if (cocok) {
     const [, waktu, judul, deskripsi] = cocok;
     const utama = /praktik|inti|proyek/i.test(judul);
@@ -213,6 +253,7 @@ function uraiSegmen(baris: string): SegmenAlurPlaybook | null {
 export function uraiKontenPlaybook(kontenMd: string): PlaybookTerurai {
   const hasil: PlaybookTerurai = {
     tujuan: "",
+    tujuanBaris: [],
     alur: [],
     tantangan: "",
     kunciJawaban: "",
@@ -251,7 +292,12 @@ export function uraiKontenPlaybook(kontenMd: string): PlaybookTerurai {
       (buffer[kunci] ??= []).push(baris);
     } else {
       const daftar = tambahanMap.get(bagianAktif) ?? [];
-      daftar.push(bersihkanBullet(baris));
+      const sel = selTabel(baris);
+      if (sel) {
+        if (!pemisahTabel(sel)) daftar.push(sel.filter(Boolean).join(" · "));
+      } else {
+        daftar.push(bersihkanBullet(baris));
+      }
       tambahanMap.set(bagianAktif, daftar);
     }
   }
@@ -262,13 +308,26 @@ export function uraiKontenPlaybook(kontenMd: string): PlaybookTerurai {
       .flatMap(([, v]) => v);
 
   hasil.tujuan = ambilKunci("tujuan").map(bersihkanBullet).join(" ");
+  hasil.tujuanBaris = ambilKunci("tujuan").map((b) => ({
+    teks: bersihkanBullet(b),
+    nomor: /^([-*•+]|\d+[.)])\s/.test(b),
+  }));
   hasil.alur = ambilKunci("alur")
     .map(uraiSegmen)
     .filter((x): x is SegmenAlurPlaybook => Boolean(x));
   hasil.tantangan = ambilKunci("tantangan").map(bersihkanBullet).join(" ");
   hasil.kunciJawaban = ambilKunci("kunci").map(bersihkanBullet).join("\n");
   hasil.persiapan = ambilKunci("persiapan").map(bersihkanBullet).filter(Boolean);
-  hasil.alat = [...ambilKunci("alat"), ...ambilKunci("starter")].map(bersihkanBullet).filter(Boolean);
+  hasil.alat = [...ambilKunci("alat"), ...ambilKunci("starter")]
+    .filter((b) => {
+      const sel = selTabel(b);
+      return !sel || !pemisahTabel(sel);
+    })
+    .map((b) => {
+      const sel = selTabel(b);
+      return sel ? sel.filter(Boolean).join(" · ") : bersihkanBullet(b);
+    })
+    .filter(Boolean);
   hasil.catatanKeamanan = ambilKunci("keamanan").map(bersihkanBullet).join(" ");
   hasil.tambahan = [...tambahanMap.entries()].map(([judul, baris]) => ({ judul, baris }));
 

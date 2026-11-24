@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Catatan, Kartu, Kontainer } from "@/components/ui/dasar";
+import { Kartu, Kontainer } from "@/components/ui/dasar";
 
 export const metadata: Metadata = { title: "Kebijakan privasi" };
 
@@ -55,11 +55,6 @@ export default function HalamanPrivasi() {
       <h1 className="text-[28px] leading-[36px] font-extrabold tracking-tight sm:text-[36px] sm:leading-[46px] md:text-[42px] md:leading-[52px]">
         Kebijakan privasi
       </h1>
-      <div className="mt-6">
-        <Catatan nada="peringatan" judul="Draf">
-          Teks ini masih draf dan akan ditinjau tim sebelum final.
-        </Catatan>
-      </div>
       <div className="mt-8 flex flex-col gap-6">
         {BAGIAN.map((b) => (
           <Kartu key={b.judul}>

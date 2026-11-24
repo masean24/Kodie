@@ -187,4 +187,38 @@ Jangan minta nomor HP siswa.
     expect(terurai.persiapan).toEqual(["Buka Scratch", "Cek daftar siswa"]);
     expect(terurai.catatanKeamanan).toBe("Jangan minta nomor HP siswa.");
   });
+
+  it("mengurai tabel alur, checkbox persiapan, dan segmen tanpa pemisah", () => {
+    const terurai = uraiKontenPlaybook(`
+## Tujuan sesi
+Setelah sesi ini, siswa bisa:
+1. Memahami tag \`html\`.
+2. Membuat halaman profil.
+
+## Persiapan sebelum kelas
+- [ ] Buka starter
+- [x] Uji share screen
+✓ Siapkan contoh
+
+## Alur sesi (90 menit)
+| Menit | Segmen | Kegiatan |
+| --- | --- | --- |
+| 00–12 | Pembukaan | Demo Inspect Element |
+| 12-48 | Praktik terpandu | Menulis \`<h1>\` |
+
+## Alur lain
+- **48–72 Tantangan:** Membangun halaman.
+`);
+    expect(terurai.tujuanBaris).toEqual([
+      { teks: "Setelah sesi ini, siswa bisa:", nomor: false },
+      { teks: "Memahami tag \`html\`.", nomor: true },
+      { teks: "Membuat halaman profil.", nomor: true },
+    ]);
+    expect(terurai.persiapan).toEqual(["Buka starter", "Uji share screen", "Siapkan contoh"]);
+    expect(terurai.alur).toEqual([
+      { waktu: "00–12", judul: "Pembukaan", deskripsi: "Demo Inspect Element", utama: false },
+      { waktu: "12–48", judul: "Praktik terpandu", deskripsi: "Menulis \`<h1>\`", utama: true },
+      { waktu: "48–72", judul: "Tantangan", deskripsi: "Membangun halaman.", utama: false },
+    ]);
+  });
 });

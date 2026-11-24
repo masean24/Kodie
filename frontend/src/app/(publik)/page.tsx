@@ -239,6 +239,11 @@ function PillNilai({ warna, children }: { warna: string; children: React.ReactNo
   );
 }
 
+/** Koma yang menempel rapat ke badge (padding kanan badge membuat celah terlihat sebelum koma). */
+function KomaRapat() {
+  return <span className="-ml-[0.16em]">,</span>;
+}
+
 /** Section 2, mengikuti redesain: judul dengan tiga sorotan, satu kalimat penjelas, lalu tiga kartu keunggulan. */
 function Nilai() {
   return (
@@ -252,11 +257,13 @@ function Nilai() {
           >
             Di Kodie, kelasnya{" "}
             <span className="whitespace-nowrap">
-              <PillNilai warna="bg-highlight-bg text-highlight-fg">kelompok kecil</PillNilai>,
+              <PillNilai warna="bg-highlight-bg text-highlight-fg">kelompok kecil</PillNilai>
+              <KomaRapat />
             </span>
             <br className="hidden sm:inline" /> pengajarnya{" "}
             <span className="whitespace-nowrap">
-              <PillNilai warna="bg-accent text-on-accent">terverifikasi</PillNilai>,
+              <PillNilai warna="bg-accent text-on-accent">terverifikasi</PillNilai>
+              <KomaRapat />
             </span>
             <br className="hidden sm:inline" /> dan ada <PillNilai warna="bg-primary-subtle text-text">laporan</PillNilai> setiap sesi.
           </h2>

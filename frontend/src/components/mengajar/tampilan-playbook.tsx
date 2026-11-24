@@ -6,6 +6,7 @@ import type { Playbook } from "@/types/database";
 import { uraiKontenPlaybook } from "@/lib/mengajar";
 import { cx } from "@/lib/cx";
 import { Catatan } from "@/components/ui/dasar";
+import { TeksMd } from "./teks-md";
 
 /**
  * Konten 2-kolom Teaching Playbook (PRD F9, Figma "Pengajar · playbook").
@@ -23,7 +24,22 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
             <h2 id="pb-tujuan" className="text-xl font-semibold">
               Tujuan sesi
             </h2>
-            <p className="mt-3 text-lg leading-[29px]">{bagian.tujuan}</p>
+            {bagian.tujuanBaris.filter((b) => !b.nomor).map((b, i) => (
+              <p key={i} className="mt-3 text-lg leading-[29px]">
+                <TeksMd teks={b.teks} />
+              </p>
+            ))}
+            {bagian.tujuanBaris.some((b) => b.nomor) ? (
+              <ol className="mt-3 flex list-decimal flex-col gap-1.5 pl-6 text-lg leading-[29px]">
+                {bagian.tujuanBaris
+                  .filter((b) => b.nomor)
+                  .map((b, i) => (
+                    <li key={i}>
+                      <TeksMd teks={b.teks} />
+                    </li>
+                  ))}
+              </ol>
+            ) : null}
           </section>
         ) : null}
 
@@ -45,8 +61,14 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
                     {seg.waktu}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="font-bold">{seg.judul}</p>
-                    {seg.deskripsi ? <p className="mt-0.5 text-text-muted">{seg.deskripsi}</p> : null}
+                    <p className="font-bold">
+                      <TeksMd teks={seg.judul} />
+                    </p>
+                    {seg.deskripsi ? (
+                      <p className="mt-0.5 text-text-muted">
+                        <TeksMd teks={seg.deskripsi} />
+                      </p>
+                    ) : null}
                   </div>
                 </li>
               ))}
@@ -59,7 +81,11 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
             <h2 id="pb-tantangan" className="text-xl font-semibold">
               Tantangan untuk siswa
             </h2>
-            {bagian.tantangan ? <p className="mt-3">{bagian.tantangan}</p> : null}
+            {bagian.tantangan ? (
+              <p className="mt-3">
+                <TeksMd teks={bagian.tantangan} />
+              </p>
+            ) : null}
             {bagian.kunciJawaban ? (
               <div className="mt-4">
                 <button
@@ -78,7 +104,13 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
                   className={cx("mt-3 rounded-md border border-border bg-surface-sunken p-4", !lihatKunci && "hanya-cetak")}
                 >
                   <p className="text-sm font-bold text-primary">Kunci jawaban</p>
-                  <p className="mt-1 whitespace-pre-line">{bagian.kunciJawaban}</p>
+                  <ul className="mt-1 flex flex-col gap-1.5">
+                    {bagian.kunciJawaban.split("\n").map((b, i) => (
+                      <li key={i}>
+                        <TeksMd teks={b} />
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             ) : null}
@@ -90,7 +122,9 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
             <h2 className="text-xl font-semibold">{t.judul}</h2>
             <ul className="mt-3 flex flex-col gap-2">
               {t.baris.map((b, i) => (
-                <li key={i}>{b}</li>
+                <li key={i}>
+                  <TeksMd teks={b} />
+                </li>
               ))}
             </ul>
           </section>
@@ -107,7 +141,9 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
               {bagian.persiapan.map((item, i) => (
                 <li key={i} className="flex items-start gap-2.5">
                   <Check aria-hidden className="mt-1 size-5 shrink-0 text-success" />
-                  <span>{item}</span>
+                  <span>
+                    <TeksMd teks={item} />
+                  </span>
                 </li>
               ))}
             </ul>
@@ -124,7 +160,9 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
                 {bagian.alat.map((a, i) => (
                   <li key={i} className="flex items-start gap-2.5">
                     <ExternalLink aria-hidden className="mt-1 size-4 shrink-0 text-primary" />
-                    <span>{a}</span>
+                    <span>
+                      <TeksMd teks={a} />
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -144,8 +182,12 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
 
         <Catatan nada="peringatan" judul="Catatan keamanan">
           <p>
-            {bagian.catatanKeamanan ||
-              "Jangan minta nomor HP atau akun media sosial siswa. Semua komunikasi lewat kelas dan laporan."}
+            <TeksMd
+              teks={
+                bagian.catatanKeamanan ||
+                "Jangan minta nomor HP atau akun media sosial siswa. Semua komunikasi lewat kelas dan laporan."
+              }
+            />
           </p>
         </Catatan>
       </aside>

@@ -23,10 +23,15 @@ function bacaTema(): Tema {
 }
 
 function langgananTema(callback: () => void) {
-  window.addEventListener("storage", callback);
+  // Tema diganti di tab lain: terapkan juga di tab ini.
+  const dariTabLain = (e: StorageEvent) => {
+    if (e.key === KUNCI_TEMA && (e.newValue === "light" || e.newValue === "dark")) terapkanTema(e.newValue);
+    callback();
+  };
+  window.addEventListener("storage", dariTabLain);
   window.addEventListener(EVENT_TEMA, callback);
   return () => {
-    window.removeEventListener("storage", callback);
+    window.removeEventListener("storage", dariTabLain);
     window.removeEventListener(EVENT_TEMA, callback);
   };
 }
@@ -146,9 +151,9 @@ export function ThemeSwitch({ penuh }: { penuh?: boolean }) {
     OPSI_TEMA.findIndex((o) => o.nilai === tema),
   );
 
-  useEffect(() => {
-    terapkanTema(tema);
-  }, [tema]);
+  // Tidak ada efek yang memasang `data-theme` saat mount: atribut sudah dipasang skrip `<head>` sebelum hidrasi.
+  // Efek seperti itu sempat memakai server snapshot ("light") saat hidrasi, sehingga perangkat bermode gelap
+  // berbalik ke terang dan tombol tema tampak tidak merespons.
 
   const pilih = (i: number) => {
     const o = OPSI_TEMA[i];
