@@ -329,6 +329,33 @@ body {
   line-height: 27px;
 }
 
+/*
+ * Aksen kotak-kotak di latar putih, hanya di section tertentu (`<div aria-hidden className="aksen-grid" />` di dalam
+ * section `relative isolate`). Garis 1px biru 11% per 64px, semua tepinya memudar lewat mask radial.
+ * Hanya mode terang; disembunyikan di mode gelap dan saat dicetak.
+ */
+.aksen-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgb(37 99 235 / 0.11) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(37 99 235 / 0.11) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: center center;
+  mask-image: radial-gradient(ellipse 60% 65% at 50% 50%, #000 30%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 65% at 50% 50%, #000 30%, transparent 85%);
+}
+:root[data-theme="dark"] .aksen-grid {
+  display: none;
+}
+@media print {
+  .aksen-grid {
+    display: none !important;
+  }
+}
+
 h1,
 h2,
 h3,

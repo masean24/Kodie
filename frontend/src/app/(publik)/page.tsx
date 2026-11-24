@@ -29,7 +29,8 @@ export default function Beranda() {
       <Pahlawan />
       <Nilai />
       <SimulasiKelasLive />
-      <section aria-labelledby="judul-program" className="py-16 md:py-24">
+      <section aria-labelledby="judul-program" className="relative isolate py-16 md:py-24">
+        <div aria-hidden className="aksen-grid" />
         <Kontainer>
           <h2
             id="judul-program"
@@ -241,7 +242,8 @@ function PillNilai({ warna, children }: { warna: string; children: React.ReactNo
 /** Section 2, mengikuti redesain: judul dengan tiga sorotan, satu kalimat penjelas, lalu tiga kartu keunggulan. */
 function Nilai() {
   return (
-    <section aria-labelledby="judul-nilai" className="py-16 md:py-24">
+    <section aria-labelledby="judul-nilai" className="relative isolate py-16 md:py-24">
+      <div aria-hidden className="aksen-grid" />
       <Kontainer>
         <Muncul className="mx-auto max-w-3xl text-center">
           <h2
