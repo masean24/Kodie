@@ -35,7 +35,10 @@ function terapkanTema(tema: Tema) {
   else document.documentElement.setAttribute("data-theme", tema);
 }
 
-/** Pemilih bahasa ID / EN di Header (Figma `LanguageSwitch` 9:331). */
+/**
+ * Pemilih bahasa ID / EN (Figma `LanguageSwitch` 9:331). Disembunyikan dari Header untuk rilis lomba karena
+ * EN belum tersedia (lihat `docs/KEPUTUSAN.md`); komponen disimpan untuk dipakai lagi setelah lomba.
+ */
 export function LanguageSwitch() {
   const [infoEn, setInfoEn] = useState(false);
   const akar = useRef<HTMLDivElement>(null);

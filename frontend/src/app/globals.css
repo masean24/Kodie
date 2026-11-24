@@ -441,24 +441,115 @@ h4 {
 }
 
 /* ===================================================================== */
+/* HEADER: bar penuh di puncak halaman, kaca melayang setelah di-scroll   */
+/* ===================================================================== */
+/*
+ * Isi header tidak pernah bergeser. Yang berubah hanya panel latar (`.hdr-panel`) di belakangnya:
+ * dari selebar layar dengan garis bawah, menyusut ke sekeliling isi menjadi kaca membulat.
+ * Panel tidak punya anak, jadi transisi `inset` hanya menata ulang panel itu sendiri.
+ * Posisi sisi dihitung dari lebar `Kontainer` (maks 1232px, padding 16px / 32px) dikurangi celah `--hdr-g`.
+ */
+.hdr {
+  --hdr-pad: 16px;
+  --hdr-g: 8px;
+  --hdr-sisi: calc((100% - min(100%, 1232px)) / 2 + var(--hdr-pad) - var(--hdr-g));
+  --hdr-gerak: 560ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (min-width: 768px) {
+  .hdr {
+    --hdr-pad: 32px;
+    --hdr-g: 16px;
+  }
+}
+.hdr-panel {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid transparent;
+  border-bottom-color: var(--color-border);
+  border-radius: 0;
+  background-color: color-mix(in srgb, var(--color-surface) 95%, transparent);
+  box-shadow:
+    0 0 0 0 transparent,
+    0 0 0 0 transparent;
+  transition:
+    top var(--hdr-gerak),
+    right var(--hdr-gerak),
+    bottom var(--hdr-gerak),
+    left var(--hdr-gerak),
+    border-radius var(--hdr-gerak),
+    border-color var(--hdr-gerak),
+    background-color var(--hdr-gerak),
+    box-shadow var(--hdr-gerak);
+}
+.hdr[data-mengambang] {
+  /* Celah transparan di sekitar kaca tidak boleh menghalangi klik ke halaman di belakangnya. */
+  pointer-events: none;
+}
+.hdr[data-mengambang] .hdr-isi {
+  pointer-events: auto;
+}
+.hdr[data-mengambang] .hdr-panel {
+  top: 6px;
+  bottom: 6px;
+  left: var(--hdr-sisi);
+  right: var(--hdr-sisi);
+  border-radius: 20px;
+  border-color: color-mix(in srgb, var(--color-border) 75%, transparent);
+  background-color: color-mix(in srgb, var(--color-surface) 72%, transparent);
+  box-shadow: var(--k-shadow-kartu-hover);
+}
+/* Laci menu ponsel ikut menjadi kartu kaca saat header melayang. */
+.hdr-laci {
+  transition:
+    margin var(--hdr-gerak),
+    border-radius var(--hdr-gerak),
+    box-shadow var(--hdr-gerak),
+    background-color var(--hdr-gerak);
+}
+.hdr[data-mengambang] .hdr-laci {
+  margin: 4px var(--hdr-sisi) 0;
+  border: 1px solid color-mix(in srgb, var(--color-border) 75%, transparent);
+  border-radius: 20px;
+  background-color: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  box-shadow: var(--k-shadow-kartu-hover);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hdr-panel,
+  .hdr-laci {
+    transition: none;
+  }
+}
+
+/* ===================================================================== */
 /* VIEW TRANSITIONS: perpindahan halaman dan pergantian tema              */
 /* ===================================================================== */
 ::view-transition {
   pointer-events: none;
 }
 
-/* Header tetap diam saat konten halaman berganti. */
+/*
+ * Header tetap diam saat konten halaman berganti. Nama transisi dipasang pada panel latar dan bar isi,
+ * bukan pada <header>: elemen bernama menjadi backdrop root, sehingga blur kaca di dalamnya tidak lagi
+ * melihat halaman di belakang header.
+ */
 .vt-header {
   view-transition-name: site-header;
 }
-::view-transition-group(site-header) {
+.vt-header-panel {
+  view-transition-name: site-header-panel;
+}
+::view-transition-group(site-header),
+::view-transition-group(site-header-panel) {
   animation: none;
   z-index: 100;
 }
-::view-transition-old(site-header) {
+::view-transition-old(site-header),
+::view-transition-old(site-header-panel) {
   display: none;
 }
-::view-transition-new(site-header) {
+::view-transition-new(site-header),
+::view-transition-new(site-header-panel) {
   animation: none;
 }
 
@@ -487,7 +578,8 @@ html:not([data-vt="tema"])::view-transition-new(root) {
 }
 
 /* Pergantian tema: tema baru terbuka melingkar dari tombol yang diklik. */
-html[data-vt="tema"] .vt-header {
+html[data-vt="tema"] .vt-header,
+html[data-vt="tema"] .vt-header-panel {
   view-transition-name: none;
 }
 html[data-vt="tema"]::view-transition-old(root) {
