@@ -41,7 +41,7 @@ describe("tujuanSetelahMasuk", () => {
 });
 
 describe("skemaDaftar", () => {
-  const dasar = { nama: "Raka Pratama", email: "raka@contoh.id", password: "rahasia123" };
+  const dasar = { nama: "Raka Pratama", email: "raka@contoh.id", password: "Belajar#Kode26", ulangi_password: "Belajar#Kode26" };
 
   it("menerima orang tua yang lengkap dan menolak nomor WA salah", () => {
     expect(skemaDaftar.safeParse({ ...dasar, peran: "orang_tua", no_wa: "081234567890" }).success).toBe(true);
@@ -49,8 +49,21 @@ describe("skemaDaftar", () => {
   });
 
   it("menolak password kurang dari 8 karakter", () => {
-    const r = skemaDaftar.safeParse({ ...dasar, password: "1234567", peran: "orang_tua", no_wa: "081234567890" });
+    const r = skemaDaftar.safeParse({ ...dasar, password: "1234567", ulangi_password: "1234567", peran: "orang_tua", no_wa: "081234567890" });
     expect(r.success).toBe(false);
+  });
+
+  it("menolak password yang mudah ditebak", () => {
+    for (const pw of ["password123", "12345678", "aaaaaaaa", "20100314", "abcabcabc"]) {
+      const r = skemaDaftar.safeParse({ ...dasar, password: pw, ulangi_password: pw, peran: "orang_tua", no_wa: "081234567890" });
+      expect(r.success, pw).toBe(false);
+    }
+  });
+
+  it("menolak ulangi password yang tidak sama, dengan galat di isian ulangi_password", () => {
+    const r = skemaDaftar.safeParse({ ...dasar, ulangi_password: "Belajar#Kode27", peran: "orang_tua", no_wa: "081234567890" });
+    expect(r.success).toBe(false);
+    expect(r.error?.issues.some((i) => i.path.join(".") === "ulangi_password")).toBe(true);
   });
 
   it("menolak kelas yang tidak sesuai jenjang siswa", () => {
@@ -81,13 +94,14 @@ describe("skemaDaftar", () => {
 });
 
 describe("dataSignUp", () => {
-  it("membuang email, password, dan isian kosong", () => {
+  it("membuang email, password, ulangi password, dan isian kosong", () => {
     expect(
       dataSignUp({
         peran: "orang_tua",
         nama: "Sari",
         email: "a@b.id",
-        password: "12345678",
+        password: "Belajar#Kode26",
+        ulangi_password: "Belajar#Kode26",
         no_wa: "081234567890",
       }),
     ).toEqual({ peran: "orang_tua", nama: "Sari", no_wa: "081234567890" });

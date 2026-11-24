@@ -18,6 +18,7 @@ import {
 } from "@/lib/validasi/auth";
 import { cx } from "@/lib/cx";
 import { Input, Pilihan } from "@/components/ui/formulir";
+import { InputPassword } from "@/components/ui/input-password";
 import { Catatan } from "@/components/ui/dasar";
 import { Tombol } from "@/components/ui/tombol";
 import { KartuAuth, Kelompok, Langkah, PesanFormulir, fokusGalatPertama } from "./bagian";
@@ -180,14 +181,21 @@ function IsianAkun<T extends FieldValues>({
     <>
       <Input id="nama" label="Nama lengkap" autoComplete="name" petunjuk={petunjukNama} galat={errors.nama?.message} {...register("nama" as Path<T>)} />
       <Input id="email" type="email" label="Email" autoComplete="email" galat={errors.email?.message} {...register("email" as Path<T>)} />
-      <Input
+      <InputPassword
         id="password"
-        type="password"
         label="Password"
         autoComplete="new-password"
-        petunjuk="Minimal 8 karakter."
+        kekuatan
         galat={errors.password?.message}
         {...register("password" as Path<T>)}
+      />
+      <InputPassword
+        id="ulangi_password"
+        label="Ulangi password"
+        autoComplete="new-password"
+        petunjuk="Ketik ulang password yang sama."
+        galat={errors.ulangi_password?.message}
+        {...register("ulangi_password" as Path<T>)}
       />
     </>
   );
