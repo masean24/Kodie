@@ -26,7 +26,7 @@ export default function HalamanPosisi({ params }: PageProps<"/karier/[slug]">) {
   return (
     <Kontainer className="py-8 md:py-12">
       <Link href="/karier#posisi" className="inline-flex min-h-touch items-center gap-2 font-display font-semibold text-primary hover:underline">
-        <ArrowLeft aria-hidden className="size-5" /> Semua posisi
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Semua posisi
       </Link>
       <Suspense
         fallback={

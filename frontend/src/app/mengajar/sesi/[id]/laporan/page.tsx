@@ -23,7 +23,7 @@ export default async function HalamanLaporanSesi({ params }: PageProps<"/mengaja
         href={`/mengajar/kelas/${kelas.id}`}
         className="inline-flex min-h-touch items-center gap-2 self-start font-display font-semibold text-primary hover:underline"
       >
-        <ArrowLeft aria-hidden className="size-5" /> Kembali ke kelas
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Kembali ke kelas
       </Link>
 
       <div>

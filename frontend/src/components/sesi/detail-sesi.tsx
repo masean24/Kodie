@@ -25,7 +25,7 @@ export function DetailSesi({ data, basePath }: { data: DetailSesiPengguna; baseP
         href={basePath}
         className="inline-flex min-h-touch items-center gap-2 self-start font-display font-semibold text-primary hover:underline"
       >
-        <ArrowLeft aria-hidden className="size-5" /> Kembali ke ringkasan
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Kembali ke ringkasan
       </Link>
 
       <div className="flex flex-wrap items-center justify-between gap-4">

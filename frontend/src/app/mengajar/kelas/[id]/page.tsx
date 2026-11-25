@@ -34,7 +34,7 @@ export default async function HalamanDetailKelasPengajar({ params }: PageProps<"
         href="/mengajar/kelas"
         className="inline-flex min-h-touch items-center gap-2 self-start font-display font-semibold text-primary hover:underline"
       >
-        <ArrowLeft aria-hidden className="size-5" /> Semua kelas
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Semua kelas
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-3">

@@ -601,9 +601,12 @@ function PanelKonsol({
   status?: ReactNode;
   kecil?: boolean;
 }) {
-  const akhir = useRef<HTMLDivElement>(null);
+  // Gulir hanya kotak log ke baris terakhir. `scrollIntoView` tidak dipakai karena ikut menggulir
+  // seluruh halaman, sehingga /lab langsung melompat ke panel keluaran saat dibuka.
+  const log = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    akhir.current?.scrollIntoView({ block: "nearest" });
+    const el = log.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [baris]);
 
   return (
@@ -625,7 +628,7 @@ function PanelKonsol({
           </div>
         }
       />
-      <div role="log" aria-live="polite" className="min-h-0 flex-1 overflow-auto p-4 font-mono text-sm leading-6">
+      <div ref={log} role="log" aria-live="polite" className="min-h-0 flex-1 overflow-auto p-4 font-mono text-sm leading-6">
         {baris.length === 0 ? (
           <p className="text-text-muted">{kosong}</p>
         ) : (
@@ -635,7 +638,6 @@ function PanelKonsol({
             </pre>
           ))
         )}
-        <div ref={akhir} />
       </div>
     </section>
   );

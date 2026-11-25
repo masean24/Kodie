@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ambilDaftarProgram } from "@/lib/api/program";
-import { Kerangka, Kontainer, StateKosong, StatusMemuat, Sorotan } from "@/components/ui/dasar";
+import { Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
 import { JudulHalaman } from "@/components/situs/judul-halaman";
 import { KartuProgram, kalimatPertama } from "@/components/program/kartu-program";
 import { labelJenjang } from "@/components/kategori";
@@ -13,11 +13,8 @@ export default function HalamanProgram() {
   return (
     <>
       <JudulHalaman
-        judul={
-          <>
-            Tiga program, <Sorotan diBlok>naik bertahap</Sorotan>
-          </>
-        }
+        judul="Tiga program,"
+        sorotan="naik bertahap"
         keterangan="Setiap paket berisi 4 sesi daring, seminggu sekali, dalam kelompok kecil."
       />
       <Kontainer className="pb-24 pt-12 md:pt-16">

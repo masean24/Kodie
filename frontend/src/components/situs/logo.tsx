@@ -1,3 +1,6 @@
+"use client";
+
+import type { MouseEvent } from "react";
 import Link from "next/link";
 import { cx } from "@/lib/cx";
 
@@ -75,11 +78,24 @@ export function LogoKodieSlogan({ className }: { className?: string }) {
 }
 
 /** Logo resmi Kodie versi `6_Web_Navbar_Tight` (desktop 36 px, mobile 28 px; simbol saat masuk di ponsel). */
+/**
+ * Di beranda, klik logo menggulir halaman ke paling atas (navigasi ke URL yang sama tidak menggulir).
+ * Klik dengan tombol pengubah (Ctrl/Cmd/Shift, klik tengah) tetap dibiarkan membuka tab baru seperti biasa.
+ */
+function gulirKePuncakDiBeranda(e: MouseEvent<HTMLAnchorElement>) {
+  if (window.location.pathname !== "/") return;
+  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  const halus = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: halus ? "smooth" : "auto" });
+}
+
 export function Logo({ ringkasSaatMasukPonsel = false }: { ringkasSaatMasukPonsel?: boolean }) {
   return (
     <Link
       href="/"
       aria-label="Kodie — Beranda"
+      onClick={gulirKePuncakDiBeranda}
       className="flex min-h-[44px] shrink-0 items-center rounded-md text-text"
     >
       {ringkasSaatMasukPonsel ? (

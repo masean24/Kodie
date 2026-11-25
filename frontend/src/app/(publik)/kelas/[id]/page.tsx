@@ -29,7 +29,7 @@ export default function HalamanDetailKelas({ params }: PageProps<"/kelas/[id]">)
   return (
     <Kontainer className="py-8 md:py-12">
       <Link href="/kelas" className="inline-flex min-h-touch items-center gap-2 font-display font-semibold text-primary hover:underline">
-        <ArrowLeft aria-hidden className="size-5" /> Kembali ke katalog
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Kembali ke katalog
       </Link>
       <Suspense
         fallback={

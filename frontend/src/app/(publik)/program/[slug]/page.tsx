@@ -23,7 +23,7 @@ export default function HalamanDetailProgram({ params }: PageProps<"/program/[sl
   return (
     <Kontainer className="py-8 md:py-12">
       <Link href="/program" className="inline-flex min-h-touch items-center gap-2 font-display font-semibold text-primary hover:underline">
-        <ArrowLeft aria-hidden className="size-5" /> Semua program
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Semua program
       </Link>
       <Suspense
         fallback={

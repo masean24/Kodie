@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Blocks, Code2, PenTool, Terminal, type LucideIcon } from "lucide-react";
-import { Kontainer, Sorotan } from "@/components/ui/dasar";
+import { Kontainer } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { Muncul } from "@/components/ui/gerak";
-import { BandKodie } from "@/components/situs/judul-halaman";
+import { BandKodie, LencanaBand, SorotanBand } from "@/components/situs/judul-halaman";
+import { KataHero } from "@/components/situs/reveal-hero";
 import { FilterKarya } from "./filter-karya";
 
 export const metadata: Metadata = {
@@ -121,14 +122,13 @@ export default function HalamanShowcase() {
   return (
     <>
       <BandKodie>
-        <Kontainer className="relative py-10 md:py-14">
-          <p className="inline-flex rounded-full bg-white/15 px-4 py-1 text-sm font-bold ring-1 ring-white/40">Dibuat di Kodie Lab</p>
+        <Kontainer className="relative pb-10 pt-6 md:pb-14 md:pt-8">
+          <LencanaBand>Dibuat di Kodie Lab</LencanaBand>
           <h1 className="mt-4 text-[30px] leading-[40px] font-extrabold tracking-tight sm:text-[38px] sm:leading-[48px] md:text-[46px] md:leading-[58px]">
-            Showcase <Sorotan diBlok>karya</Sorotan>
+            <KataHero teks="Showcase" /> <SorotanBand>karya</SorotanBand>
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-[#dbeafe] md:text-lg">
-            Contoh proyek yang bisa dibuat siswa di Kodie Lab, dari menyusun blok sampai menulis Python. Semuanya berjalan langsung di
-            browser, gratis, tanpa akun.
+            <KataHero teks="Contoh proyek yang bisa dibuat siswa di Kodie Lab, dari menyusun blok sampai menulis Python. Semuanya berjalan langsung di browser, gratis, tanpa akun." />
           </p>
         </Kontainer>
       </BandKodie>

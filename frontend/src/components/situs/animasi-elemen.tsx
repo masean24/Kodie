@@ -35,6 +35,7 @@ const PILIH = [
 const LUAR = [
   "[data-tanpa-animasi]",
   ".hero-kodie",
+  ".band-kodie",
   ".cm-editor",
   ".injectionDiv",
   "#pixel-stage",

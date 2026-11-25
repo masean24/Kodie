@@ -927,6 +927,32 @@ h4 {
   animation: none;
 }
 
+/*
+ * Band biru (hero beranda dan BandKodie) berperan sebagai latar: saat pindah antarhalaman yang sama-sama
+ * punya band, latar tidak ikut memudar dengan konten. Snapshot lama disembunyikan dan yang baru langsung
+ * tampil tanpa animasi, lalu judul di dalamnya muncul dengan reveal kata demi kata (RevealHero).
+ * Bila hanya salah satu halaman yang punya band, band memudar bersama konten seperti biasa.
+ */
+.vt-band {
+  view-transition-name: band-halaman;
+}
+::view-transition-group(band-halaman) {
+  animation: none;
+}
+::view-transition-old(band-halaman) {
+  display: none;
+}
+::view-transition-new(band-halaman) {
+  animation: none;
+}
+::view-transition-old(band-halaman):only-child {
+  display: block;
+  animation: 180ms cubic-bezier(0.4, 0, 1, 1) both vt-halaman-keluar;
+}
+::view-transition-new(band-halaman):only-child {
+  animation: 460ms cubic-bezier(0.22, 1, 0.36, 1) 90ms both vt-halaman-masuk;
+}
+
 /* Saat navigasi, hanya konten halaman (.halaman) yang beranimasi; sisa dokumen langsung berganti. */
 html:not([data-vt="tema"])::view-transition-old(root),
 html:not([data-vt="tema"])::view-transition-new(root) {
@@ -953,7 +979,8 @@ html:not([data-vt="tema"])::view-transition-new(root) {
 
 /* Pergantian tema: tema baru terbuka melingkar dari tombol yang diklik. */
 html[data-vt="tema"] .vt-header,
-html[data-vt="tema"] .vt-header-panel {
+html[data-vt="tema"] .vt-header-panel,
+html[data-vt="tema"] .vt-band {
   view-transition-name: none;
 }
 html[data-vt="tema"]::view-transition-old(root) {

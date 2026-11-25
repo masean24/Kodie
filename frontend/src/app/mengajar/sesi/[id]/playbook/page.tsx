@@ -26,7 +26,7 @@ export default async function HalamanPlaybook({ params }: PageProps<"/mengajar/s
         href={`/mengajar/kelas/${kelas.id}`}
         className="tanpa-cetak inline-flex min-h-touch items-center gap-2 self-start font-display font-semibold text-primary hover:underline"
       >
-        <ArrowLeft aria-hidden className="size-5" /> Kembali ke kelas
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Kembali ke kelas
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-4">

@@ -80,7 +80,7 @@ function SimulasiKelasLive() {
 function Pahlawan() {
   return (
     <section className="px-0 sm:px-4 lg:px-6">
-      <div className="hero-kodie relative flex overflow-hidden rounded-b-[32px] shadow-xl md:rounded-b-block">
+      <div className="hero-kodie vt-band relative flex overflow-hidden rounded-b-[32px] shadow-xl md:rounded-b-block">
         <div aria-hidden className="pola-titik pointer-events-none absolute inset-0 opacity-80" />
         <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-96 rounded-full bg-[#60a5fa]/20 blur-3xl" />
         <div aria-hidden className="pointer-events-none absolute right-10 top-1/2 size-[28rem] -translate-y-1/2 rounded-full bg-[#22d3ee]/15 blur-3xl" />

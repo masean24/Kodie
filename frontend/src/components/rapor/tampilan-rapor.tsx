@@ -73,7 +73,7 @@ export function DetailRapor({ item, basePath }: { item: RaporRinci; basePath: "/
         href={`${basePath}/rapor`}
         className="tanpa-cetak inline-flex min-h-touch items-center gap-2 self-start font-display font-semibold text-primary hover:underline"
       >
-        <ArrowLeft aria-hidden className="size-5" /> Semua rapor
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Semua rapor
       </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-4">

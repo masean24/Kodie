@@ -136,7 +136,7 @@ export function DetailBooking({ r, info, basePath }: { r: BookingRinci; info: In
   return (
     <div className="flex flex-col gap-6">
       <Link href={basePath} className="inline-flex min-h-touch items-center gap-2 self-start font-display font-semibold text-primary hover:underline">
-        <ArrowLeft aria-hidden className="size-5" /> Semua booking
+        <ArrowLeft data-kembali aria-hidden className="size-5" /> Semua booking
       </Link>
       {status === "menunggu_pembayaran" ? <LangkahPesan ke={3} /> : null}
       <div className="flex flex-wrap items-start justify-between gap-3">

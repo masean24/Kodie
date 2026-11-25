@@ -38,7 +38,7 @@ export default async function HalamanDetailPembayaranAdmin({
           href="/admin/pembayaran"
           className="inline-flex items-center gap-1.5 text-sm font-bold text-text-muted hover:text-ink"
         >
-          <ArrowLeft aria-hidden className="size-4" /> Kembali ke antrean pembayaran
+          <ArrowLeft data-kembali aria-hidden className="size-4" /> Kembali ke antrean pembayaran
         </Link>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="font-mono text-[28px] leading-[34px] font-extrabold md:text-[36px] md:leading-[42px]">
