@@ -277,7 +277,7 @@ export function PanelLiveChat({
       ) : (
         <div className="grid gap-5 lg:grid-cols-12">
           {/* Daftar Percakapan */}
-          <div className="flex flex-col gap-2.5 lg:col-span-5">
+          <div className="flex min-w-0 flex-col gap-2.5 lg:col-span-5">
             {daftarTersaring.length === 0 ? (
               <Kartu className="p-6 text-center text-sm text-text-muted">
                 Tidak ada percakapan pada filter status ini.
@@ -298,7 +298,7 @@ export function PanelLiveChat({
                     )}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-display font-bold text-text">{item.penggunaNama}</span>
+                      <span className="min-w-0 break-words font-display font-bold text-text">{item.penggunaNama}</span>
                       <Lencana nada={NADA_STATUS[item.percakapan.status]}>
                         {LABEL_STATUS_CHAT[item.percakapan.status]}
                       </Lencana>
@@ -306,7 +306,7 @@ export function PanelLiveChat({
                     <p className="text-xs font-semibold text-text-muted">
                       {namaPeranLabel(item.penggunaPeran)} · {formatTanggalJam(item.percakapan.diperbarui_pada)}
                     </p>
-                    <p className="line-clamp-2 text-sm text-text-muted">
+                    <p className="line-clamp-2 text-sm text-text-muted [overflow-wrap:anywhere]">
                       {item.pesanTerakhir ?? item.percakapan.judul}
                     </p>
                   </button>
@@ -316,7 +316,7 @@ export function PanelLiveChat({
           </div>
 
           {/* Detail Percakapan */}
-          <div className="lg:col-span-7">
+          <div className="min-w-0 lg:col-span-7">
             {!detail ? (
               <Kartu className="flex min-h-[360px] flex-col items-center justify-center gap-2 p-8 text-center text-text-muted">
                 <MessageSquare aria-hidden className="size-8 text-primary" />

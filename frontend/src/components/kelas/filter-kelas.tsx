@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, useTransition } from "react";
-import { Search } from "lucide-react";
+import { LoaderCircle, Search } from "lucide-react";
 import { Pilihan } from "@/components/ui/formulir";
 import { RENTANG_JAM, type FilterKelas as Filter } from "@/lib/kelas";
 import { namaHari } from "@/lib/format";
@@ -40,9 +40,17 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
       }}
       className="flex flex-col gap-4 rounded-card-sm bg-surface p-6"
     >
-      <h2 id="judul-filter" className="text-xl font-semibold">
-        Saring kelas
-      </h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 id="judul-filter" className="text-xl font-semibold">
+          Saring kelas
+        </h2>
+        {menunggu ? (
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-text-muted">
+            <LoaderCircle aria-hidden className="size-4 animate-spin motion-reduce:animate-none" />
+            Memuat…
+          </span>
+        ) : null}
+      </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="f-cari" className="font-bold">
           Cari kelas

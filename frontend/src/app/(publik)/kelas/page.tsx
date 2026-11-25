@@ -73,9 +73,13 @@ async function Katalog({ searchParams }: { searchParams: Promise<CariParam> }) {
     .join(" ");
 
   return (
-    <div className="grid items-start gap-8 lg:grid-cols-[300px_1fr]">
+    <div className="group/katalog grid items-start gap-8 lg:grid-cols-[300px_1fr]">
       <FilterKelas key={JSON.stringify(filter)} program={program.map(({ slug, nama }) => ({ slug, nama }))} nilai={filter} />
-      <section aria-labelledby="judul-hasil">
+      {/* Selama filter memuat (form aria-busy), hasil lama diredupkan agar jelas sedang diperbarui. */}
+      <section
+        aria-labelledby="judul-hasil"
+        className="transition-opacity duration-200 group-has-[form[aria-busy=true]]/katalog:opacity-50 motion-reduce:transition-none"
+      >
         <h2 id="judul-hasil" aria-live="polite" className="font-display text-lg font-semibold">
           {daftar.length} kelas ditemukan{ringkasan ? ` · ${ringkasan}` : ""}
         </h2>

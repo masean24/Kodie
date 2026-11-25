@@ -120,6 +120,8 @@ export function WidgetKiko({
   // Di Kodie Lab maskot pemicu disembunyikan agar tidak menutupi tombol editor dan panel keluaran.
   // Chat tetap bisa dibuka dari tombol "Tanya Kiko AI" di footer.
   const diLab = pathname === "/lab" || pathname.startsWith("/lab/");
+  // Di area admin maskot juga disembunyikan: admin memakai /admin/chat, dan maskot menutupi tombol kartu.
+  const diAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
   // Halaman padat kartu: balon proaktif dimatikan (cukup maskot) agar tidak menutupi harga atau isi kartu.
   const tanpaBalon =
     /^\/(orang-tua|admin|mengajar|siswa)(\/|$)/.test(pathname) || pathname === "/program" || pathname.startsWith("/program/");
@@ -1338,7 +1340,7 @@ export function WidgetKiko({
         aria-expanded={terbuka && !menutup}
         title={terbuka && !menutup ? `Tutup ${namaBot}` : `Klik untuk chat dengan ${namaBot}`}
         aria-label={terbuka && !menutup ? `Tutup ${namaBot}` : `Tanya ${namaBot}`}
-        hidden={diLab && !terbuka}
+        hidden={(diLab || diAdmin) && !terbuka}
         className={cx(
           "origin-bottom-right shrink-0 cursor-pointer rounded-full border-[2.5px] border-[#C6F64D] bg-white p-2.5 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.45),0_0_0_3px_rgba(255,255,255,0.25)] transition-[scale,opacity,transform] motion-reduce:transition-none",
           // `scale` Tailwind v4 adalah properti CSS `scale` (bukan `transform`), jadi wajib ikut di daftar transisi.

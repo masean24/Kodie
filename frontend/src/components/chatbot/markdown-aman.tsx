@@ -50,16 +50,18 @@ function renderInline(
     const token = kecocokan[0];
     const k = `${kunciPrefix}-${nomor++}`;
 
+    // Isi tebal/miring diproses ulang agar tautan dan sitasi di dalamnya (mis. `**[Lihat jadwal](/kelas)**`)
+    // tetap menjadi tautan, bukan teks mentah.
     if (token.startsWith("**") && token.endsWith("**")) {
       hasil.push(
         <strong key={k} className="font-bold">
-          {token.slice(2, -2)}
+          {renderInline(token.slice(2, -2), sitasi, k)}
         </strong>,
       );
     } else if (token.startsWith("*") && token.endsWith("*")) {
       hasil.push(
         <em key={k} className="italic">
-          {token.slice(1, -1)}
+          {renderInline(token.slice(1, -1), sitasi, k)}
         </em>,
       );
     } else if (token.startsWith("`") && token.endsWith("`")) {

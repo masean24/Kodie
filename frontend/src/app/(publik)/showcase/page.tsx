@@ -139,8 +139,8 @@ export default function HalamanShowcase() {
             kunci: k.judul,
             jenjang: k.jenjang,
             isi: (
-            <Muncul key={k.judul} tunda={i * 0.06} className="flex w-full">
-              <article className="flex w-full flex-col overflow-hidden rounded-card border border-border bg-surface shadow-kartu">
+            <Muncul key={k.judul} tunda={i * 0.06} className="flex w-full min-w-0">
+              <article className="flex w-full min-w-0 flex-col overflow-hidden rounded-card border border-border bg-surface shadow-kartu">
                 <div className="grid h-44 place-items-center border-b border-border bg-surface-sunken p-3">{k.pratinjau}</div>
                 <div className="flex flex-1 flex-col gap-3 p-6">
                   <div className="flex flex-wrap items-center gap-2 text-sm font-bold">

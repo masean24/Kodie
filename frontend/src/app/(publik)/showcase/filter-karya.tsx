@@ -46,7 +46,7 @@ export function FilterKarya({ karya }: { karya: { kunci: string; jenjang: string
       </p>
       <ul className="grid gap-6 md:grid-cols-2">
         {tampil.map((k) => (
-          <li key={k.kunci} className="flex">
+          <li key={k.kunci} className="flex min-w-0">
             {k.isi}
           </li>
         ))}
