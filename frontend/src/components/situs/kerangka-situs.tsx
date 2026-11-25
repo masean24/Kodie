@@ -26,7 +26,29 @@ function TombolTamu({ ponsel }: { ponsel?: boolean }) {
   );
 }
 
-/** Membaca cookie sesi, jadi selalu dibungkus Suspense dengan tombol tamu sebagai fallback. */
+/**
+ * Fallback Suspense area akun di desktop. Shell statis (PPR) belum tahu siapa yang login, jadi isinya dua
+ * versi yang dipilih CSS dari `html[data-sesi]` (skrip `<head>`): tombol Masuk/Daftar untuk tamu, atau
+ * kerangka seukuran lonceng + menu akun untuk pengguna yang login. Mencegah tombol tamu berkedip saat refresh.
+ */
+function FallbackAkun() {
+  return (
+    <>
+      <div className="kerangka-tamu">
+        <TombolTamu />
+      </div>
+      <div aria-hidden className="kerangka-akun items-center gap-3">
+        <span className="h-11 w-[125px] animate-pulse rounded-full bg-neutral-subtle" />
+        <span className="flex h-11 w-[180px] items-center gap-2 px-2">
+          <span className="size-9 shrink-0 animate-pulse rounded-full bg-neutral-subtle" />
+          <span className="h-4 flex-1 animate-pulse rounded-full bg-neutral-subtle" />
+        </span>
+      </div>
+    </>
+  );
+}
+
+/** Membaca cookie sesi, jadi selalu dibungkus Suspense dengan fallback yang mengikuti penanda sesi. */
 async function Akun({ ponsel }: { ponsel?: boolean }) {
   const p = await ambilPenggunaSaya();
   if (!p) return <TombolTamu ponsel={ponsel} />;
@@ -59,7 +81,7 @@ export function KerangkaSitus({ children, ruangBawah }: { children: ReactNode; r
     <>
       <Header
         akun={
-          <Suspense fallback={<TombolTamu />}>
+          <Suspense fallback={<FallbackAkun />}>
             <Akun />
           </Suspense>
         }

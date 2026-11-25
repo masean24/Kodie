@@ -24,8 +24,31 @@ export function bacaCookieMock(nilai: string | undefined): Pengguna | null {
   }
 }
 
+/**
+ * Penanda sesi untuk skrip `<head>` (bukan httpOnly, hanya berisi "1", tanpa data rahasia). Dipakai agar header
+ * pengguna yang login langsung menampilkan kerangka akun, bukan tombol Masuk/Daftar, sebelum data sesi tiba.
+ * Pengaman sesungguhnya tetap cookie sesi httpOnly/Supabase.
+ */
+export const COOKIE_PENANDA_SESI = "kodie_sesi";
+
+async function tandaiSesi(ada: boolean) {
+  const c = await cookies();
+  if (!ada) {
+    c.delete(COOKIE_PENANDA_SESI);
+    return;
+  }
+  c.set(COOKIE_PENANDA_SESI, "1", {
+    httpOnly: false,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 30,
+  });
+}
+
 async function tulisCookieMock(p: Pengguna | null) {
   const c = await cookies();
+  await tandaiSesi(Boolean(p));
   if (!p) {
     c.delete(COOKIE_MOCK);
     return;
@@ -92,6 +115,7 @@ export async function masuk({ email, password }: InputMasuk): Promise<Pengguna> 
   const supabase = await buatClientServer();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw new Error(kodeErrorAuth(error));
+  await tandaiSesi(true);
   const p = await ambilPenggunaSaya();
   if (!p) throw new Error("UMUM");
   return p;
@@ -159,6 +183,7 @@ export async function daftar(input: InputDaftar): Promise<{ pengguna: Pengguna |
   // Jika konfirmasi email aktif, email terdaftar dikembalikan tanpa identitas dan tanpa error.
   if (data.user && data.user.identities?.length === 0) throw new Error("EMAIL_SUDAH_DIPAKAI");
   if (!data.session) return { pengguna: null };
+  await tandaiSesi(true);
   return { pengguna: await ambilPenggunaSaya() };
 }
 
@@ -166,6 +191,7 @@ export async function keluar(): Promise<void> {
   if (pakaiMock) return tulisCookieMock(null);
   const supabase = await buatClientServer();
   await supabase.auth.signOut({ scope: "local" });
+  await tandaiSesi(false);
 }
 
 /**

@@ -341,6 +341,17 @@ body {
   line-height: 27px;
 }
 
+/* Fallback area akun di header (kerangka-situs.tsx): pilih versi tamu atau kerangka akun dari penanda sesi. */
+.kerangka-akun {
+  display: none;
+}
+:root[data-sesi] .kerangka-akun {
+  display: flex;
+}
+:root[data-sesi] .kerangka-tamu {
+  display: none;
+}
+
 /*
  * Kursor tangan untuk semua elemen yang bisa diklik. Preflight Tailwind v4 memberi `button` kursor default,
  * sehingga tombol seperti pengalih tema tampak tidak bisa diklik. Di @layer base agar utilitas seperti
