@@ -99,9 +99,6 @@ Seluruh akun demo di bawah ini sudah tersedia di database produksi beserta data 
 │   ├── PRD.md                 ← Spesifikasi produk, model data, dan kontrak API (F1–F14)
 │   ├── KEPUTUSAN.md           ← Log keputusan arsitektur & perubahan kontrak
 │   ├── SERAH-TERIMA-FE.md     ← Dokumentasi kontrak integrasi Backend -> Frontend
-│   ├── PROMPT-CLAUDE-CODE.md  ← Rangkaian prompt terstruktur untuk pengembangan Frontend
-│   ├── PROMPT-CHATBOT-FE.md   ← Spesifikasi UI widget chatbot Kiko & Live Admin Takeover
-│   ├── PROMPT-ANTIGRAVITY.md  ← Rangkaian prompt pengembangan Backend
 │   ├── knowledge/             ← Basis pengetahuan publik untuk Hybrid RAG Chatbot Kiko
 │   └── konten/                ← 12 soal tes minat jurusan IT & 12 Teaching Playbook (Sesi 1–4)
 ├── frontend/                  ← Aplikasi web Next.js (App Router + TypeScript + Tailwind CSS)

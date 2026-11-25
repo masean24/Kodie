@@ -2,6 +2,17 @@
 
 Seluruh skema database (**12 SQL migrations**, **27 tabel + RLS**, **9 View**, **29 RPC client-callable PL/pgSQL**, **4 Storage bucket**, Realtime publication `notifikasi`/`percakapan_chat`/`pesan_chat`, **6 job `pg_cron`**), **2 Edge Function** (`buat-meet` & `chat`), seed data, tipe TypeScript, dan skrip verifikasi tersedia di folder `backend/`.
 
+## Sorotan Arsitektur & Keamanan (Ringkasan untuk Juri)
+
+- **RLS 100% Aktif di Seluruh 27 Tabel:** Mengisolasi data antarsiswa, orang tua, pengajar, dan admin menggunakan helper `SECURITY DEFINER STABLE SET search_path = ''` (`peran_saya()`, `status_saya()`, `adalah_siswa_saya()`, dll.) guna mencegah eskalasi hak maupun *search-path hijacking*.
+- **Proteksi Registrasi & UU PDP Pasal 25:** Trigger `tangani_pengguna_baru()` memblokir pendaftaran mandiri sebagai `admin`, menolak siswa `SD` mendaftar tanpa akun orang tua, dan mencatat `privasi_disetujui_pada`.
+- **Sensor Kolom Sensitif di 9 View & 29 RPC:** `meet_uri` hanya dilepas melalui RPC `link_masuk_sesi` dalam jendela H-15 menit untuk peserta terkonfirmasi; `rekaman_url` otomatis `null` bagi non-pengajar di `laporan_saya`; dokumen pengajar (`KTP`/`SKCK`) privat lewat Signed URL sementara; ulasan publik (`ulasan_pengajar_publik`) otomatis disamarkan (`X*** · Orang Tua`/`Siswa`).
+- **Guardrail AI Chatbot "Kiko" (4+ Lapis):** Deteksi & penyensoran otomatis data pribadi anak (HP/WA, NIK, email pribadi, alamat, sandi/OTP) menjadi `[DATA PRIBADI DISENSOR]` sebelum penyimpanan DB maupun pemanggilan LLM/Embedding.
+- **Verifikasi Satu Baris:**
+  ```bash
+  cd backend && npm run typecheck && npm run test:chatbot && npm run test:rls
+  ```
+
 ## Struktur File
 
 - `supabase/migrations/`
@@ -24,7 +35,7 @@ Seluruh skema database (**12 SQL migrations**, **27 tabel + RLS**, **9 View**, *
 - `supabase/types/database.ts` — tipe TypeScript (UTF-8 tanpa BOM) siap salin ke `frontend/src/types/database.ts`.
 - `scripts/`
   - `seed-akun.ts` (`npm run seed:akun`) — skrip Admin API untuk membuat 9 akun demo, bio pengajar, kelas, sesi, booking di semua status, laporan, rapor, 3+ rating, dan aset storage contoh.
-  - `demo-reset.ts` (`npm run demo:reset`) — skrip penyegar jadwal demo & QA pasca-login (`k1` batas bayar `+24 jam`, `k2Penuh` dijaga `+5 hari` untuk QA Waitlist & `test:rls`, kelas live `k7Live` H-15m `+5 menit` beserta Meet asli, `k5` `+18 jam` untuk jendela Playbook H-1).
+  - `demo-reset.ts` (`npm run demo:reset`) — skrip penyegar jadwal demo & QA pasca-login dengan jam WIB realistis (`k1` batas bayar `+24 jam`, `k2Penuh` `+5 hari 10:00 WIB` untuk QA Waitlist & `test:rls`, melengkapi link Google Meet seluruh kelas terjadwal `k1`–`k5`, kelas live `k7Live` Kelas Reguler +5 menit untuk `pengajar1` Nadia & `siswa.aktif` Fajar, serta `k5` jendela Playbook H-1).
   - `ingest-knowledge.ts` (`npm run ingest:knowledge`) — skrip pemecah & embedding dokumen `docs/knowledge/*.md` (`gemini-embedding-001` 768d L2-normalized) ke `knowledge_chunks`.
   - `test-chatbot-unit.ts` (`npm run test:chatbot`) — 28 unit test guardrail (termasuk sensor PII anak & pengecualian domain resmi), fast-path, SSRF, markdown splitter, dan L2 normalization.
   - `verify-backend.ts` (`npm run test:rls`) — 45 pengujian otomatis end-to-end RLS, View (termasuk bio & `ulasan_pengajar_publik`), silabus, Waitlist, RPC tiap peran, PII blocking di `chat`, & Live Admin Takeover.
@@ -32,7 +43,7 @@ Seluruh skema database (**12 SQL migrations**, **27 tabel + RLS**, **9 View**, *
 ## Cara Deploy & Menjalankan ke Supabase Cloud
 
 1. Salin `.env.example` menjadi `.env` di dalam `backend/`, lalu isi nilai dari dashboard proyek Supabase Cloud Anda:
-   - Wajib: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+   - Wajib: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DEMO_USER_PASSWORD` (password akun demo untuk `seed:akun`, `demo:reset`, `test:rls`)
    - Google Meet: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`
    - AI Chatbot Kiko & RAG Ingest: `GEMINI_API_KEY` (wajib untuk `ingest:knowledge` & fallback LLM/embedding `chat`), serta opsional `AGNES_API_KEY` dan `GROQ_API_KEY`
 

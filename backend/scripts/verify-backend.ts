@@ -4,12 +4,18 @@ import type { Database } from '../supabase/types/database.ts';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const DEMO_PASSWORD = process.env.DEMO_USER_PASSWORD ?? 'DemoSeventX123!';
+const demoPasswordEnv = process.env.DEMO_USER_PASSWORD;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('ERROR: SUPABASE_URL dan SUPABASE_ANON_KEY wajib diisi di backend/.env');
   process.exit(1);
 }
+if (!demoPasswordEnv) {
+  console.error('ERROR: DEMO_USER_PASSWORD wajib diisi di backend/.env (lihat backend/.env.example)');
+  process.exit(1);
+}
+
+const DEMO_PASSWORD: string = demoPasswordEnv;
 
 function makeClient() {
   return createClient<Database>(SUPABASE_URL!, SUPABASE_ANON_KEY!, {

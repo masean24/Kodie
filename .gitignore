@@ -30,3 +30,9 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Instruksi internal & prompt AI (disimpan lokal saja, tidak di-push ke GitHub)
+backend/INSTRUKSI-AGENT.md
+docs/PROMPT-ANTIGRAVITY.md
+docs/PROMPT-CHATBOT-FE.md
+docs/PROMPT-CLAUDE-CODE.md

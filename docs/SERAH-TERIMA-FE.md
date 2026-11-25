@@ -175,8 +175,6 @@ Berlangganan `postgres_changes` untuk event `INSERT` pada tabel `notifikasi` den
 
 ## 5. AI Chatbot "Kiko" & Live Admin Takeover (Migration 10 & Edge Function `chat`)
 
-Detail prompt siap-pakai untuk membangun widget UI dan dashboard `/admin/chat` di Frontend tersedia di **`docs/PROMPT-CHATBOT-FE.md`**.
-
 - **Endpoint SSE:** `POST ${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/chat`
 - **Guardrail Privasi Anak (PII):** Jika pesan mengandung no HP/WA, NIK, email pribadi, alamat rumah, atau sandi/OTP, Edge Function otomatis menyensor teks menjadi `[DATA PRIBADI DISENSOR]` sebelum menyimpannya, **tidak memanggil LLM/Embedding**, lalu mengembalikan event `guardrail_refusal` dengan `{ reason: "PII_DETECTED", pii_types: string[], message: string }`.
 - **View Konfigurasi Publik:** `chatbot_konfigurasi_publik` (`chatbot_aktif`, `chatbot_nama`, `chatbot_sapaan`, `chatbot_kontak_wa`, `chatbot_kontak_email`)

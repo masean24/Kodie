@@ -10,6 +10,7 @@ const __dirname = path.dirname(__filename);
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const demoPasswordEnv = process.env.DEMO_USER_PASSWORD;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error(
@@ -17,12 +18,18 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   );
   process.exit(1);
 }
+if (!demoPasswordEnv) {
+  console.error(
+    'ERROR: DEMO_USER_PASSWORD wajib diisi di backend/.env (lihat backend/.env.example)',
+  );
+  process.exit(1);
+}
+
+const DEMO_PASSWORD: string = demoPasswordEnv;
 
 const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
-
-const DEMO_PASSWORD = process.env.DEMO_USER_PASSWORD ?? 'DemoSeventX123!';
 
 const PROGRAM_IDS = {
   codingDasar: '11111111-1111-4111-8111-000000000001',
