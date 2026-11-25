@@ -1,16 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import {
-  ArrowRight,
-  CalendarDays,
-  ClipboardCheck,
-  CreditCard,
-  FileText,
-  ShieldCheck,
-  Users,
-  Video,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, FileText, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import { cx } from "@/lib/cx";
 import { ambilDaftarProgram } from "@/lib/api/program";
 import { ambilDaftarPengajarPublik } from "@/lib/api/pengajar";
@@ -21,6 +11,7 @@ import { KartuProgram } from "@/components/program/kartu-program";
 import { KartuPengajar } from "@/components/pengajar/kartu-pengajar";
 import { AngkatHover, Muncul } from "@/components/ui/gerak";
 import { KataHero, RevealHero } from "@/components/situs/reveal-hero";
+import { CaraKerjaPinned } from "@/components/situs/cara-kerja-pinned";
 import { SimulasiKelasMalas } from "@/components/simulasi-kelas/simulasi-kelas-malas";
 
 export default function Beranda() {
@@ -46,7 +37,7 @@ export default function Beranda() {
           </Suspense>
         </Kontainer>
       </section>
-      <CaraKerja />
+      <CaraKerjaPinned />
       <Pengajar />
       <AjakanTes />
     </>
@@ -323,43 +314,6 @@ async function DaftarProgram() {
         </Muncul>
       ))}
     </div>
-  );
-}
-
-const LANGKAH: { ikon: LucideIcon; judul: string; ket: string }[] = [
-  { ikon: ClipboardCheck, judul: "Coba tes minat", ket: "12 soal, tanpa akun" },
-  { ikon: CalendarDays, judul: "Pesan kelas", ket: "Kursi ditahan 24 jam" },
-  { ikon: CreditCard, judul: "Bayar", ket: "Transfer atau QRIS" },
-  { ikon: Video, judul: "Masuk kelas", ket: "Aktif 15 menit sebelum mulai" },
-  { ikon: FileText, judul: "Terima laporan", ket: "Ringkasan untuk orang tua" },
-];
-
-function CaraKerja() {
-  return (
-    <section aria-labelledby="judul-cara" className="bg-surface-sunken py-16 md:py-24">
-      <Kontainer>
-        <h2
-          id="judul-cara"
-          className="text-center text-[28px] leading-[38px] font-extrabold tracking-tight sm:text-[34px] sm:leading-[44px] md:text-[40px] md:leading-[52px]"
-        >
-          Dari tes minat sampai laporan
-        </h2>
-        <ol className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
-          {LANGKAH.map((l, i) => (
-            <Muncul as="li" key={l.judul} tunda={i * 0.07} className="flex flex-col items-center text-center">
-              <span aria-hidden className="blok-merek grid size-16 place-items-center rounded-full">
-                <l.ikon className="size-7" />
-              </span>
-              <span className="mt-3 grid size-7 place-items-center rounded-full bg-primary-subtle text-sm font-bold text-primary">
-                {i + 1}
-              </span>
-              <h3 className="mt-2.5 text-lg font-semibold leading-snug">{l.judul}</h3>
-              <p className="mt-1 text-base leading-6 text-text-muted">{l.ket}</p>
-            </Muncul>
-          ))}
-        </ol>
-      </Kontainer>
-    </section>
   );
 }
 
