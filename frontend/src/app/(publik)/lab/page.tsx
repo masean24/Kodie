@@ -7,6 +7,7 @@ import { KataHero } from "@/components/situs/reveal-hero";
 
 export const metadata: Metadata = {
   title: "Kodie Lab",
+  alternates: { canonical: "/lab" },
   description: "Coding playground Kodie: susun blok, gambar dengan Python Turtle, atau tulis HTML, CSS, JavaScript, dan Python, lalu jalankan langsung di browser tanpa install aplikasi.",
 };
 

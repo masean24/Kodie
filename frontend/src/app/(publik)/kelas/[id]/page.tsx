@@ -22,7 +22,13 @@ import { ambilDaftarAnak } from "@/lib/api/siswa";
 export async function generateMetadata({ params }: PageProps<"/kelas/[id]">): Promise<Metadata> {
   const { id } = await params;
   const k = await ambilKelas(id);
-  return k ? { title: judulKelas(k) } : { title: "Kelas tidak ditemukan" };
+  return k
+    ? {
+        title: judulKelas(k),
+        description: `Jadwal, pengajar, dan sisa kursi kelas ${judulKelas(k)} di Kodie. Paket 4 sesi daring, seminggu sekali.`,
+        alternates: { canonical: `/kelas/${id}` },
+      }
+    : { title: "Kelas tidak ditemukan" };
 }
 
 export default function HalamanDetailKelas({ params }: PageProps<"/kelas/[id]">) {

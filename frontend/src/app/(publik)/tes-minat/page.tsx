@@ -11,6 +11,7 @@ import { JudulHalaman } from "@/components/situs/judul-halaman";
 export const metadata: Metadata = {
   title: "Tes minat jurusan IT",
   description: "12 soal, gratis, tanpa akun. Lihat bidang IT yang paling cocok untukmu.",
+  alternates: { canonical: "/tes-minat" },
 };
 
 export default async function HalamanTesMinat() {

@@ -11,7 +11,11 @@ import { JudulHalaman } from "@/components/situs/judul-halaman";
 import { FilterKelas } from "@/components/kelas/filter-kelas";
 import { KartuKelas } from "@/components/kelas/kartu-kelas";
 
-export const metadata: Metadata = { title: "Katalog kelas" };
+export const metadata: Metadata = {
+  title: "Katalog kelas",
+  description: "Pilih kelas daring Kodie berdasarkan program, jenjang, hari, dan jam. Lihat pengajar terverifikasi dan sisa kursi setiap kelas.",
+  alternates: { canonical: "/kelas" },
+};
 
 type CariParam = Record<string, string | string[] | undefined>;
 

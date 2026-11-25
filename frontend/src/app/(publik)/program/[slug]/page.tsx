@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { kalimatPertama } from "@/components/program/kartu-program";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -16,7 +17,9 @@ import { GambarProgram } from "@/components/program/gambar-program";
 export async function generateMetadata({ params }: PageProps<"/program/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const p = await ambilProgram(slug);
-  return p ? { title: p.nama } : { title: "Program tidak ditemukan" };
+  return p
+    ? { title: p.nama, description: kalimatPertama(p.deskripsi), alternates: { canonical: `/program/${slug}` } }
+    : { title: "Program tidak ditemukan" };
 }
 
 export default function HalamanDetailProgram({ params }: PageProps<"/program/[slug]">) {

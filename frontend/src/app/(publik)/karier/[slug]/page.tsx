@@ -19,7 +19,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/karier/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const p = cariPosisi(slug);
-  return p ? { title: `${p.judul} · Karier`, description: p.ringkas } : { title: "Posisi tidak ditemukan" };
+  return p
+    ? { title: `${p.judul} · Karier`, description: p.ringkas, alternates: { canonical: `/karier/${slug}` } }
+    : { title: "Posisi tidak ditemukan" };
 }
 
 export default function HalamanPosisi({ params }: PageProps<"/karier/[slug]">) {

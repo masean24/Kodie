@@ -67,6 +67,23 @@ export function buatUrlWhatsApp(kontakWa: string, pesan?: string): string {
   return `https://wa.me/${digits}${teks}`;
 }
 
+/** Nama blok konteks prompt di Edge Function `chat` yang tidak boleh tampil ke pengguna. */
+const POLA_TAG_KONTEKS =
+  /[ \t]*[<[][ \t]*\/?[ \t]*(?:knowledge_context|active_page_context|user_data_context|catalog_context|system_instructions|user_question)[ \t]*[>\]]/gi;
+
+/**
+ * Hapus penanda konteks internal (`[active_page_context]`, `</knowledge_context>`, dst.) yang kadang ikut
+ * ditulis model ke jawaban, beserta spasi tepat sebelumnya. Teks lain (termasuk indentasi kode) tidak diubah.
+ */
+export function bersihkanTeksKiko(teks: string): string {
+  return teks.replace(POLA_TAG_KONTEKS, "");
+}
+
+/** Judul sitasi tampil sebagai teks biasa: tanda backtick Markdown (mis. "(`/karier`)") dibuang. */
+function bersihkanJudulSitasi(judul: string): string {
+  return bersihkanTeksKiko(judul).replace(/`/g, "").trim();
+}
+
 /** Normalisasi kolom `sitasi` jsonb dari database menjadi array terstruktur. */
 export function parseSitasi(raw: unknown): SitasiChatbot[] {
   if (!Array.isArray(raw)) return [];
@@ -75,7 +92,7 @@ export function parseSitasi(raw: unknown): SitasiChatbot[] {
     if (!item || typeof item !== "object") continue;
     const obj = item as Record<string, unknown>;
     const idx = typeof obj.index === "number" ? obj.index : hasil.length + 1;
-    const title = typeof obj.title === "string" ? obj.title : `Sumber ${idx}`;
+    const title = (typeof obj.title === "string" && bersihkanJudulSitasi(obj.title)) || `Sumber ${idx}`;
     const urlAman = typeof obj.url === "string" ? sanitasiUrlAman(obj.url) : null;
     if (!urlAman) continue;
     hasil.push({

@@ -7,7 +7,11 @@ import { KartuProgram, kalimatPertama } from "@/components/program/kartu-program
 import { labelJenjang } from "@/components/kategori";
 import { formatRupiah } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Program" };
+export const metadata: Metadata = {
+  title: "Program",
+  description: "Tiga program Kodie: Coding Dasar untuk SD, Kelas Reguler Teknologi untuk SMP dan SMA, dan Simulasi Jurusan IT. Setiap paket 4 sesi daring dalam kelompok kecil.",
+  alternates: { canonical: "/program" },
+};
 
 export default function HalamanProgram() {
   return (

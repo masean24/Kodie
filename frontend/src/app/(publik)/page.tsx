@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ArrowRight, FileText, ShieldCheck, Users, type LucideIcon } from "lucide-react";
@@ -13,6 +14,9 @@ import { AngkatHover, Muncul } from "@/components/ui/gerak";
 import { KataHero, RevealHero } from "@/components/situs/reveal-hero";
 import { CaraKerjaPinned } from "@/components/situs/cara-kerja-pinned";
 import { SimulasiKelasMalas } from "@/components/simulasi-kelas/simulasi-kelas-malas";
+
+/** Deskripsi beranda memakai deskripsi bawaan di root layout; di sini cukup URL kanonik. */
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default function Beranda() {
   return (

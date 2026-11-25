@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CHATBOT_AVATAR_CONFIG, CHATBOT_LAUNCHER_CONFIG } from "../components/chatbot/chatbot.config";
 import {
+  bersihkanTeksKiko,
   buatUrlWhatsApp,
   parseSitasi,
   sanitasiUrlAman,
@@ -92,5 +93,18 @@ describe("helper keamanan dan logika chatbot Kiko", () => {
     } finally {
       Object.defineProperty(globalThis.crypto, "randomUUID", { value: asli, configurable: true });
     }
+  });
+});
+
+describe("bersihkanTeksKiko dan judul sitasi", () => {
+  it("membuang penanda konteks prompt tanpa mengubah teks lain", () => {
+    expect(bersihkanTeksKiko("Lihat katalog kelas. [active_page_context]")).toBe("Lihat katalog kelas.");
+    expect(bersihkanTeksKiko("<knowledge_context>Halo</knowledge_context>")).toBe("Halo");
+    expect(bersihkanTeksKiko("def f():\n    return 1")).toBe("def f():\n    return 1");
+  });
+
+  it("membuang backtick dari judul sitasi", () => {
+    const [s] = parseSitasi([{ index: 1, title: "Karier Pengajar Kodie (`/karier`)", url: "/karier" }]);
+    expect(s?.title).toBe("Karier Pengajar Kodie (/karier)");
   });
 });

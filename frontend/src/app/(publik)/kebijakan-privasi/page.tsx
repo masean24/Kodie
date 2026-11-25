@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Kartu, Kontainer } from "@/components/ui/dasar";
 
-export const metadata: Metadata = { title: "Kebijakan privasi" };
+export const metadata: Metadata = {
+  title: "Kebijakan privasi",
+  description: "Data yang dikumpulkan Kodie, tujuan penggunaannya, dan persetujuan orang tua untuk siswa di bawah 18 tahun.",
+  alternates: { canonical: "/kebijakan-privasi" },
+};
 
 const BAGIAN = [
   {

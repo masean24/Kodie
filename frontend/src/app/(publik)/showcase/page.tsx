@@ -10,6 +10,7 @@ import { FilterKarya } from "./filter-karya";
 
 export const metadata: Metadata = {
   title: "Showcase karya",
+  alternates: { canonical: "/showcase" },
   description: "Contoh proyek yang bisa dibuat siswa di Kodie Lab: blok, Python Turtle, HTML/CSS/JavaScript, dan Python.",
 };
 

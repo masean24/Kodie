@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Fragment, useState, type ReactNode } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
-import { sanitasiUrlAman, type SitasiChatbot } from "@/lib/chatbot";
+import { bersihkanTeksKiko, sanitasiUrlAman, type SitasiChatbot } from "@/lib/chatbot";
 import { cx } from "@/lib/cx";
 
 function TombolSalinKode({ teks }: { teks: string }) {
@@ -164,7 +164,8 @@ export function MarkdownAman({
   sitasi?: SitasiChatbot[];
   className?: string;
 }) {
-  const baris = teks.replace(/\r\n/g, "\n").split("\n");
+  // Penanda konteks prompt internal yang kadang ikut tertulis model dibuang sebelum dirender.
+  const baris = bersihkanTeksKiko(teks).replace(/\r\n/g, "\n").split("\n");
   const elemen: ReactNode[] = [];
   let i = 0;
 

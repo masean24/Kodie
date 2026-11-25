@@ -16,7 +16,13 @@ import { FormLaporMasalah } from "@/components/sesi/interaksi-sesi";
 export async function generateMetadata({ params }: PageProps<"/pengajar/[id]">): Promise<Metadata> {
   const { id } = await params;
   const p = await ambilPengajarPublik(id);
-  return p ? { title: `${p.nama} · Pengajar` } : { title: "Pengajar tidak ditemukan" };
+  return p
+    ? {
+        title: `${p.nama} · Pengajar`,
+        description: `${p.nama}, pengajar Kodie terverifikasi (${keteranganPengajar(p)}). Lihat keahlian, rating, dan kelas yang diajar.`,
+        alternates: { canonical: `/pengajar/${id}` },
+      }
+    : { title: "Pengajar tidak ditemukan" };
 }
 
 export default function HalamanPengajar({ params }: PageProps<"/pengajar/[id]">) {

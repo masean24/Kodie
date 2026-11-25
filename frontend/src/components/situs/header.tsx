@@ -115,6 +115,15 @@ export function Header({
       data-mengambang={mengambang ? "" : undefined}
       className="hdr group/hdr sticky top-0 z-30"
     >
+      {/* Latar penangkap ketukan saat laci ponsel terbuka: ketukan di luar laci menutupnya dan tidak tembus
+          ke halaman di belakang. Diletakkan sebelum bar dan laci, jadi keduanya tetap di atasnya. */}
+      {buka ? (
+        <div
+          aria-hidden
+          onClick={() => setBuka(false)}
+          className="pointer-events-auto fixed inset-0 bg-slate-950/30 xl:hidden"
+        />
+      ) : null}
       <div className="relative">
         {/* Blur memakai utilitas Tailwind: deklarasi `backdrop-filter` manual dibuang Lightning CSS di build. */}
         <div aria-hidden className="hdr-panel vt-header-panel backdrop-blur-lg backdrop-saturate-150" />

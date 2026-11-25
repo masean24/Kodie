@@ -11,6 +11,7 @@ import { KataHero } from "@/components/situs/reveal-hero";
 
 export const metadata: Metadata = {
   title: "Karier pengajar",
+  alternates: { canonical: "/karier" },
   description: "Lowongan pengajar paruh waktu di Kodie untuk mahasiswa, lulusan, dan pencari kerja. Mengajar coding dan teknologi secara daring.",
 };
 
