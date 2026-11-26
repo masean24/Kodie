@@ -1518,3 +1518,250 @@ select.pilihan-kodie {
 select.pilihan-kodie::-ms-expand {
   display: none;
 }
+
+/* ===================================================================== */
+/* MATRIKS BANDINGKAN PROGRAM (3-KOLOM COLOR-BLOCK, LIGHT & DARK MODE)   */
+/* Memakai prefix --mp-* agar tidak mengubah token global --k-*.         */
+/* ===================================================================== */
+:root {
+  --mp-surface: #ffffff;
+  --mp-surface-sunken: #f0f5fd;
+  --mp-text-soft: #64748b;
+  --mp-border: #e2e8f0;
+  --mp-border-strong: #cbd5e1;
+  --mp-grid-line: #cbd5e1;
+  --mp-grid-outer: #cbd5e1;
+  --mp-row-stripe: rgb(15 23 42 / 0.028);
+  --mp-row-hover-tint: rgb(29 78 216 / 0.045);
+  --mp-link: #1d4ed8;
+  --mp-shadow: 0 2px 8px rgb(15 23 42 / 0.04), 0 12px 28px -10px rgb(15 23 42 / 0.08);
+
+  /* Program 1: Coding Dasar (Lime) */
+  --mp-p1-block-bg: #e4ff90;
+  --mp-p1-block-fg: #0f172a;
+  --mp-p1-block-muted: #365314;
+  --mp-p1-col-bg: #f9ffe8;
+  --mp-p1-col-border: rgb(132 204 22 / 0.48);
+  --mp-p1-chip-bg: #ecfccb;
+  --mp-p1-chip-fg: #365314;
+  --mp-p1-chip-border: #bef264;
+  --mp-p1-check-bg: #d9f99d;
+  --mp-p1-check-fg: #365314;
+  --mp-p1-cta-bg: #0f172a;
+  --mp-p1-cta-fg: #ffffff;
+  --mp-p1-cta-arrow-bg: #c6f64d;
+  --mp-p1-cta-arrow-fg: #0f172a;
+
+  /* Program 2: Kelas Reguler Teknologi (Sky Blue) */
+  --mp-p2-block-bg: #93c5fd;
+  --mp-p2-block-fg: #0f172a;
+  --mp-p2-block-muted: #1e3a8a;
+  --mp-p2-col-bg: #f1f7ff;
+  --mp-p2-col-border: rgb(59 130 246 / 0.38);
+  --mp-p2-chip-bg: #dbeafe;
+  --mp-p2-chip-fg: #1e40af;
+  --mp-p2-chip-border: #93c5fd;
+  --mp-p2-check-bg: #dbeafe;
+  --mp-p2-check-fg: #1d4ed8;
+  --mp-p2-cta-bg: #c6f64d;
+  --mp-p2-cta-fg: #0f172a;
+  --mp-p2-cta-arrow-bg: #0f172a;
+  --mp-p2-cta-arrow-fg: #c6f64d;
+
+  /* Program 3: Simulasi Jurusan IT (Royal Blue) */
+  --mp-p3-block-bg: #1d4ed8;
+  --mp-p3-block-fg: #ffffff;
+  --mp-p3-block-muted: #dbeafe;
+  --mp-p3-col-bg: #edf3ff;
+  --mp-p3-col-border: rgb(29 78 216 / 0.38);
+  --mp-p3-chip-bg: #dbeafe;
+  --mp-p3-chip-fg: #1e3a8a;
+  --mp-p3-chip-border: #93c5fd;
+  --mp-p3-check-bg: #1d4ed8;
+  --mp-p3-check-fg: #ffffff;
+  --mp-p3-cta-bg: #1d4ed8;
+  --mp-p3-cta-fg: #ffffff;
+  --mp-p3-cta-arrow-bg: #c6f64d;
+  --mp-p3-cta-arrow-fg: #0f172a;
+}
+
+:root[data-theme="dark"] {
+  --mp-surface: #17181e;
+  --mp-surface-sunken: #121318;
+  --mp-text-soft: #94a3b8;
+  --mp-border: #323747;
+  --mp-border-strong: #464d63;
+  --mp-grid-line: rgb(148 163 184 / 0.26);
+  --mp-grid-outer: rgb(148 163 184 / 0.34);
+  --mp-row-stripe: rgb(255 255 255 / 0.032);
+  --mp-row-hover-tint: rgb(255 255 255 / 0.055);
+  --mp-link: #7cb2ff;
+  --mp-shadow: 0 2px 8px rgb(0 0 0 / 0.36), 0 14px 32px -12px rgb(0 0 0 / 0.56), inset 0 1px 0 rgb(255 255 255 / 0.04);
+
+  /* Program 1: Coding Dasar (Dark Mode) */
+  --mp-p1-block-bg: #d9ff66;
+  --mp-p1-block-fg: #0a0a0c;
+  --mp-p1-block-muted: #2a3a10;
+  --mp-p1-col-bg: rgb(198 246 77 / 0.065);
+  --mp-p1-col-border: rgb(198 246 77 / 0.38);
+  --mp-p1-chip-bg: rgb(198 246 77 / 0.14);
+  --mp-p1-chip-fg: #e2ff8a;
+  --mp-p1-chip-border: rgb(198 246 77 / 0.30);
+  --mp-p1-check-bg: rgb(198 246 77 / 0.20);
+  --mp-p1-check-fg: #c6f64d;
+  --mp-p1-cta-bg: #c6f64d;
+  --mp-p1-cta-fg: #0a0a0c;
+  --mp-p1-cta-arrow-bg: #0f172a;
+  --mp-p1-cta-arrow-fg: #c6f64d;
+
+  /* Program 2: Kelas Reguler Teknologi (Dark Mode) */
+  --mp-p2-block-bg: #93c5fd;
+  --mp-p2-block-fg: #0a0f1e;
+  --mp-p2-block-muted: #1e3a8a;
+  --mp-p2-col-bg: rgb(96 165 250 / 0.075);
+  --mp-p2-col-border: rgb(147 197 253 / 0.38);
+  --mp-p2-chip-bg: rgb(96 165 250 / 0.16);
+  --mp-p2-chip-fg: #bfdbfe;
+  --mp-p2-chip-border: rgb(96 165 250 / 0.32);
+  --mp-p2-check-bg: rgb(96 165 250 / 0.22);
+  --mp-p2-check-fg: #93c5fd;
+  --mp-p2-cta-bg: #93c5fd;
+  --mp-p2-cta-fg: #0a0f1e;
+  --mp-p2-cta-arrow-bg: #0f172a;
+  --mp-p2-cta-arrow-fg: #93c5fd;
+
+  /* Program 3: Simulasi Jurusan IT (Dark Mode) */
+  --mp-p3-block-bg: #1d4ed8;
+  --mp-p3-block-fg: #ffffff;
+  --mp-p3-block-muted: #dbeafe;
+  --mp-p3-col-bg: rgb(37 99 235 / 0.12);
+  --mp-p3-col-border: rgb(96 165 250 / 0.44);
+  --mp-p3-chip-bg: rgb(37 99 235 / 0.28);
+  --mp-p3-chip-fg: #dbeafe;
+  --mp-p3-chip-border: rgb(96 165 250 / 0.38);
+  --mp-p3-check-bg: rgb(37 99 235 / 0.36);
+  --mp-p3-check-fg: #93c5fd;
+  --mp-p3-cta-bg: #1d4ed8;
+  --mp-p3-cta-fg: #ffffff;
+  --mp-p3-cta-arrow-bg: #c6f64d;
+  --mp-p3-cta-arrow-fg: #0a0a0c;
+}
+
+.matrix-panel {
+  background-color: var(--mp-surface);
+  border: 1px solid var(--mp-grid-outer);
+  box-shadow: var(--mp-shadow);
+}
+
+.matrix-table {
+  border-collapse: collapse;
+}
+
+.matrix-table thead th {
+  border-bottom: 1.5px solid var(--mp-grid-outer);
+}
+
+.matrix-table tbody th,
+.matrix-table tbody td {
+  border-bottom: 1px solid var(--mp-grid-line);
+}
+
+.matrix-table tbody tr:last-child th,
+.matrix-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.matrix-table tbody tr.matrix-cta-row td {
+  border-top: 1.5px solid var(--mp-grid-outer);
+}
+
+.matrix-col {
+  transition: opacity 260ms ease, background-color 240ms ease, filter 240ms ease;
+}
+
+.matrix-col.is-dimmed {
+  opacity: 0.28;
+  filter: saturate(0.45);
+}
+
+.matrix-col.is-highlighted {
+  box-shadow: inset 0 0 0 2px var(--k-accent);
+}
+
+.matrix-head-p1 {
+  background-color: var(--mp-p1-block-bg);
+  color: var(--mp-p1-block-fg);
+}
+
+.matrix-head-p2 {
+  background-color: var(--mp-p2-block-bg);
+  color: var(--mp-p2-block-fg);
+}
+
+.matrix-head-p3 {
+  background-color: var(--mp-p3-block-bg);
+  background-image:
+    radial-gradient(rgb(255 255 255 / 0.16) 1.2px, transparent 1.2px),
+    linear-gradient(135deg, #13317c 0%, #1d4ed8 58%, #2563eb 100%);
+  background-size: 20px 20px, 100% 100%;
+  color: var(--mp-p3-block-fg);
+}
+
+.matrix-lane-p1 {
+  background-color: var(--mp-p1-col-bg);
+  border-left: 1px solid var(--mp-p1-col-border);
+}
+
+.matrix-lane-p2 {
+  background-color: var(--mp-p2-col-bg);
+  border-left: 1px solid var(--mp-p2-col-border);
+}
+
+.matrix-lane-p3 {
+  background-color: var(--mp-p3-col-bg);
+  border-left: 1px solid var(--mp-p3-col-border);
+}
+
+.matrix-row {
+  transition: background-color 160ms ease;
+}
+
+.matrix-row:nth-child(even) th[scope="row"],
+.matrix-row:nth-child(even) td {
+  background-image: linear-gradient(var(--mp-row-stripe), var(--mp-row-stripe));
+}
+
+.matrix-row:hover th[scope="row"],
+.matrix-row:hover td {
+  background-image: linear-gradient(var(--mp-row-hover-tint), var(--mp-row-hover-tint));
+}
+
+.matrix-cta-block {
+  transition: transform 150ms ease, filter 160ms ease;
+}
+
+.matrix-cta-block:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.matrix-cta-block:active {
+  transform: scale(0.98);
+}
+
+.kodie-blue-banner {
+  background-color: #13317c;
+  background-image:
+    radial-gradient(rgb(255 255 255 / 0.13) 1.25px, transparent 1.25px),
+    linear-gradient(125deg, #0d1f4b 0%, #15368a 52%, #2155d6 100%);
+  background-size: 24px 24px, 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matrix-col,
+  .matrix-row,
+  .matrix-cta-block {
+    transition: none;
+    transform: none;
+  }
+}

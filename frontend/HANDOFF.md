@@ -49,11 +49,16 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 20 | `sitemap.xml` & `robots.txt`, `error.tsx`, tautan bold/italic Kiko, indikator muat `/kelas`, overflow `/showcase` & `/admin/chat` | Selesai | `956aea9` |
 | Revisi 21 | Band biru persisten (`vt-band`), tombol `"Kembali"` seragam tanpa ganda, auto-scroll `/lab`, klik logo ke atas | Selesai | `1f8c7d2` |
 | Revisi 22 | Laci ponsel backdrop, kontras mode gelap `#0a0a0c`/`#3b82f6` (`5,38:1`), filter tag konteks/backtick Kiko, canonical publik | Selesai | `fdba192` |
-| Revisi 23 | Perbaikan Audit Ulang ke-3: Kiko bebas overlap (`NavPeran` + `TombolTanyaKiko`), reset panah ganda `<select>`, SEO auth, footer instan `/lab` & `/admin`, kunci navbar Admin `516 px`, fail-safe `pakaiMock`, & seed rapor `ortu2` | Selesai | (commit lokal baru) |
+| Revisi 23 | Perbaikan Audit Ulang ke-3: Kiko bebas overlap (`NavPeran` + `TombolTanyaKiko`), reset panah ganda `<select>`, SEO auth, footer instan `/lab` & `/admin`, kunci navbar Admin `516 px`, fail-safe `pakaiMock`, & seed rapor `ortu2` | Selesai | `8e46273`, `7e9c15c` |
+| Revisi 24 | Desain ulang bagian *"Bandingkan program"* di `/program` menjadi Matriks 3-Kolom Color-Block (Light/Dark, sorot jenjang desktop, switcher mobile, banner Tes Minat) | Selesai | (commit lokal baru) |
 
 ## Checkpoint terbaru (Audit Ulang ke-3 & pasca-`fdba192`)
 
-1. **Perbaikan Audit Ulang ke-3 (bebas overlap, SEO auth, footer, & navbar):**
+1. **Matriks 3-Kolom *"Bandingkan program"* (`/program`, `globals.css`, `src/components/program/matriks-program.tsx`):**
+   - Mengganti tabel polos di `src/app/(publik)/program/page.tsx` dengan `MatriksProgram` (`"use client"`) yang memakai namespace variabel CSS `--mp-*` (Light & Dark Mode) agar tidak mengubah token global `--k-*`.
+   - Desktop (`md:block`, aman sejak `768 px`): tabel 4 kolom berheader blok warna tiap program (Lime, Sky Blue, Royal Blue + pola titik), filter sorot 4 jenjang (`Semua jenjang`, `SD kelas 5–6`, `SMP kelas 7–8`, `SMP kelas 9 / SMA`), badge `"Cocok ✓"`, 6 baris aspek dari data live `Program[]`, serta CTA `/kelas?program=<slug>`.
+   - Mobile (`md:hidden`): segmented switcher 3 tab + kartu color-block (`harga` + `/ sesi`, `dl` 6 aspek, tombol `"Lihat jadwal ..."`), ditambah banner Tes Minat (`/tes-minat`) dan `data-tanpa-animasi` agar pergantian tab/filter tidak tersembunyi oleh `AnimasiElemen`.
+2. **Perbaikan Audit Ulang ke-3 (bebas overlap, SEO auth, footer, & navbar):**
    - **Akses Kiko tanpa overlap CTA (`widget-kiko.tsx`, `tombol-tanya-kiko.tsx`, `nav-peran.tsx`, `footer.tsx`):** Menyematkan event global `"kodie:buka-kiko"`; menyembunyikan maskot melayang (`hidden={sembunyiPemicu}`) di `/program`, `/lab`, dashboard (`/orang-tua`, `/siswa`, `/mengajar`, `/admin`), serta halaman auth (`/masuk`, `/daftar`, `/lupa-password`, `/atur-ulang-password`, `/persetujuan`). Menggantinya dengan tombol inline `TombolTanyaKiko` di atas kartu `/program`, tombol **"Tanya Kiko AI"** di sidebar kiri & tab ke-5 **"Kiko"** bottom bar di dashboard non-admin, dan tombol footer di `/lab` & `/admin`; halaman publik lain tetap menampilkan maskot ringkas di `bottom-4 right-3` (`sm:bottom-5 sm:right-5`).
    - **Panah ganda `<select>` (`/kelas` & `formulir.tsx`, `globals.css`):** Menambah class `.pilihan-kodie` (`-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none`).
    - **Animasi Footer (`animasi-elemen.tsx`):** Mengeluarkan `#kodie-footer` dari pemindaian GSAP `AKAR`, mengubah `IntersectionObserver` ke `rootMargin: "0px"`, `diLayar(el)` menjadi `top < innerHeight`, dan memicu `amankan()` segera ketika mencapai 80 px dari dasar halaman.
@@ -163,6 +168,10 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 ## Status verifikasi terkini
 
+- **Pemeriksaan Revisi 24 (Matriks 3-Kolom `/program`):**
+  - Frontend: `npx next typegen`, `npm run lint` (0 error & 0 warning), `npm run typecheck`, `npm test` (15 file / 108 tes lulus), dan `npm run build` (69 rute) lulus.
+  - Headless Chrome CDP (`http://127.0.0.1:3010/program` di `360×800`, `390×844`, `768×1024`, `1280×800`, Light & Dark Mode): `0` horizontal overflow di seluruh ukuran, tabel desktop bebas overflow sejak `768 px`, filter sorot jenjang (`SD kelas 5–6`, `SMP kelas 9 / SMA`, `Semua jenjang`) berfungsi akurat, mobile switcher 3 tab menampilkan kartu color-block (`Rp300.000`, `Rp75.000 / sesi`, `"Khusus program ini"`) dengan `opacity: 1`, CTA `/kelas?program=<slug>` & banner `/tes-minat` valid, `TombolTanyaKiko` tetap terlihat, maskot melayang tetap tersembunyi.
+  - **Lighthouse Mobile (`next start` lokal `/program`):** **96 / 100 / 100 / 100** (LCP `1.4 s`, CLS `0`, `a11yFails: []`).
 - **Pemeriksaan Revisi 23 (Audit Ulang ke-3, lokal pasca-`fdba192`)**:
   - Frontend: `npx next typegen`, `npm run lint` (0 error & 0 warning), `npm run typecheck`, `npm test` (15 file / 108 tes lulus), dan `npm run build` (69 rute) lulus.
   - Headless Chrome CDP (`http://127.0.0.1:3010`, mode mock): `/masuk`, `/daftar`, `/lupa-password`, `/atur-ulang-password` punya canonical & meta description unik; `/program` (`360×800`, `390×844`, `1280×800`) 0 overlap dengan tombol inline `"Tanya Kiko AI"` aktif; `/kelas` (`390×844`) ke-4 `<select class="pilihan-kodie">` `appearance: none` & `backgroundImage: none`; `/lab` (`390×844`) langsung lompat ke bawah membuat footer `Program/Mulai/Bantuan/Komunitas` & `"Tanya Kiko AI"` `opacity: 1` dan membuka dialog; `/orang-tua` (`1280×800`, `390×844`) bebas oklusi tombol `"Kelola anak"`, sidebar `"Tanya Kiko AI"` & tab ponsel `"Kiko"` membuka dialog, maskot melayang tetap tersembunyi sebelum & sesudah dialog terbuka; `/admin` SSR `200` memuat `"Tanya Kiko AI"` di footer dan membuka dialog; navbar `1280×800` posisi `Program` identik `243.5 px` (**0 px selisih**) di Tamu, Siswa, dan Admin (`w-[516px]`).
