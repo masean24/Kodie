@@ -5,9 +5,10 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 ## Lokasi kerja & status Git
 
 - Repository: monorepo `sevent-x-bimbel`. Area kerja frontend hanya `frontend/` (plus catatan keputusan di `docs/KEPUTUSAN.md`). **Jangan ubah** `backend/` dan `docs/PRD.md`.
-- Worktree aktif: `.claude/worktrees/baca-handoff-md-315ddd`
-- Branch lokal: `claude/baca-handoff-md-315ddd`. Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
-- Commit terakhir yang sudah di-push ke `main`: `fdba192` (25 November 2026, setelah commit backend `f40fab9`).
+- Worktree aktif terakhir: `.claude/worktrees/ui-ux-bimbel-design-306056` (branch `fe/audit-ui`, dibuat dari `origin/main`). Worktree lama `baca-handoff-md-315ddd` dan `prompt-revision-design-c2bf99` masih ada; selalu `git fetch` dan mulai dari `origin/main`.
+- Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
+- Commit terakhir yang sudah di-push ke `main`: commit pembaruan handoff ini (27 November 2026), setelah `ef89191`.
+- Di Git Bash, argumen berupa path URL seperti `/` atau `/program` untuk skrip Node diubah jadi path Windows. Jalankan dengan `MSYS_NO_PATHCONV=1`.
 - Produksi: `https://kodie.xevora.me` (Coolify, auto-redeploy setiap push ke `main`; lihat `frontend/DEPLOY-COOLIFY.md`).
 - **Jangan pernah commit**: `.claude/`, `frontend/.env.local`, dan `docs/SERAH-TERIMA-FE.md`.
 - **Jangan pernah** menambahkan atribusi Claude (`Co-Authored-By`, "Generated with Claude") di commit atau PR.
@@ -50,9 +51,27 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 21 | Band biru persisten (`vt-band`), tombol `"Kembali"` seragam tanpa ganda, auto-scroll `/lab`, klik logo ke atas | Selesai | `1f8c7d2` |
 | Revisi 22 | Laci ponsel backdrop, kontras mode gelap `#0a0a0c`/`#3b82f6` (`5,38:1`), filter tag konteks/backtick Kiko, canonical publik | Selesai | `fdba192` |
 | Revisi 23 | Perbaikan Audit Ulang ke-3: Kiko bebas overlap (`NavPeran` + `TombolTanyaKiko`), reset panah ganda `<select>`, SEO auth, footer instan `/lab` & `/admin`, kunci navbar Admin `516 px`, fail-safe `pakaiMock`, & seed rapor `ortu2` | Selesai | `8e46273`, `7e9c15c` |
-| Revisi 24 | Desain ulang bagian *"Bandingkan program"* di `/program` menjadi Matriks 3-Kolom Color-Block (Light/Dark, sorot jenjang desktop, switcher mobile, banner Tes Minat) | Selesai | (commit lokal baru) |
+| Revisi 24 | Desain ulang bagian *"Bandingkan program"* di `/program` menjadi Matriks 3-Kolom Color-Block (Light/Dark, sorot jenjang desktop, switcher mobile, banner Tes Minat) | Selesai | `762d250` |
+| Revisi 24b | Section *"Mengapa Kodie hadir"* di beranda | Selesai | `fdb3527` |
+| Revisi 25 | Audit UI/UX: token palet merek, skala font tetap, 3 token shadow; "Mengapa Kodie hadir" jadi baris masalah → solusi; filter `/kelas` dilipat di ponsel; teks ≥ 14 px; area sentuh ≥ 44 px; emoji UI data jadi ikon Lucide; radio terlihat di `/daftar` | Selesai | `2ec3f29`, `27f1a65` |
+| Revisi 26 | Tombol Daftar tidak lagi keluar dari navbar kaca saat di-scroll | Selesai | `ef89191` |
 
-## Checkpoint terbaru (Audit Ulang ke-3 & pasca-`fdba192`)
+## Checkpoint terbaru (audit UI/UX, 27 November 2026)
+
+1. **Token dan konsistensi (`2ec3f29`)**
+   - Palet merek tetap di `globals.css` (sama di mode terang dan gelap): `--k-ink`, `ink-soft`, `slate`, `slate-muted`, `obsidian`, `royal`, `royal-hover`, `royal-bright`, `blue`, `sky`, `sky-soft`, `sky-pale`, `ice`, `mist`, `snow`, `navy`, `navy-deep`, `navy-night`, `lime`, `lime-deep`, `lime-pale`, `cyan`, `white`. Dipakai lewat kelas Tailwind (`bg-lime`, `text-ink`, `text-ice`, dst.) atau `var(--k-*)` di style inline. **Jangan menulis hex di komponen.** Pengecualian yang disengaja: seni piksel (footer, simulasi kelas, maskot Kiko, logo), gambar contoh di `/showcase`, dan `themeColor` di `layout.tsx`.
+   - Skala tipe tetap: `text-sm` 14, `text-base` 16, `text-17` (teks isi = body), `text-lg` 18, `text-xl` 20, `text-2xl` 24, `text-28`, `text-32`, `text-40`, `text-48`, `text-56`, lalu `text-72`/`96`/`120` untuk dekoratif. Jangan memakai `text-[..px]` atau `text-xs`. Teks minimal 14 px, kecuali tiruan layar Meet di simulasi kelas.
+   - Shadow hanya tiga: `shadow-kartu`, `shadow-kartu-hover`, `shadow-mengambang` (menu, panel, dialog, toast, band hero). Glow lime dihapus.
+2. **Perbaikan audit (`27f1a65`)**
+   - Beranda: "Mengapa Kodie hadir" berupa baris masalah → "Solusi Kodie" (bukan 3 kartu ikon lagi); angka dekoratif 04/08 dan 01–05 serta label huruf kapital dihapus.
+   - `/kelas`: di bawah `lg`, hanya pencarian yang tampil plus tombol "Filter lainnya · N aktif". Status buka-tutup disimpan di modul karena `FilterKelas` di-remount setiap filter berubah; sebelum hidrasi panel selalu terbuka. Placeholder "Program atau pengajar". Tautan judul dan pengajar di kartu kelas punya area klik 44 px lewat `after:`.
+   - `/tes-minat`: titik soal 44 × 44 dalam grid 6 kolom (12 di `sm`). `/program`: "Cocok" dan "Khusus program ini" memakai ikon `Check`/`Star`. `/daftar`: lingkaran radio terlihat; tombol Lanjut tetap aktif dan menampilkan "Pilih peran dulu untuk melanjutkan.".
+   - Area sentuh karakter footer piksel diperluas dengan `after:-inset-2`; tab simulasi `min-h-touch`.
+   - Peringatan "hampir penuh" pada `SisaKursi` (≤ 3 kursi) sudah ada sebelumnya; tidak diubah.
+3. **Navbar (`ef89191`)**: area kanan header tidak lagi dikunci `w-[516px]` (membuat isi header 21 px lebih lebar dari Kontainer sehingga tombol Daftar menembus panel kaca). Sekarang `min-w-0 flex-1` rata kanan dan menu utama `shrink-0` tepat setelah logo; posisi "Program" sama antara tamu dan admin (251 / 331 / 411 px di 1280 / 1440 / 1600).
+4. **Morph band biru dibatalkan.** Animasi band yang memendek/memanjang antara beranda dan halaman lain sudah dicoba (CSS view transition, lalu versi `transform` di compositor), tetapi di Chrome pengguna tetap terasa patah, jadi pengguna meminta animasi latar biru dihilangkan. Band kembali seperti Revisi 21: snapshot lama disembunyikan dan band baru langsung tampil (`::view-transition-group(band-halaman) { animation: none }`). Jangan mencoba lagi tanpa permintaan pengguna. Temuan pengukurannya: jeda utama berasal dari React memasang halaman tujuan di dalam callback view transition (±130–230 ms dengan CPU 4×, sebagian besar layout paksa), bukan dari efek CSS.
+
+## Checkpoint sebelumnya (Audit Ulang ke-3 & pasca-`fdba192`)
 
 1. **Matriks 3-Kolom *"Bandingkan program"* (`/program`, `globals.css`, `src/components/program/matriks-program.tsx`):**
    - Mengganti tabel polos di `src/app/(publik)/program/page.tsx` dengan `MatriksProgram` (`"use client"`) yang memakai namespace variabel CSS `--mp-*` (Light & Dark Mode) agar tidak mengubah token global `--k-*`.
@@ -168,6 +187,11 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 ## Status verifikasi terkini
 
+- **Pemeriksaan Revisi 25–26 (audit UI/UX & navbar, lokal mode mock):**
+  - `npm run lint`, `npm run typecheck`, `npm test` (15 file / 108 tes), dan `npm run build` lulus.
+  - Chrome headless lewat CDP di 360 dan 1440 px, terang dan gelap: 0 scroll horizontal di `/`, `/program`, `/kelas`, `/tes-minat`, `/masuk`, `/daftar`; teks < 14 px hanya tersisa di tiruan layar Meet simulasi kelas.
+  - Header melayang di 1280/1440/1600 px (tamu & admin): isi berada 16 px di dalam panel kaca di kedua sisi.
+  - **Belum dicek**: produksi setelah deploy, area login secara visual, Lighthouse ulang.
 - **Pemeriksaan Revisi 24 (Matriks 3-Kolom `/program`):**
   - Frontend: `npx next typegen`, `npm run lint` (0 error & 0 warning), `npm run typecheck`, `npm test` (15 file / 108 tes lulus), dan `npm run build` (69 rute) lulus.
   - Headless Chrome CDP (`http://127.0.0.1:3010/program` di `360×800`, `390×844`, `768×1024`, `1280×800`, Light & Dark Mode): `0` horizontal overflow di seluruh ukuran, tabel desktop bebas overflow sejak `768 px`, filter sorot jenjang (`SD kelas 5–6`, `SMP kelas 9 / SMA`, `Semua jenjang`) berfungsi akurat, mobile switcher 3 tab menampilkan kartu color-block (`Rp300.000`, `Rp75.000 / sesi`, `"Khusus program ini"`) dengan `opacity: 1`, CTA `/kelas?program=<slug>` & banner `/tes-minat` valid, `TombolTanyaKiko` tetap terlihat, maskot melayang tetap tersembunyi.
@@ -208,6 +232,8 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - Komponen tidak memanggil Supabase langsung kecuali langganan Realtime (`lonceng-notifikasi.tsx`, `widget-kiko.tsx`, `panel-live-chat.tsx`), stream SSE (`widget-kiko.tsx`), dan unggah langsung (`src/lib/api/unggah.ts`). Operasi data server lewat `src/lib/api/*` dan mutasi lewat `"use server"` di `src/lib/aksi/*`.
 - Next.js 16 dengan Cache Components (`cacheComponents: true` di `next.config.ts`): data yang membaca cookie, `searchParams`, `params`, atau waktu harus di dalam `<Suspense>` atau memanggil `await connection()`; data publik statis memakai `"use cache"` + `cacheLife("hours")` (misal `ambilSoalMinat()` di `src/lib/api/tes-minat.ts`).
 - Token desain di `src/app/globals.css`; teks antarmuka bahasa Indonesia, tanggal WIB (`src/lib/format.ts`), uang `Rp275.000`.
+- Warna hanya lewat token (`--k-*` / kelas Tailwind yang dipetakan), ukuran font hanya dari skala tetap, shadow hanya `shadow-kartu`, `shadow-kartu-hover`, `shadow-mengambang` (lihat checkpoint terbaru).
+- Acuan tampilan adalah UI Kodie yang sedang live (biru + lime color-block, Lexend + Atkinson Hyperlegible Next). File Figma lama "Nama Website — Design System & UI" (arah "Balok Kode", teal) tidak dipakai lagi.
 
 ## Catatan teknis penting
 
@@ -230,6 +256,7 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - README utama belum mencakup Kodie Lab, Karier, Showcase, Coolify, GSAP, simulasi kelas, waitlist, dan lupa password.
 - Uji produksi untuk fitur Migration 12 dan chat Kiko (lihat "Belum dicek di produksi").
 - Kontras dark mode: teks putih di atas primer `#3b82f6` 3,7:1 (di bawah 4,5:1 PRD); belum diputuskan apakah primer digelapkan.
+- Temuan audit UI yang sengaja tidak dikerjakan pengguna: balon/maskot Kiko yang kadang menutupi teks kartu, pola `<Sorotan>` di setiap judul section, dan 79 `<button>` mentah yang belum memakai `Tombol`.
 - Dari rangkuman audit yang belum: audit lanjutan LH-04 (touch target 48 px, og-image, checkout), reset error state `/masuk` (tidak tereproduksi).
 - Penampilan karakter pixel tiap anggota tim (rambut, kacamata, hijab) perlu dikonfirmasi pengguna di `simulasi-kelas/data.ts`.
 - Lighthouse ulang setelah perubahan besar; uji realtime skenario demo 5–6 di Supabase Cloud.
