@@ -132,10 +132,10 @@ export function Header({
           <nav aria-label="Menu utama" className="hidden xl:block">
             <ul className="flex items-center gap-1">{tautan(false)}</ul>
           </nav>
-          {/* Lebar minimum tetap (seukuran keadaan login terlebar, rata kanan) supaya menu di tengah tidak bergeser
-              antara tamu (Masuk/Daftar) dan pengguna login, berapa pun panjang namanya:
-              tema 88 + lonceng ±133 + menu akun maks 228 + celah 24 ≈ 480 px. */}
-          <div className="hidden min-w-[480px] items-center justify-end gap-3 xl:flex">
+          {/* Lebar tetap (seukuran keadaan login terlebar, rata kanan) supaya menu di tengah tidak bergeser 1 px pun
+              antara tamu (Masuk/Daftar) dan pengguna login (termasuk Admin):
+              tema 88 + lonceng maks ±174 + menu akun maks ±220 + celah 24 = 506 px <= 516 px. */}
+          <div className="hidden w-[516px] shrink-0 items-center justify-end gap-3 xl:flex">
             <ThemeSwitch />
             {akun}
           </div>

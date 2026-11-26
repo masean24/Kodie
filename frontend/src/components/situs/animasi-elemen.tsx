@@ -45,7 +45,7 @@ const LUAR = [
   "svg",
 ].join(",");
 
-const AKAR = ["#konten", "#kodie-footer"];
+const AKAR = ["#konten"];
 
 /** Lama pemindaian ulang setelah halaman dimuat, menunggu bagian Suspense selesai dihidrasi React. */
 const MASA_TUNGGU_HIDRASI = 8000;
@@ -90,8 +90,7 @@ function periksa(el: Element, akar: Element, sudah: WeakSet<Element>): Hasil {
 }
 
 function diLayar(el: Element) {
-  const r = el.getBoundingClientRect();
-  return r.top < window.innerHeight && r.bottom > 0;
+  return el.getBoundingClientRect().top < window.innerHeight;
 }
 
 /**
@@ -132,13 +131,12 @@ export function AnimasiElemen() {
 
     const pengintai = new IntersectionObserver(
       (catatan) => munculkan(catatan.filter((c) => c.isIntersecting).map((c) => c.target)),
-      { rootMargin: "0px 0px -6% 0px" },
+      { rootMargin: "0px" },
     );
 
     /**
-     * Pengaman: elemen yang sudah berada di layar tetapi belum dimunculkan IntersectionObserver
-     * (misalnya browser menunda callback saat View Transition atau tab baru aktif) tetap dimunculkan,
-     * supaya konten tidak pernah tertinggal transparan.
+     * Pengaman: elemen yang sudah berada di layar (atau sudah terlewati saat lompat cepat) tetapi belum
+     * dimunculkan IntersectionObserver tetap dimunculkan supaya konten tidak pernah tertinggal transparan.
      */
     const amankan = () => {
       if (menunggu.size === 0) return;
@@ -146,11 +144,18 @@ export function AnimasiElemen() {
     };
     let bingkaiAman = 0;
     const saatGulir = () => {
-      if (bingkaiAman) return;
+      const dekatDasar = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80;
+      if (dekatDasar) {
+        window.clearTimeout(bingkaiAman);
+        bingkaiAman = 0;
+        amankan();
+        return;
+      }
+      window.clearTimeout(bingkaiAman);
       bingkaiAman = window.setTimeout(() => {
         bingkaiAman = 0;
         amankan();
-      }, 400);
+      }, 120);
     };
     window.addEventListener("scroll", saatGulir, { passive: true });
     const timerAman = window.setInterval(amankan, 1500);

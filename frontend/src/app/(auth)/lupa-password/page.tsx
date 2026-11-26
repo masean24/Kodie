@@ -3,7 +3,12 @@ import { Suspense } from "react";
 import { Kerangka, Kontainer } from "@/components/ui/dasar";
 import { FormLupaPassword } from "@/components/auth/form-lupa-password";
 
-export const metadata: Metadata = { title: "Lupa password" };
+export const metadata: Metadata = {
+  title: "Lupa password",
+  description:
+    "Ajukan tautan atur ulang password akun Kodie melalui email terdaftar untuk memulihkan akses dashboard orang tua, siswa, atau pengajar.",
+  alternates: { canonical: "/lupa-password" },
+};
 
 export default function HalamanLupaPassword({ searchParams }: PageProps<"/lupa-password">) {
   return (

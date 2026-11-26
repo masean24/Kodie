@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Peran } from "@/types/database";
+import { pakaiMock } from "@/lib/api/sumber";
 import { DASHBOARD, peranArea, rutekhususTamu } from "@/lib/peran";
 
 /**
@@ -13,7 +14,6 @@ import { DASHBOARD, peranArea, rutekhususTamu } from "@/lib/peran";
  */
 
 const COOKIE_MOCK = "kodie_mock_pengguna";
-const pakaiMock = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
 
 function peranMock(request: NextRequest): Peran | null | undefined {
   const nilai = request.cookies.get(COOKIE_MOCK)?.value;

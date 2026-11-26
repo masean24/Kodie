@@ -228,7 +228,7 @@ export function LoncengNotifikasi({
           }
           onClick={() => setBuka((v) => !v)}
           className={cx(
-            "flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full transition-colors hover:bg-surface-sunken",
+            "flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full transition-colors hover:bg-surface-sunken",
             ponsel ? "px-2.5 py-2" : "px-3 py-2",
           )}
         >

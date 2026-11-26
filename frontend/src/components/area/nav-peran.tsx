@@ -3,10 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { Menu } from "lucide-react";
+import { Menu, MessageCircle } from "lucide-react";
 import type { Peran } from "@/types/database";
+import { AvatarKiko } from "@/components/chatbot/avatar-kiko";
 import { cx } from "@/lib/cx";
 import { MENU_PERAN } from "./menu-peran";
+
+function bukaKiko() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("kodie:buka-kiko"));
+  }
+}
 
 function apakahAktif(href: string, pertamaHref: string, pathname: string) {
   return href === pertamaHref ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
@@ -35,6 +42,23 @@ function DaftarDesktop({ peran, pathname }: { peran: Peran; pathname: string }) 
           </li>
         );
       })}
+      {peran !== "admin" ? (
+        <li className="mt-auto border-t border-border pt-3">
+          <button
+            type="button"
+            onClick={bukaKiko}
+            className="flex min-h-[48px] w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left transition-colors hover:bg-surface-sunken"
+          >
+            <AvatarKiko ukuran="kecil" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-display text-[15px] leading-tight font-bold text-text">
+                Tanya Kiko AI
+              </span>
+              <span className="block truncate text-xs text-text-muted">Butuh bantuan di sini?</span>
+            </span>
+          </button>
+        </li>
+      ) : null}
     </ul>
   );
 }
@@ -120,6 +144,24 @@ function DaftarPonsel({ peran, pathname }: { peran: Peran; pathname: string }) {
             </li>
           );
         })}
+
+        {peran !== "admin" ? (
+          <li>
+            <button
+              type="button"
+              onClick={() => {
+                setBuka(false);
+                bukaKiko();
+              }}
+              className="flex min-h-[56px] w-full flex-col items-center justify-center gap-1 py-1.5 text-[14px] leading-5 tracking-[0.1px] text-text-muted transition-colors hover:text-primary"
+            >
+              <span aria-hidden className="grid place-items-center rounded-full px-4 py-1">
+                <MessageCircle className="size-[22px]" />
+              </span>
+              <span className="truncate">Kiko</span>
+            </button>
+          </li>
+        ) : null}
 
         {lainnya.length > 0 ? (
           <li>

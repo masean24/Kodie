@@ -117,14 +117,17 @@ export function WidgetKiko({
   pengguna: { id: string; nama: string; peran: Peran } | null;
 }) {
   const pathname = usePathname() ?? "/";
-  // Di Kodie Lab maskot pemicu disembunyikan agar tidak menutupi tombol editor dan panel keluaran.
-  // Chat tetap bisa dibuka dari tombol "Tanya Kiko AI" di footer.
+  // Di halaman padat kartu/editor/form auth, maskot pemicu melayang disembunyikan supaya bebas oklusi CTA:
+  // - /lab & /admin: akses Kiko lewat tombol "Tanya Kiko AI" di footer
+  // - /program: akses Kiko lewat tombol inline "Tanya Kiko AI" di atas kartu + footer
+  // - /orang-tua, /siswa, /mengajar: akses Kiko lewat tombol sidebar kiri & tab bawah ponsel
   const diLab = pathname === "/lab" || pathname.startsWith("/lab/");
-  // Di area admin maskot juga disembunyikan: admin memakai /admin/chat, dan maskot menutupi tombol kartu.
-  const diAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
-  // Halaman padat kartu: balon proaktif dimatikan (cukup maskot) agar tidak menutupi harga atau isi kartu.
-  const tanpaBalon =
-    /^\/(orang-tua|admin|mengajar|siswa)(\/|$)/.test(pathname) || pathname === "/program" || pathname.startsWith("/program/");
+  const diProgram = pathname === "/program" || pathname.startsWith("/program/");
+  const diDashboard = /^\/(orang-tua|siswa|mengajar|admin)(\/|$)/.test(pathname);
+  const diAuth = /^\/(masuk|daftar|lupa-password|atur-ulang-password|persetujuan)(\/|$)/.test(pathname);
+  const sembunyiPemicu = diLab || diProgram || diDashboard || diAuth;
+  // Balon proaktif mengikuti sembunyiPemicu.
+  const tanpaBalon = sembunyiPemicu;
   const [terbuka, setTerbuka] = useState(false);
   const [menutup, setMenutup] = useState(false);
   const [tooltipTampil, setTooltipTampil] = useState(false);
@@ -222,12 +225,18 @@ export function WidgetKiko({
     else bukaPanel();
   };
 
+  useEffect(() => {
+    const bukaDariLuar = () => bukaPanel();
+    window.addEventListener("kodie:buka-kiko", bukaDariLuar);
+    return () => window.removeEventListener("kodie:buka-kiko", bukaDariLuar);
+  }, [bukaPanel]);
+
   // Balon pesan Kiko (halaman publik). Tampil 5 detik lalu hilang sendiri, kemudian jeda JEDA_BALON_MS sebelum
   // pesan Kiko berikutnya boleh muncul lagi, supaya balon tidak menempel terus. Selama scroll balon disembunyikan
   // (lihat `menciut` di markup) dan tidak muncul lagi di sesi ini bila pengguna menutupnya lewat tombol X.
   const jedaBalonSampai = useRef(0);
   useEffect(() => {
-    if (!konfigurasi.chatbot_aktif || terbuka || tooltipTampil) return;
+    if (!konfigurasi.chatbot_aktif || terbuka || tooltipTampil || sembunyiPemicu || tanpaBalon) return;
     let ditutup = false;
     try {
       ditutup = sessionStorage.getItem(KEY_TOOLTIP_DITUTUP) === "1";
@@ -237,7 +246,7 @@ export function WidgetKiko({
     if (ditutup || Date.now() < jedaBalonSampai.current) return;
     const tampil = setTimeout(() => setTooltipTampil(true), 500);
     return () => clearTimeout(tampil);
-  }, [konfigurasi.chatbot_aktif, terbuka, tooltipTeks, tooltipTampil]);
+  }, [konfigurasi.chatbot_aktif, sembunyiPemicu, tanpaBalon, terbuka, tooltipTeks, tooltipTampil]);
 
   // Batas tampil 5 detik dihitung sejak balon muncul; pergantian pesan tidak memperpanjangnya.
   useEffect(() => {
@@ -950,7 +959,13 @@ export function WidgetKiko({
   );
 
   return (
-    <div ref={akarWidget} className="tanpa-cetak fixed right-4 bottom-20 z-40 flex flex-col items-end gap-2 md:right-6 lg:bottom-6">
+    <div
+      ref={akarWidget}
+      className={cx(
+        "tanpa-cetak fixed z-40 flex flex-col items-end gap-2",
+        diDashboard ? "right-4 bottom-20 md:right-6 lg:bottom-6" : "right-3 bottom-4 sm:right-5 sm:bottom-5",
+      )}
+    >
       {/* Panel Chat Kiko di atas maskot */}
       {terbuka ? (
         <section
@@ -1309,7 +1324,7 @@ export function WidgetKiko({
       ) : null}
 
       {/* Balon sapaan mengambang (mengikuti referensi widget HTML). Disembunyikan di layar < 640 px agar tidak menutupi konten. */}
-      {!terbuka && tooltipTampil && !diLab && !tanpaBalon && !menciut ? (
+      {!terbuka && tooltipTampil && !sembunyiPemicu && !tanpaBalon && !menciut ? (
         <div className="kiko-animate-float hidden max-w-[260px] sm:flex items-center gap-2 rounded-2xl rounded-br-none border border-[#1D4ED8] bg-[#0F172A] py-2 pr-2 pl-3.5 text-xs font-semibold text-white shadow-lg">
           <span className="size-2 shrink-0 rounded-full bg-[#C6F64D]" aria-hidden />
           <button type="button" onClick={bukaPanel} className="text-left leading-snug hover:underline">
@@ -1333,16 +1348,16 @@ export function WidgetKiko({
         </div>
       ) : null}
 
-      {/* Maskot 2D Interaktif Kiko: ukuran lebih ringkas dan konsisten baik saat chat tertutup maupun terbuka */}
+      {/* Maskot 2D Interaktif Kiko: ukuran ringkas dan konsisten baik saat chat tertutup maupun terbuka */}
       <button
         type="button"
         onClick={togglePanel}
         aria-expanded={terbuka && !menutup}
         title={terbuka && !menutup ? `Tutup ${namaBot}` : `Klik untuk chat dengan ${namaBot}`}
         aria-label={terbuka && !menutup ? `Tutup ${namaBot}` : `Tanya ${namaBot}`}
-        hidden={(diLab || diAdmin) && !terbuka}
+        hidden={sembunyiPemicu}
         className={cx(
-          "origin-bottom-right shrink-0 cursor-pointer rounded-full border-[2.5px] border-[#C6F64D] bg-white p-2.5 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.45),0_0_0_3px_rgba(255,255,255,0.25)] transition-[scale,opacity,transform] motion-reduce:transition-none",
+          "origin-bottom-right shrink-0 cursor-pointer rounded-full border-[2.5px] border-[#C6F64D] bg-white p-1.5 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.45),0_0_0_3px_rgba(255,255,255,0.25)] transition-[scale,opacity,transform] sm:p-2 motion-reduce:transition-none",
           // `scale` Tailwind v4 adalah properti CSS `scale` (bukan `transform`), jadi wajib ikut di daftar transisi.
           // Mengecil cepat dan halus; membesar sedikit lebih lama dengan pantulan pegas agar tidak terasa melompat.
           menciut && !terbuka
@@ -1352,7 +1367,7 @@ export function WidgetKiko({
       >
         {/* Wadah lingkaran putih + ring lime (opsi warna 2, docs/kiko_2d_mascot_perbandingan_opsi_warna_palet_kodie.html):
             Kiko biru tetap kontras di hero biru, latar putih, maupun mode gelap. */}
-        <span className="block h-[64px] w-[62px] sm:h-[80px] sm:w-[78px]">
+        <span className="block h-[46px] w-[46px] sm:h-[68px] sm:w-[66px]">
         <MaskotKiko
           ekspresi={ekspresiKiko}
           isTypingChat={isTypingChat}

@@ -98,7 +98,7 @@ export function Pilihan({
           id={id}
           aria-invalid={galat ? true : undefined}
           aria-describedby={keterangan}
-          className={cx(KONTROL, "appearance-none pr-11")}
+          className={cx(KONTROL, "pilihan-kodie appearance-none pr-11")}
           {...props}
         >
           {children}

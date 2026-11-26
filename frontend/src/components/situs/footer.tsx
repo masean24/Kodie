@@ -577,8 +577,7 @@ export function Footer() {
 
   const bukaWidgetKikoJikaTutup = () => {
     picuEasterEgg("halo");
-    const tombolTanya = document.querySelector<HTMLButtonElement>('button[aria-label^="Tanya "]');
-    tombolTanya?.click();
+    window.dispatchEvent(new Event("kodie:buka-kiko"));
   };
 
   return (

@@ -7,7 +7,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 - Repository: monorepo `sevent-x-bimbel`. Area kerja frontend hanya `frontend/` (plus catatan keputusan di `docs/KEPUTUSAN.md`). **Jangan ubah** `backend/` dan `docs/PRD.md`.
 - Worktree aktif: `.claude/worktrees/baca-handoff-md-315ddd`
 - Branch lokal: `claude/baca-handoff-md-315ddd`. Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
-- Commit terakhir yang sudah di-push ke `main`: `9dd0b38` (25 November 2026). Commit backend terakhir yang sudah di-pull: `f241df3` (Migration 12).
+- Commit terakhir yang sudah di-push ke `main`: `fdba192` (25 November 2026, setelah commit backend `f40fab9`).
 - Produksi: `https://kodie.xevora.me` (Coolify, auto-redeploy setiap push ke `main`; lihat `frontend/DEPLOY-COOLIFY.md`).
 - **Jangan pernah commit**: `.claude/`, `frontend/.env.local`, dan `docs/SERAH-TERIMA-FE.md`.
 - **Jangan pernah** menambahkan atribusi Claude (`Co-Authored-By`, "Generated with Claude") di commit atau PR.
@@ -46,8 +46,22 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 17 | Header (kursor, kaca, laci ponsel), butir frontend `docs/rangkuman_perbaikan_kodie.md`, animasi & pesan Kiko | Selesai | `a1a2e92` |
 | Revisi 18 | Kiko tidak stuck (batas 7 dtk + jawaban cadangan), pengaman FOUC, balon Kiko tidak menutupi kartu | Selesai | `a3aa2cc` |
 | Revisi 19 | Sambungan Migration 12: silabus, bio & ulasan, waitlist, `privasi_disetujui`, lupa password | Selesai | `9dd0b38` |
+| Revisi 20 | `sitemap.xml` & `robots.txt`, `error.tsx`, tautan bold/italic Kiko, indikator muat `/kelas`, overflow `/showcase` & `/admin/chat` | Selesai | `956aea9` |
+| Revisi 21 | Band biru persisten (`vt-band`), tombol `"Kembali"` seragam tanpa ganda, auto-scroll `/lab`, klik logo ke atas | Selesai | `1f8c7d2` |
+| Revisi 22 | Laci ponsel backdrop, kontras mode gelap `#0a0a0c`/`#3b82f6` (`5,38:1`), filter tag konteks/backtick Kiko, canonical publik | Selesai | `fdba192` |
+| Revisi 23 | Perbaikan Audit Ulang ke-3: Kiko bebas overlap (`NavPeran` + `TombolTanyaKiko`), reset panah ganda `<select>`, SEO auth, footer instan `/lab` & `/admin`, kunci navbar Admin `516 px`, fail-safe `pakaiMock`, & seed rapor `ortu2` | Selesai | (commit lokal baru) |
 
-## Checkpoint terbaru (setelah `79135f4` hingga `9dd0b38`)
+## Checkpoint terbaru (Audit Ulang ke-3 & pasca-`fdba192`)
+
+1. **Perbaikan Audit Ulang ke-3 (bebas overlap, SEO auth, footer, & navbar):**
+   - **Akses Kiko tanpa overlap CTA (`widget-kiko.tsx`, `tombol-tanya-kiko.tsx`, `nav-peran.tsx`, `footer.tsx`):** Menyematkan event global `"kodie:buka-kiko"`; menyembunyikan maskot melayang (`hidden={sembunyiPemicu}`) di `/program`, `/lab`, dashboard (`/orang-tua`, `/siswa`, `/mengajar`, `/admin`), serta halaman auth (`/masuk`, `/daftar`, `/lupa-password`, `/atur-ulang-password`, `/persetujuan`). Menggantinya dengan tombol inline `TombolTanyaKiko` di atas kartu `/program`, tombol **"Tanya Kiko AI"** di sidebar kiri & tab ke-5 **"Kiko"** bottom bar di dashboard non-admin, dan tombol footer di `/lab` & `/admin`; halaman publik lain tetap menampilkan maskot ringkas di `bottom-4 right-3` (`sm:bottom-5 sm:right-5`).
+   - **Panah ganda `<select>` (`/kelas` & `formulir.tsx`, `globals.css`):** Menambah class `.pilihan-kodie` (`-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none`).
+   - **Animasi Footer (`animasi-elemen.tsx`):** Mengeluarkan `#kodie-footer` dari pemindaian GSAP `AKAR`, mengubah `IntersectionObserver` ke `rootMargin: "0px"`, `diLayar(el)` menjadi `top < innerHeight`, dan memicu `amankan()` segera ketika mencapai 80 px dari dasar halaman.
+   - **Navbar Admin stabil `0 px` (`header.tsx`, `menu-akun.tsx`, `lonceng-notifikasi.tsx`):** Mengunci kontainer kanan desktop di `w-[516px] shrink-0`, `max-w-[136px]` pada nama pengguna, dan `shrink-0 whitespace-nowrap` pada tombol lonceng.
+   - **SEO Halaman Auth & Fail-Safe Mock (`(auth)/*/page.tsx`, `sumber.ts`, `proxy.ts`):** Menambahkan `description` unik & `alternates.canonical` untuk `/masuk`, `/daftar`, `/lupa-password`, dan `/atur-ulang-password`; menyatukan `pakaiMock` dari `src/lib/api/sumber.ts` (fail-safe ke Supabase bila `NEXT_PUBLIC_SUPABASE_URL` terkonfigurasi, tetap fallback mock saat build lokal tanpa `.env.local`).
+   - **Keputusan Soft-404 PPR (`docs/KEPUTUSAN.md`):** HTTP `200` saat `notFound()` di dalam `<Suspense>` area login (`cacheComponents: true`) dicatat sebagai perilaku resmi streaming PPR Next.js 16 (UI 404, `noindex`, dan isolasi RLS tetap aktif).
+
+## Checkpoint sebelumnya (setelah `79135f4` hingga `9dd0b38`)
 
 1. **Beranda & Kiko (`9622f8d`, `8653774`)**: kelas `.aksen-grid` (garis biru 11% per 64 px, mask radial, hanya mode terang) di section keunggulan dan "Tiga program"; tombol maskot Kiko memakai wadah lingkaran putih + ring lime (opsi warna 2 di `docs/kiko_2d_mascot_perbandingan_opsi_warna_palet_kodie.html`).
 2. **Audit Gemini (`a1702a5`)**
@@ -149,6 +163,11 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 ## Status verifikasi terkini
 
+- **Pemeriksaan Revisi 23 (Audit Ulang ke-3, lokal pasca-`fdba192`)**:
+  - Frontend: `npx next typegen`, `npm run lint` (0 error & 0 warning), `npm run typecheck`, `npm test` (15 file / 108 tes lulus), dan `npm run build` (69 rute) lulus.
+  - Headless Chrome CDP (`http://127.0.0.1:3010`, mode mock): `/masuk`, `/daftar`, `/lupa-password`, `/atur-ulang-password` punya canonical & meta description unik; `/program` (`360×800`, `390×844`, `1280×800`) 0 overlap dengan tombol inline `"Tanya Kiko AI"` aktif; `/kelas` (`390×844`) ke-4 `<select class="pilihan-kodie">` `appearance: none` & `backgroundImage: none`; `/lab` (`390×844`) langsung lompat ke bawah membuat footer `Program/Mulai/Bantuan/Komunitas` & `"Tanya Kiko AI"` `opacity: 1` dan membuka dialog; `/orang-tua` (`1280×800`, `390×844`) bebas oklusi tombol `"Kelola anak"`, sidebar `"Tanya Kiko AI"` & tab ponsel `"Kiko"` membuka dialog, maskot melayang tetap tersembunyi sebelum & sesudah dialog terbuka; `/admin` SSR `200` memuat `"Tanya Kiko AI"` di footer dan membuka dialog; navbar `1280×800` posisi `Program` identik `243.5 px` (**0 px selisih**) di Tamu, Siswa, dan Admin (`w-[516px]`).
+  - **Lighthouse Mobile (`next start` lokal):** `/` (**95 / 96 / 100 / 100**, LCP `1.4 s`, CLS `0`), `/program` (**99 / 100 / 100 / 100**, LCP `1.4 s`, CLS `0`), `/kelas` (**99 / 100 / 100 / 100**, LCP `1.4 s`, CLS `0`), `/tes-minat` (**100 / 100 / 100 / 100**, LCP `1.2 s`, CLS `0`).
+  - **Backend Cloud:** `upsert` 1 baris `rapor_jurusan` untuk Raka SMA (`ortu2@seventx.id`, bidang `iot`), ditambah uji IDOR `rapor_saya` & `rapor_jurusan` lintas orang tua (`ortu1` ↔ `ortu2`); `npm run typecheck` & `npm run test:rls` lolos **47/47 assertion**.
 - **Pemeriksaan di `9dd0b38`**: `npm run lint`, `npx tsc --noEmit`, `npx vitest run` (14 file / 103 tes), dan `npm run build` lulus.
 - **Cek browser (mode mock, Chrome headless lewat CDP)**: dark first load tetap gelap + toggle dua arah; kursor tangan, kaca header, laci ponsel tidak menggeser konten; daftar tanpa centang privasi ditolak lalu berhasil setelah dicentang; silabus 4 sesi, bio + 3 ulasan, masuk/keluar daftar tunggu (orang tua), alur `/lupa-password`; chat Kiko mock menjawab ±0,3 dtk; balon tampil 5 dtk lalu jeda; tanpa CSS logo 179×36.
 - **Belum dicek di produksi (Supabase)**: email reset password sampai `/atur-ulang-password`, waitlist di kelas `k2Penuh`, ulasan pengajar Bagus, chat Kiko < 7 dtk, Lighthouse ulang.

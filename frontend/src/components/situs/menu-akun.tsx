@@ -66,7 +66,7 @@ export function MenuAkun({ nama, peranLabel, dashboard }: Props) {
         className="flex min-h-[44px] min-w-0 items-center gap-2 rounded-full px-2 py-1 transition-colors hover:bg-surface-sunken"
       >
         <Inisial nama={nama} />
-        <span className="min-w-0 max-w-[140px] truncate text-base font-bold text-text">{nama}</span>
+        <span className="min-w-0 max-w-[136px] truncate text-base font-bold text-text">{nama}</span>
         <ChevronDown aria-hidden className="size-4 shrink-0" />
         <span className="sr-only">, menu akun</span>
       </button>

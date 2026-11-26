@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { ambilDaftarProgram } from "@/lib/api/program";
 import { Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
 import { JudulHalaman } from "@/components/situs/judul-halaman";
+import { TombolTanyaKiko } from "@/components/chatbot/tombol-tanya-kiko";
 import { KartuProgram, kalimatPertama } from "@/components/program/kartu-program";
 import { labelJenjang } from "@/components/kategori";
 import { formatRupiah } from "@/lib/format";
@@ -21,7 +22,10 @@ export default function HalamanProgram() {
         sorotan="naik bertahap"
         keterangan="Setiap paket berisi 4 sesi daring, seminggu sekali, dalam kelompok kecil."
       />
-      <Kontainer className="pb-24 pt-12 md:pt-16">
+      <Kontainer className="pb-24 pt-10 md:pt-14">
+        <div className="mb-8 flex justify-center">
+          <TombolTanyaKiko />
+        </div>
         <Suspense
           fallback={
             <div className="grid gap-6 md:grid-cols-3">

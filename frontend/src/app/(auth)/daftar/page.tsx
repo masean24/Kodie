@@ -4,7 +4,12 @@ import { redirect } from "next/navigation";
 import { Kerangka, Kontainer } from "@/components/ui/dasar";
 import { AlurDaftar } from "@/components/auth/alur-daftar";
 
-export const metadata: Metadata = { title: "Daftar" };
+export const metadata: Metadata = {
+  title: "Daftar",
+  description:
+    "Daftar akun Kodie sebagai orang tua atau siswa SMP/SMA untuk memesan kelas coding daring kelompok kecil dan mengikuti tes minat jurusan IT.",
+  alternates: { canonical: "/daftar" },
+};
 
 export default function HalamanDaftar({ searchParams }: PageProps<"/daftar">) {
   return (

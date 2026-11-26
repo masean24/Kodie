@@ -6,7 +6,12 @@ import { lanjutAman } from "@/lib/peran";
 import { Kerangka, Kontainer } from "@/components/ui/dasar";
 import { FormMasuk } from "@/components/auth/form-masuk";
 
-export const metadata: Metadata = { title: "Masuk" };
+export const metadata: Metadata = {
+  title: "Masuk",
+  description:
+    "Masuk ke akun Kodie sebagai orang tua, siswa, pengajar, atau admin untuk mengakses jadwal kelas daring, rapor jurusan, dan materi pembelajaran.",
+  alternates: { canonical: "/masuk" },
+};
 
 export default function HalamanMasuk({ searchParams }: PageProps<"/masuk">) {
   return (

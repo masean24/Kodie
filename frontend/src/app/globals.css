@@ -1507,3 +1507,14 @@ html[data-vt="tema"]::view-transition-new(root) {
     transform: translate3d(44vw, 0, 0) !important;
   }
 }
+
+/* Hilangkan panah bawaan browser pada elemen <select> berkustom chevron (komponen Pilihan). */
+select.pilihan-kodie {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+}
+select.pilihan-kodie::-ms-expand {
+  display: none;
+}
