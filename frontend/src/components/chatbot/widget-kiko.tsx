@@ -907,7 +907,7 @@ export function WidgetKiko({
   const renderBlokHandoff = (keySuffix: string) => (
     <div
       key={`handoff-${keySuffix}`}
-      className="mt-2 flex flex-col gap-2 rounded-card-sm border border-border bg-surface-sunken p-3 text-xs"
+      className="mt-2 flex flex-col gap-2 rounded-card-sm border border-border bg-surface-sunken p-3 text-sm"
     >
       <p className="font-bold text-text">Terhubung dengan Tim Kodie:</p>
       <div className="flex flex-wrap gap-1.5">
@@ -973,20 +973,20 @@ export function WidgetKiko({
           aria-modal="false"
           aria-label={`Asisten ${namaBot}`}
           className={cx(
-            "flex h-[min(450px,calc(100dvh-11.5rem))] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-[24px] border border-[#1D4ED8]/40 bg-surface shadow-2xl sm:h-[min(510px,calc(100dvh-12rem))] sm:w-[400px]",
+            "flex h-[min(450px,calc(100dvh-11.5rem))] w-[calc(100vw-2rem)] max-w-[400px] flex-col overflow-hidden rounded-[24px] border border-royal/40 bg-surface shadow-mengambang sm:h-[min(510px,calc(100dvh-12rem))] sm:w-[400px]",
             menutup ? "kiko-panel-out" : "kiko-panel-in",
           )}
         >
           {/* Header Panel */}
-          <div className="flex items-center justify-between gap-2 bg-[#1D4ED8] px-4 py-3 text-white">
+          <div className="flex items-center justify-between gap-2 bg-royal px-4 py-3 text-white">
             <div className="flex min-w-0 items-center gap-2.5">
               <AvatarKiko diatasBiru />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="size-2 shrink-0 rounded-full bg-[#C6F64D]" aria-hidden />
+                  <span className="size-2 shrink-0 rounded-full bg-lime" aria-hidden />
                   <p className="truncate font-display text-base font-bold">
                     {namaBot}{" "}
-                    <span className="text-xs font-semibold text-[#C6F64D]">
+                    <span className="text-sm font-semibold text-lime">
                       •{" "}
                       {statusPercakapan === "ditangani_admin"
                         ? "Admin Live"
@@ -996,7 +996,7 @@ export function WidgetKiko({
                     </span>
                   </p>
                 </div>
-                <p className="truncate text-xs text-white/85">
+                <p className="truncate text-sm text-white/85">
                   {statusPercakapan === "ditangani_admin"
                     ? "Admin Kodie sedang membantu langsung"
                     : statusPercakapan === "menunggu_admin"
@@ -1015,7 +1015,7 @@ export function WidgetKiko({
                   setSoundEnabled(baru);
                   if (baru) putarBlipKiko("pop", true);
                 }}
-                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-[#C6F64D]"
+                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-lime"
               >
                 {soundEnabled ? <Volume2 aria-hidden className="size-4" /> : <VolumeX aria-hidden className="size-4" />}
               </button>
@@ -1024,7 +1024,7 @@ export function WidgetKiko({
                 title="Mulai percakapan baru"
                 aria-label="Mulai percakapan baru"
                 onClick={resetPercakapan}
-                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-[#C6F64D]"
+                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-lime"
               >
                 <RotateCcw aria-hidden className="size-4" />
               </button>
@@ -1033,7 +1033,7 @@ export function WidgetKiko({
                 title="Tutup chat"
                 aria-label="Tutup chat"
                 onClick={tutupPanel}
-                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-[#C6F64D]"
+                className="grid size-8 place-items-center rounded-full text-white/90 transition-colors hover:bg-white/15 hover:text-lime"
               >
                 <X aria-hidden className="size-4" />
               </button>
@@ -1041,7 +1041,7 @@ export function WidgetKiko({
           </div>
 
           {/* Batasan AI dan larangan mengirim data pribadi (kebijakan privasi: Asisten AI Kiko). */}
-          <p className="border-b border-border bg-surface-sunken px-4 py-2 text-xs leading-snug text-text-muted">
+          <p className="border-b border-border bg-surface-sunken px-4 py-2 text-sm leading-snug text-text-muted">
             Kiko adalah AI dan bisa keliru. Jangan kirim data pribadi seperti nomor HP, alamat, atau password.{" "}
             <a href="/kebijakan-privasi" target="_blank" rel="noopener" className="font-bold text-primary underline underline-offset-2">
               Kebijakan privasi
@@ -1052,7 +1052,7 @@ export function WidgetKiko({
           {dalamModeAdmin ? (
             <div
               aria-live="polite"
-              className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-primary-subtle px-4 py-2 text-xs font-semibold text-primary"
+              className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-primary-subtle px-4 py-2 text-sm font-semibold text-primary"
             >
               <span>
                 {statusPercakapan === "ditangani_admin"
@@ -1076,7 +1076,7 @@ export function WidgetKiko({
               {/* Sapaan awal */}
               <div className="flex items-start gap-2">
                 <AvatarKiko ukuran="kecil" />
-                <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-border bg-surface px-3.5 py-2.5 text-[14px] leading-[22px] text-text shadow-xs">
+                <div className="max-w-[85%] rounded-2xl rounded-tl-sm border border-border bg-surface px-3.5 py-2.5 text-sm leading-[22px] text-text shadow-kartu">
                   <p>{konfigurasi.chatbot_sapaan}</p>
                 </div>
               </div>
@@ -1084,13 +1084,13 @@ export function WidgetKiko({
               {/* Saran pertanyaan awal saat belum ada percakapan */}
               {pesanList.length === 0 ? (
                 <div className="mt-1 flex flex-col gap-1.5 pl-10">
-                  <p className="text-xs font-semibold text-text-muted">Pertanyaan populer:</p>
+                  <p className="text-sm font-semibold text-text-muted">Pertanyaan populer:</p>
                   {CHATBOT_LAUNCHER_CONFIG.suggestedPrompts.map((p) => (
                     <button
                       key={p}
                       type="button"
                       onClick={() => void kirimPesan(p)}
-                      className="rounded-xl border border-border bg-surface px-3 py-2 text-left text-[13px] leading-snug font-medium text-text transition-colors hover:border-primary/40 hover:bg-primary-subtle/50"
+                      className="rounded-xl border border-border bg-surface px-3 py-2 text-left text-sm leading-snug font-medium text-text transition-colors hover:border-primary/40 hover:bg-primary-subtle/50"
                     >
                       {p}
                     </button>
@@ -1104,7 +1104,7 @@ export function WidgetKiko({
                   return (
                     <div
                       key={m.id}
-                      className="mx-auto my-1 max-w-[92%] rounded-full border border-border bg-surface px-3 py-1 text-center text-xs text-text-muted"
+                      className="mx-auto my-1 max-w-[92%] rounded-full border border-border bg-surface px-3 py-1 text-center text-sm text-text-muted"
                     >
                       {m.isi}
                     </div>
@@ -1136,14 +1136,14 @@ export function WidgetKiko({
 
                     <div className={cx("flex max-w-[85%] flex-col gap-1", dariSaya && "items-end")}>
                       {dariAdmin ? (
-                        <span className="px-1 text-[11px] font-bold text-primary">Admin Kodie</span>
+                        <span className="px-1 text-sm font-bold text-primary">Admin Kodie</span>
                       ) : null}
 
                       <div
                         className={cx(
-                          "rounded-2xl px-3.5 py-2.5 shadow-xs",
+                          "rounded-2xl px-3.5 py-2.5 shadow-kartu",
                           dariSaya
-                            ? "rounded-tr-sm bg-[#1D4ED8] text-[14px] leading-[22px] text-white"
+                            ? "rounded-tr-sm bg-royal text-sm leading-[22px] text-white"
                             : "rounded-tl-sm border border-border bg-surface text-text",
                         )}
                       >
@@ -1165,7 +1165,7 @@ export function WidgetKiko({
                           <button
                             type="button"
                             onClick={() => void salinPesan(m.id, m.isi)}
-                            className="inline-flex items-center gap-1 text-[11px] font-medium text-text-muted hover:text-primary"
+                            className="inline-flex items-center gap-1 text-sm font-medium text-text-muted hover:text-primary"
                           >
                             {disalinId === m.id ? (
                               <>
@@ -1181,7 +1181,7 @@ export function WidgetKiko({
                             <button
                               type="button"
                               onClick={() => void kirimPesan(m.pertanyaanUlang)}
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
+                              className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:underline"
                             >
                               <RefreshCw aria-hidden className="size-3" /> Coba lagi
                             </button>
@@ -1199,7 +1199,7 @@ export function WidgetKiko({
                               <Link
                                 key={`${m.id}-cit-${s.index}`}
                                 href={href}
-                                className="rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] font-semibold text-primary hover:underline"
+                                className="rounded-full bg-primary-subtle px-2 py-0.5 text-sm font-semibold text-primary hover:underline"
                               >
                                 {label}
                               </Link>
@@ -1209,7 +1209,7 @@ export function WidgetKiko({
                                 href={href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] font-semibold text-primary hover:underline"
+                                className="rounded-full bg-primary-subtle px-2 py-0.5 text-sm font-semibold text-primary hover:underline"
                               >
                                 {label}
                               </a>
@@ -1227,12 +1227,12 @@ export function WidgetKiko({
               {panelHandoffBuka ? renderBlokHandoff("manual") : null}
 
               {pesanInfo ? (
-                <p role="status" className="rounded-md bg-success-subtle px-3 py-2 text-xs font-semibold text-success">
+                <p role="status" className="rounded-md bg-success-subtle px-3 py-2 text-sm font-semibold text-success">
                   {pesanInfo}
                 </p>
               ) : null}
               {pesanGalat ? (
-                <p role="alert" className="rounded-md bg-danger-subtle px-3 py-2 text-xs font-semibold text-danger">
+                <p role="alert" className="rounded-md bg-danger-subtle px-3 py-2 text-sm font-semibold text-danger">
                   {pesanGalat}
                 </p>
               ) : null}
@@ -1242,7 +1242,7 @@ export function WidgetKiko({
           {/* Bar Bantuan Admin & Input Pesan */}
           <div className="border-t border-border bg-surface p-3">
             {!dalamModeAdmin ? (
-              <div className="mb-2 flex items-center justify-between gap-2 text-xs">
+              <div className="mb-2 flex items-center justify-between gap-2 text-sm">
                 <button
                   type="button"
                   onClick={() => setPanelHandoffBuka((v) => !v)}
@@ -1251,7 +1251,7 @@ export function WidgetKiko({
                   <Headset aria-hidden className="size-3.5" />
                   {panelHandoffBuka ? "Tutup opsi Admin" : "Hubungi Admin langsung"}
                 </button>
-                <span className="text-[11px] text-text-muted">Tekan Enter untuk kirim</span>
+                <span className="text-sm text-text-muted">Tekan Enter untuk kirim</span>
               </div>
             ) : null}
 
@@ -1290,7 +1290,7 @@ export function WidgetKiko({
                     : `Tanya ${namaBot} seputar web ini…`
                 }
                 disabled={streaming}
-                className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-border bg-bg px-3.5 py-2.5 text-[14px] leading-5 text-text placeholder:text-text-muted focus:border-[#1D4ED8] focus:outline-none disabled:opacity-60"
+                className="max-h-28 min-h-[44px] flex-1 resize-none rounded-2xl border border-border bg-bg px-3.5 py-2.5 text-sm leading-5 text-text placeholder:text-text-muted focus:border-royal focus:outline-none disabled:opacity-60"
               />
 
               {streaming ? (
@@ -1299,7 +1299,7 @@ export function WidgetKiko({
                   onClick={hentikanStreaming}
                   aria-label="Hentikan jawaban"
                   title="Hentikan jawaban"
-                  className="relative inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-border-strong bg-text px-3.5 py-2 text-xs font-bold text-bg shadow-sm transition-opacity hover:opacity-90"
+                  className="relative inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-border-strong bg-text px-3.5 py-2 text-sm font-bold text-bg shadow-kartu transition-opacity hover:opacity-90"
                 >
                   <span className="relative flex size-2.5 items-center justify-center">
                     <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60" />
@@ -1312,7 +1312,7 @@ export function WidgetKiko({
                   type="submit"
                   disabled={!masukan.trim()}
                   aria-label="Kirim pesan"
-                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-[#C6F64D] px-3.5 py-2 text-xs font-bold text-[#0F172A] transition-all hover:brightness-95 active:scale-95 disabled:bg-disabled disabled:text-text-muted"
+                  className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-2xl bg-lime px-3.5 py-2 text-sm font-bold text-ink transition-all hover:brightness-95 active:scale-95 disabled:bg-disabled disabled:text-text-muted"
                 >
                   <SendHorizontal aria-hidden className="size-4" />
                   <span>Kirim</span>
@@ -1325,8 +1325,8 @@ export function WidgetKiko({
 
       {/* Balon sapaan mengambang (mengikuti referensi widget HTML). Disembunyikan di layar < 640 px agar tidak menutupi konten. */}
       {!terbuka && tooltipTampil && !sembunyiPemicu && !tanpaBalon && !menciut ? (
-        <div className="kiko-animate-float hidden max-w-[260px] sm:flex items-center gap-2 rounded-2xl rounded-br-none border border-[#1D4ED8] bg-[#0F172A] py-2 pr-2 pl-3.5 text-xs font-semibold text-white shadow-lg">
-          <span className="size-2 shrink-0 rounded-full bg-[#C6F64D]" aria-hidden />
+        <div className="kiko-animate-float hidden max-w-[260px] sm:flex items-center gap-2 rounded-2xl rounded-br-none border border-royal bg-ink py-2 pr-2 pl-3.5 text-sm font-semibold text-white shadow-mengambang">
+          <span className="size-2 shrink-0 rounded-full bg-lime" aria-hidden />
           <button type="button" onClick={bukaPanel} className="text-left leading-snug hover:underline">
             {tooltipTeks}
           </button>
@@ -1357,7 +1357,7 @@ export function WidgetKiko({
         aria-label={terbuka && !menutup ? `Tutup ${namaBot}` : `Tanya ${namaBot}`}
         hidden={sembunyiPemicu}
         className={cx(
-          "origin-bottom-right shrink-0 cursor-pointer rounded-full border-[2.5px] border-[#C6F64D] bg-white p-1.5 shadow-[0_12px_28px_-6px_rgba(15,23,42,0.45),0_0_0_3px_rgba(255,255,255,0.25)] transition-[scale,opacity,transform] sm:p-2 motion-reduce:transition-none",
+          "origin-bottom-right shrink-0 cursor-pointer rounded-full border-[2.5px] border-lime bg-white p-1.5 shadow-mengambang transition-[scale,opacity,transform] sm:p-2 motion-reduce:transition-none",
           // `scale` Tailwind v4 adalah properti CSS `scale` (bukan `transform`), jadi wajib ikut di daftar transisi.
           // Mengecil cepat dan halus; membesar sedikit lebih lama dengan pantulan pegas agar tidak terasa melompat.
           menciut && !terbuka

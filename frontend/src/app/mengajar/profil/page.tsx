@@ -9,7 +9,7 @@ export default async function HalamanProfilPengajar() {
   return (
     <div className="flex max-w-[820px] flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">
           Profil dan dokumen pengajar
         </h1>
         <p className="mt-2 text-text-muted">

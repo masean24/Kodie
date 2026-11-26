@@ -40,7 +40,7 @@ export default async function HalamanDetailKelasPengajar({ params }: PageProps<"
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <TagProgram slug={k.program.slug}>{k.program.nama}</TagProgram>
-          <h1 className="mt-2 text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
+          <h1 className="mt-2 text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">
             {k.program.nama} · Level {k.level}
           </h1>
           <p className="mt-1 text-text-muted">

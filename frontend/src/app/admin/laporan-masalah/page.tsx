@@ -46,7 +46,7 @@ export default async function HalamanLaporanMasalahAdmin({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[46px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-40 md:leading-[46px]">
           Laporan masalah
         </h1>
         <p className="mt-2 text-text-muted">
@@ -83,13 +83,13 @@ export default async function HalamanLaporanMasalahAdmin({
                     <Lencana nada={NADA_MASALAH[laporan.status]}>{LABEL_STATUS_MASALAH[laporan.status]}</Lencana>
                     <span className="font-semibold text-ink">{LABEL_KATEGORI_MASALAH[laporan.kategori]}</span>
                   </div>
-                  <span className="text-xs text-text-muted">{formatTanggalJam(laporan.dibuat_pada)}</span>
+                  <span className="text-sm text-text-muted">{formatTanggalJam(laporan.dibuat_pada)}</span>
                 </div>
 
                 <p className="text-sm leading-6 text-ink">{laporan.deskripsi}</p>
 
                 <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border/50 pt-3">
-                  <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-text-muted">
+                  <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-text-muted">
                     <span>
                       Pelapor: <strong className="text-ink">{pelaporNama}</strong>
                     </span>

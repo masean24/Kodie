@@ -25,7 +25,7 @@ export default async function DashboardSiswa() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Halo, {panggilan}</h1>
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">Halo, {panggilan}</h1>
         <p className="mt-2 text-text-muted">
           {aktif ? "Ini jadwal dan laporan terbarumu." : "Satu langkah lagi sebelum kamu bisa pesan kelas."}
         </p>

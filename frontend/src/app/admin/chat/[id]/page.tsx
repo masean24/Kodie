@@ -14,7 +14,7 @@ export default async function HalamanDetailLiveChatAdmin({ params }: PageProps<"
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[46px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-40 md:leading-[46px]">
           Live chat & eskalasi Kiko
         </h1>
         <p className="mt-2 text-text-muted">

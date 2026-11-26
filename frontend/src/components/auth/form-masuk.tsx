@@ -69,7 +69,7 @@ export function FormMasuk({
 
   return (
     <KartuAuth>
-      <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Masuk</h1>
+      <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">Masuk</h1>
       <p className="mt-2 text-text-muted">Masuk untuk memesan kelas, melihat laporan, atau mengajar.</p>
       {passwordDiubah ? (
         <p role="status" className="mt-4 rounded-card-sm bg-success-subtle px-4 py-3 text-sm font-bold text-text">

@@ -33,7 +33,7 @@ export default async function HalamanPlaybook({ params }: PageProps<"/mengajar/s
         <div className="flex flex-col items-start gap-1">
           <p className="font-bold text-primary">Teaching Playbook</p>
           <TagProgram slug={program.slug}>{program.nama}</TagProgram>
-          <h1 className="mt-1 text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[48px]">
+          <h1 className="mt-1 text-32 leading-[38px] font-extrabold md:text-40 md:leading-[48px]">
             {program.nama} Level {kelas.level} · Sesi {sesi.nomor}
           </h1>
           <p className="text-text-muted">

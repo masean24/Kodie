@@ -54,7 +54,7 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
     <>
       <section className="blok-merek on-block mt-4 rounded-card p-6 md:p-10">
         <TagBidang bidang={p.bidang} />
-        <h1 className="mt-4 text-[30px] leading-[38px] font-extrabold tracking-tight sm:text-[38px] sm:leading-[48px] md:text-[46px] md:leading-[56px]">
+        <h1 className="mt-4 text-32 leading-[38px] font-extrabold tracking-tight sm:text-40 sm:leading-[48px] md:text-48 md:leading-[56px]">
           {p.judul}
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-7 md:text-lg">{p.ringkas}</p>
@@ -91,7 +91,7 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
 
       <section id="lamar" aria-labelledby="judul-lamar" className="mt-14 scroll-mt-24">
         <KartuAuth lebar="max-w-[720px]">
-          <h2 id="judul-lamar" className="text-[28px] leading-[36px] font-extrabold md:text-[36px] md:leading-[44px]">
+          <h2 id="judul-lamar" className="text-28 leading-[36px] font-extrabold md:text-40 md:leading-[44px]">
             Lamar sebagai {p.judul}
           </h2>
           <p className="mt-2 text-text-muted">

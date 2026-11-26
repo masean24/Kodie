@@ -27,7 +27,7 @@ export default async function HalamanLaporanSesi({ params }: PageProps<"/mengaja
       </Link>
 
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[48px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-40 md:leading-[48px]">
           Laporan sesi {sesi.nomor}
         </h1>
         <p className="mt-2 text-lg text-text-muted">

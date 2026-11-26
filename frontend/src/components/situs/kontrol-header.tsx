@@ -90,7 +90,7 @@ export function LanguageSwitch() {
       {infoEn ? (
         <div
           role="status"
-          className="absolute right-0 top-full z-40 mt-2 w-64 rounded-[10px] border border-border bg-surface-raised p-3 text-sm text-text shadow-lg"
+          className="absolute right-0 top-full z-40 mt-2 w-64 rounded-[10px] border border-border bg-surface-raised p-3 text-sm text-text shadow-mengambang"
         >
           Bahasa Inggris segera hadir (MVP menggunakan Bahasa Indonesia).
         </div>
@@ -185,7 +185,7 @@ export function ThemeSwitch({ penuh }: { penuh?: boolean }) {
       {/* Pill aktif digeser dengan transisi CSS (easing pegas): posisinya ikut state, termasuk setelah hidrasi. */}
       <span
         aria-hidden
-        className="absolute bottom-[3px] left-[3px] top-[3px] rounded-full bg-primary shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.34,1.36,0.64,1)] motion-reduce:transition-none"
+        className="absolute bottom-[3px] left-[3px] top-[3px] rounded-full bg-primary shadow-kartu transition-transform duration-500 ease-[cubic-bezier(0.34,1.36,0.64,1)] motion-reduce:transition-none"
         style={{ width: "calc((100% - 6px) / 2)", transform: `translateX(${indeks * 100}%)` }}
       />
       {OPSI_TEMA.map((o, i) => {

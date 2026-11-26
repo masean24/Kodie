@@ -24,7 +24,7 @@ export default async function HalamanKelasPengajar() {
     <div className="flex max-w-[920px] flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Kelas</h1>
+          <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">Kelas</h1>
           <p className="mt-2 text-text-muted">Kelola kelas, jadwal sesi, playbook, dan laporan mengajar.</p>
         </div>
         {bisaBuka ? (

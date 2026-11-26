@@ -26,7 +26,7 @@ export default async function HalamanBukaKelas() {
       </Link>
 
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Buka kelas baru</h1>
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">Buka kelas baru</h1>
         <p className="mt-2 text-text-muted">
           Satu kelas terdiri dari 4 sesi mingguan pada hari dan jam yang sama. Link Google Meet dibuat otomatis untuk tiap sesi.
         </p>

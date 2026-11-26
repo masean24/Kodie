@@ -67,10 +67,10 @@ function romawi(n: number): string {
 
 /** Ubin 3D vektor (komponen Figma ObjekBidang). Dekoratif. */
 const UBIN: Record<Bidang, { ikon: LucideIcon; muka: string; sisi: string; ikonWarna: string }> = {
-  software: { ikon: Code, muka: "from-[#93c5fd] to-[#60a5fa]", sisi: "#1e3a8a", ikonWarna: "text-[#0f172a]" },
-  jaringan: { ikon: Wifi, muka: "from-[#60a5fa] to-[#2563eb]", sisi: "#172554", ikonWarna: "text-[#0f172a]" },
-  iot: { ikon: Cpu, muka: "from-[#eeffc2] to-[#c6f64d]", sisi: "#0f172a", ikonWarna: "text-[#0f172a]" },
-  ai_data: { ikon: ChartNoAxesColumn, muka: "from-[#f8fafc] to-[#cad3e6]", sisi: "#334155", ikonWarna: "text-[#0f172a]" },
+  software: { ikon: Code, muka: "from-sky-soft to-sky", sisi: "#1e3a8a", ikonWarna: "text-ink" },
+  jaringan: { ikon: Wifi, muka: "from-sky to-royal-bright", sisi: "#172554", ikonWarna: "text-ink" },
+  iot: { ikon: Cpu, muka: "from-lime-pale to-lime", sisi: "#0f172a", ikonWarna: "text-ink" },
+  ai_data: { ikon: ChartNoAxesColumn, muka: "from-snow to-mist", sisi: "#334155", ikonWarna: "text-ink" },
 };
 
 export function ObjekBidang({

@@ -422,7 +422,7 @@ export function KodieLab() {
             >
               <Play aria-hidden className="size-4 fill-current" />
               Jalankan
-              <kbd className="hidden rounded bg-black/10 px-1.5 py-0.5 text-xs font-bold sm:inline">Ctrl + Enter</kbd>
+              <kbd className="hidden rounded bg-black/10 px-1.5 py-0.5 text-sm font-bold sm:inline">Ctrl + Enter</kbd>
             </motion.button>
           )}
         </div>

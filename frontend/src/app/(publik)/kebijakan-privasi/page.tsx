@@ -66,7 +66,7 @@ const BAGIAN = [
 export default function HalamanPrivasi() {
   return (
     <Kontainer className="max-w-[864px] py-10 md:py-16">
-      <h1 className="text-[28px] leading-[36px] font-extrabold tracking-tight sm:text-[36px] sm:leading-[46px] md:text-[42px] md:leading-[52px]">
+      <h1 className="text-28 leading-[36px] font-extrabold tracking-tight sm:text-40 sm:leading-[46px] md:text-48 md:leading-[52px]">
         Kebijakan privasi
       </h1>
       <div className="mt-8 flex flex-col gap-6">

@@ -75,7 +75,7 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
       <Kartu className="flex flex-col gap-6 md:flex-row md:items-center md:p-10">
         <Avatar nama={p.nama} foto={p.foto_url} besar />
         <div className="flex flex-col gap-3">
-          <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">{p.nama}</h1>
+          <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">{p.nama}</h1>
           <p className="text-lg text-text-muted">
             {keteranganPengajar(p)}
             {p.kampus ? ` · ${p.kampus}` : ""}

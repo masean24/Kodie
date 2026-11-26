@@ -22,7 +22,7 @@ export function TombolTanyaKiko({
     <button
       type="button"
       onClick={buka}
-      className="inline-flex min-h-[48px] max-w-full flex-wrap items-center justify-center gap-2.5 rounded-full border-[1.5px] border-border-strong bg-surface px-4 py-2 text-left text-sm font-semibold text-text shadow-xs transition-colors hover:border-primary hover:bg-surface-sunken"
+      className="inline-flex min-h-[48px] max-w-full flex-wrap items-center justify-center gap-2.5 rounded-full border-[1.5px] border-border-strong bg-surface px-4 py-2 text-left text-sm font-semibold text-text shadow-kartu transition-colors hover:border-primary hover:bg-surface-sunken"
     >
       <AvatarKiko ukuran="kecil" />
       <span>{ajakan}</span>

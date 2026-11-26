@@ -43,7 +43,7 @@ export default async function HalamanPembayaranAdmin({ searchParams }: PageProps
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[46px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-40 md:leading-[46px]">
           Verifikasi pembayaran
         </h1>
         <p className="mt-2 text-text-muted">
@@ -87,7 +87,7 @@ export default async function HalamanPembayaranAdmin({ searchParams }: PageProps
                       {item.kelas ? (
                         <div className="flex flex-col items-start gap-1">
                           <TagProgram slug={item.kelas.program_slug}>{item.kelas.program_nama}</TagProgram>
-                          <span className="text-xs text-text-muted">
+                          <span className="text-sm text-text-muted">
                             Level {item.kelas.level} · {item.kelas.pengajar_nama}
                           </span>
                         </div>
@@ -103,7 +103,7 @@ export default async function HalamanPembayaranAdmin({ searchParams }: PageProps
                         <Lencana nada={NADA_PEMBAYARAN[item.pembayaran.status]}>
                           {LABEL_STATUS_PEMBAYARAN[item.pembayaran.status]}
                         </Lencana>
-                        <span className="text-xs text-text-muted">
+                        <span className="text-sm text-text-muted">
                           {item.pembayaran.status === "menunggu"
                             ? formatLamaMenunggu(item.pembayaran.diunggah_pada, sekarang)
                             : formatTanggalJam(item.pembayaran.diunggah_pada)}
@@ -134,7 +134,7 @@ export default async function HalamanPembayaranAdmin({ searchParams }: PageProps
                 {item.kelas ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <TagProgram slug={item.kelas.program_slug}>{item.kelas.program_nama}</TagProgram>
-                    <span className="text-xs text-text-muted">Level {item.kelas.level}</span>
+                    <span className="text-sm text-text-muted">Level {item.kelas.level}</span>
                   </div>
                 ) : null}
                 <div className="text-sm">
@@ -144,7 +144,7 @@ export default async function HalamanPembayaranAdmin({ searchParams }: PageProps
                   <p className="mt-1 font-display text-lg font-bold tabular-nums">
                     {formatRupiah(item.booking.total)}
                   </p>
-                  <p className="mt-0.5 text-xs text-text-muted">
+                  <p className="mt-0.5 text-sm text-text-muted">
                     {item.pembayaran.status === "menunggu"
                       ? formatLamaMenunggu(item.pembayaran.diunggah_pada, sekarang)
                       : `Diunggah ${formatTanggalJam(item.pembayaran.diunggah_pada)}`}

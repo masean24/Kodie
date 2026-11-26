@@ -10,7 +10,7 @@ export function LangkahPesan({ ke }: { ke: 1 | 2 | 3 }) {
       <p className="text-sm">
         <span className="font-bold text-primary">Langkah {ke} dari 3</span> · {LANGKAH[ke - 1]}
       </p>
-      <ol aria-label="Langkah pemesanan" className="mt-2 grid grid-cols-3 gap-1 text-xs sm:text-sm">
+      <ol aria-label="Langkah pemesanan" className="mt-2 grid grid-cols-3 gap-1 text-sm sm:text-sm">
         {LANGKAH.map((l, i) => {
           const selesai = i + 1 < ke;
           const aktif = i + 1 === ke;

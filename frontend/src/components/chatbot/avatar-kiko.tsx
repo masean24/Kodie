@@ -37,7 +37,7 @@ export function AvatarKiko({
         "grid shrink-0 place-items-center rounded-full p-0.5",
         diatasBiru
           ? "border border-white/25 bg-white/15"
-          : "border border-[#1D4ED8]/25 bg-[#F4F7FC] shadow-xs dark:border-white/15 dark:bg-[#0F172A]",
+          : "border border-[#1D4ED8]/25 bg-[#F4F7FC] shadow-kartu dark:border-white/15 dark:bg-[#0F172A]",
         className,
       )}
     >

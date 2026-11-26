@@ -23,7 +23,7 @@ function TombolSalinKode({ teks }: { teks: string }) {
     <button
       type="button"
       onClick={salin}
-      className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium text-text-muted hover:bg-surface hover:text-text"
+      className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-sm font-medium text-text-muted hover:bg-surface hover:text-text"
     >
       {disalin ? <Check aria-hidden className="size-3.5 text-success" /> : <Copy aria-hidden className="size-3.5" />}
       <span>{disalin ? "Disalin" : "Salin"}</span>
@@ -66,7 +66,7 @@ function renderInline(
       );
     } else if (token.startsWith("`") && token.endsWith("`")) {
       hasil.push(
-        <code key={k} className="rounded bg-surface-sunken px-1 py-0.5 font-mono text-[13px] text-primary">
+        <code key={k} className="rounded bg-surface-sunken px-1 py-0.5 font-mono text-sm text-primary">
           {token.slice(1, -1)}
         </code>,
       );
@@ -82,7 +82,7 @@ function renderInline(
               key={k}
               href={urlAman}
               title={sumber.title}
-              className="mx-0.5 inline-flex items-center rounded-full bg-primary-subtle px-1.5 py-0.5 text-[11px] font-bold text-primary hover:bg-primary hover:text-primary-foreground"
+              className="mx-0.5 inline-flex items-center rounded-full bg-primary-subtle px-1.5 py-0.5 text-sm font-bold text-primary hover:bg-primary hover:text-primary-foreground"
             >
               {idx}
             </Link>
@@ -93,7 +93,7 @@ function renderInline(
               target="_blank"
               rel="noopener noreferrer"
               title={sumber.title}
-              className="mx-0.5 inline-flex items-center rounded-full bg-primary-subtle px-1.5 py-0.5 text-[11px] font-bold text-primary hover:bg-primary hover:text-primary-foreground"
+              className="mx-0.5 inline-flex items-center rounded-full bg-primary-subtle px-1.5 py-0.5 text-sm font-bold text-primary hover:bg-primary hover:text-primary-foreground"
             >
               {idx}
             </a>
@@ -103,7 +103,7 @@ function renderInline(
         hasil.push(
           <span
             key={k}
-            className="mx-0.5 inline-flex items-center rounded-full bg-neutral-subtle px-1.5 py-0.5 text-[11px] font-semibold text-text-muted"
+            className="mx-0.5 inline-flex items-center rounded-full bg-neutral-subtle px-1.5 py-0.5 text-sm font-semibold text-text-muted"
           >
             {idx}
           </span>,
@@ -185,11 +185,11 @@ export function MarkdownAman({
       const kodeGabung = isiKode.join("\n");
       elemen.push(
         <div key={`code-${i}`} className="my-2 overflow-hidden rounded-md border border-border bg-surface-sunken">
-          <div className="flex items-center justify-between border-b border-border px-2.5 py-1 text-xs text-text-muted">
+          <div className="flex items-center justify-between border-b border-border px-2.5 py-1 text-sm text-text-muted">
             <span>{bahasa || "kode"}</span>
             <TombolSalinKode teks={kodeGabung} />
           </div>
-          <pre className="overflow-x-auto p-2.5 font-mono text-[13px] leading-5">
+          <pre className="overflow-x-auto p-2.5 font-mono text-sm leading-5">
             <code>{kodeGabung}</code>
           </pre>
         </div>,
@@ -215,7 +215,7 @@ export function MarkdownAman({
       }
       elemen.push(
         <div key={`tbl-${i}`} className="my-2 overflow-x-auto rounded-md border border-border">
-          <table className="w-full border-collapse text-left text-[13px]">
+          <table className="w-full border-collapse text-left text-sm">
             <thead>
               <tr className="bg-surface-sunken">
                 {headerCols.map((h, hi) => (
@@ -250,7 +250,7 @@ export function MarkdownAman({
       elemen.push(
         <p
           key={`h-${i}`}
-          className={cx("font-display font-bold", level === 1 ? "text-base" : "text-[15px]", "mt-2 first:mt-0")}
+          className={cx("font-display font-bold", level === 1 ? "text-base" : "text-base", "mt-2 first:mt-0")}
         >
           {renderInline(isi, sitasi, `h-${i}`)}
         </p>,
@@ -324,5 +324,5 @@ export function MarkdownAman({
     );
   }
 
-  return <div className={cx("text-[14px] leading-[22px] break-words", className)}>{elemen}</div>;
+  return <div className={cx("text-sm leading-[22px] break-words", className)}>{elemen}</div>;
 }

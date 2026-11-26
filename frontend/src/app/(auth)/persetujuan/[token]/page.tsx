@@ -46,7 +46,7 @@ async function Isi({
     return (
       <KartuAuth>
         <XCircle aria-hidden className="size-12 text-danger" />
-        <h1 className="mt-4 text-[32px] leading-[38px] font-extrabold">{pesanError(e)}</h1>
+        <h1 className="mt-4 text-32 leading-[38px] font-extrabold">{pesanError(e)}</h1>
         <p className="mt-3 text-lg">
           Link ini sudah kedaluwarsa, sudah dipakai, atau tidak dikenal. Minta anak Anda membuat link baru dari akunnya.
         </p>

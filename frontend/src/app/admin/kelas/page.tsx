@@ -29,7 +29,7 @@ export default async function HalamanKelasAdmin() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[46px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-40 md:leading-[46px]">
           Kelola kelas & link Meet
         </h1>
         <p className="mt-2 text-text-muted">
@@ -52,11 +52,11 @@ export default async function HalamanKelasAdmin() {
                       {item.programNama} — Sesi {item.sesi.nomor}
                     </span>
                   </div>
-                  <p className="text-xs text-text-muted">
+                  <p className="text-sm text-text-muted">
                     Pengajar: {item.pengajarNama} · Jadwal: {formatTanggalJam(item.sesi.mulai_pada)}
                   </p>
                   {item.sesi.meet_gagal_terakhir ? (
-                    <p className="text-xs text-danger">Catatan gagal: {item.sesi.meet_gagal_terakhir}</p>
+                    <p className="text-sm text-danger">Catatan gagal: {item.sesi.meet_gagal_terakhir}</p>
                   ) : null}
                 </div>
                 <TombolBuatMeetUlang kelasId={item.sesi.kelas_id} />
@@ -91,7 +91,7 @@ export default async function HalamanKelasAdmin() {
                       <td className="px-5 py-4">
                         <div className="flex flex-col items-start gap-1">
                           <TagProgram slug={k.programSlug}>{k.programNama}</TagProgram>
-                          <span className="text-xs text-text-muted">
+                          <span className="text-sm text-text-muted">
                             Level {k.level} {k.mulaiPada ? `· Mulai ${formatTanggalJam(k.mulaiPada)}` : ""}
                           </span>
                         </div>
@@ -121,7 +121,7 @@ export default async function HalamanKelasAdmin() {
                       Level {k.level} · Pengajar {k.pengajarNama}
                     </p>
                     {k.mulaiPada ? (
-                      <p className="text-xs text-text-muted">Mulai {formatTanggalJam(k.mulaiPada)}</p>
+                      <p className="text-sm text-text-muted">Mulai {formatTanggalJam(k.mulaiPada)}</p>
                     ) : null}
                   </div>
                   <FormUbahKelasAdmin kelasId={k.id} statusAwal={k.status} kapasitasAwal={k.kapasitas} />

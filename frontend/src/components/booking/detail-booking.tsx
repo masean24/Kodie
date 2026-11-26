@@ -73,7 +73,7 @@ function PanelBayar({ r, info }: { r: BookingRinci; info: InfoPembayaran }) {
             <h2 id="judul-total" className="text-sm font-bold">
               Total yang harus dibayar
             </h2>
-            <p className="mt-1 font-display text-[44px] leading-[48px] font-extrabold break-words md:text-[60px] md:leading-[64px]">
+            <p className="mt-1 font-display text-48 leading-[48px] font-extrabold break-words md:text-56 md:leading-[64px]">
               {formatRupiah(b.total)}
             </p>
             <p className="mt-2 text-sm">Transfer tepat sesuai nominal supaya cepat diperiksa.</p>
@@ -141,7 +141,7 @@ export function DetailBooking({ r, info, basePath }: { r: BookingRinci; info: In
       {status === "menunggu_pembayaran" ? <LangkahPesan ke={3} /> : null}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
+          <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">
             {status === "menunggu_pembayaran" ? "Bayar booking" : "Detail booking"}
           </h1>
           <p className="mt-1 text-text-muted">Kode booking {b.kode}</p>

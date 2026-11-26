@@ -31,7 +31,7 @@ export function DetailSesi({ data, basePath }: { data: DetailSesiPengguna; baseP
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col items-start gap-1">
           <TagProgram slug={kelas.program_slug}>{kelas.program_nama}</TagProgram>
-          <h1 className="mt-1 text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[48px]">
+          <h1 className="mt-1 text-32 leading-[38px] font-extrabold md:text-40 md:leading-[48px]">
             {kelas.program_nama} Level {kelas.level} · Sesi {sesi.nomor}
           </h1>
           <p className="text-text-muted">

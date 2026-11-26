@@ -17,10 +17,10 @@ export default function HalamanLab() {
       <BandKodie>
         <Kontainer className="relative pb-10 pt-6 md:pb-12 md:pt-8">
           <LencanaBand>Gratis · Tanpa akun · Tanpa install</LencanaBand>
-          <h1 className="mt-4 text-[30px] leading-[40px] font-extrabold tracking-tight sm:text-[38px] sm:leading-[48px] md:text-[46px] md:leading-[58px]">
+          <h1 className="mt-4 text-32 leading-[40px] font-extrabold tracking-tight sm:text-40 sm:leading-[48px] md:text-48 md:leading-[58px]">
             <KataHero teks="Kodie" /> <SorotanBand>Lab</SorotanBand>
           </h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-[#dbeafe] md:text-lg">
+          <p className="mt-3 max-w-2xl text-base leading-7 text-ice md:text-lg">
             <KataHero teks="Pilih mode, susun blok atau tulis kodenya, lalu klik Jalankan. Hasilnya langsung terlihat di sebelah editor." />
           </p>
         </Kontainer>

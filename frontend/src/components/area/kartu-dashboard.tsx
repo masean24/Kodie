@@ -135,7 +135,7 @@ export function LaporanTerbaru({
                   {item.baru ? <Lencana nada="aksen">Baru</Lencana> : null}
                 </div>
                 <p className="mt-1 line-clamp-2 text-sm text-text-muted">{item.laporan.ringkasan}</p>
-                <p className="mt-1 text-xs text-text-muted">{formatTanggalJam(item.laporan.dikirim_pada)}</p>
+                <p className="mt-1 text-sm text-text-muted">{formatTanggalJam(item.laporan.dikirim_pada)}</p>
               </Link>
             </li>
           ))}
@@ -184,7 +184,7 @@ export function HasilTesTerakhir({ hasil }: { hasil?: HasilMinat }) {
       {hasil ? (
         <>
           <p className="text-sm text-text-muted">{formatTanggal(hasil.dibuat_pada)}</p>
-          <p className="mt-2 font-display text-[28px] font-extrabold leading-8 text-primary">
+          <p className="mt-2 font-display text-28 font-extrabold leading-8 text-primary">
             {NAMA_BIDANG[hasil.bidang_teratas]} {hasil.skor[hasil.bidang_teratas]}%
           </p>
           <p className="mt-2 text-sm text-text-muted">Hasil tes adalah saran, bukan keputusan.</p>

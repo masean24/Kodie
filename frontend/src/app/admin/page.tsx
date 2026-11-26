@@ -123,7 +123,7 @@ export default async function DashboardAdmin() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">
           {sapaan(new Date())}, Admin
         </h1>
         <p className="mt-2 text-text-muted">
@@ -167,8 +167,8 @@ export default async function DashboardAdmin() {
                   className={s.sorot ? "size-5 shrink-0 text-warning" : "size-5 shrink-0 text-primary"}
                 />
               </div>
-              <p className="font-display text-3xl font-bold tabular-nums">{s.nilai}</p>
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:underline">
+              <p className="font-display text-32 font-bold tabular-nums">{s.nilai}</p>
+              <span className="inline-flex items-center gap-1 text-sm font-bold text-primary group-hover:underline">
                 {s.ket} <ArrowRight aria-hidden className="size-3.5" />
               </span>
             </Link>

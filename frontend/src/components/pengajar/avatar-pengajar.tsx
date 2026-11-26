@@ -14,7 +14,7 @@ function fotoTidakLayak(img: HTMLImageElement) {
  * Pemeriksaan juga dijalankan setelah hidrasi, karena event `load`/`error` bisa terjadi sebelum React aktif.
  */
 export function Avatar({ nama, foto, besar }: { nama: string; foto: string | null; besar?: boolean }) {
-  const ukuran = besar ? "size-24 text-3xl" : "size-14 text-xl";
+  const ukuran = besar ? "size-24 text-32" : "size-14 text-xl";
   const [gagal, setGagal] = useState(false);
   const gambar = useRef<HTMLImageElement>(null);
 

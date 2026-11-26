@@ -254,7 +254,7 @@ export function PanelLiveChat({
               >
                 <span>{op.label}</span>
                 {op.nilai === "menunggu_admin" && jumlahMenunggu > 0 ? (
-                  <span className="rounded-full bg-danger px-1.5 py-0.5 text-xs text-danger-foreground tabular-nums">
+                  <span className="rounded-full bg-danger px-1.5 py-0.5 text-sm text-danger-foreground tabular-nums">
                     {jumlahMenunggu}
                   </span>
                 ) : null}
@@ -303,7 +303,7 @@ export function PanelLiveChat({
                         {LABEL_STATUS_CHAT[item.percakapan.status]}
                       </Lencana>
                     </div>
-                    <p className="text-xs font-semibold text-text-muted">
+                    <p className="text-sm font-semibold text-text-muted">
                       {namaPeranLabel(item.penggunaPeran)} · {formatTanggalJam(item.percakapan.diperbarui_pada)}
                     </p>
                     <p className="line-clamp-2 text-sm text-text-muted [overflow-wrap:anywhere]">
@@ -334,7 +334,7 @@ export function PanelLiveChat({
                         {LABEL_STATUS_CHAT[detail.percakapan.status]}
                       </Lencana>
                     </div>
-                    <p className="mt-0.5 text-xs text-text-muted">
+                    <p className="mt-0.5 text-sm text-text-muted">
                       {namaPeranLabel(detail.penggunaPeran)} · Diperbarui {formatTanggalJam(detail.percakapan.diperbarui_pada)}
                     </p>
                   </div>
@@ -376,7 +376,7 @@ export function PanelLiveChat({
                           return (
                             <div
                               key={m.id}
-                              className="mx-auto max-w-[90%] rounded-full border border-border bg-surface px-3.5 py-1 text-center text-xs text-text-muted"
+                              className="mx-auto max-w-[90%] rounded-full border border-border bg-surface px-3.5 py-1 text-center text-sm text-text-muted"
                             >
                               {m.isi}
                             </div>
@@ -386,7 +386,7 @@ export function PanelLiveChat({
                         const dariBot = m.pengirim_peran === "bot";
                         return (
                           <div key={m.id} className={cx("flex flex-col gap-1", dariAdmin ? "items-end" : "items-start")}>
-                            <div className="flex items-center gap-1.5 px-1 text-xs font-semibold text-text-muted">
+                            <div className="flex items-center gap-1.5 px-1 text-sm font-semibold text-text-muted">
                               {dariAdmin ? (
                                 <>
                                   <Headset aria-hidden className="size-3.5 text-primary" /> Admin Kodie
@@ -402,7 +402,7 @@ export function PanelLiveChat({
                             </div>
                             <div
                               className={cx(
-                                "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-xs",
+                                "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm shadow-kartu",
                                 dariAdmin
                                   ? "rounded-tr-sm bg-primary text-primary-foreground"
                                   : dariBot

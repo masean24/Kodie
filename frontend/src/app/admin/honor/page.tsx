@@ -33,7 +33,7 @@ export default async function HalamanHonorAdmin({ searchParams }: PageProps<"/ad
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[46px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-40 md:leading-[46px]">
           Honor pengajar
         </h1>
         <p className="mt-2 text-text-muted">
@@ -76,7 +76,7 @@ export default async function HalamanHonorAdmin({ searchParams }: PageProps<"/ad
                       <td className="px-5 py-4">
                         <div className="flex flex-col items-start gap-1">
                           <TagProgram slug={item.programSlug}>{item.programNama}</TagProgram>
-                          <span className="text-xs text-text-muted">
+                          <span className="text-sm text-text-muted">
                             {item.nomorSesi ? `Sesi ${item.nomorSesi}` : "Sesi"}{" "}
                             {item.mulaiPada ? `· ${formatTanggalJam(item.mulaiPada)}` : ""}
                           </span>
@@ -91,7 +91,7 @@ export default async function HalamanHonorAdmin({ searchParams }: PageProps<"/ad
                             {dibayar ? "Dibayar" : "Belum dibayar"}
                           </Lencana>
                           {dibayar && item.honor.dibayar_pada ? (
-                            <span className="text-xs text-text-muted">{formatTanggalJam(item.honor.dibayar_pada)}</span>
+                            <span className="text-sm text-text-muted">{formatTanggalJam(item.honor.dibayar_pada)}</span>
                           ) : null}
                         </div>
                       </td>
@@ -118,16 +118,16 @@ export default async function HalamanHonorAdmin({ searchParams }: PageProps<"/ad
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <TagProgram slug={item.programSlug}>{item.programNama}</TagProgram>
-                    <span className="text-xs text-text-muted">
+                    <span className="text-sm text-text-muted">
                       {item.nomorSesi ? `Sesi ${item.nomorSesi}` : "Sesi"}
                     </span>
                   </div>
                   {item.mulaiPada ? (
-                    <p className="text-xs text-text-muted">{formatTanggalJam(item.mulaiPada)}</p>
+                    <p className="text-sm text-text-muted">{formatTanggalJam(item.mulaiPada)}</p>
                   ) : null}
                   <p className="font-display text-lg font-bold tabular-nums">{formatRupiah(item.honor.jumlah)}</p>
                   {dibayar && item.honor.dibayar_pada ? (
-                    <p className="text-xs text-text-muted">Dibayar pada {formatTanggalJam(item.honor.dibayar_pada)}</p>
+                    <p className="text-sm text-text-muted">Dibayar pada {formatTanggalJam(item.honor.dibayar_pada)}</p>
                   ) : null}
                   <TombolBayarHonor id={item.honor.id} dibayar={dibayar} />
                 </Kartu>

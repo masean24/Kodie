@@ -58,11 +58,11 @@ function PratinjauPersegi() {
 
 function PratinjauKartu() {
   return (
-    <div aria-hidden className="grid h-full w-full place-items-center rounded-[14px] bg-gradient-to-br from-[#1d4ed8] to-[#60a5fa]">
-      <div className="flex w-40 flex-col items-center gap-2 rounded-2xl bg-white px-4 py-3 shadow-lg">
-        <span className="h-2.5 w-24 rounded-full bg-[#0f172a]" />
+    <div aria-hidden className="grid h-full w-full place-items-center rounded-[14px] bg-gradient-to-br from-royal to-sky">
+      <div className="flex w-40 flex-col items-center gap-2 rounded-2xl bg-white px-4 py-3 shadow-mengambang">
+        <span className="h-2.5 w-24 rounded-full bg-ink" />
         <span className="h-2 w-28 rounded-full bg-slate-300" />
-        <span className="mt-1 rounded-full bg-[#c6f64d] px-3 py-1 text-[10px] font-bold text-[#0f172a]">Klik aku</span>
+        <span className="mt-1 rounded-full bg-lime px-3 py-1 text-sm font-bold text-ink">Klik aku</span>
       </div>
     </div>
   );
@@ -70,12 +70,12 @@ function PratinjauKartu() {
 
 function PratinjauTerminal() {
   return (
-    <div aria-hidden className="h-full w-full rounded-[14px] bg-[#0f172a] p-4 font-mono text-[12px] leading-5 text-slate-200">
+    <div aria-hidden className="h-full w-full rounded-[14px] bg-ink p-4 font-mono text-sm leading-5 text-slate-200">
       <p>Halo, Kiko! 🤖</p>
       <p>7 x 1 = 7</p>
       <p>7 x 2 = 14</p>
       <p>7 x 3 = 21</p>
-      <p className="text-[#c6f64d]">Rata-rata nilai: 83.75</p>
+      <p className="text-lime">Rata-rata nilai: 83.75</p>
     </div>
   );
 }
@@ -125,10 +125,10 @@ export default function HalamanShowcase() {
       <BandKodie>
         <Kontainer className="relative pb-10 pt-6 md:pb-14 md:pt-8">
           <LencanaBand>Dibuat di Kodie Lab</LencanaBand>
-          <h1 className="mt-4 text-[30px] leading-[40px] font-extrabold tracking-tight sm:text-[38px] sm:leading-[48px] md:text-[46px] md:leading-[58px]">
+          <h1 className="mt-4 text-32 leading-[40px] font-extrabold tracking-tight sm:text-40 sm:leading-[48px] md:text-48 md:leading-[58px]">
             <KataHero teks="Showcase" /> <SorotanBand>karya</SorotanBand>
           </h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-[#dbeafe] md:text-lg">
+          <p className="mt-3 max-w-2xl text-base leading-7 text-ice md:text-lg">
             <KataHero teks="Contoh proyek yang bisa dibuat siswa di Kodie Lab, dari menyusun blok sampai menulis Python. Semuanya berjalan langsung di browser, gratis, tanpa akun." />
           </p>
         </Kontainer>
@@ -153,7 +153,7 @@ export default function HalamanShowcase() {
                   </div>
                   <h2 className="text-xl font-bold">{k.judul}</h2>
                   <p className="text-base leading-7 text-text-muted">{k.ket}</p>
-                  <pre className="overflow-x-auto rounded-card-sm bg-surface-sunken p-4 font-mono text-[13px] leading-6 text-text">
+                  <pre className="overflow-x-auto rounded-card-sm bg-surface-sunken p-4 font-mono text-sm leading-6 text-text">
                     <code>{k.kode}</code>
                   </pre>
                   <TombolTautan href="/lab" varian="kedua" panah className="mt-auto self-start">

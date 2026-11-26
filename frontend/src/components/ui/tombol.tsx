@@ -15,7 +15,7 @@ const VARIAN: Record<Varian, string> = {
     "bg-primary text-primary-foreground hover:bg-primary-hover disabled:bg-disabled disabled:text-text-muted aria-disabled:bg-disabled aria-disabled:text-text-muted",
   kedua: "border-[1.5px] border-border-strong bg-surface text-text hover:bg-surface-sunken",
   ajakan: "bg-cta text-cta-foreground hover:bg-cta-hover",
-  terang: "bg-white text-[#0f172a] hover:bg-primary-subtle",
+  terang: "bg-white text-ink hover:bg-primary-subtle",
   bahaya: "bg-danger text-danger-foreground hover:bg-danger-hover",
   tautan: "min-h-touch px-0 text-primary underline-offset-4 hover:underline",
   khusus: "",
@@ -48,7 +48,7 @@ function Isi({ panah, varian, kelasPanah, children }: { panah?: boolean; varian:
           aria-hidden
           className={cx(
             "-mr-2 grid size-8 place-items-center rounded-full",
-            kelasPanah ?? (varian === "ajakan" ? "bg-[#0f172a] text-cta" : "bg-black/10"),
+            kelasPanah ?? (varian === "ajakan" ? "bg-ink text-cta" : "bg-black/10"),
           )}
         >
           <ArrowRight className="size-4" />

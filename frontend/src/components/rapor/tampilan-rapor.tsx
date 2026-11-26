@@ -15,7 +15,7 @@ export function DaftarRapor({ daftar, basePath }: { daftar: RaporRinci[]; basePa
   return (
     <div className="flex max-w-[864px] flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">
           Rapor rekomendasi jurusan
         </h1>
         <p className="mt-2 text-text-muted">
@@ -79,7 +79,7 @@ export function DetailRapor({ item, basePath }: { item: RaporRinci; basePath: "/
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col items-start gap-1">
           <TagProgram slug="simulasi-jurusan-it">Simulasi Jurusan IT</TagProgram>
-          <h1 className="mt-1 text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[48px]">
+          <h1 className="mt-1 text-32 leading-[38px] font-extrabold md:text-40 md:leading-[48px]">
             Rapor Rekomendasi Jurusan · {siswa.nama}
           </h1>
           <p className="text-text-muted">
@@ -96,7 +96,7 @@ export function DetailRapor({ item, basePath }: { item: RaporRinci; basePath: "/
           <GraduationCap aria-hidden className="size-5" /> Bidang yang paling direkomendasikan pengajar
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <p className="font-display text-3xl font-extrabold">{NAMA_BIDANG[rapor.bidang_rekomendasi]}</p>
+          <p className="font-display text-32 font-extrabold">{NAMA_BIDANG[rapor.bidang_rekomendasi]}</p>
           <TagBidang bidang={rapor.bidang_rekomendasi} />
         </div>
         <p className="mt-3 text-text-muted">

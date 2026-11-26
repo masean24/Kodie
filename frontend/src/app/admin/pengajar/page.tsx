@@ -31,7 +31,7 @@ function nadaStatus(status: string) {
 
 function StatusSyarat({ label, ok }: { label: string; ok: boolean }) {
   return (
-    <span className="inline-flex items-center gap-1 text-xs">
+    <span className="inline-flex items-center gap-1 text-sm">
       {ok ? (
         <CheckCircle2 aria-hidden className="size-3.5 text-success" />
       ) : (
@@ -60,7 +60,7 @@ export default async function HalamanPengajarAdmin({ searchParams }: PageProps<"
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[46px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-40 md:leading-[46px]">
           Verifikasi & kelola pengajar
         </h1>
         <p className="mt-2 text-text-muted">
@@ -95,13 +95,13 @@ export default async function HalamanPengajarAdmin({ searchParams }: PageProps<"
                   <tr key={pengguna.id} className="align-middle hover:bg-surface-sunken/50">
                     <td className="px-5 py-4">
                       <p className="font-semibold text-ink">{pengguna.nama}</p>
-                      <p className="text-xs text-text-muted">{pengguna.no_wa ?? "No. WA belum diisi"}</p>
+                      <p className="text-sm text-text-muted">{pengguna.no_wa ?? "No. WA belum diisi"}</p>
                     </td>
                     <td className="px-5 py-4">
                       {profil ? (
                         <div>
                           <p className="font-semibold">{LABEL_STATUS_KERJA[profil.status_kerja]}</p>
-                          <p className="text-xs text-text-muted">
+                          <p className="text-sm text-text-muted">
                             {[profil.jurusan, profil.kampus].filter(Boolean).join(" · ") || "Belum diisi"}
                           </p>
                         </div>
@@ -119,7 +119,7 @@ export default async function HalamanPengajarAdmin({ searchParams }: PageProps<"
                     <td className="px-5 py-4">
                       <div className="flex flex-col items-start gap-1">
                         <Lencana nada={nadaStatus(pengguna.status)}>{LABEL_STATUS[pengguna.status]}</Lencana>
-                        <span className="text-xs text-text-muted">
+                        <span className="text-sm text-text-muted">
                           {pengguna.status === "menunggu_verifikasi"
                             ? formatLamaMenunggu(pengguna.dibuat_pada, sekarang)
                             : formatTanggalJam(pengguna.dibuat_pada)}
@@ -143,7 +143,7 @@ export default async function HalamanPengajarAdmin({ searchParams }: PageProps<"
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <p className="font-semibold text-ink">{pengguna.nama}</p>
-                    <p className="text-xs text-text-muted">{pengguna.no_wa ?? "No. WA belum diisi"}</p>
+                    <p className="text-sm text-text-muted">{pengguna.no_wa ?? "No. WA belum diisi"}</p>
                   </div>
                   <Lencana nada={nadaStatus(pengguna.status)}>{LABEL_STATUS[pengguna.status]}</Lencana>
                 </div>
@@ -160,7 +160,7 @@ export default async function HalamanPengajarAdmin({ searchParams }: PageProps<"
                   <StatusSyarat label="SKCK" ok={Boolean(profil?.skck_path)} />
                   <StatusSyarat label="Wawancara" ok={Boolean(profil?.wawancara_selesai)} />
                 </div>
-                <p className="text-xs text-text-muted">
+                <p className="text-sm text-text-muted">
                   {pengguna.status === "menunggu_verifikasi"
                     ? formatLamaMenunggu(pengguna.dibuat_pada, sekarang)
                     : `Terdaftar ${formatTanggalJam(pengguna.dibuat_pada)}`}

@@ -79,11 +79,11 @@ function BlokDokumen({
         )
       ) : (
         <div className="text-sm text-text-muted">
-          <p className="inline-flex items-center gap-1.5 font-mono text-xs break-all text-ink">
+          <p className="inline-flex items-center gap-1.5 font-mono text-sm break-all text-ink">
             <FileText aria-hidden className="size-4 shrink-0 text-primary" />
             {path}
           </p>
-          <p className="mt-1 text-xs">
+          <p className="mt-1 text-sm">
             Mode contoh (mock): berkas berada di bucket privat dokumen-pengajar. Signed URL aktif saat terhubung ke
             Supabase.
           </p>
@@ -112,7 +112,7 @@ export default async function HalamanDetailPengajarAdmin({
           <ArrowLeft data-kembali aria-hidden className="size-4" /> Kembali ke daftar pengajar
         </Link>
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="text-[28px] leading-[34px] font-extrabold md:text-[36px] md:leading-[42px]">
+          <h1 className="text-28 leading-[34px] font-extrabold md:text-40 md:leading-[42px]">
             {pengguna.nama}
           </h1>
           <Lencana nada={nadaStatus(pengguna.status)}>{LABEL_STATUS[pengguna.status]}</Lencana>
@@ -175,7 +175,7 @@ export default async function HalamanDetailPengajarAdmin({
           ) : null}
 
           {profil?.diverifikasi_pada ? (
-            <p className="inline-flex items-center gap-1.5 text-xs text-text-muted">
+            <p className="inline-flex items-center gap-1.5 text-sm text-text-muted">
               <ShieldCheck aria-hidden className="size-4 text-success" />
               Terverifikasi pada {formatTanggalJam(profil.diverifikasi_pada)}
             </p>

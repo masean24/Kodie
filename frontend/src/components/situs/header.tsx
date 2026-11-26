@@ -31,7 +31,7 @@ function DaftarMenu({ mobile, pathname, onPilih }: { mobile: boolean; pathname: 
           aria-current={ini ? "page" : undefined}
           onClick={onPilih}
           className={cx(
-            "flex min-h-[44px] items-center whitespace-nowrap rounded-full py-2 text-[17px] leading-[27px] transition-colors",
+            "flex min-h-[44px] items-center whitespace-nowrap rounded-full py-2 text-17 leading-[27px] transition-colors",
             mobile ? "w-full px-4" : "px-3",
             ini ? "bg-accent-subtle font-bold text-primary" : "font-normal text-text hover:bg-surface-sunken",
           )}

@@ -67,7 +67,7 @@ export function AlurPersetujuan({ token, info, pengguna, sudahSetuju, akunMock }
       else setSelesai(k);
     });
 
-  const judul = "text-[32px] leading-[38px] font-extrabold focus:outline-none md:text-[44px] md:leading-[50px]";
+  const judul = "text-32 leading-[38px] font-extrabold focus:outline-none md:text-48 md:leading-[50px]";
 
   if (selesai) {
     const setuju = selesai === "setujui";

@@ -85,7 +85,7 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
           <TagProgram slug={k.program_slug}>
             {k.program_nama} · {labelJenjang(k.jenjang)}
           </TagProgram>
-          <h1 className="mt-4 text-[28px] leading-[36px] font-extrabold tracking-tight sm:text-[36px] sm:leading-[46px] md:text-[42px] md:leading-[52px]">
+          <h1 className="mt-4 text-28 leading-[36px] font-extrabold tracking-tight sm:text-40 sm:leading-[46px] md:text-48 md:leading-[52px]">
             {judulKelas(k)}
           </h1>
           {program ? <p className="mt-4 max-w-2xl text-base leading-7 md:text-lg">{program.deskripsi}</p> : null}
@@ -126,7 +126,7 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
       <aside aria-label="Harga dan pemesanan" className="lg:sticky lg:top-24">
         <Kartu className="flex flex-col gap-4">
           <div>
-            <p className="font-display text-[28px] font-semibold leading-8">{formatRupiah(k.harga_paket)}</p>
+            <p className="font-display text-28 font-semibold leading-8">{formatRupiah(k.harga_paket)}</p>
             <p className="text-sm text-text-muted">per paket {k.jumlah_sesi} sesi</p>
           </div>
           <SisaKursi k={k} />

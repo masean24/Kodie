@@ -34,7 +34,7 @@ export function FormAturUlangPassword() {
 
   return (
     <KartuAuth>
-      <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Buat password baru</h1>
+      <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">Buat password baru</h1>
       <p className="mt-2 text-text-muted">Setelah disimpan, masuk lagi dengan password baru Anda.</p>
       <form method="post" onSubmit={kirim} noValidate className="mt-6 flex flex-col gap-4 rounded-card-sm bg-surface p-5">
         <PesanFormulir galat={galat} />

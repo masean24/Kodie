@@ -10,8 +10,8 @@ export function HalamanStatus({ kode, judul, keterangan }: { kode: string; judul
         <ObjekBidang bidang="software" ukuran={72} miring={-8} />
         <ObjekBidang bidang="iot" ukuran={72} miring={6} />
       </div>
-      <p className="mt-8 font-display text-6xl font-extrabold text-primary">{kode}</p>
-      <h1 className="mt-4 text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">{judul}</h1>
+      <p className="mt-8 font-display text-56 font-extrabold text-primary">{kode}</p>
+      <h1 className="mt-4 text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">{judul}</h1>
       <p className="mt-3 max-w-xl text-lg text-text-muted">{keterangan}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <TombolTautan href="/">Ke beranda</TombolTautan>

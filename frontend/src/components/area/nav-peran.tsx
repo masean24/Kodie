@@ -32,7 +32,7 @@ function DaftarDesktop({ peran, pathname }: { peran: Peran; pathname: string }) 
               href={m.href}
               aria-current={aktif ? "page" : undefined}
               className={cx(
-                "flex min-h-[48px] items-center gap-3 rounded-[10px] px-4 py-3 text-[17px] leading-[27px] transition-colors",
+                "flex min-h-[48px] items-center gap-3 rounded-[10px] px-4 py-3 text-17 leading-[27px] transition-colors",
                 aktif ? "bg-accent-subtle font-bold text-primary" : "font-normal text-text hover:bg-surface-sunken",
               )}
             >
@@ -51,10 +51,10 @@ function DaftarDesktop({ peran, pathname }: { peran: Peran; pathname: string }) 
           >
             <AvatarKiko ukuran="kecil" />
             <span className="min-w-0 flex-1">
-              <span className="block font-display text-[15px] leading-tight font-bold text-text">
+              <span className="block font-display text-base leading-tight font-bold text-text">
                 Tanya Kiko AI
               </span>
-              <span className="block truncate text-xs text-text-muted">Butuh bantuan di sini?</span>
+              <span className="block truncate text-sm text-text-muted">Butuh bantuan di sini?</span>
             </span>
           </button>
         </li>
@@ -93,7 +93,7 @@ function DaftarPonsel({ peran, pathname }: { peran: Peran; pathname: string }) {
       {lainnya.length > 0 && buka ? (
         <div
           id="menu-lainnya-ponsel"
-          className="absolute bottom-full right-2 mb-2 w-60 rounded-[10px] border border-border bg-surface-raised p-2 shadow-lg"
+          className="absolute bottom-full right-2 mb-2 w-60 rounded-[10px] border border-border bg-surface-raised p-2 shadow-mengambang"
         >
           <ul className="flex flex-col gap-1">
             {lainnya.map((m) => {
@@ -105,7 +105,7 @@ function DaftarPonsel({ peran, pathname }: { peran: Peran; pathname: string }) {
                     aria-current={aktif ? "page" : undefined}
                     onClick={() => setBuka(false)}
                     className={cx(
-                      "flex min-h-[44px] items-center gap-3 rounded-[6px] px-3 py-2 text-[17px] leading-[27px] transition-colors",
+                      "flex min-h-[44px] items-center gap-3 rounded-[6px] px-3 py-2 text-17 leading-[27px] transition-colors",
                       aktif ? "bg-accent-subtle font-bold text-primary" : "text-text hover:bg-surface-sunken",
                     )}
                   >
@@ -129,7 +129,7 @@ function DaftarPonsel({ peran, pathname }: { peran: Peran; pathname: string }) {
                 aria-current={aktif ? "page" : undefined}
                 onClick={() => setBuka(false)}
                 className={cx(
-                  "flex min-h-[56px] flex-col items-center justify-center gap-1 py-1.5 text-[14px] leading-5 tracking-[0.1px]",
+                  "flex min-h-[56px] flex-col items-center justify-center gap-1 py-1.5 text-sm leading-5 tracking-[0.1px]",
                   aktif ? "text-primary" : "text-text-muted",
                 )}
               >
@@ -153,7 +153,7 @@ function DaftarPonsel({ peran, pathname }: { peran: Peran; pathname: string }) {
                 setBuka(false);
                 bukaKiko();
               }}
-              className="flex min-h-[56px] w-full flex-col items-center justify-center gap-1 py-1.5 text-[14px] leading-5 tracking-[0.1px] text-text-muted transition-colors hover:text-primary"
+              className="flex min-h-[56px] w-full flex-col items-center justify-center gap-1 py-1.5 text-sm leading-5 tracking-[0.1px] text-text-muted transition-colors hover:text-primary"
             >
               <span aria-hidden className="grid place-items-center rounded-full px-4 py-1">
                 <MessageCircle className="size-[22px]" />
@@ -171,7 +171,7 @@ function DaftarPonsel({ peran, pathname }: { peran: Peran; pathname: string }) {
               aria-controls="menu-lainnya-ponsel"
               onClick={() => setBuka((v) => !v)}
               className={cx(
-                "flex min-h-[56px] w-full flex-col items-center justify-center gap-1 py-1.5 text-[14px] leading-5 tracking-[0.1px]",
+                "flex min-h-[56px] w-full flex-col items-center justify-center gap-1 py-1.5 text-sm leading-5 tracking-[0.1px]",
                 lainnyaAktif || buka ? "text-primary" : "text-text-muted",
               )}
             >

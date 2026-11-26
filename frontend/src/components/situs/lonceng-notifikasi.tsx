@@ -235,7 +235,7 @@ export function LoncengNotifikasi({
           <Bell aria-hidden className="size-5 shrink-0" />
           {!ponsel ? <span className="font-bold text-base text-text">Notifikasi</span> : null}
           {belumDibaca > 0 ? (
-            <span className="inline-flex min-h-[22px] min-w-[22px] items-center justify-center rounded-full bg-danger px-1.5 text-[14px] leading-5 font-normal text-danger-foreground tabular-nums">
+            <span className="inline-flex min-h-[22px] min-w-[22px] items-center justify-center rounded-full bg-danger px-1.5 text-sm leading-5 font-normal text-danger-foreground tabular-nums">
               {belumDibaca}
               <span className="sr-only"> belum dibaca</span>
             </span>
@@ -246,7 +246,7 @@ export function LoncengNotifikasi({
           ref={panel}
           id={ponsel ? "panel-notif-ponsel" : "panel-notif-desktop"}
           className={cx(
-            "invisible z-40 origin-top-right rounded-[10px] opacity-0 border border-border bg-surface-raised p-3 shadow-lg",
+            "invisible z-40 origin-top-right rounded-[10px] opacity-0 border border-border bg-surface-raised p-3 shadow-mengambang",
             ponsel
               ? "fixed inset-x-4 top-[76px] sm:inset-auto sm:absolute sm:right-0 sm:top-full sm:mt-2 sm:w-[360px]"
               : "absolute right-0 top-full mt-2 w-[360px]",
@@ -283,7 +283,7 @@ export function LoncengNotifikasi({
                       {belum ? <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-hidden /> : null}
                     </div>
                     <p className="mt-0.5 text-sm text-text-muted">{n.isi}</p>
-                    <p className="mt-1 text-xs text-text-muted">{formatTanggalJam(n.dibuat_pada)}</p>
+                    <p className="mt-1 text-sm text-text-muted">{formatTanggalJam(n.dibuat_pada)}</p>
                   </div>
                 );
                 return (
@@ -310,7 +310,7 @@ export function LoncengNotifikasi({
           {toast ? (
             <div
               role="status"
-              className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-card-sm border border-border bg-surface-raised p-4 shadow-lg"
+              className="pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-card-sm border border-border bg-surface-raised p-4 shadow-mengambang"
             >
               <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-info-subtle text-info">
                 <Info className="size-5" />

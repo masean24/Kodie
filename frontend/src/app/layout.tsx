@@ -61,7 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-dvh flex-col">
         <a
           href="#konten"
-          className="sr-only z-50 rounded-full bg-[#0f172a] px-5 py-3 font-display font-semibold text-white shadow-xl ring-4 ring-[#c6f64d] focus:not-sr-only focus:fixed focus:left-4 focus:top-[84px]"
+          className="sr-only z-50 rounded-full bg-ink px-5 py-3 font-display font-semibold text-white shadow-mengambang ring-4 ring-lime focus:not-sr-only focus:fixed focus:left-4 focus:top-[84px]"
         >
           Lewati ke konten utama
         </a>

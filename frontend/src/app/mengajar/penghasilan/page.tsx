@@ -14,18 +14,18 @@ export default async function HalamanPenghasilan() {
   return (
     <div className="flex max-w-[920px] flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Penghasilan</h1>
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">Penghasilan</h1>
         <p className="mt-2 text-text-muted">Ringkasan honor per sesi yang sudah Anda laporkan.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Kartu className="bg-primary-subtle">
           <p className="text-sm font-bold text-primary">Total honor bulan berjalan</p>
-          <p className="mt-2 font-display text-[32px] font-extrabold leading-[38px]">{formatRupiah(bulanIni)}</p>
+          <p className="mt-2 font-display text-32 font-extrabold leading-[38px]">{formatRupiah(bulanIni)}</p>
         </Kartu>
         <Kartu>
           <p className="text-sm font-bold text-text-muted">Total belum dibayar</p>
-          <p className="mt-2 font-display text-[32px] font-extrabold leading-[38px]">{formatRupiah(belumDibayar)}</p>
+          <p className="mt-2 font-display text-32 font-extrabold leading-[38px]">{formatRupiah(belumDibayar)}</p>
         </Kartu>
       </div>
 

@@ -18,7 +18,7 @@ export default async function HalamanLogAdmin() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[40px] md:leading-[46px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-40 md:leading-[46px]">
           Log aksi admin
         </h1>
         <p className="mt-2 text-text-muted">
@@ -53,9 +53,9 @@ export default async function HalamanLogAdmin() {
                     </td>
                     <td className="px-5 py-4">
                       <p className="font-semibold">{log.target_tipe}</p>
-                      <p className="font-mono text-xs break-all text-text-muted">{log.target_id}</p>
+                      <p className="font-mono text-sm break-all text-text-muted">{log.target_id}</p>
                     </td>
-                    <td className="px-5 py-4 text-xs break-all text-text-muted">{formatDetailLog(log.detail)}</td>
+                    <td className="px-5 py-4 text-sm break-all text-text-muted">{formatDetailLog(log.detail)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -67,15 +67,15 @@ export default async function HalamanLogAdmin() {
               <Kartu key={log.id} className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Lencana nada="info">{log.aksi.replaceAll("_", " ")}</Lencana>
-                  <span className="text-xs text-text-muted">{formatTanggalJam(log.dibuat_pada)}</span>
+                  <span className="text-sm text-text-muted">{formatTanggalJam(log.dibuat_pada)}</span>
                 </div>
                 <p className="text-sm font-semibold">{adminNama}</p>
-                <p className="text-xs text-text-muted">
+                <p className="text-sm text-text-muted">
                   Target: <strong className="text-ink">{log.target_tipe}</strong>{" "}
                   <span className="font-mono break-all">({log.target_id})</span>
                 </p>
                 {log.detail ? (
-                  <p className="rounded bg-surface-sunken px-3 py-2 font-mono text-xs break-all text-text-muted">
+                  <p className="rounded bg-surface-sunken px-3 py-2 font-mono text-sm break-all text-text-muted">
                     {formatDetailLog(log.detail)}
                   </p>
                 ) : null}

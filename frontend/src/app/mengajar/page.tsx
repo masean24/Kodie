@@ -21,7 +21,7 @@ export default async function DashboardPengajar() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[32px] leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
+          <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">
             {sapaan(new Date())}, {p.nama.split(" ")[0]}
           </h1>
           <p className="mt-2 text-text-muted">
@@ -159,7 +159,7 @@ export default async function DashboardPengajar() {
         <div className="flex flex-col gap-6">
           <KartuBagian judul="Ringkasan penghasilan" id="judul-honor-ringkas" className="bg-primary-subtle">
             <p className="text-sm text-text-muted">Honor bulan ini</p>
-            <p className="mt-1 font-display text-[28px] font-extrabold leading-8 text-primary">
+            <p className="mt-1 font-display text-28 font-extrabold leading-8 text-primary">
               {formatRupiah(honorBulanIni)}
             </p>
             <p className="mt-3 text-sm text-text-muted">Belum dibayar: {formatRupiah(honorBelumDibayar)}</p>

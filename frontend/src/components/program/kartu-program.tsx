@@ -15,8 +15,8 @@ export function kalimatPertama(teks: string) {
  * dan biru untuk Simulasi Jurusan IT. Lingkaran panah memakai warna kontras masing-masing.
  */
 const TOMBOL_PROGRAM: Record<string, { tombol: string; panah: string }> = {
-  "coding-dasar": { tombol: "bg-[#0f172a] text-white hover:bg-[#1e293b]", panah: "bg-[#2563eb] text-white" },
-  "simulasi-jurusan-it": { tombol: "bg-[#1d4ed8] text-white hover:bg-[#1e40af]", panah: "bg-[#c6f64d] text-[#0f172a]" },
+  "coding-dasar": { tombol: "bg-ink text-white hover:bg-ink-soft", panah: "bg-royal-bright text-white" },
+  "simulasi-jurusan-it": { tombol: "bg-royal text-white hover:bg-royal-hover", panah: "bg-lime text-ink" },
 };
 
 export function KartuProgram({ p, judulTag = "h3" }: { p: Program; judulTag?: "h2" | "h3" }) {
@@ -26,7 +26,7 @@ export function KartuProgram({ p, judulTag = "h3" }: { p: Program; judulTag?: "h
     <article className={cx("flex h-full flex-col gap-4 rounded-card-sm bg-gradient-to-b p-6 text-on-block shadow-kartu", w.blok)}>
       <GambarProgram slug={p.slug} />
       <div>
-        <span className="inline-flex rounded-full bg-white px-3 py-0.5 text-sm font-bold text-[#0f172a]">
+        <span className="inline-flex rounded-full bg-white px-3 py-0.5 text-sm font-bold text-ink">
           {labelJenjang(p.jenjang, p.kelas_min, p.kelas_maks)}
         </span>
       </div>
@@ -39,8 +39,8 @@ export function KartuProgram({ p, judulTag = "h3" }: { p: Program; judulTag?: "h
           <span className="text-sm"> / paket {p.jumlah_sesi} sesi</span>
         </p>
         <ul className="flex flex-wrap gap-2 text-sm font-bold">
-          <li className="rounded-full bg-white px-3 py-0.5 text-[#0f172a]">{p.durasi_menit} menit</li>
-          <li className="rounded-full bg-white px-3 py-0.5 text-[#0f172a]">{p.jumlah_sesi} sesi</li>
+          <li className="rounded-full bg-white px-3 py-0.5 text-ink">{p.durasi_menit} menit</li>
+          <li className="rounded-full bg-white px-3 py-0.5 text-ink">{p.jumlah_sesi} sesi</li>
         </ul>
         <TombolTautan
           href={`/program/${p.slug}`}

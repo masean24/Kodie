@@ -73,7 +73,7 @@ export function MenuAkun({ nama, peranLabel, dashboard }: Props) {
       <div
         id="menu-akun"
         hidden={!buka}
-        className="absolute right-0 top-full mt-2 w-64 rounded-card-sm border border-border bg-surface-raised p-2 shadow-lg"
+        className="absolute right-0 top-full mt-2 w-64 rounded-card-sm border border-border bg-surface-raised p-2 shadow-mengambang"
       >
         <p className="px-3 py-2 text-sm text-text-muted">Masuk sebagai {peranLabel}</p>
         <Link

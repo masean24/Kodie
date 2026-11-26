@@ -25,10 +25,10 @@ export function BandKodie({
 }) {
   return (
     <section aria-labelledby={labelledBy} className="px-0 sm:px-4 lg:px-6">
-      <div className={cx("band-kodie vt-band on-block relative overflow-hidden rounded-b-[32px] shadow-xl md:rounded-b-block", className)}>
+      <div className={cx("band-kodie vt-band on-block relative overflow-hidden rounded-b-[32px] shadow-mengambang md:rounded-b-block", className)}>
         <div aria-hidden className="pola-titik pointer-events-none absolute inset-0 opacity-80" />
-        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-96 rounded-full bg-[#60a5fa]/20 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-32 right-10 size-[28rem] rounded-full bg-[#22d3ee]/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-96 rounded-full bg-sky/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-32 right-10 size-[28rem] rounded-full bg-cyan/15 blur-3xl" />
         <Kontainer data-tanpa-animasi className="relative z-10 pt-4 md:pt-6">
           <TombolKembali diBlok />
         </Kontainer>
@@ -68,7 +68,7 @@ export function JudulHalaman({ judul, sorotan, keterangan }: { judul: string; so
       <ObjekBidang bidang="jaringan" ukuran={92} miring={8} className="absolute right-[8%] top-4 hidden xl:block" />
       <ObjekBidang bidang="ai_data" ukuran={104} miring={4} className="absolute -right-2 top-[120px] hidden lg:block" />
       <Kontainer className="relative pb-12 pt-6 text-center md:pb-16 md:pt-8">
-        <h1 className="text-[30px] leading-[40px] font-extrabold tracking-tight sm:text-[38px] sm:leading-[48px] md:text-[46px] md:leading-[58px]">
+        <h1 className="text-32 leading-[40px] font-extrabold tracking-tight sm:text-40 sm:leading-[48px] md:text-48 md:leading-[58px]">
           <KataHero teks={judul} />
           {sorotan ? (
             <>
@@ -78,7 +78,7 @@ export function JudulHalaman({ judul, sorotan, keterangan }: { judul: string; so
           ) : null}
         </h1>
         {keterangan ? (
-          <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-[#dbeafe] md:text-lg">
+          <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-ice md:text-lg">
             <KataHero teks={keterangan} />
           </p>
         ) : null}

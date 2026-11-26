@@ -41,7 +41,7 @@ export default async function HalamanDetailPembayaranAdmin({
           <ArrowLeft data-kembali aria-hidden className="size-4" /> Kembali ke antrean pembayaran
         </Link>
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="font-mono text-[28px] leading-[34px] font-extrabold md:text-[36px] md:leading-[42px]">
+          <h1 className="font-mono text-28 leading-[34px] font-extrabold md:text-40 md:leading-[42px]">
             {booking.kode}
           </h1>
           <Lencana nada={NADA_PEMBAYARAN[pembayaran.status]}>
@@ -138,7 +138,7 @@ export default async function HalamanDetailPembayaranAdmin({
                 <FileImage aria-hidden className="size-5 text-primary" />
                 <span>Berkas tersimpan di bucket privat bukti-bayar</span>
               </div>
-              <p className="font-mono text-xs break-all">{pembayaran.bukti_path}</p>
+              <p className="font-mono text-sm break-all">{pembayaran.bukti_path}</p>
               <p>
                 Dalam mode contoh (mock), pratinjau signed URL Supabase belum aktif. Anda tetap dapat menguji
                 tombol Setujui atau Tolak di bawah.

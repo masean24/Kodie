@@ -57,7 +57,7 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
           <span className="inline-flex rounded-full bg-surface px-3 py-0.5 text-sm font-bold text-text">
             {labelJenjang(p.jenjang, p.kelas_min, p.kelas_maks)}
           </span>
-          <h1 className="mt-4 text-[28px] leading-[36px] font-extrabold tracking-tight sm:text-[36px] sm:leading-[46px] md:text-[42px] md:leading-[52px]">
+          <h1 className="mt-4 text-28 leading-[36px] font-extrabold tracking-tight sm:text-40 sm:leading-[46px] md:text-48 md:leading-[52px]">
             {p.nama}
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 md:text-lg">{p.deskripsi}</p>
@@ -86,7 +86,7 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
           </dl>
         </Kartu>
         <Kartu className="flex flex-col gap-3">
-          <p className="font-display text-[28px] font-semibold leading-8">{formatRupiah(p.harga_paket)}</p>
+          <p className="font-display text-28 font-semibold leading-8">{formatRupiah(p.harga_paket)}</p>
           <p className="text-sm text-text-muted">per paket {p.jumlah_sesi} sesi</p>
           <TombolTautan href={`/kelas?program=${p.slug}`} ukuran="lg" className="mt-2">
             Lihat jadwal kelas
@@ -96,7 +96,7 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
 
       {p.silabus && p.silabus.length > 0 ? (
         <section aria-labelledby="judul-silabus" className="mt-12">
-          <h2 id="judul-silabus" className="text-2xl font-bold md:text-[32px] md:leading-10">
+          <h2 id="judul-silabus" className="text-2xl font-bold md:text-32 md:leading-10">
             Silabus {p.silabus.length} sesi
           </h2>
           <ol className="mt-6 grid gap-4 md:grid-cols-2">
@@ -115,7 +115,7 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
       ) : null}
 
       <section aria-labelledby="judul-kelas-program" className="mt-12">
-        <h2 id="judul-kelas-program" className="text-2xl font-bold md:text-[32px] md:leading-10">
+        <h2 id="judul-kelas-program" className="text-2xl font-bold md:text-32 md:leading-10">
           Kelas yang dibuka
         </h2>
         <Suspense
