@@ -30,7 +30,7 @@ export default function Beranda() {
         <Kontainer>
           <h2
             id="judul-program"
-            className="text-center text-[28px] leading-[38px] font-extrabold tracking-tight sm:text-[34px] sm:leading-[44px] md:text-[40px] md:leading-[52px]"
+            className="text-center text-28 leading-[38px] font-extrabold tracking-tight sm:text-32 sm:leading-[44px] md:text-40 md:leading-[52px]"
           >
             Tiga program, <Sorotan>naik bertahap</Sorotan>
           </h2>
@@ -58,14 +58,14 @@ function SimulasiKelasLive() {
       <Kontainer>
         <h2
           id="judul-simulasi"
-          className="text-center text-[28px] leading-[38px] font-extrabold tracking-tight sm:text-[34px] sm:leading-[44px] md:text-[40px] md:leading-[52px]"
+          className="text-center text-28 leading-[38px] font-extrabold tracking-tight sm:text-32 sm:leading-[44px] md:text-40 md:leading-[52px]"
         >
           Intip suasana <Sorotan>kelas live</Sorotan>
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-base leading-7 text-text-muted md:text-lg">
           Coba langsung: tanya Kiko di chat, angkat tangan, atau kirim reaksi. Begini rasanya belajar bareng di Kodie.
         </p>
-        <p className="mx-auto mt-3 w-fit rounded-full bg-surface-sunken px-3 py-1 text-center text-xs font-bold text-text-muted">
+        <p className="mx-auto mt-3 w-fit rounded-full bg-surface-sunken px-3 py-1 text-center text-sm font-bold text-text-muted">
           Mode Simulasi Interaktif · bukan rekaman kelas asli
         </p>
         <div className="mt-8">
@@ -82,15 +82,13 @@ const MASALAH_KODIE: {
   judul: string;
   masalah: string;
   solusi: string;
-  warnaIkon: string;
 }[] = [
   {
     ikon: Globe,
-    kategori: "Akses & Biaya",
+    kategori: "Akses & biaya",
     judul: "Biaya mahal & terpusat",
     masalah: "Kursus coding bermutu sering mahal dan terpusat di kota besar, sehingga kesenjangan literasi digital makin lebar.",
     solusi: "Daring mulai Rp200rb/paket + Lab gratis",
-    warnaIkon: "bg-info-subtle text-info",
   },
   {
     ikon: Users,
@@ -98,15 +96,13 @@ const MASALAH_KODIE: {
     judul: "Belajar sendiri cepat buntu",
     masalah: "Tanpa pengajar terverifikasi, siswa mudah berhenti saat error dan orang tua sulit memantau progres belajarnya.",
     solusi: "Kelas kecil 10–15 siswa + laporan sesi",
-    warnaIkon: "bg-accent text-on-accent",
   },
   {
     ikon: Compass,
-    kategori: "Arah Jurusan",
+    kategori: "Arah jurusan",
     judul: "Bingung pilih jurusan IT",
     masalah: "Banyak siswa masuk jurusan IT tanpa pernah mencoba langsung praktik software, jaringan, IoT, dan AI.",
     solusi: "Tes Minat gratis & Simulasi 4 Jurusan IT",
-    warnaIkon: "bg-neutral-subtle text-text",
   },
 ];
 
@@ -120,7 +116,7 @@ function MengapaKodie() {
         <Muncul className="mx-auto max-w-3xl text-center">
           <h2
             id="judul-mengapa"
-            className="text-[28px] leading-[38px] font-extrabold tracking-tight sm:text-[34px] sm:leading-[44px] md:text-[40px] md:leading-[52px]"
+            className="text-28 leading-[38px] font-extrabold tracking-tight sm:text-32 sm:leading-[44px] md:text-40 md:leading-[52px]"
           >
             Mengapa{" "}
             <span className="whitespace-nowrap">
@@ -134,23 +130,23 @@ function MengapaKodie() {
           </p>
         </Muncul>
 
-        <ul className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
+        {/* Baris masalah → solusi (bukan deretan kartu ikon), supaya tidak mengulang pola section Keunggulan. */}
+        <ul className="mt-12 flex flex-col gap-4">
           {MASALAH_KODIE.map((m, i) => (
-            <Muncul as="li" key={m.judul} tunda={i * 0.08} className="flex">
-              <article className="flex w-full flex-col rounded-card border border-border bg-surface p-6 shadow-kartu transition-[border-color,box-shadow] duration-300 hover:border-primary hover:shadow-kartu-hover">
-                <div className="flex-1">
-                  <div className="flex items-center justify-between gap-3">
-                    <span aria-hidden className={cx("grid size-12 shrink-0 place-items-center rounded-2xl", m.warnaIkon)}>
-                      <m.ikon className="size-6" />
-                    </span>
-                    <span className={cx("rounded-full px-3 py-1 text-sm font-bold", m.warnaIkon)}>{m.kategori}</span>
-                  </div>
-                  <h3 className="mt-5 text-xl font-bold leading-snug">{m.judul}</h3>
+            <Muncul as="li" key={m.judul} tunda={i * 0.08}>
+              <article className="grid gap-5 rounded-card border border-border bg-surface p-6 shadow-kartu md:grid-cols-[minmax(0,1fr)_auto_minmax(0,22rem)] md:items-center md:gap-8 md:p-8">
+                <div>
+                  <p className="flex items-center gap-2 text-sm font-bold text-primary">
+                    <m.ikon aria-hidden className="size-5" />
+                    {m.kategori}
+                  </p>
+                  <h3 className="mt-2 text-xl font-bold leading-snug">{m.judul}</h3>
                   <p className="mt-2 leading-relaxed text-text-muted">{m.masalah}</p>
                 </div>
-                <div className="mt-6 border-t border-border pt-4">
-                  <p className="text-xs font-bold uppercase tracking-wider text-text-muted">Solusi Kodie</p>
-                  <p className="mt-1 text-sm font-bold text-text">{m.solusi}</p>
+                <ArrowRight aria-hidden className="hidden size-6 text-text-muted md:block" />
+                <div className="rounded-card-sm bg-primary-subtle p-5">
+                  <p className="text-sm font-bold text-primary">Solusi Kodie</p>
+                  <p className="mt-1 text-lg font-bold leading-snug text-text">{m.solusi}</p>
                 </div>
               </article>
             </Muncul>
@@ -159,42 +155,36 @@ function MengapaKodie() {
 
         <div className="mt-5 grid grid-cols-1 gap-5 md:mt-6 md:grid-cols-2 md:gap-6">
           <Muncul tunda={0.12} className="flex">
-            <article className="blok-merek on-block flex w-full flex-col rounded-card border border-[#3b82f6]/25 p-6 shadow-kartu md:p-8">
-              <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-[#c6f64d] px-3.5 py-1 font-display text-xs font-extrabold text-[#0f172a]">
+            <article className="blok-merek on-block flex w-full flex-col rounded-card border border-blue/25 p-6 shadow-kartu md:p-8">
+              <div className="flex items-center gap-3">
+                <span className="rounded-full bg-lime px-3.5 py-1 font-display text-sm font-extrabold text-ink">
                   SDG 4 · Pendidikan Berkualitas
-                </span>
-                <span aria-hidden className="font-display text-2xl font-extrabold text-white/30">
-                  04
                 </span>
               </div>
               <h3 className="mt-5 text-2xl font-extrabold leading-snug text-white">Akses coding merata SD–SMA</h3>
-              <p className="mt-2.5 flex-1 leading-relaxed text-[#dbeafe]">
+              <p className="mt-2.5 flex-1 leading-relaxed text-ice">
                 Memperluas literasi digital ke seluruh Indonesia lewat kelas daring kelompok kecil, latihan langsung di browser, dan laporan
                 tiap sesi untuk orang tua.
               </p>
-              <p className="mt-6 border-t border-white/20 pt-4 text-sm font-bold text-[#c6f64d]">
+              <p className="mt-6 border-t border-white/20 pt-4 text-sm font-bold text-lime">
                 Mulai Rp200rb/paket · Tes Minat &amp; Kodie Lab gratis
               </p>
             </article>
           </Muncul>
 
           <Muncul tunda={0.2} className="flex">
-            <article className="flex w-full flex-col rounded-card border border-[#a3d929] bg-gradient-to-br from-coding-dasar-strong to-coding-dasar-block-to p-6 text-[#0f172a] shadow-kartu md:p-8">
-              <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-[#0f172a] px-3.5 py-1 font-display text-xs font-extrabold text-[#c6f64d]">
+            <article className="flex w-full flex-col rounded-card border border-lime-deep bg-gradient-to-br from-coding-dasar-strong to-coding-dasar-block-to p-6 text-ink shadow-kartu md:p-8">
+              <div className="flex items-center gap-3">
+                <span className="rounded-full bg-ink px-3.5 py-1 font-display text-sm font-extrabold text-lime">
                   SDG 8 · Pekerjaan Layak
                 </span>
-                <span aria-hidden className="font-display text-2xl font-extrabold text-[#0f172a]/20">
-                  08
-                </span>
               </div>
-              <h3 className="mt-5 text-2xl font-extrabold leading-snug text-[#0f172a]">Karier &amp; ruang mengajar talenta IT</h3>
-              <p className="mt-2.5 flex-1 leading-relaxed text-[#1e293b]">
+              <h3 className="mt-5 text-2xl font-extrabold leading-snug text-ink">Karier &amp; ruang mengajar talenta IT</h3>
+              <p className="mt-2.5 flex-1 leading-relaxed text-ink-soft">
                 Membantu siswa menata arah karier teknologi sejak dini sekaligus membuka peluang kerja paruh waktu yang fleksibel bagi
                 mahasiswa dan talenta muda IT.
               </p>
-              <p className="mt-6 border-t border-[#0f172a]/15 pt-4 text-sm font-bold text-[#0f172a]">
+              <p className="mt-6 border-t border-ink/15 pt-4 text-sm font-bold text-ink">
                 Honor Rp50rb–Rp75rb/sesi · Teaching Playbook siap pakai
               </p>
             </article>
@@ -214,42 +204,42 @@ function MengapaKodie() {
 function Pahlawan() {
   return (
     <section className="px-0 sm:px-4 lg:px-6">
-      <div className="hero-kodie vt-band relative flex overflow-hidden rounded-b-[32px] shadow-xl md:rounded-b-block">
+      <div className="hero-kodie vt-band relative flex overflow-hidden rounded-b-[32px] shadow-mengambang md:rounded-b-block">
         <div aria-hidden className="pola-titik pointer-events-none absolute inset-0 opacity-80" />
-        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-96 rounded-full bg-[#60a5fa]/20 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute right-10 top-1/2 size-[28rem] -translate-y-1/2 rounded-full bg-[#22d3ee]/15 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 size-96 rounded-full bg-sky/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute right-10 top-1/2 size-[28rem] -translate-y-1/2 rounded-full bg-cyan/15 blur-3xl" />
 
         <Kontainer className="relative grid w-full items-center gap-12 py-12 md:py-16 lg:grid-cols-2 lg:gap-8">
           <RevealHero className="contents">
             <div>
-            <p data-hero="badge" className="hero-muncul inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-sm font-bold text-[#dbeafe]">
+            <p data-hero="badge" className="hero-muncul inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-sm font-bold text-ice">
               <span aria-hidden className="size-2 animate-pulse rounded-full bg-highlight-on-block-bg" />
               Kurikulum interaktif dan praktik langsung
             </p>
-            <h1 className="mt-6 text-[34px] leading-[1.15] font-extrabold tracking-tight sm:text-[46px] lg:text-[54px]">
+            <h1 className="mt-6 text-32 leading-[1.15] font-extrabold tracking-tight sm:text-48 lg:text-56">
               <KataHero teks="Belajar coding" />
               <br />
               <KataHero teks="dan teknologi" />
               <br />
               <span data-hero="pil" className="hero-muncul mt-3 inline-block">
-                <span className="inline-block -rotate-1 whitespace-nowrap rounded-2xl bg-highlight-on-block-bg px-4 py-1 text-highlight-on-block-fg shadow-lg shadow-[#c6f64d]/20">
+                <span className="inline-block -rotate-1 whitespace-nowrap rounded-2xl bg-highlight-on-block-bg px-4 py-1 text-highlight-on-block-fg shadow-mengambang">
                   SD sampai SMA
                 </span>
               </span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-[#dbeafe] md:text-lg md:leading-8">
+            <p className="mt-6 max-w-xl text-base leading-7 text-ice md:text-lg md:leading-8">
               <KataHero teks="Bantu anak mengasah logika, kreativitas, dan siap menghadapi masa depan digital lewat kelas daring interaktif yang seru dan terarah." />
             </p>
             <div data-hero="aksi" className="hero-muncul mt-8 flex flex-wrap items-center gap-3.5">
-              <TombolTautan href="/tes-minat" varian="ajakan" ukuran="lg" panah className="shadow-lg shadow-[#c6f64d]/25">
+              <TombolTautan href="/tes-minat" varian="ajakan" ukuran="lg" panah className="shadow-mengambang">
                 Coba tes minat
               </TombolTautan>
-              <TombolTautan href="/kelas" varian="terang" ukuran="lg" className="shadow-md">
+              <TombolTautan href="/kelas" varian="terang" ukuran="lg" className="shadow-kartu">
                 Lihat jadwal kelas
               </TombolTautan>
             </div>
             <div data-hero="aksi" className="hero-muncul mt-6 flex flex-wrap items-center gap-2.5 text-sm">
-              <span className="font-bold text-[#dbeafe]">Tes minat:</span>
+              <span className="font-bold text-ice">Tes minat:</span>
               <ul aria-label="Tentang tes minat" className="flex flex-wrap items-center gap-2 font-bold">
                 {["Gratis", "12 soal", "Tanpa akun"].map((t) => (
                   <li key={t} className="rounded-full border border-white/15 bg-white/15 px-3.5 py-1">
@@ -308,21 +298,21 @@ function IlustrasiHero() {
       </div>
 
       <div data-hero="lencana-kiri" className="hero-muncul absolute left-0 top-0">
-      <div className="melayang-2 flex items-center gap-3 rounded-2xl bg-white px-4 py-2.5 text-[#0f172a] shadow-xl">
-        <span className="grid size-9 place-items-center rounded-xl bg-[#dbeafe] text-sm font-extrabold text-[#1d4ed8]">&lt;/&gt;</span>
+      <div className="melayang-2 flex items-center gap-3 rounded-2xl bg-white px-4 py-2.5 text-ink shadow-mengambang">
+        <span className="grid size-9 place-items-center rounded-xl bg-ice text-sm font-extrabold text-royal">&lt;/&gt;</span>
         <span>
           <span className="block text-sm font-bold leading-tight">Logika dan Python</span>
-          <span className="block text-[13px] leading-tight text-[#475569]">Praktik bikin proyek</span>
+          <span className="block text-sm leading-tight text-slate-muted">Praktik bikin proyek</span>
         </span>
       </div>
       </div>
 
       <div data-hero="lencana-kanan" className="hero-muncul absolute bottom-0 right-0">
-      <div className="melayang-3 flex items-center gap-3 rounded-2xl border border-white/20 bg-[#0f2557]/90 px-4 py-2.5 text-white shadow-xl backdrop-blur-md">
+      <div className="melayang-3 flex items-center gap-3 rounded-2xl border border-white/20 bg-navy-night/90 px-4 py-2.5 text-white shadow-mengambang backdrop-blur-md">
         <span className="size-2.5 rounded-full bg-highlight-on-block-bg" />
         <span>
           <span className="block text-sm font-bold leading-tight">Sesi live interaktif</span>
-          <span className="block text-[13px] leading-tight text-[#bfdbfe]">Tanya jawab langsung</span>
+          <span className="block text-sm leading-tight text-sky-pale">Tanya jawab langsung</span>
         </span>
       </div>
       </div>
@@ -378,7 +368,7 @@ function Nilai() {
         <Muncul className="mx-auto max-w-3xl text-center">
           <h2
             id="judul-nilai"
-            className="text-[26px] leading-[40px] font-extrabold tracking-tight sm:text-[32px] sm:leading-[48px] md:text-[38px] md:leading-[56px]"
+            className="text-28 leading-[40px] font-extrabold tracking-tight sm:text-32 sm:leading-[48px] md:text-40 md:leading-[56px]"
           >
             Di Kodie, kelasnya{" "}
             <span className="whitespace-nowrap">
@@ -459,7 +449,7 @@ function Pengajar() {
           <div>
             <h2
               id="judul-pengajar"
-              className="text-[26px] leading-[34px] font-extrabold tracking-tight md:text-[36px] md:leading-[46px]"
+              className="text-28 leading-[34px] font-extrabold tracking-tight md:text-40 md:leading-[46px]"
             >
               Diajar mahasiswa terverifikasi
             </h2>
@@ -517,7 +507,7 @@ function AjakanTes() {
           <div className="relative mx-auto max-w-2xl">
             <h2
               id="judul-ajakan"
-              className="text-[28px] leading-[38px] font-extrabold tracking-tight sm:text-[34px] sm:leading-[44px] md:text-[40px] md:leading-[52px]"
+              className="text-28 leading-[38px] font-extrabold tracking-tight sm:text-32 sm:leading-[44px] md:text-40 md:leading-[52px]"
             >
               Belum tahu mulai dari mana?
             </h2>

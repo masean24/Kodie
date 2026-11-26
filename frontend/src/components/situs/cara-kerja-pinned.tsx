@@ -62,11 +62,11 @@ function garisAcuan(kolomKiri: HTMLElement | null) {
  * tahap di tengah bergradasi biru. `aksen` dipakai untuk titik, garis progres, nomor besar, dan cahaya kartu aktif.
  */
 const WARNA: { ubin: string; aksen: string }[] = [
-  { ubin: "bg-coding-dasar-strong text-[#0f172a]", aksen: "var(--k-coding-dasar-strong)" },
-  { ubin: "bg-kelas-reguler-strong text-[#0f172a]", aksen: "var(--k-kelas-reguler-strong)" },
+  { ubin: "bg-coding-dasar-strong text-ink", aksen: "var(--k-coding-dasar-strong)" },
+  { ubin: "bg-kelas-reguler-strong text-ink", aksen: "var(--k-kelas-reguler-strong)" },
   { ubin: "blok-merek", aksen: "var(--k-primary)" },
-  { ubin: "bg-software-strong text-[#0f172a]", aksen: "var(--k-software-strong)" },
-  { ubin: "bg-iot-strong text-[#0f172a]", aksen: "var(--k-iot-strong)" },
+  { ubin: "bg-software-strong text-ink", aksen: "var(--k-software-strong)" },
+  { ubin: "bg-iot-strong text-ink", aksen: "var(--k-iot-strong)" },
 ];
 
 /** Gradien garis progres; berhenti warna diletakkan rata agar kira-kira sejajar dengan titik tiap langkah. */
@@ -175,20 +175,20 @@ export function CaraKerjaPinned() {
         >
           <h2
             id="judul-cara"
-            className="text-center text-[28px] leading-[38px] font-extrabold tracking-tight sm:text-[34px] sm:leading-[44px] md:text-[40px] md:leading-[52px] lg:text-left lg:[@media(max-height:820px)]:text-[32px] lg:[@media(max-height:820px)]:leading-[42px]"
+            className="text-center text-28 leading-[38px] font-extrabold tracking-tight sm:text-32 sm:leading-[44px] md:text-40 md:leading-[52px] lg:text-left lg:[@media(max-height:820px)]:text-32 lg:[@media(max-height:820px)]:leading-[42px]"
           >
             Dari tes minat sampai laporan
           </h2>
 
           {/* Panel progres: blok warna merek dengan aksen lime. */}
-          <div className="blok-merek on-block relative mt-6 hidden overflow-hidden rounded-3xl p-6 shadow-xl lg:block lg:[@media(max-height:820px)]:mt-4 lg:[@media(max-height:820px)]:p-5">
-            <span aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-[#c6f64d]/20 blur-2xl" />
-            <span aria-hidden className="pointer-events-none absolute -bottom-20 -left-10 size-44 rounded-full bg-[#60a5fa]/30 blur-2xl" />
+          <div className="blok-merek on-block relative mt-6 hidden overflow-hidden rounded-3xl p-6 shadow-mengambang lg:block lg:[@media(max-height:820px)]:mt-4 lg:[@media(max-height:820px)]:p-5">
+            <span aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-lime/20 blur-2xl" />
+            <span aria-hidden className="pointer-events-none absolute -bottom-20 -left-10 size-44 rounded-full bg-sky/30 blur-2xl" />
 
             {/* Bagian ringkasan (duplikat isi kartu kanan) disembunyikan dari pembaca layar. */}
             <div aria-hidden>
             {/* Langkah yang sedang dibaca, berganti mengikuti scroll. */}
-            <div className="relative flex items-center justify-between text-xs font-semibold tracking-wide text-white/70 uppercase">
+            <div className="relative flex items-center justify-between text-sm font-semibold text-white/80">
               <span>Alur belajar di Kodie</span>
               <span className="rounded-full bg-white/12 px-2.5 py-1 text-white tabular-nums">
                 {sorotan + 1}/{LANGKAH.length}
@@ -197,7 +197,7 @@ export function CaraKerjaPinned() {
             <div className="relative mt-4 flex items-center gap-4 rounded-2xl bg-white/10 p-4 ring-1 ring-white/15 lg:[@media(max-height:820px)]:mt-3 lg:[@media(max-height:820px)]:p-3">
               <span
                 className={cx(
-                  "grid size-14 shrink-0 place-items-center rounded-2xl shadow-md lg:[@media(max-height:820px)]:size-11",
+                  "grid size-14 shrink-0 place-items-center rounded-2xl shadow-kartu lg:[@media(max-height:820px)]:size-11",
                   WARNA[sorotan].ubin,
                 )}
               >
@@ -211,7 +211,7 @@ export function CaraKerjaPinned() {
 
             <div className="relative mt-5 h-2 overflow-hidden rounded-full bg-white/15 lg:[@media(max-height:820px)]:mt-4">
               <span
-                className="block h-full rounded-full bg-[#c6f64d] transition-[width] duration-500 ease-out motion-reduce:transition-none"
+                className="block h-full rounded-full bg-lime transition-[width] duration-500 ease-out motion-reduce:transition-none"
                 style={{ width: `${(jumlahSelesai / LANGKAH.length) * 100}%` }}
               />
             </div>
@@ -232,11 +232,11 @@ export function CaraKerjaPinned() {
                     <span
                       className={cx(
                         "grid size-5 shrink-0 place-items-center rounded-full transition-colors duration-300",
-                        selesai ? "bg-[#c6f64d] text-[#0f172a]" : st === "aktif" ? "ring-2 ring-[#c6f64d]" : "ring-1 ring-white/35",
+                        selesai ? "bg-lime text-ink" : st === "aktif" ? "ring-2 ring-lime" : "ring-1 ring-white/35",
                       )}
                     >
                       {selesai ? <Check className="size-3" /> : null}
-                      {st === "aktif" ? <span className="size-2 rounded-full bg-[#c6f64d]" /> : null}
+                      {st === "aktif" ? <span className="size-2 rounded-full bg-lime" /> : null}
                     </span>
                     {l.judul}
                   </li>
@@ -322,24 +322,10 @@ function KartuLangkah({ l, i, status }: { l: Langkah; i: number; status: Status 
             : undefined
         }
       >
-        {/* Nomor besar bergaris tepi berwarna aksen sebagai penanda langkah. */}
         <span
           aria-hidden
           className={cx(
-            "pointer-events-none absolute right-5 top-2 select-none font-display text-[72px] leading-none font-extrabold transition-opacity duration-500 sm:text-[96px] lg:right-8 lg:top-4 lg:text-[120px]",
-            tampil ? "opacity-100" : "opacity-50",
-          )}
-          style={{
-            color: tampil ? `color-mix(in oklab, ${aksen} 28%, transparent)` : "transparent",
-            WebkitTextStroke: `1.5px color-mix(in oklab, ${aksen} 80%, var(--k-text) 20%)`,
-          }}
-        >
-          {String(i + 1).padStart(2, "0")}
-        </span>
-        <span
-          aria-hidden
-          className={cx(
-            "relative grid size-12 place-items-center rounded-2xl shadow-sm transition-transform duration-500 lg:size-14",
+            "relative grid size-12 place-items-center rounded-2xl shadow-kartu transition-transform duration-500 lg:size-14",
             ubin,
             aktif && "-rotate-6",
           )}
@@ -349,7 +335,7 @@ function KartuLangkah({ l, i, status }: { l: Langkah; i: number; status: Status 
         <span className="relative mt-5 inline-flex rounded-full border border-border bg-surface-sunken px-3 py-1 text-sm font-semibold text-text-muted">
           {l.ket}
         </span>
-        <h3 className="relative mt-3 text-xl leading-snug font-bold sm:text-2xl lg:text-[28px] lg:leading-9">{l.judul}</h3>
+        <h3 className="relative mt-3 text-xl leading-snug font-bold sm:text-2xl lg:text-28 lg:leading-9">{l.judul}</h3>
         <p className="relative mt-2 max-w-[34rem] text-base leading-7 text-text-muted lg:text-lg lg:leading-8">
           {l.penjelasan}
         </p>

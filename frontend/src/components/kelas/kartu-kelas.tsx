@@ -47,11 +47,11 @@ export function KartuKelas({ k }: { k: KelasKatalog }) {
         <TagProgram slug={k.program_slug}>{labelJenjang(k.jenjang, k.kelas_min, k.kelas_maks)}</TagProgram>
       </div>
       <h3 className="text-xl font-semibold">
-        <Link href={`/kelas/${k.id}`} className="hover:underline">
+        <Link href={`/kelas/${k.id}`} className="relative hover:underline after:absolute after:-inset-y-2.5 after:inset-x-0 after:content-['']">
           {judulKelas(k)}
         </Link>
       </h3>
-      <ul className="flex flex-col gap-1.5 text-[15px]">
+      <ul className="flex flex-col gap-1.5 text-base">
         <li className="flex items-start gap-2">
           <CalendarDays aria-hidden className="mt-1 size-4 shrink-0" />
           Mulai {formatTanggal(k.mulai_pada)}
@@ -66,7 +66,7 @@ export function KartuKelas({ k }: { k: KelasKatalog }) {
             Pengajar:{" "}
             <Link
               href={`/pengajar/${k.pengajar_id}`}
-              className="inline-flex items-center gap-1 font-bold text-primary underline-offset-4 hover:underline"
+              className="relative inline-flex items-center gap-1 font-bold after:absolute after:-inset-y-2.5 after:inset-x-0 after:content-[''] text-primary underline-offset-4 hover:underline"
             >
               {k.pengajar_nama}
               <ShieldCheck aria-hidden className="size-4 text-success" />

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useForm, useWatch, type FieldValues, type Path, type UseFormSetError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Check, GraduationCap, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, GraduationCap, Users, type LucideIcon } from "lucide-react";
 import type { z } from "zod";
 import type { Bidang } from "@/types/database";
 import { aksiDaftar } from "@/app/(auth)/aksi";
@@ -34,6 +34,7 @@ const PILIHAN: { peran: PeranDaftar; judul: string; ket: string; ikon: LucideIco
 export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
   const [peran, setPeran] = useState<PeranDaftar | null>(peranAwal);
   const [langkah, setLangkah] = useState<1 | 2>(1);
+  const [belumPilih, setBelumPilih] = useState(false);
   const judulRef = useRef<HTMLHeadingElement>(null);
   const sudahPindah = useRef(false);
 
@@ -51,11 +52,12 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
           onSubmit={(e) => {
             e.preventDefault();
             if (peran) setLangkah(2);
+            else setBelumPilih(true);
           }}
         >
-          <fieldset>
+          <fieldset aria-describedby={belumPilih && !peran ? "galat-peran" : undefined}>
             <legend className="contents">
-              <h1 ref={judulRef} tabIndex={-1} className="text-[32px] leading-[38px] font-extrabold focus:outline-none md:text-[44px] md:leading-[50px]">
+              <h1 ref={judulRef} tabIndex={-1} className="text-32 leading-[38px] font-extrabold focus:outline-none md:text-48 md:leading-[50px]">
                 Daftar sebagai siapa?
               </h1>
             </legend>
@@ -92,11 +94,25 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
                       <span className={cx("block font-display text-lg font-semibold", aktif && "text-primary")}>{o.judul}</span>
                       <span className="block text-sm text-text-muted">{o.ket}</span>
                     </span>
-                    {aktif ? <Check aria-hidden className="size-5 text-primary" /> : null}
+                    {/* Lingkaran radio terlihat di setiap pilihan, jadi jelas ini pilihan tunggal. */}
+                    <span
+                      aria-hidden
+                      className={cx(
+                        "grid size-6 shrink-0 place-items-center rounded-full border-2",
+                        aktif ? "border-primary bg-primary" : "border-border-strong bg-surface",
+                      )}
+                    >
+                      {aktif ? <span className="size-2.5 rounded-full bg-primary-foreground" /> : null}
+                    </span>
                   </label>
                 );
               })}
             </div>
+            {belumPilih && !peran ? (
+              <p id="galat-peran" role="alert" className="mt-3 font-bold text-danger">
+                Pilih peran dulu untuk melanjutkan.
+              </p>
+            ) : null}
           </fieldset>
           <p className="mt-4 text-sm text-text-muted">Siswa SD didaftarkan oleh orang tua.</p>
           <Link
@@ -106,7 +122,7 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
             Ingin mengajar di Kodie? Lihat posisi pengajar yang dibuka
             <ArrowRight aria-hidden className="size-4 shrink-0" />
           </Link>
-          <Tombol type="submit" ukuran="lg" className="mt-6 w-full" disabled={!peran}>
+          <Tombol type="submit" ukuran="lg" className="mt-6 w-full">
             Lanjut
           </Tombol>
         </form>
@@ -126,7 +142,7 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
   return (
     <KartuAuth lebar="max-w-[640px]">
       <Langkah ke={2} dari={2} label={`Isi ${judul.toLowerCase()}`} />
-      <h1 ref={judulRef} tabIndex={-1} className="mt-6 text-[32px] leading-[38px] font-extrabold focus:outline-none md:text-[44px] md:leading-[50px]">
+      <h1 ref={judulRef} tabIndex={-1} className="mt-6 text-32 leading-[38px] font-extrabold focus:outline-none md:text-48 md:leading-[50px]">
         {judul}
       </h1>
       {peran === "orang_tua" ? <FormOrangTua kembali={kembali} /> : null}

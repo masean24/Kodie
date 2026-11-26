@@ -635,7 +635,7 @@ export default function SimulasiKelas() {
                   aria-selected={idxMateri === i}
                   onClick={() => pilihMateri(i)}
                   className={cx(
-                    "min-h-[32px] rounded-md px-2.5 text-xs font-medium transition-colors",
+                    "min-h-touch rounded-md px-2.5 text-xs font-medium transition-colors",
                     idxMateri === i ? "bg-[#1a73e8] text-white" : "text-[#e8eaed] hover:bg-white/10",
                   )}
                 >

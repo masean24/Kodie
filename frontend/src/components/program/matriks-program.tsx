@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Star } from "lucide-react";
 import type { Program } from "@/types/database";
 import { labelJenjang } from "@/components/kategori";
 import { cx } from "@/lib/cx";
@@ -121,7 +121,7 @@ function cocokJenjang(p: ProgramMatriks, filter: GradeFilter): boolean {
 
 function Centang({ label, colorVar }: { label: string; colorVar: ColorVar }) {
   return (
-    <span className="inline-flex items-center gap-2 text-[13.5px] font-semibold">
+    <span className="inline-flex items-center gap-2 text-sm font-semibold">
       <span
         aria-hidden="true"
         className="grid size-5 shrink-0 place-items-center rounded-full"
@@ -158,12 +158,12 @@ const COMPARISON_ROWS: BarisPerbandingan[] = [
     align: "align-top",
     render: (p) => (
       <>
-        <p className="text-[13.5px] leading-snug font-semibold">{p.tagline}</p>
+        <p className="text-sm leading-snug font-semibold">{p.tagline}</p>
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           {p.tools.map((tool) => (
             <span
               key={tool}
-              className="whitespace-nowrap rounded-lg border px-2.5 py-0.5 text-[11.5px] font-semibold"
+              className="whitespace-nowrap rounded-lg border px-2.5 py-0.5 text-sm font-semibold"
               style={{
                 backgroundColor: `var(--mp-${p.colorVar}-chip-bg)`,
                 borderColor: `var(--mp-${p.colorVar}-chip-border)`,
@@ -182,20 +182,20 @@ const COMPARISON_ROWS: BarisPerbandingan[] = [
     align: "align-middle",
     render: (p) => (
       <>
-        <p className="text-[14px] font-bold">{p.duration}</p>
-        <p className="mt-0.5 text-xs text-text-muted">Seminggu sekali · daring live</p>
+        <p className="text-sm font-bold">{p.duration}</p>
+        <p className="mt-0.5 text-sm text-text-muted">Seminggu sekali · daring live</p>
       </>
     ),
   },
   {
     label: "Kuota kelas",
     align: "align-middle",
-    render: (p) => <span className="text-[14px] font-semibold">{p.quota}</span>,
+    render: (p) => <span className="text-sm font-semibold">{p.quota}</span>,
   },
   {
     label: "Hasil akhir (output)",
     align: "align-middle",
-    render: (p) => <span className="text-[14px] font-bold">{p.output}</span>,
+    render: (p) => <span className="text-sm font-bold">{p.output}</span>,
   },
   {
     label: "Laporan orang tua",
@@ -207,8 +207,8 @@ const COMPARISON_ROWS: BarisPerbandingan[] = [
     align: "align-middle",
     render: (p) =>
       p.jurusanRapor ? (
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c6f64d] px-3 py-1 font-display text-xs font-extrabold text-[#0a0a0c] shadow-sm">
-          <span aria-hidden="true">★</span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-lime px-3 py-1 font-display text-sm font-extrabold text-obsidian shadow-kartu">
+          <Star aria-hidden className="size-4 fill-current" />
           <span>Khusus program ini</span>
         </span>
       ) : (
@@ -234,7 +234,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
       {/* Header & Filter Sorot Jenjang */}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 id="judul-banding" className="font-display text-2xl font-extrabold md:text-[32px]">
+          <h2 id="judul-banding" className="font-display text-2xl font-extrabold md:text-32">
             Bandingkan program
           </h2>
           <p className="mt-1 text-sm text-text-muted">
@@ -255,13 +255,13 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setSelectedGrade(g.id)}
-                className="min-h-[44px] rounded-full border px-3.5 py-2 font-display text-xs font-semibold transition-all"
+                className="min-h-[44px] rounded-full border px-3.5 py-2 font-display text-sm font-semibold transition-all"
                 style={
                   active
                     ? {
-                        backgroundColor: "#c6f64d",
-                        borderColor: "#c6f64d",
-                        color: "#0a0a0c",
+                        backgroundColor: "var(--k-lime)",
+                        borderColor: "var(--k-lime)",
+                        color: "var(--k-obsidian)",
                         fontWeight: 800,
                       }
                     : {
@@ -289,12 +289,12 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
               <tr>
                 <th className="w-[23.5%] px-4 py-5 align-bottom lg:px-6 lg:py-6" style={{ backgroundColor: "var(--mp-surface)" }}>
                   <p
-                    className="font-mono-kodie text-[11px] font-bold tracking-[0.1em] uppercase"
+                    className="font-display text-sm font-bold"
                     style={{ color: "var(--mp-link)" }}
                   >
                     Aspek pembanding
                   </p>
-                  <p className="mt-2 text-xs leading-relaxed font-normal text-text-muted">
+                  <p className="mt-2 text-sm leading-relaxed font-normal text-text-muted">
                     Semua paket 4 sesi live kelompok kecil dengan pengajar terverifikasi.
                   </p>
                 </th>
@@ -317,37 +317,37 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                     >
                       <div className="flex flex-wrap items-center justify-between gap-1.5">
                         <span
-                          className="inline-flex items-center rounded-full px-3 py-0.5 text-[11px] font-extrabold shadow-xs"
+                          className="inline-flex items-center rounded-full px-3 py-0.5 text-sm font-extrabold shadow-kartu"
                           style={
                             isDarkBlock
-                              ? { backgroundColor: "#c6f64d", color: "#0a0a0c" }
-                              : { backgroundColor: "#ffffff", color: "#0f172a" }
+                              ? { backgroundColor: "var(--k-lime)", color: "var(--k-obsidian)" }
+                              : { backgroundColor: "var(--k-white)", color: "var(--k-ink)" }
                           }
                         >
                           {p.jenjangLabel}
                         </span>
                         {selectedGrade !== "all" && match ? (
                           <span
-                            className="rounded-full px-2 py-0.5 font-display text-[10px] font-extrabold"
+                            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-display text-sm font-extrabold"
                             style={
                               isDarkBlock
-                                ? { backgroundColor: "#ffffff", color: "#1d4ed8" }
-                                : { backgroundColor: "#0f172a", color: "#c6f64d" }
+                                ? { backgroundColor: "var(--k-white)", color: "var(--k-royal)" }
+                                : { backgroundColor: "var(--k-ink)", color: "var(--k-lime)" }
                             }
                           >
-                            Cocok ✓
+                            <Check aria-hidden className="size-4" />Cocok
                           </span>
                         ) : null}
                       </div>
 
-                      <p className="mt-3.5 font-display text-[17px] leading-snug font-extrabold lg:text-[19px]">
+                      <p className="mt-3.5 font-display text-17 leading-snug font-extrabold lg:text-lg">
                         {p.name}
                       </p>
                       <div className="mt-2 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-                        <span className="font-display text-[21px] font-extrabold tabular-nums lg:text-[24px]">
+                        <span className="font-display text-xl font-extrabold tabular-nums lg:text-2xl">
                           {p.price}
                         </span>
-                        <span className="text-xs font-semibold" style={{ color: `var(--mp-${p.colorVar}-block-muted)` }}>
+                        <span className="text-sm font-semibold" style={{ color: `var(--mp-${p.colorVar}-block-muted)` }}>
                           / {p.sessionCount} sesi
                         </span>
                       </div>
@@ -362,7 +362,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                 <tr key={row.label} className="matrix-row">
                   <th
                     scope="row"
-                    className={cx(row.align, "px-4 py-4 text-[13px] font-semibold text-text-muted lg:px-6")}
+                    className={cx(row.align, "px-4 py-4 text-sm font-semibold text-text-muted lg:px-6")}
                     style={{ backgroundColor: "var(--mp-surface)" }}
                   >
                     {row.label}
@@ -391,7 +391,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
               <tr className="matrix-cta-row">
                 <th
                   scope="row"
-                  className="px-4 py-5 align-middle text-[13px] font-semibold text-text-muted lg:px-6"
+                  className="px-4 py-5 align-middle text-sm font-semibold text-text-muted lg:px-6"
                   style={{ backgroundColor: "var(--mp-surface)" }}
                 >
                   Pilih jadwal kelas
@@ -411,7 +411,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                     >
                       <Link
                         href={`/kelas?program=${p.slug}`}
-                        className="matrix-cta-block inline-flex min-h-[44px] w-full items-center justify-between gap-2 rounded-full py-2 pr-2 pl-4 font-display text-xs font-extrabold shadow-xs lg:pl-5"
+                        className="matrix-cta-block inline-flex min-h-[44px] w-full items-center justify-between gap-2 rounded-full py-2 pr-2 pl-4 font-display text-sm font-extrabold shadow-kartu lg:pl-5"
                         style={{
                           backgroundColor: `var(--mp-${p.colorVar}-cta-bg)`,
                           color: `var(--mp-${p.colorVar}-cta-fg)`,
@@ -459,7 +459,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setMobileProgramIdx(idx)}
-                className="min-h-[44px] rounded-xl px-2 py-2 font-display text-[11px] leading-tight font-bold transition-all"
+                className="min-h-[44px] rounded-xl px-2 py-2 font-display text-sm leading-tight font-bold transition-all"
                 style={
                   active
                     ? {
@@ -480,11 +480,11 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <span
-                  className="inline-flex rounded-full px-3 py-0.5 text-[11px] font-extrabold"
+                  className="inline-flex rounded-full px-3 py-0.5 text-sm font-extrabold"
                   style={
                     isMobileDarkHead
-                      ? { backgroundColor: "#c6f64d", color: "#0a0a0c" }
-                      : { backgroundColor: "#ffffff", color: "#0f172a" }
+                      ? { backgroundColor: "var(--k-lime)", color: "var(--k-obsidian)" }
+                      : { backgroundColor: "var(--k-white)", color: "var(--k-ink)" }
                   }
                 >
                   {mobileProg.jenjangLabel}
@@ -494,7 +494,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
               <div className="shrink-0 text-right">
                 <p className="font-display text-lg font-extrabold tabular-nums">{mobileProg.price}</p>
                 <p
-                  className="text-[11px] font-semibold"
+                  className="text-sm font-semibold"
                   style={{ color: `var(--mp-${mobileProg.colorVar}-block-muted)` }}
                 >
                   {mobileProg.perSesi}
@@ -511,7 +511,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                   className="flex flex-col gap-1 py-3 first:pt-0"
                   style={{ borderColor: "var(--mp-border)" }}
                 >
-                  <dt className="text-xs font-semibold text-text-muted">{row.label}</dt>
+                  <dt className="text-sm font-semibold text-text-muted">{row.label}</dt>
                   <dd>{row.render(mobileProg)}</dd>
                 </div>
               ))}
@@ -519,7 +519,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
 
             <Link
               href={`/kelas?program=${mobileProg.slug}`}
-              className="matrix-cta-block mt-4 flex min-h-[48px] w-full items-center justify-between rounded-full py-2.5 pr-2.5 pl-5 font-display text-sm font-extrabold shadow-xs"
+              className="matrix-cta-block mt-4 flex min-h-[48px] w-full items-center justify-between rounded-full py-2.5 pr-2.5 pl-5 font-display text-sm font-extrabold shadow-kartu"
               style={{
                 backgroundColor: `var(--mp-${mobileProg.colorVar}-cta-bg)`,
                 color: `var(--mp-${mobileProg.colorVar}-cta-fg)`,
@@ -542,18 +542,18 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
       </div>
 
       {/* Banner Bantuan Tes Minat */}
-      <div className="kodie-blue-banner mt-6 flex flex-col items-start justify-between gap-4 rounded-[22px] p-5 text-white shadow-md sm:flex-row sm:items-center md:px-7 md:py-6">
+      <div className="kodie-blue-banner mt-6 flex flex-col items-start justify-between gap-4 rounded-[22px] p-5 text-white shadow-kartu sm:flex-row sm:items-center md:px-7 md:py-6">
         <div>
           <p className="font-display text-base font-extrabold md:text-lg">
             Masih ragu memilih antara Kelas Reguler atau Simulasi Jurusan IT?
           </p>
-          <p className="mt-1 text-xs text-blue-100/90 sm:text-sm">
+          <p className="mt-1 text-sm text-blue-100/90 sm:text-sm">
             Coba Tes Minat Jurusan IT (12 soal, gratis, tanpa akun) untuk dapat rekomendasi program otomatis.
           </p>
         </div>
         <Link
           href="/tes-minat"
-          className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full bg-[#c6f64d] px-5 py-2.5 font-display text-xs font-extrabold text-[#0a0a0c] shadow-xs transition-transform hover:brightness-105 active:scale-95 sm:text-sm"
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full bg-lime px-5 py-2.5 font-display text-sm font-extrabold text-obsidian shadow-kartu transition-transform hover:brightness-105 active:scale-95 sm:text-sm"
         >
           <span>Coba tes minat gratis</span>
           <ArrowRight aria-hidden="true" className="size-4" />

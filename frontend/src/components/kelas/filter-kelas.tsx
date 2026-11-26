@@ -2,11 +2,21 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useTransition } from "react";
-import { LoaderCircle, Search } from "lucide-react";
+import { useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { ChevronDown, LoaderCircle, Search } from "lucide-react";
 import { Pilihan } from "@/components/ui/formulir";
+import { Tombol } from "@/components/ui/tombol";
 import { RENTANG_JAM, type FilterKelas as Filter } from "@/lib/kelas";
 import { namaHari } from "@/lib/format";
+import { cx } from "@/lib/cx";
+
+/*
+ * Di ponsel, filter selain pencarian dilipat agar daftar kelas langsung terlihat.
+ * Komponen di-remount setiap filter berubah (key di halaman), jadi status buka-tutup disimpan di modul
+ * supaya panel tidak menutup sendiri setelah memilih filter.
+ */
+let panelTerbukaTerakhir = false;
+const langganKosong = () => () => {};
 
 /** Filter katalog. Nilai disimpan di URL, jadi bisa dibagikan dan dipakai tombol kembali. */
 export function FilterKelas({ program, nilai }: { program: { slug: string; nama: string }[]; nilai: Filter }) {
@@ -14,6 +24,15 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
   const pathname = usePathname();
   const [menunggu, mulai] = useTransition();
   const tundaCari = useRef(0);
+  const [buka, setBuka] = useState(panelTerbukaTerakhir);
+  // Sebelum hidrasi (atau tanpa JavaScript) panel selalu terbuka, karena tombol lipat belum berfungsi.
+  const terhidrasi = useSyncExternalStore(langganKosong, () => true, () => false);
+  const jumlahAktif = [nilai.program, nilai.jenjang, nilai.hari, nilai.jam].filter(Boolean).length;
+
+  function ubahBuka() {
+    panelTerbukaTerakhir = !buka;
+    setBuka(!buka);
+  }
 
   function ubah(form: HTMLFormElement) {
     const data = new FormData(form);
@@ -62,7 +81,7 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
             name="cari"
             type="search"
             defaultValue={nilai.cari ?? ""}
-            placeholder="Program, pengajar, atau jenjang"
+            placeholder="Program atau pengajar"
             autoComplete="off"
             maxLength={60}
             onChange={(e) => {
@@ -74,6 +93,21 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
           />
         </div>
       </div>
+      <Tombol
+        varian="kedua"
+        className="w-full lg:hidden"
+        aria-expanded={buka}
+        aria-controls="f-lainnya"
+        onClick={ubahBuka}
+        hidden={!terhidrasi}
+      >
+        <span>
+          Filter lainnya
+          {jumlahAktif > 0 ? <span className="text-primary"> · {jumlahAktif} aktif</span> : null}
+        </span>
+        <ChevronDown aria-hidden className={cx("size-5 transition-transform motion-reduce:transition-none", buka && "rotate-180")} />
+      </Tombol>
+      <div id="f-lainnya" className={cx("flex-col gap-4 lg:flex", !terhidrasi || buka ? "flex" : "hidden")}>
       <Pilihan id="f-program" name="program" label="Program" defaultValue={nilai.program ?? ""}>
         <option value="">Semua program</option>
         {program.map((p) => (
@@ -112,6 +146,7 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
       <Link href={pathname} scroll={false} className="flex min-h-touch items-center justify-center font-display font-semibold text-primary hover:underline">
         Hapus semua filter
       </Link>
+      </div>
     </form>
   );
 }

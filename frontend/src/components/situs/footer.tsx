@@ -188,7 +188,7 @@ function BangunanPiksel({ picuEasterEgg }: { picuEasterEgg: (sumber: SumberEaste
         onClick={() => picuEasterEgg("drone")}
         title="Klik Drone Kiko!"
         aria-label="Klik Drone Kiko!"
-        className="sky-drone block appearance-none border-0 bg-transparent p-0 absolute top-7 left-0 w-12 h-9 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
+        className="sky-drone block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute top-7 left-0 w-12 h-9 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
       >
         <svg className="pixel-crisp w-full h-full" viewBox="0 0 16 12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <g className="frame-1">
@@ -415,7 +415,7 @@ function KarakterBerjalanPiksel({
         onClick={() => picuEasterEgg("pet")}
         title="Bit-Cat Kodie"
         aria-label="Bit-Cat Kodie"
-        className="walker-pet block appearance-none border-0 bg-transparent p-0 absolute bottom-4 left-0 w-7 h-7 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
+        className="walker-pet block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute bottom-4 left-0 w-7 h-7 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
       >
         <svg className="pixel-crisp w-full h-full" viewBox="0 0 10 9" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect x="3" y="1" width="1" height="2" fill="#0F172A" />
@@ -443,7 +443,7 @@ function KarakterBerjalanPiksel({
         onClick={() => picuEasterEgg("student")}
         title="Pelajar Kodie"
         aria-label="Pelajar Kodie"
-        className="walker-student block appearance-none border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
+        className="walker-student block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
       >
         <svg className="pixel-crisp w-full h-full" viewBox="0 0 14 17" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect x="4" y="1" width="6" height="2" fill="#0F172A" />
@@ -470,7 +470,7 @@ function KarakterBerjalanPiksel({
         onClick={() => picuEasterEgg("girlHijab")}
         title="Siswi Kodie"
         aria-label="Siswi Kodie berhijab"
-        className="walker-girl-hijab block appearance-none border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
+        className="walker-girl-hijab block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
       >
         <svg className="pixel-crisp w-full h-full" viewBox="0 0 14 17" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect x="4" y="1" width="6" height="2" fill="#FFFFFF" />
@@ -499,7 +499,7 @@ function KarakterBerjalanPiksel({
         onClick={() => picuEasterEgg("girlPonytail")}
         title="Siswi Kodie"
         aria-label="Siswi Kodie berkuncir"
-        className="walker-girl-ponytail block appearance-none border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
+        className="walker-girl-ponytail block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
       >
         <svg className="pixel-crisp w-full h-full" viewBox="0 0 14 17" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect x="4" y="1" width="6" height="2" fill="#78350F" />
@@ -656,8 +656,8 @@ export function Footer() {
               />
               <span className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight">Kodie</span>
             </div>
-            <p className="font-mono-kodie font-bold text-xs sm:text-sm tracking-wide">From Hello World to Hello Future</p>
-            <p style={{ color: "var(--footer-muted)" }} className="text-[11px] sm:text-xs pt-0.5">
+            <p className="font-mono-kodie font-bold text-sm tracking-wide">From Hello World to Hello Future</p>
+            <p style={{ color: "var(--footer-muted)" }} className="text-sm pt-0.5">
               Karya lomba SEVENT X 2026 · SDG 4 dan SDG 8. Semua nama dan data di situs ini adalah contoh.
             </p>
           </div>
@@ -702,7 +702,7 @@ export function Footer() {
             </div>
 
             <div
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[11px] font-medium"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-sm font-medium"
               style={{ borderColor: "var(--footer-btn-border)", color: "var(--footer-muted)" }}
             >
               <span className="w-2 h-2 rounded-full bg-[#C6F64D] ring-1 ring-[#0F172A]/30" aria-hidden="true" />
