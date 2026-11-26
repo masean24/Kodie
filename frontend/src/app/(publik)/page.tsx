@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, FileText, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, Compass, FileText, Globe, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import { cx } from "@/lib/cx";
 import { ambilDaftarProgram } from "@/lib/api/program";
 import { ambilDaftarPengajarPublik } from "@/lib/api/pengajar";
@@ -24,6 +24,7 @@ export default function Beranda() {
       <Pahlawan />
       <Nilai />
       <SimulasiKelasLive />
+      <MengapaKodie />
       <section aria-labelledby="judul-program" className="relative isolate py-16 md:py-24">
         <div aria-hidden className="aksen-grid" />
         <Kontainer>
@@ -69,6 +70,135 @@ function SimulasiKelasLive() {
         </p>
         <div className="mt-8">
           <SimulasiKelasMalas />
+        </div>
+      </Kontainer>
+    </section>
+  );
+}
+
+const MASALAH_KODIE: {
+  ikon: LucideIcon;
+  kategori: string;
+  judul: string;
+  masalah: string;
+  solusi: string;
+  warnaIkon: string;
+}[] = [
+  {
+    ikon: Globe,
+    kategori: "Akses & Biaya",
+    judul: "Biaya mahal & terpusat",
+    masalah: "Kursus coding bermutu sering mahal dan terpusat di kota besar, sehingga kesenjangan literasi digital makin lebar.",
+    solusi: "Daring mulai Rp200rb/paket + Lab gratis",
+    warnaIkon: "bg-info-subtle text-info",
+  },
+  {
+    ikon: Users,
+    kategori: "Pendampingan",
+    judul: "Belajar sendiri cepat buntu",
+    masalah: "Tanpa pengajar terverifikasi, siswa mudah berhenti saat error dan orang tua sulit memantau progres belajarnya.",
+    solusi: "Kelas kecil 10–15 siswa + laporan sesi",
+    warnaIkon: "bg-accent text-on-accent",
+  },
+  {
+    ikon: Compass,
+    kategori: "Arah Jurusan",
+    judul: "Bingung pilih jurusan IT",
+    masalah: "Banyak siswa masuk jurusan IT tanpa pernah mencoba langsung praktik software, jaringan, IoT, dan AI.",
+    solusi: "Tes Minat gratis & Simulasi 4 Jurusan IT",
+    warnaIkon: "bg-neutral-subtle text-text",
+  },
+];
+
+/**
+ * Section 4: latar belakang masalah, jawaban Kodie, serta pilar dampak SDG 4 dan SDG 8 (Versi 2 Color-Block).
+ */
+function MengapaKodie() {
+  return (
+    <section aria-labelledby="judul-mengapa" className="py-16 md:py-24">
+      <Kontainer>
+        <Muncul className="mx-auto max-w-3xl text-center">
+          <h2
+            id="judul-mengapa"
+            className="text-[28px] leading-[38px] font-extrabold tracking-tight sm:text-[34px] sm:leading-[44px] md:text-[40px] md:leading-[52px]"
+          >
+            Mengapa{" "}
+            <span className="whitespace-nowrap">
+              <Sorotan>Kodie hadir</Sorotan>
+              <span className="-ml-[0.08em]">?</span>
+            </span>
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-text-muted md:text-lg">
+            Akses belajar teknologi yang terarah masih timpang, sementara siswa kerap bingung memilih jurusan IT dan talenta muda butuh
+            peluang mengajar yang layak.
+          </p>
+        </Muncul>
+
+        <ul className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
+          {MASALAH_KODIE.map((m, i) => (
+            <Muncul as="li" key={m.judul} tunda={i * 0.08} className="flex">
+              <article className="flex w-full flex-col rounded-card border border-border bg-surface p-6 shadow-kartu transition-[border-color,box-shadow] duration-300 hover:border-primary hover:shadow-kartu-hover">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <span aria-hidden className={cx("grid size-12 shrink-0 place-items-center rounded-2xl", m.warnaIkon)}>
+                      <m.ikon className="size-6" />
+                    </span>
+                    <span className={cx("rounded-full px-3 py-1 text-sm font-bold", m.warnaIkon)}>{m.kategori}</span>
+                  </div>
+                  <h3 className="mt-5 text-xl font-bold leading-snug">{m.judul}</h3>
+                  <p className="mt-2 leading-relaxed text-text-muted">{m.masalah}</p>
+                </div>
+                <div className="mt-6 border-t border-border pt-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-text-muted">Solusi Kodie</p>
+                  <p className="mt-1 text-sm font-bold text-text">{m.solusi}</p>
+                </div>
+              </article>
+            </Muncul>
+          ))}
+        </ul>
+
+        <div className="mt-5 grid grid-cols-1 gap-5 md:mt-6 md:grid-cols-2 md:gap-6">
+          <Muncul tunda={0.12} className="flex">
+            <article className="blok-merek on-block flex w-full flex-col rounded-card border border-[#3b82f6]/25 p-6 shadow-kartu md:p-8">
+              <div className="flex items-center justify-between gap-3">
+                <span className="rounded-full bg-[#c6f64d] px-3.5 py-1 font-display text-xs font-extrabold text-[#0f172a]">
+                  SDG 4 · Pendidikan Berkualitas
+                </span>
+                <span aria-hidden className="font-display text-2xl font-extrabold text-white/30">
+                  04
+                </span>
+              </div>
+              <h3 className="mt-5 text-2xl font-extrabold leading-snug text-white">Akses coding merata SD–SMA</h3>
+              <p className="mt-2.5 flex-1 leading-relaxed text-[#dbeafe]">
+                Memperluas literasi digital ke seluruh Indonesia lewat kelas daring kelompok kecil, latihan langsung di browser, dan laporan
+                tiap sesi untuk orang tua.
+              </p>
+              <p className="mt-6 border-t border-white/20 pt-4 text-sm font-bold text-[#c6f64d]">
+                Mulai Rp200rb/paket · Tes Minat &amp; Kodie Lab gratis
+              </p>
+            </article>
+          </Muncul>
+
+          <Muncul tunda={0.2} className="flex">
+            <article className="flex w-full flex-col rounded-card border border-[#a3d929] bg-gradient-to-br from-coding-dasar-strong to-coding-dasar-block-to p-6 text-[#0f172a] shadow-kartu md:p-8">
+              <div className="flex items-center justify-between gap-3">
+                <span className="rounded-full bg-[#0f172a] px-3.5 py-1 font-display text-xs font-extrabold text-[#c6f64d]">
+                  SDG 8 · Pekerjaan Layak
+                </span>
+                <span aria-hidden className="font-display text-2xl font-extrabold text-[#0f172a]/20">
+                  08
+                </span>
+              </div>
+              <h3 className="mt-5 text-2xl font-extrabold leading-snug text-[#0f172a]">Karier &amp; ruang mengajar talenta IT</h3>
+              <p className="mt-2.5 flex-1 leading-relaxed text-[#1e293b]">
+                Membantu siswa menata arah karier teknologi sejak dini sekaligus membuka peluang kerja paruh waktu yang fleksibel bagi
+                mahasiswa dan talenta muda IT.
+              </p>
+              <p className="mt-6 border-t border-[#0f172a]/15 pt-4 text-sm font-bold text-[#0f172a]">
+                Honor Rp50rb–Rp75rb/sesi · Teaching Playbook siap pakai
+              </p>
+            </article>
+          </Muncul>
         </div>
       </Kontainer>
     </section>
