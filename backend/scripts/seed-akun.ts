@@ -1133,19 +1133,34 @@ async function main() {
   );
 
   await supabase.from('rapor_jurusan').upsert(
-    {
-      sesi_id: sesiK6_4,
-      siswa_id: siswaAktifRow.id,
-      skor_software: 5,
-      skor_jaringan: 3,
-      skor_iot: 3,
-      skor_ai_data: 4,
-      bidang_rekomendasi: 'software',
-      alasan:
-        'Selama 4 sesi simulasi, Fajar paling cepat memahami struktur kode, debugging logika aplikasi, dan integrasi API dibanding sesi perangkat keras.',
-      saran:
-        'Lanjutkan ke Kelas Reguler Teknologi Level 2 atau ikuti proyek web kolaboratif untuk memperkuat portofolio menuju jurusan Informatika / RPL.',
-    },
+    [
+      {
+        sesi_id: sesiK6_4,
+        siswa_id: siswaAktifRow.id,
+        skor_software: 5,
+        skor_jaringan: 3,
+        skor_iot: 3,
+        skor_ai_data: 4,
+        bidang_rekomendasi: 'software',
+        alasan:
+          'Selama 4 sesi simulasi, Fajar paling cepat memahami struktur kode, debugging logika aplikasi, dan integrasi API dibanding sesi perangkat keras.',
+        saran:
+          'Lanjutkan ke Kelas Reguler Teknologi Level 2 atau ikuti proyek web kolaboratif untuk memperkuat portofolio menuju jurusan Informatika / RPL.',
+      },
+      {
+        sesi_id: sesiK6_4,
+        siswa_id: anakIds.rakaSma,
+        skor_software: 3,
+        skor_jaringan: 5,
+        skor_iot: 5,
+        skor_ai_data: 3,
+        bidang_rekomendasi: 'iot',
+        alasan:
+          'Selama 4 sesi simulasi, Raka sangat menonjol pada arsitektur jaringan komputer, logika perangkat keras, dan simulasi sensor IoT dengan Wokwi.',
+        saran:
+          'Pertimbangkan jalur Teknik Komputer, Teknik Elektro, atau Sistem Tertanam/IoT sambil terus mengasah proyek mikrokontroler dan otomasi.',
+      },
+    ],
     { onConflict: 'sesi_id,siswa_id' },
   );
 

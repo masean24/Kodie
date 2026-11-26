@@ -261,6 +261,40 @@ async function main() {
     'Pengguna bisa membatalkan waitlist dengan batal_waitlist_kelas',
   );
 
+  // Uji IDOR rapor_saya & rapor_jurusan lintas orang tua (ortu1 <-> ortu2)
+  const { data: ortu1Rapor } = await ortu1
+    .from('rapor_saya')
+    .select('id, siswa_id')
+    .order('dibuat_pada', { ascending: false });
+  const { data: ortu2Rapor } = await ortu2
+    .from('rapor_saya')
+    .select('id, siswa_id')
+    .order('dibuat_pada', { ascending: false });
+  const ortu1RaporId = ortu1Rapor?.[0]?.id ?? '';
+  const ortu2RaporId = ortu2Rapor?.[0]?.id ?? '';
+  assert(
+    Boolean(ortu1RaporId) && Boolean(ortu2RaporId),
+    'ortu1 dan ortu2 masing-masing bisa membaca rapor_saya milik anaknya sendiri',
+  );
+  const { data: idorOrtu1Ke2 } = await ortu1
+    .from('rapor_saya')
+    .select('id')
+    .eq('id', ortu2RaporId);
+  const { data: idorOrtu2Ke1 } = await ortu2
+    .from('rapor_saya')
+    .select('id')
+    .eq('id', ortu1RaporId);
+  const { data: idorDirectRaka } = await ortu1
+    .from('rapor_jurusan')
+    .select('id')
+    .eq('siswa_id', '33333333-3333-4333-8333-000000000003');
+  assert(
+    (idorOrtu1Ke2?.length ?? 0) === 0 &&
+      (idorOrtu2Ke1?.length ?? 0) === 0 &&
+      (idorDirectRaka?.length ?? 0) === 0,
+    'RLS memblokir akses IDOR rapor_saya dan rapor_jurusan milik anak keluarga lain',
+  );
+
   // Uji penolakan signUp peran admin
   const { error: adminSignupErr } = await anon.auth.signUp({
     email: 'hacker-admin@example.com',
