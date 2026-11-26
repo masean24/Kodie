@@ -129,13 +129,13 @@ export function Header({
         <div aria-hidden className="hdr-panel vt-header-panel backdrop-blur-lg backdrop-saturate-150" />
         <Kontainer className="hdr-isi vt-header relative flex h-[72px] items-center justify-between gap-2 xl:gap-4">
           <Logo ringkasSaatMasukPonsel />
-          <nav aria-label="Menu utama" className="hidden xl:block">
+          <nav aria-label="Menu utama" className="hidden shrink-0 xl:block">
             <ul className="flex items-center gap-1">{tautan(false)}</ul>
           </nav>
-          {/* Lebar tetap (seukuran keadaan login terlebar, rata kanan) supaya menu di tengah tidak bergeser 1 px pun
-              antara tamu (Masuk/Daftar) dan pengguna login (termasuk Admin):
-              tema 88 + lonceng maks ±174 + menu akun maks ±220 + celah 24 = 506 px <= 516 px. */}
-          <div className="hidden w-[516px] shrink-0 items-center justify-end gap-3 xl:flex">
+          {/* Sisa lebar diisi area kanan (rata kanan). Menu utama selalu tepat setelah logo, jadi posisinya sama
+              antara tamu (Masuk/Daftar) dan pengguna login (termasuk Admin). Lebar tetap 516 px sebelumnya membuat
+              isi header lebih lebar dari Kontainer, sehingga tombol Daftar keluar dari panel kaca saat di-scroll. */}
+          <div className="hidden min-w-0 flex-1 items-center justify-end gap-3 xl:flex">
             <ThemeSwitch />
             {akun}
           </div>
