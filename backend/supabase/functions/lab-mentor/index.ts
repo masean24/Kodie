@@ -100,7 +100,7 @@ async function callSingleProviderJson(
     if (!firstTokenReceived) {
       controller.abort(new Error(`FIRST_TOKEN_TIMEOUT_${provider.name}`));
     }
-  }, 15_000);
+  }, 9_000);
 
   try {
     const payload: Record<string, unknown> = {

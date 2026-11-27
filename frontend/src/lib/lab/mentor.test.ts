@@ -89,6 +89,39 @@ describe("Bit-Cat Mentor lokal & guardrail", () => {
     expect(res.temuan.some((t) => t.berkas === "html")).toBe(true);
   });
 
+  it("mendeteksi tag pembuka HTML yang lupa ditutup '>' pada baris 1 dan tag berpasangan yang hilang", () => {
+    const lupaSiku = analisisLokalLab({
+      mode: "web",
+      level: 1,
+      berkas_aktif: "html",
+      kode: {
+        html: '<main class="kartu"\n  <h1>Halo, aku Kiko!</h1>\n</main>',
+        css: "body { margin: 0; }",
+        js: "console.log(1);",
+      },
+      galat: [],
+    });
+    expect(lupaSiku.status).toBe("ada_temuan");
+    expect(lupaSiku.temuan[0]?.berkas).toBe("html");
+    expect(lupaSiku.temuan[0]?.baris).toBe(1);
+    expect(lupaSiku.temuan[0]?.tingkat).toBe("error");
+    expect(lupaSiku.temuan[0]?.petunjuk).not.toContain("```");
+
+    const lupaPenutup = analisisLokalLab({
+      mode: "web",
+      level: 1,
+      berkas_aktif: "html",
+      kode: {
+        html: "<section>\n  <p>Halo\n</section>",
+        css: "body { margin: 0; }",
+        js: "console.log(1);",
+      },
+      galat: [],
+    });
+    expect(lupaPenutup.status).toBe("ada_temuan");
+    expect(lupaPenutup.temuan.some((t) => t.berkas === "html" && t.baris === 2)).toBe(true);
+  });
+
   it("mendukung pemeriksaan mode Blok tanpa galat pada contoh valid", () => {
     const kosong = analisisLokalLab({
       mode: "blok",

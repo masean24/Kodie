@@ -74,6 +74,105 @@ function ekstrakBarisDariGalat(teks: string): number | null {
   return Number.isFinite(n) && n >= 1 ? n : null;
 }
 
+const TAG_HTML_BERPASANGAN = new Set([
+  "main",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "p",
+  "div",
+  "section",
+  "button",
+  "strong",
+  "em",
+  "a",
+  "ul",
+  "ol",
+  "li",
+  "span",
+  "header",
+  "footer",
+  "nav",
+]);
+
+function cariTagHtmlTakTertutup(html: string): { baris: number; tag: string } | null {
+  let baris = 1;
+  let dalamTag: { baris: number; tag: string; kutip: string | null } | null = null;
+
+  for (let i = 0; i < html.length; i += 1) {
+    const ch = html[i];
+    if (!dalamTag && html.startsWith("<!--", i)) {
+      const akhirKomen = html.indexOf("-->", i + 4);
+      if (akhirKomen < 0) return null;
+      for (let j = i; j < akhirKomen + 3; j += 1) {
+        if (html[j] === "\n") baris += 1;
+      }
+      i = akhirKomen + 2;
+      continue;
+    }
+
+    if (dalamTag) {
+      if (dalamTag.kutip) {
+        if (ch === dalamTag.kutip) dalamTag.kutip = null;
+      } else if (ch === '"' || ch === "'") {
+        dalamTag.kutip = ch;
+      } else if (ch === ">") {
+        dalamTag = null;
+      } else if (ch === "<") {
+        return { baris: dalamTag.baris, tag: dalamTag.tag };
+      }
+    } else if (ch === "<") {
+      const sisa = html.slice(i + 1);
+      const m = sisa.match(/^\/?([a-zA-Z][a-zA-Z0-9-]*)/);
+      if (m?.[1]) {
+        dalamTag = { baris, tag: m[1].toLowerCase(), kutip: null };
+        i += m[0].length;
+      }
+    }
+
+    if (ch === "\n") baris += 1;
+  }
+
+  return dalamTag ? { baris: dalamTag.baris, tag: dalamTag.tag } : null;
+}
+
+function cariTagPasanganHtml(html: string): { baris: number; tag: string; jenis: "belum_tutup" | "tutup_berlebih" } | null {
+  const tumpukan: Array<{ tag: string; baris: number }> = [];
+  const bersih = html.replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, " "));
+  const regex = /<\/?([a-zA-Z][a-zA-Z0-9-]*)(?:[^>"']|"[^"]*"|'[^']*')*>/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(bersih)) !== null) {
+    const utuh = match[0];
+    const tag = match[1].toLowerCase();
+    if (!TAG_HTML_BERPASANGAN.has(tag)) continue;
+
+    const baris = bersih.slice(0, match.index).split("\n").length;
+    if (utuh.startsWith("</")) {
+      const indeksCocok = tumpukan.map((t) => t.tag).lastIndexOf(tag);
+      if (indeksCocok < 0) {
+        return { baris, tag, jenis: "tutup_berlebih" };
+      }
+      if (indeksCocok !== tumpukan.length - 1) {
+        const tertinggal = tumpukan[tumpukan.length - 1];
+        return { baris: tertinggal.baris, tag: tertinggal.tag, jenis: "belum_tutup" };
+      }
+      tumpukan.pop();
+    } else if (!utuh.endsWith("/>")) {
+      tumpukan.push({ tag, baris });
+    }
+  }
+
+  if (tumpukan.length > 0) {
+    const terakhir = tumpukan[tumpukan.length - 1];
+    return { baris: terakhir.baris, tag: terakhir.tag, jenis: "belum_tutup" };
+  }
+  return null;
+}
+
 /**
  * Penganalisis heuristik lokal untuk mode mock & cadangan offline.
  * Tetap mengikuti prinsip Socratic: hanya menyebut titik salah + pertanyaan pemandu, tanpa kode solusi.
@@ -255,17 +354,39 @@ export function analisisLokalLab(req: PermintaanLabMentor): ResponsLabMentor {
       });
     }
 
-    const htmlLines = html.split("\n");
-    const h1Open = htmlLines.findIndex((l) => /<h1\b[^>]*>/i.test(l) && !/<\/h1>/i.test(l));
-    if (h1Open >= 0 && !/<\/h1>/i.test(html)) {
+    const tagTakTertutup = cariTagHtmlTakTertutup(html);
+    if (tagTakTertutup) {
       tambah({
-        tingkat: "warn",
+        tingkat: "error",
         berkas: "html",
-        baris: h1Open + 1,
-        judul: "Tag penutup judul mungkin terlewat",
-        petunjuk: "Tag pembuka judul di HTML perlu pasangan tag penutup supaya gaya di elemen setelahnya tidak ikut terbawa.",
-        pertanyaan_pemandu: "Di mana seharusnya judul utama pada index.html itu berakhir?",
+        baris: tagTakTertutup.baris,
+        judul: `Tag pembuka <${tagTakTertutup.tag}> belum ditutup`,
+        petunjuk:
+          level === 1
+            ? `Cek ujung baris ke-${tagTakTertutup.baris} pada index.html. Tag pembuka <${tagTakTertutup.tag}> tampaknya belum punya tanda penutup tag sebelum elemen berikutnya dimulai.`
+            : `Di akhir baris ke-${tagTakTertutup.baris}, setiap tag pembuka HTML setelah nama dan atributnya wajib ditutup dengan tanda kurung sudut kanan agar browser tidak mencampurnya dengan baris berikutnya.`,
+        pertanyaan_pemandu: `Karakter apa yang tertinggal di ujung baris ke-${tagTakTertutup.baris} untuk menutup pembukaan tag <${tagTakTertutup.tag}>?`,
       });
+    } else {
+      const tagPasangan = cariTagPasanganHtml(html);
+      if (tagPasangan) {
+        tambah({
+          tingkat: tagPasangan.jenis === "belum_tutup" ? "warn" : "error",
+          berkas: "html",
+          baris: tagPasangan.baris,
+          judul:
+            tagPasangan.jenis === "belum_tutup"
+              ? `Pasangan penutup <${tagPasangan.tag}> terlewat`
+              : `Tag penutup </${tagPasangan.tag}> tidak berpasangan`,
+          petunjuk:
+            tagPasangan.jenis === "belum_tutup"
+              ? level === 1
+                ? `Tag pembuka <${tagPasangan.tag}> di baris ke-${tagPasangan.baris} belum menemukan pasangannya sampai akhir elemen induknya.`
+                : `Setiap elemen <${tagPasangan.tag}> perlu diakhiri dengan tag penutup bertanda garis miring agar struktur bersarang di index.html tetap rapi.`
+              : `Ada tag penutup di baris ke-${tagPasangan.baris} yang tidak cocok dengan tag pembuka aktif sebelumnya.`,
+          pertanyaan_pemandu: `Di baris mana elemen <${tagPasangan.tag}> ini seharusnya berakhir?`,
+        });
+      }
     }
 
     if (!hitungKurungSeimbang(css, "{", "}")) {
@@ -278,6 +399,32 @@ export function analisisLokalLab(req: PermintaanLabMentor): ResponsLabMentor {
         judul: "Kurung kurawal CSS tidak seimbang",
         petunjuk: "Ada blok aturan gaya di style.css yang kurung kurawal buka atau tutupnya belum lengkap.",
         pertanyaan_pemandu: "Setiap aturan di style.css harus diapit kurung buka dan tutup — blok mana yang belum tertutup?",
+      });
+    }
+
+    js.split("\n").forEach((raw, idx) => {
+      const bersih = raw.replace(/\/\/.*/, "").trim();
+      if (!bersih) return;
+      if (!hitungKurungSeimbang(bersih, "(", ")")) {
+        tambah({
+          tingkat: "error",
+          berkas: "js",
+          baris: idx + 1,
+          judul: "Tanda kurung di script.js belum seimbang",
+          petunjuk: `Di baris ke-${idx + 1} script.js, pasangan tanda kurung buka dan tutup belum lengkap.`,
+          pertanyaan_pemandu: "Kurung mana pada baris tersebut yang belum mendapat pasangannya?",
+        });
+      }
+    });
+    if (!hitungKurungSeimbang(js, "{", "}")) {
+      const openJs = js.split("\n").findIndex((l) => l.includes("{"));
+      tambah({
+        tingkat: "error",
+        berkas: "js",
+        baris: openJs >= 0 ? openJs + 1 : 1,
+        judul: "Kurung kurawal script.js belum lengkap",
+        petunjuk: "Ada blok fungsi atau pernyataan di script.js yang kurung kurawal buka dan tutupnya tidak berpasangan.",
+        pertanyaan_pemandu: "Blok kode mana di script.js yang masih kekurangan kurung kurawal penutup?",
       });
     }
   }
@@ -335,7 +482,7 @@ export async function mintaPetunjukLab(
   }
 
   const controller = new AbortController();
-  const abortTimer = setTimeout(() => controller.abort(), 16_000);
+  const abortTimer = setTimeout(() => controller.abort(), 25_000);
   const relayAbort = () => controller.abort();
   signal?.addEventListener("abort", relayAbort, { once: true });
 
@@ -345,6 +492,7 @@ export async function mintaPetunjukLab(
       headers: {
         "Content-Type": "application/json",
         apikey: anonKey,
+        Authorization: `Bearer ${anonKey}`,
       },
       body: JSON.stringify(req),
       signal: controller.signal,
@@ -363,6 +511,7 @@ export async function mintaPetunjukLab(
     if (signal?.aborted) {
       throw err;
     }
+    console.warn("[Bit-Cat Mentor] beralih ke pemeriksa lokal:", err instanceof Error ? err.message : "unknown");
     return analisisLokalLab(req);
   } finally {
     clearTimeout(abortTimer);
