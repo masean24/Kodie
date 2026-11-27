@@ -7,7 +7,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 - Repository: monorepo `sevent-x-bimbel`. Area kerja frontend hanya `frontend/` (plus catatan keputusan di `docs/KEPUTUSAN.md`). **Jangan ubah** `backend/` dan `docs/PRD.md`.
 - Worktree aktif terakhir: `.claude/worktrees/ui-ux-bimbel-design-306056` (branch `fe/audit-ui`, dibuat dari `origin/main`). Worktree lama `baca-handoff-md-315ddd` dan `prompt-revision-design-c2bf99` masih ada; selalu `git fetch` dan mulai dari `origin/main`.
 - Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
-- Commit terakhir yang sudah di-push ke `main`: commit pembaruan handoff ini (27 November 2026), setelah `ef89191`.
+- Commit terakhir yang sudah di-push ke `main`: commit performa (Revisi 28) dan pembaruan handoff ini, 27 November 2026, setelah `e8d2ec1`. Periksa ulang dengan `git log --oneline -3 origin/main` sebelum mulai.
 - Di Git Bash, argumen berupa path URL seperti `/` atau `/program` untuk skrip Node diubah jadi path Windows. Jalankan dengan `MSYS_NO_PATHCONV=1`.
 - Produksi: `https://kodie.xevora.me` (Coolify, auto-redeploy setiap push ke `main`; lihat `frontend/DEPLOY-COOLIFY.md`).
 - **Jangan pernah commit**: `.claude/`, `frontend/.env.local`, dan `docs/SERAH-TERIMA-FE.md`.
@@ -55,9 +55,23 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 24b | Section *"Mengapa Kodie hadir"* di beranda | Selesai | `fdb3527` |
 | Revisi 25 | Audit UI/UX: token palet merek, skala font tetap, 3 token shadow; "Mengapa Kodie hadir" jadi baris masalah → solusi; filter `/kelas` dilipat di ponsel; teks ≥ 14 px; area sentuh ≥ 44 px; emoji UI data jadi ikon Lucide; radio terlihat di `/daftar` | Selesai | `2ec3f29`, `27f1a65` |
 | Revisi 26 | Tombol Daftar tidak lagi keluar dari navbar kaca saat di-scroll | Selesai | `ef89191` |
-| Revisi 27 | **Bit-Cat Mentor** di Kodie Lab: pemeriksa kode Socratic terpisah dari chatbot Kiko (`POST /functions/v1/lab-mentor`, Agnes AI primary), sorotan baris CodeMirror 6, petunjuk bertahap Level 1 → 2, & banner proaktif saat `stderr` | Selesai | (commit lokal baru) |
+| Revisi 27 | **Bit-Cat Mentor** di Kodie Lab: pemeriksa kode Socratic terpisah dari chatbot Kiko (`POST /functions/v1/lab-mentor`, Agnes AI primary), sorotan baris CodeMirror 6, petunjuk bertahap Level 1 → 2, & banner proaktif saat `stderr` | Selesai | `79b7cc4`, `e8d2ec1` (backend `f42592b`) |
+| Revisi 28 | **Performa**: reveal hero/band CSS murni, Motion & ScrollTrigger keluar dari bundle awal, Supabase dimuat malas, loop maskot dijeda, CLS `/kelas` 0, cache data program | Selesai | lihat `git log` (commit performa 27 November) |
 
-## Checkpoint terbaru (Bit-Cat Mentor di `/lab` & pasca-`2379213`)
+## Checkpoint performa (Revisi 28, setelah `e8d2ec1`)
+
+Diagnosis awal (Lighthouse mobile produksi): beranda 57, LCP 4,5 dtk dengan render delay 3,8 dtk (teks hero tertahan animasi GSAP yang menunggu hidrasi), TBT 1,46 dtk; `/kelas` CLS 0,119. Jaringan, font, dan gambar sudah baik.
+
+1. **Reveal hero/band tanpa GSAP** (`src/components/situs/reveal-hero.tsx`, blok `HERO REVEAL` di `globals.css`): timeline GSAP diterjemahkan 1:1 ke keyframe CSS (durasi, jeda, easing sama). `RevealHero` kini komponen server dengan prop wajib `kataJudul` & `kataTeks` (jumlah kata, pakai `jumlahKata()`); `KataHero` memasang urutan `--i` dan menerima `mulaiDari` bila judul dipecah (mis. sorotan di tengah). `BandKodie` juga butuh `kataJudul`/`kataTeks`; `[data-hero="aksi"]` dan `"ubin"` kedua dst. diberi `style={{ "--i": n }}`.
+2. **`AnimasiElemen`**: konten yang terlihat saat muat tidak disembunyikan sampai pengunjung menggulir atau pindah halaman (bukan lagi batas 1,5 dtk); pengecualian permanen di-cache di `sudah`; elemen `data-tunda` (dari `Muncul`) memakai jedanya sendiri.
+3. **Motion keluar dari root**: `Muncul`/`AngkatHover` (`src/components/ui/gerak.tsx`) tanpa Motion (dijalankan `AnimasiElemen` & CSS hover); `PenyediaGerak` dihapus dari `layout.tsx`; `MotionConfig reducedMotion="user"` dipasang lokal di `KodieLab` dan `DaftarPosisi`.
+4. **ScrollTrigger diganti** listener scroll ber-rAF + IntersectionObserver di `cara-kerja-pinned.tsx`.
+5. **Supabase dimuat malas** di `widget-kiko.tsx` (`muatSupabase()`, dipanaskan saat panel dibuka) dan `lonceng-notifikasi.tsx`. Turbopack menggabungkan semua komponen klien yang diimpor layout ke satu grup chunk, jadi impor statis di sana ikut termuat di semua halaman.
+6. **Maskot Kiko** (`maskot-kiko.tsx`): `innerHTML` wajah hanya ditulis bila berubah; loop rAF berhenti saat maskot tak terlihat (IntersectionObserver).
+7. **CLS `/kelas`** (`filter-kelas.tsx`): panel "Filter lainnya" terlipat sejak HTML server; `<noscript>` membuka panel tanpa JavaScript.
+8. **Cache program** (`src/lib/api/program.ts`): `ambilDaftarProgram`/`ambilProgram` memakai `"use cache"` + `cacheTag(TAG_PROGRAM)` + `cacheLife("hours")`; `aksiAdminUbahProgram` memanggil `updateTag(TAG_PROGRAM)`. **Setiap jalur baru yang mengubah tabel `program` wajib memanggil `updateTag(TAG_PROGRAM)`.**
+
+## Checkpoint sebelumnya (Bit-Cat Mentor di `/lab` & pasca-`2379213`)
 
 1. **Bit-Cat Mentor (`/lab`, `lab-mentor` Edge Function, `src/lib/lab/mentor.ts`, `panel-bit-cat.tsx`, `avatar-bit-cat.tsx`, `editor-kode.tsx`):**
    - **Backend terpisah total dari Chatbot CS Kiko (`functions/chat`):** `backend/supabase/functions/lab-mentor/` (`verify_jwt = false`) memakai Agnes AI (`agnes-3.0-flash`) dengan failover Gemini/Groq, rate limit per IP, sensor PII anak, anti-prompt-injection, penolak permintaan kode lengkap (`butuh_coba_dulu`), dan output sanitizer pembuang blok kode solusi (`stripSolutionSpoilers`). Tidak menyentuh RAG FAQ maupun tabel `percakapan_chat`/`pesan_chat`.
@@ -101,7 +115,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
    - Playbook: `uraiKontenPlaybook` (`src/lib/mengajar.ts`) mengenali tabel alur, checkbox `- [ ]`/`✓`, dan `**00–08 Judul:**`; `TeksMd` (`src/components/mengajar/teks-md.tsx`) merender `kode`, **tebal**, *miring* tanpa `dangerouslySetInnerHTML`.
    - Banner "Draf" kebijakan privasi dihapus; koma setelah badge judul keunggulan dirapatkan (`KomaRapat`).
 3. **Dark mode & daftar (`537d29b`, `d15f52e`)**
-   - Token dark (dua blok di `globals.css`) memakai preset **Obsidian Color-Block** dari `docs/kodie_dark_mode_explorer_anti_ai_slop.html` (latar `#0a0a0c`, kartu program gaya pop, footer malam). Catatan kontras: teks putih di atas primer `#3b82f6` hanya 3,7:1.
+   - Token dark (dua blok di `globals.css`) memakai preset **Obsidian Color-Block** dari `docs/kodie_dark_mode_explorer_anti_ai_slop.html` (latar `#0a0a0c`, kartu program gaya pop, footer malam). Catatan kontras: teks putih di atas primer `#3b82f6` hanya 3,7:1, sudah diganti teks `#0a0a0c` (5,38:1) di `fdba192`.
    - Tombol "Lihat program" per program (navy / lime / biru) lewat varian tombol `khusus` + prop `kelasPanah` (`cx` tidak menggabungkan kelas yang bentrok).
    - `InputPassword` (`src/components/ui/input-password.tsx`): tombol tampilkan, indikator kekuatan dari `src/lib/validasi/password.ts` (terlalu pendek, mudah ditebak, cukup, kuat). Skema daftar menolak password umum/berpola dan ulangi password yang tidak sama. Berlaku untuk orang tua, siswa, dan pengajar.
 4. **Header & rangkuman audit (`a1a2e92`)**
@@ -194,6 +208,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 ## Status verifikasi terkini
 
+- **Pemeriksaan Revisi 28 (performa):** lint, typecheck, `vitest` (16 file / 115 tes), dan build lulus. Lighthouse mobile pada build lokal `next start`: `/` 81 → **88**, `/program` 86 → **92**, `/kelas` 84 → **92**; CLS 0; TBT 33–101 ms; LCP teramati = FCP. Dicek di browser: jadwal animasi hero identik dengan GSAP lama, tidak ada konten tertinggal transparan setelah scroll, filter `/kelas` ponsel buka/tutup, panel Kiko terbuka (chunk Supabase baru dimuat saat itu), 0 overflow 375 px. **Belum**: ukur ulang produksi setelah deploy (hasil produksi dari jaringan lokal sangat bervariasi), notifikasi realtime & live chat pengguna login di produksi.
 - **Pemeriksaan Revisi 27 (Bit-Cat Mentor di Kodie Lab):**
   - Backend: `npm run typecheck`, `npm run test:lab-mentor` (16/16 unit assertion guardrail + 6/6 uji E2E live Cloud pada Edge Function `lab-mentor` dengan Agnes AI primary), dan `npm run test:chatbot` lulus 100%.
   - Frontend: `npx next typegen`, `npm run lint` (0 error & 0 warning), `npm run typecheck`, `npm test` (16 file / 115 tes lulus, termasuk `src/lib/lab/mentor.test.ts` 7 tes), dan `npm run build` (69 rute) lulus.
@@ -250,6 +265,8 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 
 ## Catatan teknis penting
 
+- **Mengukur performa**: `npm run build && npx next start --port 3020`, lalu `npx lighthouse@12 http://localhost:3020/<rute> --only-categories=performance --form-factor=mobile`. Pastikan port bebas (`netstat -ano | grep :3020`); `TaskStop` atas `npx next start` tidak selalu mematikan proses Node anaknya, dan server lama akan menyajikan build campuran.
+- **Jangan impor statis modul berat** (Supabase browser, Motion) di komponen klien yang diimpor layout situs: Turbopack memasukkannya ke chunk bersama semua halaman. Pakai `import()` di efek/handler.
 - **Hook backslash**: perintah Bash yang memuat backslash (heredoc, `node -e`, `\n` di sed) diblokir. Tulis lewat Write/Edit atau file skrip.
 - **React Compiler (lint `preserve-manual-memoization`)**: ekspresi `cx(kondisi && "hidden", …)` di `widget-kiko.tsx` membuat lint gagal; pakai atribut `hidden={…}`.
 - **Pane browser tersembunyi**: rAF dan transisi CSS berhenti, View Transition melempar "Document hidden". Itu bukan bug kode. Untuk tangkapan layar saat pane tersembunyi, pakai Chrome headless lewat CDP (`--remote-debugging-port`).
@@ -259,7 +276,7 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - **Server dev bisa menyajikan CSS lama** setelah perubahan `globals.css` + `npm run build` berjalan bersamaan; restart server dev bila perubahan CSS tidak terlihat.
 - **React Compiler**: jangan me-reassign variabel lokal saat render (lint `react-hooks/immutability`); pindahkan ke fungsi murni di luar komponen.
 - Mode mock: `NEXT_PUBLIC_USE_MOCK=true`, akun di `src/lib/mock/akun.ts` (password `kodie-mock-123`). Jangan login ke Supabase produksi dengan password dari sesi Claude.
-- `.claude/launch.json` (lokal, tidak di-commit): `kodie-dev` (Supabase) dan `kodie-dev-mock`, keduanya port 3000.
+- `.claude/launch.json` (lokal, tidak di-commit): `kodie-dev` (Supabase) dan `kodie-dev-mock`, dikonfigurasi di port 3000; bila port 3000 sudah dipakai, server dev otomatis pindah ke port lain (mis. 3001).
 
 ## Pekerjaan tertunda
 
@@ -268,7 +285,6 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - Daftar "Verifikasi tambahan" di `docs/audit_qa_kodie_revisi.md` yang belum dijalankan penuh: semua halaman di 375/768 px, mode Turtle/HTML/Python di `/lab` pada produksi, dashboard admin, halaman sekunder footer.
 - README utama belum mencakup Kodie Lab, Karier, Showcase, Coolify, GSAP, simulasi kelas, waitlist, dan lupa password.
 - Uji produksi untuk fitur Migration 12 dan chat Kiko (lihat "Belum dicek di produksi").
-- Kontras dark mode: teks putih di atas primer `#3b82f6` 3,7:1 (di bawah 4,5:1 PRD); belum diputuskan apakah primer digelapkan.
 - Temuan audit UI yang sengaja tidak dikerjakan pengguna: balon/maskot Kiko yang kadang menutupi teks kartu, pola `<Sorotan>` di setiap judul section, dan 79 `<button>` mentah yang belum memakai `Tombol`.
 - Dari rangkuman audit yang belum: audit lanjutan LH-04 (touch target 48 px, og-image, checkout), reset error state `/masuk` (tidak tereproduksi).
 - Penampilan karakter pixel tiap anggota tim (rambut, kacamata, hijab) perlu dikonfirmasi pengguna di `simulasi-kelas/data.ts`.
