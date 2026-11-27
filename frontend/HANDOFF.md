@@ -76,7 +76,7 @@ Diagnosis awal (Lighthouse mobile produksi): beranda 57, LCP 4,5 dtk dengan rend
 9. **GSAP dilepas sepenuhnya**: `AnimasiElemen` dan panel `LoncengNotifikasi` memakai Web Animations API (`el.animate`) dengan durasi, jeda, dan kurva yang sama (`KURVA` di `src/lib/gerak.ts`, padanan `power2.out`/`power2.in`/`back.out`). `src/lib/gsap.ts` dihapus; `kurangiGerak()` pindah ke `src/lib/gerak.ts`. Paket `gsap` masih di `package.json` tetapi tidak diimpor lagi.
 10. **Footer jadi komponen server** (`footer.tsx`); interaksinya di `interaksi-footer.tsx` lewat delegasi event: pemicu memakai `data-easter="<sumber>"`, tautan navigasi juga `data-easter-hover`, tombol Tanya Kiko `data-buka-kiko`. Gelembung `#pixel-bubble`, kelas `.do-hop`, dan `data-footer-theme` diubah langsung di DOM.
 11. **Maskot Kiko**: loop rAF baru mulai setelah `load` + `requestIdleCallback` (wajah & pose awal dipasang lebih dulu); saat tidur digambar ~20 fps.
-12. **`/lab`**: `EditorKode` (CodeMirror) dimuat lewat `next/dynamic` hanya saat mode teks dipakai, dan dipanaskan di latar saat browser lengang.
+12. **`/lab`**: `EditorKode` (CodeMirror) dimuat lewat `next/dynamic` hanya saat mode teks dipakai; unduhan dimulai saat kursor/fokus masuk ke tab mode teks (bukan saat idle, karena Lighthouse menghitungnya sebagai TBT).
 
 ## Checkpoint sebelumnya (Bit-Cat Mentor di `/lab` & pasca-`2379213`)
 

@@ -17,10 +17,12 @@ import { PanelBitCat } from "./panel-bit-cat";
 import { CONTOH_CSS, CONTOH_HTML, CONTOH_JS, CONTOH_PYTHON, CONTOH_TURTLE } from "./contoh-lab";
 
 /**
- * CodeMirror (beserta paket bahasa HTML/CSS/JS/Python) hanya dimuat saat mode teks dipakai, dan dimuat di
- * latar saat browser lengang supaya pindah ke tab teks tetap instan. Mode Blok tidak memerlukannya.
+ * CodeMirror (beserta paket bahasa HTML/CSS/JS/Python) hanya dimuat saat mode teks dipakai. Unduhan dimulai
+ * saat kursor menyentuh atau fokus keyboard masuk ke tab mode teks, jadi tidak membebani muat awal; mode Blok
+ * tidak memerlukannya.
  */
 const muatEditorKode = () => import("./editor-kode");
+const panaskanEditorKode = () => void muatEditorKode();
 const EditorKode = dynamic(() => muatEditorKode().then((m) => m.EditorKode), {
   ssr: false,
   loading: () => (
@@ -203,17 +205,6 @@ function IsiKodieLab() {
       }
     }, 400);
   };
-
-  // Muat CodeMirror di latar setelah lab tampil, supaya pindah ke mode teks tidak menunggu unduhan.
-  useEffect(() => {
-    const muat = () => void muatEditorKode();
-    if (typeof window.requestIdleCallback === "function") {
-      const id = window.requestIdleCallback(muat, { timeout: 4000 });
-      return () => window.cancelIdleCallback(id);
-    }
-    const id = window.setTimeout(muat, 1500);
-    return () => window.clearTimeout(id);
-  }, []);
 
   // Konsol dari iframe pratinjau.
   useEffect(() => {
@@ -529,6 +520,8 @@ function IsiKodieLab() {
                 role="radio"
                 aria-checked={aktif}
                 onClick={() => gantiMode(o.nilai)}
+                onPointerEnter={o.nilai === "blok" ? undefined : panaskanEditorKode}
+                onFocus={o.nilai === "blok" ? undefined : panaskanEditorKode}
                 className={cx(
                   "relative flex min-h-[40px] items-center justify-center gap-2 rounded-full px-4 text-sm font-bold transition-colors sm:text-base",
                   aktif ? "text-primary-foreground" : "text-text-muted hover:text-text",
