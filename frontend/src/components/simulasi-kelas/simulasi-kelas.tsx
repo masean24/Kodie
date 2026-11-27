@@ -26,7 +26,7 @@ import {
   X,
 } from "lucide-react";
 import { cx } from "@/lib/cx";
-import { kurangiGerak } from "@/lib/gsap";
+import { kurangiGerak } from "@/lib/gerak";
 import { KameraKikoPiksel, KameraPiksel } from "./pixel";
 import { KAMU, MATERI, PERTANYAAN_CEPAT, REAKSI, SISWA, jawabanKikoUntuk, type Materi, type Token } from "./data";
 

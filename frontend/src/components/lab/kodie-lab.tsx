@@ -8,11 +8,27 @@ import { blokKePython, CONTOH_BLOK, jalankanBlok } from "@/lib/lab/blok";
 import { mintaPetunjukLab, type BerkasTemuan, type ResponsLabMentor, type TemuanLab } from "@/lib/lab/mentor";
 import { jalankanPerintah, type Adegan, type PerintahTurtle } from "@/lib/lab/turtle";
 import { AvatarBitCat } from "./avatar-bit-cat";
-import { EditorKode, type BahasaLab, type FokusBaris, type PenandaBaris } from "./editor-kode";
+import dynamic from "next/dynamic";
+import { StatusMemuat } from "@/components/ui/dasar";
+import type { BahasaLab, FokusBaris, PenandaBaris } from "./editor-kode";
 import { EditorBlok } from "./editor-blok";
 import { KanvasTurtle } from "./kanvas-turtle";
 import { PanelBitCat } from "./panel-bit-cat";
 import { CONTOH_CSS, CONTOH_HTML, CONTOH_JS, CONTOH_PYTHON, CONTOH_TURTLE } from "./contoh-lab";
+
+/**
+ * CodeMirror (beserta paket bahasa HTML/CSS/JS/Python) hanya dimuat saat mode teks dipakai, dan dimuat di
+ * latar saat browser lengang supaya pindah ke tab teks tetap instan. Mode Blok tidak memerlukannya.
+ */
+const muatEditorKode = () => import("./editor-kode");
+const EditorKode = dynamic(() => muatEditorKode().then((m) => m.EditorKode), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <StatusMemuat label="Menyiapkan editor kode…" />
+    </div>
+  ),
+});
 
 type Mode = "blok" | "turtle" | "web" | "python";
 type ModePython = "python" | "turtle";
@@ -187,6 +203,17 @@ function IsiKodieLab() {
       }
     }, 400);
   };
+
+  // Muat CodeMirror di latar setelah lab tampil, supaya pindah ke mode teks tidak menunggu unduhan.
+  useEffect(() => {
+    const muat = () => void muatEditorKode();
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(muat, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(muat, 1500);
+    return () => window.clearTimeout(id);
+  }, []);
 
   // Konsol dari iframe pratinjau.
   useEffect(() => {

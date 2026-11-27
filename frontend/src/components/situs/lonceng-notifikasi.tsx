@@ -8,7 +8,7 @@ import type { Notifikasi } from "@/types/database";
 import { aksiAmbilNotifikasi, aksiBacaNotifikasi, aksiBacaSemuaNotifikasi } from "@/lib/aksi/sesi";
 import { pakaiMock } from "@/lib/api/sumber";
 import { cx } from "@/lib/cx";
-import { gsap, kurangiGerak, useGSAP } from "@/lib/gsap";
+import { KURVA, kurangiGerak } from "@/lib/gerak";
 import { formatTanggalJam } from "@/lib/format";
 import { jumlahBelumDibaca } from "@/lib/sesi";
 
@@ -153,47 +153,55 @@ export function LoncengNotifikasi({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- pantau hanya bergantung pada penggunaId & router
   }, [pantau, penggunaId, router]);
 
-  // Buka/tutup panel dengan GSAP: panel memuai dari pojok lonceng, lalu item muncul berurutan.
-  // `autoAlpha` mengatur `visibility`, jadi panel tertutup tidak bisa difokus atau dibaca pembaca layar.
-  useGSAP(
-    () => {
-      const el = panel.current;
-      if (!el) return;
-      const instan = kurangiGerak();
-      gsap.killTweensOf(el);
-      if (buka) {
-        const item = el.querySelectorAll("[data-item-notif]");
-        gsap.killTweensOf(item);
-        if (instan) {
-          gsap.set(el, { autoAlpha: 1, y: 0, scale: 1 });
-          gsap.set(item, { autoAlpha: 1, y: 0 });
-          return;
-        }
-        gsap
-          .timeline()
-          .fromTo(
-            el,
-            { autoAlpha: 0, y: -10, scale: 0.94 },
-            { autoAlpha: 1, y: 0, scale: 1, duration: 0.32, ease: "back.out(1.6)" },
-          )
-          .fromTo(
-            item,
-            { autoAlpha: 0, y: 8 },
-            { autoAlpha: 1, y: 0, duration: 0.24, ease: "power2.out", stagger: 0.035 },
-            "-=0.18",
-          );
-      } else {
-        gsap.to(el, {
-          autoAlpha: 0,
-          y: -6,
-          scale: 0.97,
-          duration: instan ? 0 : 0.16,
-          ease: "power2.in",
-        });
-      }
-    },
-    { dependencies: [buka] },
-  );
+  // Buka/tutup panel dengan Web Animations API: panel memuai dari pojok lonceng, lalu item muncul berurutan.
+  // Panel tertutup diberi `visibility: hidden`, jadi tidak bisa difokus atau dibaca pembaca layar.
+  useEffect(() => {
+    const el = panel.current;
+    if (!el) return;
+    const instan = kurangiGerak();
+    for (const a of el.getAnimations({ subtree: true })) a.cancel();
+    if (buka) {
+      el.style.visibility = "visible";
+      el.style.opacity = "1";
+      if (instan) return;
+      el.animate(
+        [
+          { opacity: 0, transform: "translateY(-10px) scale(0.94)" },
+          { opacity: 1, transform: "none" },
+        ],
+        { duration: 320, easing: KURVA.pantul },
+      );
+      el.querySelectorAll<HTMLElement>("[data-item-notif]").forEach((item, i) =>
+        item.animate(
+          [
+            { opacity: 0, transform: "translateY(8px)" },
+            { opacity: 1, transform: "none" },
+          ],
+          { duration: 240, delay: 140 + i * 35, easing: KURVA.keluar, fill: "backwards" },
+        ),
+      );
+      return;
+    }
+    const tutup = () => {
+      el.style.visibility = "hidden";
+      el.style.opacity = "0";
+    };
+    if (instan || el.style.visibility !== "visible") {
+      tutup();
+      return;
+    }
+    const a = el.animate(
+      [
+        { opacity: 1, transform: "none" },
+        { opacity: 0, transform: "translateY(-6px) scale(0.97)" },
+      ],
+      { duration: 160, easing: KURVA.masuk, fill: "forwards" },
+    );
+    a.onfinish = () => {
+      tutup();
+      a.cancel();
+    };
+  }, [buka]);
 
   const belumDibaca = jumlahBelumDibaca(daftar);
 

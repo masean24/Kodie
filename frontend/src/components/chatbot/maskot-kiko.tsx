@@ -357,8 +357,28 @@ export function MaskotKiko({
     foreLRef.current?.setAttribute("transform", "translate(44 0) rotate(6)");
     armRRef.current?.setAttribute("transform", "translate(235 270) rotate(30)");
     foreRRef.current?.setAttribute("transform", "translate(44 0) rotate(6)");
+    pasangWajah(
+      bangunMarkupWajah({
+        expr: stateRef.current.ekspresi,
+        t: reduced ? 0.5 : 0,
+        ox: 0,
+        oy: 0,
+        isSpeaking: stateRef.current.isSpeaking,
+      }),
+    );
 
+    let gambarTerakhir = 0;
     const frame = (now: number) => {
+      // Saat tidur gerakannya lambat (ayunan 1,6 px), jadi ~20 fps sudah tak terbedakan dan menghemat CPU.
+      if (
+        stateRef.current.ekspresi === "sleep" &&
+        animRef.current.jumpV === 0 &&
+        now - gambarTerakhir < 50
+      ) {
+        rafId = requestAnimationFrame(frame);
+        return;
+      }
+      gambarTerakhir = now;
       const dt = Math.min(0.05, Math.max(0.001, (now - prevNow) / 1000));
       prevNow = now;
       const step60 = dt * 60;
@@ -483,22 +503,40 @@ export function MaskotKiko({
       rafId = requestAnimationFrame(frame);
     };
 
-    rafId = requestAnimationFrame(frame);
+    // Loop dimulai setelah halaman selesai dimuat dan main thread lengang, supaya tidak menambah
+    // beban saat hidrasi. Sebelum itu maskot tampil dalam pose awal yang sama dengan frame pertama.
+    let jalan = true;
+    let tundaId = 0;
+    let siagaId = 0;
+    const mulaiLoop = () => {
+      if (!jalan || rafId) return;
+      prevNow = performance.now();
+      rafId = requestAnimationFrame(frame);
+    };
+    const jadwalkanMulai = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        siagaId = window.requestIdleCallback(mulaiLoop, { timeout: 2000 });
+      } else {
+        tundaId = window.setTimeout(mulaiLoop, 300);
+      }
+    };
+    const saatDimuat = () => jadwalkanMulai();
+    if (document.readyState === "complete") jadwalkanMulai();
+    else window.addEventListener("load", saatDimuat, { once: true });
 
     // Loop berhenti saat maskot tidak terlihat (disembunyikan di /program, /lab, dashboard, atau keluar layar),
     // lalu berlanjut saat terlihat lagi. Tab tersembunyi sudah otomatis menjeda requestAnimationFrame.
-    let jalan = true;
     const svg = rootRef.current?.ownerSVGElement;
     const pengintai = svg
       ? new IntersectionObserver(([c]) => {
           const terlihat = Boolean(c?.isIntersecting);
           if (!terlihat && jalan) {
             cancelAnimationFrame(rafId);
+            rafId = 0;
             jalan = false;
           } else if (terlihat && !jalan) {
             jalan = true;
-            prevNow = performance.now();
-            rafId = requestAnimationFrame(frame);
+            if (document.readyState === "complete") mulaiLoop();
           }
         })
       : null;
@@ -507,6 +545,9 @@ export function MaskotKiko({
     return () => {
       pengintai?.disconnect();
       cancelAnimationFrame(rafId);
+      window.removeEventListener("load", saatDimuat);
+      if (siagaId) window.cancelIdleCallback?.(siagaId);
+      window.clearTimeout(tundaId);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mousedown", onTouchOrClick);
       window.removeEventListener("keydown", onTouchOrClick);

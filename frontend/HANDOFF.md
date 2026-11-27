@@ -71,6 +71,13 @@ Diagnosis awal (Lighthouse mobile produksi): beranda 57, LCP 4,5 dtk dengan rend
 7. **CLS `/kelas`** (`filter-kelas.tsx`): panel "Filter lainnya" terlipat sejak HTML server; `<noscript>` membuka panel tanpa JavaScript.
 8. **Cache program** (`src/lib/api/program.ts`): `ambilDaftarProgram`/`ambilProgram` memakai `"use cache"` + `cacheTag(TAG_PROGRAM)` + `cacheLife("hours")`; `aksiAdminUbahProgram` memanggil `updateTag(TAG_PROGRAM)`. **Setiap jalur baru yang mengubah tabel `program` wajib memanggil `updateTag(TAG_PROGRAM)`.**
 
+**Lanjutan (audit ulang Gemini, 2026-11-27):**
+
+9. **GSAP dilepas sepenuhnya**: `AnimasiElemen` dan panel `LoncengNotifikasi` memakai Web Animations API (`el.animate`) dengan durasi, jeda, dan kurva yang sama (`KURVA` di `src/lib/gerak.ts`, padanan `power2.out`/`power2.in`/`back.out`). `src/lib/gsap.ts` dihapus; `kurangiGerak()` pindah ke `src/lib/gerak.ts`. Paket `gsap` masih di `package.json` tetapi tidak diimpor lagi.
+10. **Footer jadi komponen server** (`footer.tsx`); interaksinya di `interaksi-footer.tsx` lewat delegasi event: pemicu memakai `data-easter="<sumber>"`, tautan navigasi juga `data-easter-hover`, tombol Tanya Kiko `data-buka-kiko`. Gelembung `#pixel-bubble`, kelas `.do-hop`, dan `data-footer-theme` diubah langsung di DOM.
+11. **Maskot Kiko**: loop rAF baru mulai setelah `load` + `requestIdleCallback` (wajah & pose awal dipasang lebih dulu); saat tidur digambar ~20 fps.
+12. **`/lab`**: `EditorKode` (CodeMirror) dimuat lewat `next/dynamic` hanya saat mode teks dipakai, dan dipanaskan di latar saat browser lengang.
+
 ## Checkpoint sebelumnya (Bit-Cat Mentor di `/lab` & pasca-`2379213`)
 
 1. **Bit-Cat Mentor (`/lab`, `lab-mentor` Edge Function, `src/lib/lab/mentor.ts`, `panel-bit-cat.tsx`, `avatar-bit-cat.tsx`, `editor-kode.tsx`):**
@@ -270,7 +277,7 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - **Hook backslash**: perintah Bash yang memuat backslash (heredoc, `node -e`, `\n` di sed) diblokir. Tulis lewat Write/Edit atau file skrip.
 - **React Compiler (lint `preserve-manual-memoization`)**: ekspresi `cx(kondisi && "hidden", …)` di `widget-kiko.tsx` membuat lint gagal; pakai atribut `hidden={…}`.
 - **Pane browser tersembunyi**: rAF dan transisi CSS berhenti, View Transition melempar "Document hidden". Itu bukan bug kode. Untuk tangkapan layar saat pane tersembunyi, pakai Chrome headless lewat CDP (`--remote-debugging-port`).
-- **GSAP + hidrasi**: jangan mengubah `style` node yang belum dihidrasi React; ikuti pola `terhidrasi()` di `animasi-elemen.tsx`.
+- **Animasi + hidrasi**: jangan mengubah `style` node yang belum dihidrasi React; ikuti pola `terhidrasi()` di `animasi-elemen.tsx`.
 - **Tipe database**: setelah backend memperbarui tipe, ganti hanya bagian mulai `export type Json =` di `src/types/database.ts`, lalu tambahkan field baru ke tipe aplikasi di atasnya.
 - **Tailwind v4 `scale-*`** memakai properti CSS `scale`, bukan `transform`; masukkan `scale` ke `transition-[...]`. `cx` tidak menggabungkan kelas yang bentrok (tidak ada tailwind-merge).
 - **Server dev bisa menyajikan CSS lama** setelah perubahan `globals.css` + `npm run build` berjalan bersamaan; restart server dev bila perubahan CSS tidak terlihat.

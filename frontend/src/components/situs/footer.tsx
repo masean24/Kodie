@@ -1,13 +1,13 @@
-"use client";
-
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
 import { Kontainer } from "@/components/ui/dasar";
-import { cx } from "@/lib/cx";
+import { InteraksiFooter } from "./interaksi-footer";
 import { SimbolKodie } from "./logo";
 
-type TemaFooter = "day" | "night";
-
+/*
+ * Footer dirender di server: seluruh lanskap piksel cukup HTML + CSS. Interaksinya (gelembung pesan, lompat
+ * Kiko, tema siang/malam) ditangani `InteraksiFooter` lewat delegasi event pada atribut `data-easter`, jadi
+ * hanya komponen kecil itu yang dihidrasi di klien.
+ */
 const PESAN_PIKSEL = {
   halo: "Halo dari Kiko! 👋",
   kiko: "Hello World! :)",
@@ -78,14 +78,6 @@ const KOLOM_NAVIGASI: {
     ],
   },
 ];
-
-function deteksiTemaSitus(): TemaFooter {
-  if (typeof document === "undefined") return "day";
-  const attr = document.documentElement.getAttribute("data-theme");
-  if (attr === "dark") return "night";
-  if (attr === "light") return "day";
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "night" : "day";
-}
 
 function LangitPiksel() {
   return (
@@ -179,13 +171,13 @@ function LangitPiksel() {
   );
 }
 
-function BangunanPiksel({ picuEasterEgg }: { picuEasterEgg: (sumber: SumberEasterEgg) => void }) {
+function BangunanPiksel() {
   return (
     <>
       {/* Drone Piksel Pembawa Paket Kode di Langit */}
       <button
         type="button"
-        onClick={() => picuEasterEgg("drone")}
+        data-easter="drone"
         title="Klik Drone Kiko!"
         aria-label="Klik Drone Kiko!"
         className="sky-drone block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute top-7 left-0 w-12 h-9 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -218,7 +210,7 @@ function BangunanPiksel({ picuEasterEgg }: { picuEasterEgg: (sumber: SumberEaste
       {/* Landmark Kiri: Halte & Pohon */}
       <button
         type="button"
-        onClick={() => picuEasterEgg("halte")}
+        data-easter="halte"
         title="Halte Belajar Kodie"
         aria-label="Halte Belajar Kodie"
         className="hidden sm:block appearance-none border-0 bg-transparent p-0 absolute bottom-4 left-[6%] lg:left-[9%] w-36 h-28 cursor-pointer z-10 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -256,7 +248,7 @@ function BangunanPiksel({ picuEasterEgg }: { picuEasterEgg: (sumber: SumberEaste
       {/* Landmark Tengah-Kiri: Kodie Café */}
       <button
         type="button"
-        onClick={() => picuEasterEgg("kafe")}
+        data-easter="kafe"
         title="Kodie Café - Klik untuk pesan kopi!"
         aria-label="Kodie Café - Klik untuk pesan kopi!"
         className="hidden md:block appearance-none border-0 bg-transparent p-0 absolute bottom-4 left-[36%] w-24 h-20 cursor-pointer z-10 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -280,7 +272,7 @@ function BangunanPiksel({ picuEasterEgg }: { picuEasterEgg: (sumber: SumberEaste
       {/* Landmark Kanan: Gedung Kampus Kodie & Lampu Jalan */}
       <button
         type="button"
-        onClick={() => picuEasterEgg("kampus")}
+        data-easter="kampus"
         title="Gedung Kampus Kodie - Klik untuk menyalakan tanda!"
         aria-label="Gedung Kampus Kodie - Klik untuk menyalakan tanda!"
         className="block appearance-none border-0 bg-transparent p-0 absolute bottom-4 right-[6%] sm:right-[11%] lg:right-[14%] w-52 h-36 cursor-pointer z-10 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -341,24 +333,14 @@ function BangunanPiksel({ picuEasterEgg }: { picuEasterEgg: (sumber: SumberEaste
   );
 }
 
-function KarakterBerjalanPiksel({
-  bubbleTerlihat,
-  pesanAktif,
-  sedangLompat,
-  picuEasterEgg,
-}: {
-  bubbleTerlihat: boolean;
-  pesanAktif: string;
-  sedangLompat: boolean;
-  picuEasterEgg: (sumber: SumberEasterEgg) => void;
-}) {
+function KarakterBerjalanPiksel() {
   return (
     <>
       {/* 1. KIKO MASCOT (16x18 Grid Piksel) */}
       <button
         id="sprite-kiko"
         type="button"
-        onClick={() => picuEasterEgg("kiko")}
+        data-easter="kiko"
         title="Klik Kiko!"
         aria-label="Klik Kiko!"
         className="walker-kiko block appearance-none border-0 bg-transparent p-0 absolute bottom-4 left-0 w-12 h-14 cursor-pointer z-30 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -367,17 +349,14 @@ function KarakterBerjalanPiksel({
           id="pixel-bubble"
           role="status"
           aria-live="polite"
-          className={cx(
-            !bubbleTerlihat && "hidden",
-            "pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#0F172A] text-[#C6F64D] border-2 border-[#C6F64D] px-2.5 py-0.5 text-[10px] font-mono-kodie font-bold shadow-xs",
-          )}
+          className="hidden pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-[#0F172A] text-[#C6F64D] border-2 border-[#C6F64D] px-2.5 py-0.5 text-[10px] font-mono-kodie font-bold shadow-xs"
         >
-          {pesanAktif}
+          {PESAN_PIKSEL.kiko}
         </div>
 
         <svg
           id="sprite-kiko-svg"
-          className={cx("pixel-crisp w-full h-full", sedangLompat && "do-hop")}
+          className="pixel-crisp w-full h-full"
           viewBox="0 0 16 18"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
@@ -412,7 +391,7 @@ function KarakterBerjalanPiksel({
       {/* 2. ROBO-CAT PENDAMPING KIKO (10x9 Grid Piksel) */}
       <button
         type="button"
-        onClick={() => picuEasterEgg("pet")}
+        data-easter="pet"
         title="Bit-Cat Kodie"
         aria-label="Bit-Cat Kodie"
         className="walker-pet block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute bottom-4 left-0 w-7 h-7 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -440,7 +419,7 @@ function KarakterBerjalanPiksel({
       {/* 3. PELAJAR KODIE DENGAN TAS & HEADPHONE (14x17 Grid Piksel) */}
       <button
         type="button"
-        onClick={() => picuEasterEgg("student")}
+        data-easter="student"
         title="Pelajar Kodie"
         aria-label="Pelajar Kodie"
         className="walker-student block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -467,7 +446,7 @@ function KarakterBerjalanPiksel({
       {/* 4. SISWI BERHIJAB DENGAN TABLET LIME (14x17 Grid Piksel) */}
       <button
         type="button"
-        onClick={() => picuEasterEgg("girlHijab")}
+        data-easter="girlHijab"
         title="Siswi Kodie"
         aria-label="Siswi Kodie berhijab"
         className="walker-girl-hijab block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -496,7 +475,7 @@ function KarakterBerjalanPiksel({
       {/* 5. SISWI BERKUNCIR DENGAN PITA LIME (14x17 Grid Piksel) */}
       <button
         type="button"
-        onClick={() => picuEasterEgg("girlPonytail")}
+        data-easter="girlPonytail"
         title="Siswi Kodie"
         aria-label="Siswi Kodie berkuncir"
         className="walker-girl-ponytail block appearance-none after:absolute after:-inset-2 after:content-[''] border-0 bg-transparent p-0 absolute bottom-4 left-0 w-10 h-12 cursor-pointer z-20 focus-visible:outline-2 focus-visible:outline-[#C6F64D]"
@@ -527,64 +506,11 @@ function KarakterBerjalanPiksel({
 
 /** Footer utama Kodie lengkap dengan kartu komunitas, pemilih suasana, dan lanskap piksel 8-bit interaktif. */
 export function Footer() {
-  const [temaFooter, setTemaFooter] = useState<TemaFooter>("day");
-  const [pesanAktif, setPesanAktif] = useState<string>(PESAN_PIKSEL.kiko);
-  const [bubbleTerlihat, setBubbleTerlihat] = useState(false);
-  const [sedangLompat, setSedangLompat] = useState(false);
-
-  const bubbleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const sinkron = () => setTemaFooter(deteksiTemaSitus());
-    sinkron();
-
-    const observer = new MutationObserver(sinkron);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-
-    const media = window.matchMedia?.("(prefers-color-scheme: dark)");
-    media?.addEventListener("change", sinkron);
-
-    return () => {
-      observer.disconnect();
-      media?.removeEventListener("change", sinkron);
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
-      if (hopTimerRef.current) clearTimeout(hopTimerRef.current);
-    };
-  }, []);
-
-  const picuEasterEgg = useCallback((sumber: SumberEasterEgg) => {
-    setPesanAktif(PESAN_PIKSEL[sumber] || "Semangat belajar! :)");
-    setBubbleTerlihat(true);
-
-    if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
-    bubbleTimerRef.current = setTimeout(() => {
-      setBubbleTerlihat(false);
-    }, 2600);
-
-    setSedangLompat(false);
-    if (hopTimerRef.current) clearTimeout(hopTimerRef.current);
-    requestAnimationFrame(() => {
-      setSedangLompat(true);
-      hopTimerRef.current = setTimeout(() => setSedangLompat(false), 480);
-    });
-  }, []);
-
-  const bukaWidgetKikoJikaTutup = () => {
-    picuEasterEgg("halo");
-    window.dispatchEvent(new Event("kodie:buka-kiko"));
-  };
-
   return (
     <footer
       id="kodie-footer"
       data-situs
-      data-footer-theme={temaFooter}
+      data-footer-theme="day"
       style={{
         // Peralihan bergradasi dari warna halaman ke warna footer, menggantikan garis batas.
         // Tiga titik antara (ease-out) agar peralihan warna tidak terlihat sebagai pita.
@@ -621,8 +547,9 @@ export function Footer() {
                     {item.jenis === "kiko" ? (
                       <button
                         type="button"
-                        onClick={bukaWidgetKikoJikaTutup}
-                        onMouseEnter={() => picuEasterEgg(item.sumber)}
+                        data-easter={item.sumber}
+                        data-easter-hover
+                        data-buka-kiko
                         className="inline-flex min-h-[44px] items-center hover:underline text-left cursor-pointer"
                       >
                         {item.label}
@@ -630,8 +557,8 @@ export function Footer() {
                     ) : (
                       <Link
                         href={item.href}
-                        onMouseEnter={() => picuEasterEgg(item.sumber)}
-                        onClick={() => picuEasterEgg(item.sumber)}
+                        data-easter={item.sumber}
+                        data-easter-hover
                         className="inline-flex min-h-[44px] items-center hover:underline"
                       >
                         {item.label}
@@ -666,7 +593,7 @@ export function Footer() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => picuEasterEgg("github")}
+                data-easter="github"
                 aria-label="GitHub Kodie"
                 style={{ borderColor: "var(--footer-btn-border)" }}
                 className="w-11 h-11 rounded-xl border flex items-center justify-center hover:border-[#1D4ED8] transition-colors cursor-pointer"
@@ -677,7 +604,7 @@ export function Footer() {
               </button>
               <button
                 type="button"
-                onClick={() => picuEasterEgg("instagram")}
+                data-easter="instagram"
                 aria-label="Instagram Kodie"
                 style={{ borderColor: "var(--footer-btn-border)" }}
                 className="w-11 h-11 rounded-xl border flex items-center justify-center hover:border-[#1D4ED8] transition-colors cursor-pointer"
@@ -690,7 +617,7 @@ export function Footer() {
               </button>
               <button
                 type="button"
-                onClick={() => picuEasterEgg("youtube")}
+                data-easter="youtube"
                 aria-label="YouTube Kodie"
                 style={{ borderColor: "var(--footer-btn-border)" }}
                 className="w-11 h-11 rounded-xl border flex items-center justify-center hover:border-[#1D4ED8] transition-colors cursor-pointer"
@@ -715,16 +642,12 @@ export function Footer() {
       {/* Panggung Lanskap Piksel 8-Bit Multi-Layer (176px) */}
       <div id="pixel-stage" className="relative w-full h-[176px] select-none overflow-hidden mt-2">
         <LangitPiksel />
-        <BangunanPiksel picuEasterEgg={picuEasterEgg} />
-        <KarakterBerjalanPiksel
-          bubbleTerlihat={bubbleTerlihat}
-          pesanAktif={pesanAktif}
-          sedangLompat={sedangLompat}
-          picuEasterEgg={picuEasterEgg}
-        />
+        <BangunanPiksel />
+        <KarakterBerjalanPiksel />
         {/* Layer 4: Trotoar & Garis Tanah Piksel */}
         <div aria-hidden="true" className="pixel-ground absolute inset-x-0 bottom-0 h-4" />
       </div>
+      <InteraksiFooter pesan={PESAN_PIKSEL} />
     </footer>
   );
 }

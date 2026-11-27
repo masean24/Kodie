@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { gsap, kurangiGerak } from "@/lib/gsap";
+import { KURVA, kurangiGerak } from "@/lib/gerak";
 
 /**
  * Elemen yang dianimasikan: blok konten "utuh" (judul, paragraf, item daftar, kartu, form, tabel, gambar,
@@ -100,6 +100,34 @@ function periksa(el: Element, akar: Element, sudah: WeakSet<Element>): Hasil {
   return terhidrasi(el) ? "ya" : "tunggu";
 }
 
+/** Sembunyikan elemen dalam posisi awal reveal (sama seperti `gsap.set({opacity: 0, y: 18})` sebelumnya). */
+function sembunyikan(el: HTMLElement) {
+  el.style.opacity = "0";
+  el.style.transform = "translateY(18px)";
+}
+
+/** Hapus gaya sembunyi; dipakai saat cleanup agar tidak ada konten tertinggal transparan. */
+function pulihkan(el: HTMLElement) {
+  el.style.removeProperty("opacity");
+  el.style.removeProperty("transform");
+}
+
+/**
+ * Munculkan elemen: naik 18 px dan memudar masuk selama 0,55 dtk dengan kurva `power2.out`. Gaya inline
+ * dilepas lebih dulu, lalu `fill: "backwards"` menahan posisi awal selama jeda, jadi tidak ada kedipan dan
+ * tidak ada gaya tersisa setelah animasi selesai.
+ */
+function naikkan(el: HTMLElement, jedaMs: number) {
+  pulihkan(el);
+  el.animate(
+    [
+      { opacity: 0, transform: "translateY(18px)" },
+      { opacity: 1, transform: "none" },
+    ],
+    { duration: 550, delay: jedaMs, easing: KURVA.keluar, fill: "backwards" },
+  );
+}
+
 function diLayar(el: Element) {
   return el.getBoundingClientRect().top < window.innerHeight;
 }
@@ -128,14 +156,13 @@ export function AnimasiElemen() {
         pengintai.unobserve(el);
         menunggu.delete(el);
       }
-      const gaya = { opacity: 1, y: 0, duration: 0.55, ease: "power2.out", overwrite: true, clearProps: "opacity,transform" };
       // Elemen dengan `data-tunda` (komponen `Muncul`) memakai jedanya sendiri; sisanya berurutan 0,06 dtk.
       const bertunda = masuk.filter((el) => el instanceof HTMLElement && el.dataset.tunda);
       const biasa = masuk.filter((el) => !bertunda.includes(el));
-      for (const el of bertunda) gsap.to(el, { ...gaya, delay: Number((el as HTMLElement).dataset.tunda) || 0 });
+      for (const el of bertunda) naikkan(el as HTMLElement, (Number((el as HTMLElement).dataset.tunda) || 0) * 1000);
       if (biasa.length > 0) {
         biasa.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
-        gsap.to(biasa, { ...gaya, stagger: 0.06 });
+        biasa.forEach((el, i) => naikkan(el as HTMLElement, i * 60));
       }
     };
 
@@ -205,8 +232,8 @@ export function AnimasiElemen() {
       }
       if (siap.length > 0) {
         for (const el of siap) sudah.add(el);
-        gsap.set(siap, { opacity: 0, y: 18 });
         for (const el of siap) {
+          sembunyikan(el);
           menunggu.add(el);
           pengintai.observe(el);
         }
@@ -245,7 +272,7 @@ export function AnimasiElemen() {
       pengamat.disconnect();
       pengintai.disconnect();
       window.removeEventListener("scroll", akhiriMuatAwal);
-      if (menunggu.size > 0) gsap.set([...menunggu], { clearProps: "opacity,transform" });
+      for (const el of menunggu) pulihkan(el as HTMLElement);
       menunggu.clear();
     };
   }, []);
