@@ -184,3 +184,19 @@ Berlangganan `postgres_changes` untuk event `INSERT` pada tabel `notifikasi` den
   - `kirim_pesan_live_chat({ p_percakapan_id, p_isi })`
   - `admin_ambil_alih_chat({ p_percakapan_id })`
   - `admin_selesaikan_chat({ p_percakapan_id, p_kembali_ke_bot? })`
+
+---
+
+## 6. Bit-Cat Mentor di Kodie Lab (Edge Function `lab-mentor`)
+
+- **Endpoint JSON:** `POST ${NEXT_PUBLIC_SUPABASE_URL}/functions/v1/lab-mentor` (terpisah total dari `chat`: tanpa RAG FAQ, tanpa menyimpan riwayat chat DB, tanpa Live Admin Takeover).
+- **Payload Request:**
+  - `mode`: `'blok' | 'turtle' | 'web' | 'python'`
+  - `level`: `1 | 2` *(Level 1 = petunjuk awal & pertanyaan pemandu; Level 2 = langkah cek lebih rinci, tetap tanpa kode solusi)*
+  - `berkas_aktif`: `'html' | 'css' | 'js' | 'main.py' | 'turtle.py' | 'blok'`
+  - `kode`: `string` (untuk `python`/`turtle`/`blok`) atau `{ html: string, css: string, js: string }` (untuk `web`)
+  - `galat`: `string[]` (keluaran `stderr` terbaru dari panel Konsol)
+  - `tujuan` *(opsional)*: `string` (maks. 240 karakter untuk bantu deteksi bug logika)
+- **Respons JSON (`200`):**
+  - `{ nama_mentor: 'Bit-Cat Mentor', status: 'ada_temuan' | 'kode_rapi' | 'ditolak_privasi' | 'butuh_coba_dulu', level: 1 | 2, ringkasan: string, temuan: Array<{ id, tingkat: 'error'|'warn'|'hint', berkas, baris: number|null, judul, petunjuk, pertanyaan_pemandu }>, boleh_level_2: boolean }`
+- **Guardrail Anti-Spoiler & Privasi:** Menolak permintaan pembuatan kode lengkap (`butuh_coba_dulu`), menyensor PII (`ditolak_privasi`), membuang blok kode solusi (` ``` `), serta menjaga identitas `"Bit-Cat Mentor"`.

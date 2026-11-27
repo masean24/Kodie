@@ -8,7 +8,7 @@
     "link": "supabase link",
     "db:push": "supabase db push",
     "db:reset": "supabase db reset",
-    "functions:deploy": "supabase functions deploy buat-meet --no-verify-jwt && supabase functions deploy chat --no-verify-jwt",
+    "functions:deploy": "supabase functions deploy buat-meet --no-verify-jwt && supabase functions deploy chat --no-verify-jwt && supabase functions deploy lab-mentor --no-verify-jwt",
     "gen:types:local": "supabase gen types typescript --local > supabase/types/database.ts",
     "gen:types:linked": "supabase gen types typescript --linked > supabase/types/database.ts",
     "seed:akun": "tsx scripts/seed-akun.ts",
@@ -16,6 +16,7 @@
     "ingest:knowledge": "tsx scripts/ingest-knowledge.ts",
     "test:rls": "tsx scripts/verify-backend.ts",
     "test:chatbot": "tsx scripts/test-chatbot-unit.ts",
+    "test:lab-mentor": "tsx scripts/test-lab-mentor.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
