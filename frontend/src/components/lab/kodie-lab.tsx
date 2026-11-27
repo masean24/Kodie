@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as KeyboardEventReact, type ReactNode } from "react";
 import { motion } from "motion/react";
-import { Code2, Copy, Eraser, FileCode2, Loader2, Play, Puzzle, RotateCcw, Square, Terminal, Turtle, X } from "lucide-react";
+import { Code2, Copy, Eraser, FileCode2, Lightbulb, Loader2, Play, Puzzle, RotateCcw, Square, Terminal, Turtle, X } from "lucide-react";
 import { cx } from "@/lib/cx";
 import { blokKePython, CONTOH_BLOK, jalankanBlok } from "@/lib/lab/blok";
+import { mintaPetunjukLab, type BerkasTemuan, type ResponsLabMentor, type TemuanLab } from "@/lib/lab/mentor";
 import { jalankanPerintah, type Adegan, type PerintahTurtle } from "@/lib/lab/turtle";
-import { EditorKode, type BahasaLab } from "./editor-kode";
+import { AvatarBitCat } from "./avatar-bit-cat";
+import { EditorKode, type BahasaLab, type FokusBaris, type PenandaBaris } from "./editor-kode";
 import { EditorBlok } from "./editor-blok";
 import { KanvasTurtle } from "./kanvas-turtle";
+import { PanelBitCat } from "./panel-bit-cat";
 import { CONTOH_CSS, CONTOH_HTML, CONTOH_JS, CONTOH_PYTHON, CONTOH_TURTLE } from "./contoh-lab";
 
 type Mode = "blok" | "turtle" | "web" | "python";
@@ -156,6 +159,18 @@ export function KodieLab() {
   const [keluaranBlok, setKeluaranBlok] = useState<Baris[]>([]);
   const [intipPython, setIntipPython] = useState(false);
 
+  // Bit-Cat Mentor (pemeriksa kode Socratic)
+  const [panelMentorBuka, setPanelMentorBuka] = useState(false);
+  const [tujuanMentor, setTujuanMentor] = useState("");
+  const [memuatMentor, setMemuatMentor] = useState(false);
+  const [galatMentor, setGalatMentor] = useState<string | null>(null);
+  const [hasilMentor, setHasilMentor] = useState<ResponsLabMentor | null>(null);
+  const [adaGalatTerbaru, setAdaGalatTerbaru] = useState(false);
+  const [ajakanGalatTutup, setAjakanGalatTutup] = useState(false);
+  const [fokusBaris, setFokusBaris] = useState<FokusBaris | null>(null);
+  const mentorAbortRef = useRef<AbortController | null>(null);
+  const seqFokusRef = useRef(0);
+
   /** Perbarui kode dan simpan ke localStorage (ditunda 400 ms agar tidak menulis di setiap ketukan). */
   const perbarui = (ubah: (k: Simpanan) => Simpanan) => {
     const baru = ubah(terbaru.current);
@@ -181,6 +196,10 @@ export function KodieLab() {
       if (!d?.kodieLab || typeof d.teks !== "string") return;
       const baris: Baris = { aliran: d.aliran ?? "stdout", teks: d.teks };
       setKonsolWeb((k) => tambahBaris(k, baris));
+      if (baris.aliran === "stderr") {
+        setAdaGalatTerbaru(true);
+        setAjakanGalatTutup(false);
+      }
     };
     window.addEventListener("message", terima);
     return () => window.removeEventListener("message", terima);
@@ -205,6 +224,10 @@ export function KodieLab() {
       } else if (d.jenis === "keluaran") {
         const baris: Baris = { aliran: d.aliran, teks: d.teks };
         setKeluaran((k) => ({ ...k, [target]: tambahBaris(k[target], baris) }));
+        if (d.aliran === "stderr") {
+          setAdaGalatTerbaru(true);
+          setAjakanGalatTutup(false);
+        }
       } else if (d.jenis === "turtle") {
         setAdegan((a) => ({ ...a, turtle: jalankanPerintah(Array.isArray(d.perintah) ? d.perintah : []) }));
         setPutaranKanvas((p) => p + 1);
@@ -215,7 +238,7 @@ export function KodieLab() {
     };
     worker.current = w;
     return w;
-  }, []);
+  }, [setAjakanGalatTutup]);
 
   const pastikanWorker = useCallback(() => worker.current ?? buatWorker(), [buatWorker]);
 
@@ -229,10 +252,24 @@ export function KodieLab() {
     () => () => {
       worker.current?.terminate();
       worker.current = null;
+      mentorAbortRef.current?.abort();
+      mentorAbortRef.current = null;
       if (timerSimpan.current) clearTimeout(timerSimpan.current);
     },
     [],
   );
+
+  const resetMentor = () => {
+    mentorAbortRef.current?.abort();
+    mentorAbortRef.current = null;
+    setPanelMentorBuka(false);
+    setMemuatMentor(false);
+    setGalatMentor(null);
+    setHasilMentor(null);
+    setAdaGalatTerbaru(false);
+    setAjakanGalatTutup(false);
+    setFokusBaris(null);
+  };
 
   const jalankanBlokSekarang = () => {
     const h = jalankanBlok(terbaru.current.blok);
@@ -240,11 +277,19 @@ export function KodieLab() {
     setPutaranKanvas((p) => p + 1);
     const baris: Baris[] = h.keluaran.map((teks) => ({ aliran: "stdout", teks }));
     if (h.catatan) baris.push({ aliran: "warn", teks: h.catatan });
-    if (h.galat) baris.push({ aliran: "stderr", teks: h.galat });
+    if (h.galat) {
+      baris.push({ aliran: "stderr", teks: h.galat });
+      setAdaGalatTerbaru(true);
+      setAjakanGalatTutup(false);
+    } else {
+      setAdaGalatTerbaru(false);
+    }
     setKeluaranBlok(baris);
   };
 
   const jalankan = () => {
+    setAdaGalatTerbaru(false);
+    setAjakanGalatTutup(false);
     if (mode === "web") {
       putaran.current += 1;
       setKonsolWeb([]);
@@ -280,6 +325,7 @@ export function KodieLab() {
 
   const gantiMode = (m: Mode) => {
     setIntipPython(false);
+    resetMentor();
     perbarui((k) => ({ ...k, mode: m }));
   };
 
@@ -292,6 +338,7 @@ export function KodieLab() {
   const kembalikanContoh = () => {
     if (!window.confirm(PESAN_KEMBALIKAN[mode])) return;
     const c = contohAwal();
+    resetMentor();
     perbarui((k) => {
       if (mode === "web") return { ...k, web: c.web };
       if (mode === "blok") return { ...k, blok: c.blok };
@@ -307,14 +354,99 @@ export function KodieLab() {
     if (terbaru.current.turtle.trim() && !window.confirm("Ganti kode di mode Python Turtle dengan hasil terjemahan blok ini?")) return;
     const hasil = blokKePython(terbaru.current.blok);
     setIntipPython(false);
+    resetMentor();
     perbarui((k) => ({ ...k, turtle: hasil, mode: "turtle" }));
     setVersiEditor((v) => v + 1);
   };
 
   const bersihkan = () => {
+    setAdaGalatTerbaru(false);
     if (mode === "web") setKonsolWeb([]);
     else if (mode === "blok") setKeluaranBlok([]);
     else setKeluaran((k) => ({ ...k, [mode]: [] }));
+  };
+
+  const ambilGalatAktif = (): string[] => {
+    const daftar = mode === "web" ? konsolWeb : mode === "blok" ? keluaranBlok : keluaran[mode];
+    return daftar
+      .filter((b) => b.aliran === "stderr")
+      .map((b) => b.teks)
+      .slice(-10);
+  };
+
+  const periksaKodeDenganBitCat = async (level: 1 | 2 = 1) => {
+    mentorAbortRef.current?.abort();
+    const controller = new AbortController();
+    mentorAbortRef.current = controller;
+
+    setPanelMentorBuka(true);
+    setAjakanGalatTutup(true);
+    setMemuatMentor(true);
+    setGalatMentor(null);
+
+    const cur = terbaru.current;
+    const modeAktif = cur.mode;
+    const berkasUntukMode: BerkasTemuan =
+      modeAktif === "web"
+        ? berkas
+        : modeAktif === "turtle"
+          ? "turtle.py"
+          : modeAktif === "blok"
+            ? "blok"
+            : "main.py";
+
+    const payloadKode =
+      modeAktif === "web"
+        ? cur.web
+        : modeAktif === "turtle"
+          ? cur.turtle
+          : modeAktif === "blok"
+            ? blokKePython(cur.blok)
+            : cur.python;
+
+    try {
+      const resp = await mintaPetunjukLab(
+        {
+          mode: modeAktif,
+          level,
+          berkas_aktif: berkasUntukMode,
+          kode: payloadKode,
+          galat: ambilGalatAktif(),
+          tujuan: tujuanMentor.trim() || undefined,
+        },
+        controller.signal,
+      );
+      if (mentorAbortRef.current === controller) {
+        setHasilMentor(resp);
+      }
+    } catch (err) {
+      if ((err as { name?: string })?.name !== "AbortError" && mentorAbortRef.current === controller) {
+        setGalatMentor("Tidak dapat menghubungi Bit-Cat Mentor saat ini. Coba lagi sebentar ya.");
+      }
+    } finally {
+      if (mentorAbortRef.current === controller) {
+        setMemuatMentor(false);
+      }
+    }
+  };
+
+  const berkasEditorSaatIni: BerkasTemuan =
+    mode === "web" ? berkas : mode === "turtle" ? "turtle.py" : mode === "blok" ? "blok" : "main.py";
+
+  const penandaAktif = useMemo<PenandaBaris[]>(() => {
+    if (!hasilMentor) return [];
+    return hasilMentor.temuan
+      .filter((t): t is TemuanLab & { baris: number } => t.berkas === berkasEditorSaatIni && t.baris !== null)
+      .map((t) => ({ baris: t.baris, tingkat: t.tingkat }));
+  }, [berkasEditorSaatIni, hasilMentor]);
+
+  const pilihTemuan = (t: TemuanLab) => {
+    if (t.berkas === "blok" || t.baris === null) return;
+    if (mode === "web" && (t.berkas === "html" || t.berkas === "css" || t.berkas === "js")) {
+      setBerkas(t.berkas);
+    }
+    seqFokusRef.current += 1;
+    setFokusBaris({ berkas: t.berkas, baris: t.baris, seq: seqFokusRef.current });
   };
 
   // Ctrl/Cmd + Enter juga berlaku di papan blok (editor kode sudah menanganinya sendiri).
@@ -396,6 +528,26 @@ export function KodieLab() {
           </span>
           <button
             type="button"
+            onClick={() => void periksaKodeDenganBitCat(1)}
+            aria-expanded={panelMentorBuka}
+            data-tanpa-animasi
+            className={cx(
+              "flex min-h-touch items-center gap-2 rounded-full border-[1.5px] px-4 text-sm font-bold transition-colors",
+              panelMentorBuka
+                ? "border-primary bg-primary-subtle text-primary"
+                : "border-border-strong bg-surface text-text hover:bg-surface-sunken",
+            )}
+          >
+            <AvatarBitCat ukuran="kecil" />
+            <span>Periksa kode</span>
+            {hasilMentor && hasilMentor.temuan.length > 0 ? (
+              <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-cta px-2 py-0.5 text-sm font-bold text-cta-foreground">
+                {hasilMentor.temuan.length}
+              </span>
+            ) : null}
+          </button>
+          <button
+            type="button"
             onClick={kembalikanContoh}
             className="flex min-h-touch items-center gap-2 rounded-full border-[1.5px] border-border-strong bg-surface px-4 text-sm font-bold hover:bg-surface-sunken"
           >
@@ -428,6 +580,37 @@ export function KodieLab() {
         </div>
       </div>
 
+      {adaGalatTerbaru && !ajakanGalatTutup && !panelMentorBuka ? (
+        <div
+          role="status"
+          data-tanpa-animasi
+          className="flex flex-wrap items-center justify-between gap-3 rounded-card-sm border border-warning/40 bg-warning-subtle px-4 py-3 text-sm text-text shadow-kartu"
+        >
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Lightbulb aria-hidden="true" className="size-5 shrink-0 text-warning" />
+            <p className="font-medium">Ada pesan galat di keluaran. Mau Bit-Cat bantu cari petunjuk letak masalahnya?</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void periksaKodeDenganBitCat(1)}
+              className="inline-flex min-h-touch items-center gap-2 rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground hover:bg-primary-hover"
+            >
+              <AvatarBitCat ukuran="kecil" />
+              Minta petunjuk
+            </button>
+            <button
+              type="button"
+              aria-label="Tutup ajakan petunjuk Bit-Cat"
+              onClick={() => setAjakanGalatTutup(true)}
+              className="inline-flex min-h-touch min-w-touch items-center justify-center rounded-full border border-border-strong bg-surface text-text-muted hover:bg-surface-sunken hover:text-text"
+            >
+              <X aria-hidden="true" className="size-4" />
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Editor */}
         <section
@@ -444,7 +627,10 @@ export function KodieLab() {
                     type="button"
                     role="tab"
                     aria-selected={berkas === b}
-                    onClick={() => setBerkas(b)}
+                    onClick={() => {
+                      setBerkas(b);
+                      setFokusBaris(null);
+                    }}
                     className={cx(
                       "min-h-[40px] rounded-t-[10px] px-3 font-mono text-sm font-bold transition-colors",
                       berkas === b ? "bg-surface text-primary" : "text-text-muted hover:text-text",
@@ -486,6 +672,9 @@ export function KodieLab() {
                 bahasa={bahasaAktif}
                 nilaiAwal={nilaiAktif}
                 label={mode === "python" ? "Kode Python" : mode === "turtle" ? "Kode Python Turtle" : `Kode ${NAMA_BERKAS[berkas]}`}
+                berkasAktif={berkasEditorSaatIni}
+                penanda={penandaAktif}
+                fokusBaris={fokusBaris}
                 onUbah={(v) => ubahKode(bahasaAktif, v)}
                 onJalankan={jalankan}
               />
@@ -559,6 +748,19 @@ export function KodieLab() {
           </div>
         )}
       </div>
+      {panelMentorBuka ? (
+        <PanelBitCat
+          hasil={hasilMentor}
+          memuat={memuatMentor}
+          galat={galatMentor}
+          tujuan={tujuanMentor}
+          onUbahTujuan={setTujuanMentor}
+          onPeriksa={() => void periksaKodeDenganBitCat(1)}
+          onMintaLevel2={() => void periksaKodeDenganBitCat(2)}
+          onPilihTemuan={pilihTemuan}
+          onTutup={() => setPanelMentorBuka(false)}
+        />
+      ) : null}
       <p className="text-sm text-text-muted">
         Kode disimpan otomatis di browser ini saja. Blok berjalan langsung di browser, kode web berjalan di bingkai terisolasi, dan
         Python berjalan dengan Pyodide. <code>input()</code> belum didukung.

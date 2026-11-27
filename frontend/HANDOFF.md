@@ -55,8 +55,15 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 24b | Section *"Mengapa Kodie hadir"* di beranda | Selesai | `fdb3527` |
 | Revisi 25 | Audit UI/UX: token palet merek, skala font tetap, 3 token shadow; "Mengapa Kodie hadir" jadi baris masalah → solusi; filter `/kelas` dilipat di ponsel; teks ≥ 14 px; area sentuh ≥ 44 px; emoji UI data jadi ikon Lucide; radio terlihat di `/daftar` | Selesai | `2ec3f29`, `27f1a65` |
 | Revisi 26 | Tombol Daftar tidak lagi keluar dari navbar kaca saat di-scroll | Selesai | `ef89191` |
+| Revisi 27 | **Bit-Cat Mentor** di Kodie Lab: pemeriksa kode Socratic terpisah dari chatbot Kiko (`POST /functions/v1/lab-mentor`, Agnes AI primary), sorotan baris CodeMirror 6, petunjuk bertahap Level 1 → 2, & banner proaktif saat `stderr` | Selesai | (commit lokal baru) |
 
-## Checkpoint terbaru (audit UI/UX, 27 November 2026)
+## Checkpoint terbaru (Bit-Cat Mentor di `/lab` & pasca-`2379213`)
+
+1. **Bit-Cat Mentor (`/lab`, `lab-mentor` Edge Function, `src/lib/lab/mentor.ts`, `panel-bit-cat.tsx`, `avatar-bit-cat.tsx`, `editor-kode.tsx`):**
+   - **Backend terpisah total dari Chatbot CS Kiko (`functions/chat`):** `backend/supabase/functions/lab-mentor/` (`verify_jwt = false`) memakai Agnes AI (`agnes-3.0-flash`) dengan failover Gemini/Groq, rate limit per IP, sensor PII anak, anti-prompt-injection, penolak permintaan kode lengkap (`butuh_coba_dulu`), dan output sanitizer pembuang blok kode solusi (`stripSolutionSpoilers`). Tidak menyentuh RAG FAQ maupun tabel `percakapan_chat`/`pesan_chat`.
+   - **Frontend Kodie Lab (`kodie-lab.tsx`):** Tombol **"Periksa kode"** dengan `<AvatarBitCat ukuran="kecil" />` di bilah alat, banner ajakan 1-klik proaktif saat `Jalankan` memunculkan `stderr`, kolom opsional *"Apa yang sedang kamu coba buat?"* untuk deteksi bug logika, petunjuk bertahap **Level 1 → Level 2**, serta sorotan baris langsung di CodeMirror 6 (`StateField` + `.cm-lab-line-error/warn/hint`). Mode mock atau saat offline memakai pemeriksa lokal `analisisLokalLab`. Mematuhi token `--k-*`, skala font ≥ `14 px` (`text-sm`), `min-h-touch`, `shadow-kartu`, dan `data-tanpa-animasi`.
+
+## Checkpoint sebelumnya (audit UI/UX, 27 November 2026)
 
 1. **Token dan konsistensi (`2ec3f29`)**
    - Palet merek tetap di `globals.css` (sama di mode terang dan gelap): `--k-ink`, `ink-soft`, `slate`, `slate-muted`, `obsidian`, `royal`, `royal-hover`, `royal-bright`, `blue`, `sky`, `sky-soft`, `sky-pale`, `ice`, `mist`, `snow`, `navy`, `navy-deep`, `navy-night`, `lime`, `lime-deep`, `lime-pale`, `cyan`, `white`. Dipakai lewat kelas Tailwind (`bg-lime`, `text-ink`, `text-ice`, dst.) atau `var(--k-*)` di style inline. **Jangan menulis hex di komponen.** Pengecualian yang disengaja: seni piksel (footer, simulasi kelas, maskot Kiko, logo), gambar contoh di `/showcase`, dan `themeColor` di `layout.tsx`.
@@ -187,6 +194,11 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 
 ## Status verifikasi terkini
 
+- **Pemeriksaan Revisi 27 (Bit-Cat Mentor di Kodie Lab):**
+  - Backend: `npm run typecheck`, `npm run test:lab-mentor` (16/16 unit assertion guardrail + 6/6 uji E2E live Cloud pada Edge Function `lab-mentor` dengan Agnes AI primary), dan `npm run test:chatbot` lulus 100%.
+  - Frontend: `npx next typegen`, `npm run lint` (0 error & 0 warning), `npm run typecheck`, `npm test` (16 file / 114 tes lulus, termasuk `src/lib/lab/mentor.test.ts` 6 tes), dan `npm run build` (69 rute) lulus.
+  - Headless Chrome CDP (`http://127.0.0.1:3010/lab` di `360×800`, `390×844`, dan `1280×800`, Light & Dark Mode): mode Python (Level 1 → lompat fokus `main.py · Baris 1` dengan sorotan `.cm-lab-line-error` → Level 2, bebas blok kode ```` ``` ````), mode Web (galat `script.js` memunculkan banner proaktif 1-klik → membuka temuan `script.js` tersorot di editor), mode Blok selesai bersih, `"Tanya Kiko AI"` di footer tetap membuka dialog Kiko secara terpisah, `0` horizontal overflow di semua ukuran, font panel `>= 14 px`, tombol `>= 44 px`, token Dark Mode mengubah panel (`rgb(255, 255, 255)` → `rgb(20, 20, 23)`), dan `0` console/page/HTTP `>= 400` error.
+  - **Lighthouse Mobile (`next start` lokal `/lab`):** **80 / 97 / 100 / 100** (`LCP 1.2 s`, `CLS 0`).
 - **Pemeriksaan Revisi 25–26 (audit UI/UX & navbar, lokal mode mock):**
   - `npm run lint`, `npm run typecheck`, `npm test` (15 file / 108 tes), dan `npm run build` lulus.
   - Chrome headless lewat CDP di 360 dan 1440 px, terang dan gelap: 0 scroll horizontal di `/`, `/program`, `/kelas`, `/tes-minat`, `/masuk`, `/daftar`; teks < 14 px hanya tersisa di tiruan layar Meet simulasi kelas.

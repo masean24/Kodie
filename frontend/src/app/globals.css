@@ -542,6 +542,20 @@ h4 {
   }
 }
 
+/* Sorotan baris temuan Bit-Cat Mentor di editor CodeMirror 6 (memakai token situs). */
+.cm-lab-line-error {
+  background-color: var(--k-danger-subtle);
+  box-shadow: inset 3px 0 0 var(--k-danger);
+}
+.cm-lab-line-warn {
+  background-color: var(--k-warning-subtle);
+  box-shadow: inset 3px 0 0 var(--k-warning);
+}
+.cm-lab-line-hint {
+  background-color: var(--k-primary-subtle);
+  box-shadow: inset 3px 0 0 var(--k-primary);
+}
+
 /* Hero mengisi layar pertama: tinggi viewport dikurangi header 72px. */
 .hero-layar {
   min-height: calc(100svh - 72px);
