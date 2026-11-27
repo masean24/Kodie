@@ -5,7 +5,7 @@ import { Kontainer } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { Muncul } from "@/components/ui/gerak";
 import { BandKodie, LencanaBand, SorotanBand } from "@/components/situs/judul-halaman";
-import { KataHero } from "@/components/situs/reveal-hero";
+import { KataHero, jumlahKata } from "@/components/situs/reveal-hero";
 import { FilterKarya } from "./filter-karya";
 
 export const metadata: Metadata = {
@@ -119,17 +119,20 @@ const KARYA: Karya[] = [
   },
 ];
 
+const TEKS_SHOWCASE =
+  "Contoh proyek yang bisa dibuat siswa di Kodie Lab, dari menyusun blok sampai menulis Python. Semuanya berjalan langsung di browser, gratis, tanpa akun.";
+
 export default function HalamanShowcase() {
   return (
     <>
-      <BandKodie>
+      <BandKodie kataJudul={1} kataTeks={jumlahKata(TEKS_SHOWCASE)}>
         <Kontainer className="relative pb-10 pt-6 md:pb-14 md:pt-8">
           <LencanaBand>Dibuat di Kodie Lab</LencanaBand>
           <h1 className="mt-4 text-32 leading-[40px] font-extrabold tracking-tight sm:text-40 sm:leading-[48px] md:text-48 md:leading-[58px]">
             <KataHero teks="Showcase" /> <SorotanBand>karya</SorotanBand>
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-ice md:text-lg">
-            <KataHero teks="Contoh proyek yang bisa dibuat siswa di Kodie Lab, dari menyusun blok sampai menulis Python. Semuanya berjalan langsung di browser, gratis, tanpa akun." />
+            <KataHero teks={TEKS_SHOWCASE} />
           </p>
         </Kontainer>
       </BandKodie>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { ArrowRight, Compass, FileText, Globe, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import { cx } from "@/lib/cx";
 import { ambilDaftarProgram } from "@/lib/api/program";
@@ -11,7 +11,7 @@ import { ObjekBidang } from "@/components/kategori";
 import { KartuProgram } from "@/components/program/kartu-program";
 import { KartuPengajar } from "@/components/pengajar/kartu-pengajar";
 import { AngkatHover, Muncul } from "@/components/ui/gerak";
-import { KataHero, RevealHero } from "@/components/situs/reveal-hero";
+import { KataHero, RevealHero, jumlahKata } from "@/components/situs/reveal-hero";
 import { CaraKerjaPinned } from "@/components/situs/cara-kerja-pinned";
 import { SimulasiKelasMalas } from "@/components/simulasi-kelas/simulasi-kelas-malas";
 
@@ -195,6 +195,9 @@ function MengapaKodie() {
   );
 }
 
+const TEKS_HERO =
+  "Bantu anak mengasah logika, kreativitas, dan siap menghadapi masa depan digital lewat kelas daring interaktif yang seru dan terarah.";
+
 /**
  * Hero beranda, mengikuti redesain `docs/kodie_landing_page_redesign.html` section 1 dengan perbaikan:
  * badge melayang ditempatkan di luar area ubin (tidak menimpa ikon), teks minimal 14 px,
@@ -210,7 +213,7 @@ function Pahlawan() {
         <div aria-hidden className="pointer-events-none absolute right-10 top-1/2 size-[28rem] -translate-y-1/2 rounded-full bg-cyan/15 blur-3xl" />
 
         <Kontainer className="relative grid w-full items-center gap-12 py-12 md:py-16 lg:grid-cols-2 lg:gap-8">
-          <RevealHero className="contents">
+          <RevealHero className="contents" kataJudul={4} kataTeks={jumlahKata(TEKS_HERO)}>
             <div>
             <p data-hero="badge" className="hero-muncul inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-sm font-bold text-ice">
               <span aria-hidden className="size-2 animate-pulse rounded-full bg-highlight-on-block-bg" />
@@ -219,7 +222,7 @@ function Pahlawan() {
             <h1 className="mt-6 text-32 leading-[1.15] font-extrabold tracking-tight sm:text-48 lg:text-56">
               <KataHero teks="Belajar coding" />
               <br />
-              <KataHero teks="dan teknologi" />
+              <KataHero teks="dan teknologi" mulaiDari={2} />
               <br />
               <span data-hero="pil" className="hero-muncul mt-3 inline-block">
                 <span className="inline-block -rotate-1 whitespace-nowrap rounded-2xl bg-highlight-on-block-bg px-4 py-1 text-highlight-on-block-fg shadow-mengambang">
@@ -228,7 +231,7 @@ function Pahlawan() {
               </span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-ice md:text-lg md:leading-8">
-              <KataHero teks="Bantu anak mengasah logika, kreativitas, dan siap menghadapi masa depan digital lewat kelas daring interaktif yang seru dan terarah." />
+              <KataHero teks={TEKS_HERO} />
             </p>
             <div data-hero="aksi" className="hero-muncul mt-8 flex flex-wrap items-center gap-3.5">
               <TombolTautan href="/tes-minat" varian="ajakan" ukuran="lg" panah className="shadow-mengambang">
@@ -238,7 +241,7 @@ function Pahlawan() {
                 Lihat jadwal kelas
               </TombolTautan>
             </div>
-            <div data-hero="aksi" className="hero-muncul mt-6 flex flex-wrap items-center gap-2.5 text-sm">
+            <div data-hero="aksi" style={{ "--i": 1 } as CSSProperties} className="hero-muncul mt-6 flex flex-wrap items-center gap-2.5 text-sm">
               <span className="font-bold text-ice">Tes minat:</span>
               <ul aria-label="Tentang tes minat" className="flex flex-wrap items-center gap-2 font-bold">
                 {["Gratis", "12 soal", "Tanpa akun"].map((t) => (
@@ -273,23 +276,23 @@ function IlustrasiHero() {
 
       <div className="absolute inset-0 grid place-items-center">
         <div className="grid grid-cols-2 gap-6">
-          {/* Pembungkus luar dianimasikan GSAP saat masuk; `melayang-*` di dalamnya tetap memakai animasi CSS. */}
-          <span data-hero="ubin" className="hero-muncul block">
+          {/* Pembungkus luar punya animasi masuk (CSS, urutan `--i`); `melayang-*` di dalamnya animasi terpisah. */}
+          <span data-hero="ubin" style={{ "--i": 0 } as CSSProperties} className="hero-muncul block">
             <span className="melayang-1 block">
               <ObjekBidang bidang="software" ukuran={140} miring={-3} />
             </span>
           </span>
-          <span data-hero="ubin" className="hero-muncul block">
+          <span data-hero="ubin" style={{ "--i": 1 } as CSSProperties} className="hero-muncul block">
             <span className="melayang-2 block">
               <ObjekBidang bidang="jaringan" ukuran={140} miring={3} />
             </span>
           </span>
-          <span data-hero="ubin" className="hero-muncul block">
+          <span data-hero="ubin" style={{ "--i": 2 } as CSSProperties} className="hero-muncul block">
             <span className="melayang-3 block">
               <ObjekBidang bidang="iot" ukuran={140} miring={2} />
             </span>
           </span>
-          <span data-hero="ubin" className="hero-muncul block">
+          <span data-hero="ubin" style={{ "--i": 3 } as CSSProperties} className="hero-muncul block">
             <span className="melayang-1 block">
               <ObjekBidang bidang="ai_data" ukuran={140} miring={-2} />
             </span>

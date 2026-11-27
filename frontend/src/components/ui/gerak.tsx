@@ -1,16 +1,13 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { MotionConfig, motion } from "motion/react";
-
-/** Konfigurasi Motion untuk seluruh situs: animasi transform dimatikan bila `prefers-reduced-motion`. */
-export function PenyediaGerak({ children }: { children: ReactNode }) {
-  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
-}
+import { cx } from "@/lib/cx";
 
 /**
- * Konten muncul halus (fade + naik) saat pertama masuk layar.
- * `tunda` dalam detik, berguna untuk efek berurutan pada daftar kartu.
+ * Konten muncul halus (fade + naik) saat pertama masuk layar. Animasinya dijalankan `AnimasiElemen`
+ * (GSAP + IntersectionObserver, `components/situs/animasi-elemen.tsx`), bukan Motion, sehingga:
+ * - HTML server sudah terlihat (tanpa `opacity: 0` bawaan), jadi tidak menunda LCP;
+ * - konten yang sudah di layar saat halaman dimuat tidak disembunyikan ulang;
+ * - library Motion tidak perlu dimuat di setiap halaman.
+ * `tunda` (detik) dipakai sebagai jeda tambahan untuk efek berurutan pada daftar kartu.
  */
 export function Muncul({
   children,
@@ -23,29 +20,24 @@ export function Muncul({
   className?: string;
   as?: "div" | "li";
 }) {
-  const Komponen = as === "li" ? motion.li : motion.div;
+  const Komponen = as;
   return (
-    <Komponen
-      className={className}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -12% 0px" }}
-      transition={{ duration: 0.6, delay: tunda, ease: [0.22, 1, 0.36, 1] }}
-    >
+    <Komponen data-animasi="" data-tunda={tunda > 0 ? tunda : undefined} className={className}>
       {children}
     </Komponen>
   );
 }
 
-/** Kartu yang sedikit terangkat saat di-hover. */
+/** Kartu yang sedikit terangkat (6 px, pantulan lembut) saat di-hover. CSS murni, tanpa Motion. */
 export function AngkatHover({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <motion.div
-      className={className}
-      whileHover={{ y: -6 }}
-      transition={{ type: "spring", stiffness: 380, damping: 28 }}
+    <div
+      className={cx(
+        "transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-1.5 motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+        className,
+      )}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }

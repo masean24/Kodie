@@ -1,14 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CalendarDays, Check, ClipboardCheck, CreditCard, FileText, Video, type LucideIcon } from "lucide-react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cx } from "@/lib/cx";
-import { gsap, useGSAP } from "@/lib/gsap";
 import { Kontainer } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 
-gsap.registerPlugin(ScrollTrigger);
 
 type Langkah = { ikon: LucideIcon; judul: string; ket: string; penjelasan: string };
 
@@ -100,50 +97,72 @@ export function CaraKerjaPinned() {
   const kolomKiri = useRef<HTMLDivElement>(null);
   const [aktif, setAktif] = useState<number | null>(null);
 
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const ol = daftar.current;
-        const jalur = garis.current;
-        if (!ol || !jalur) return;
-        setAktif(0);
-        gsap.set(jalur, { clipPath: "inset(0 0 100% 0)" });
-        const kartu = [...ol.querySelectorAll<HTMLElement>("[data-langkah]")];
-        // Dihitung dari posisi, bukan dari event masuk/keluar per kartu, agar tetap benar saat scroll melompat
-        // (tombol End, tautan jangkar, kembali ke halaman). Di atas daftar = langkah 1, setelah daftar = langkah 5.
-        const hitung = () => {
-          const acuan = garisAcuan(kolomKiri.current);
-          let idx = 0;
-          kartu.forEach((el, i) => {
-            const r = el.getBoundingClientRect();
-            if (r.top + r.height / 2 <= acuan + 1) idx = i;
-          });
-          setAktif(idx);
-          // Kotak garis itu sendiri (clip-path tidak mengubah getBoundingClientRect), bukan <ol> yang punya ruang bawah.
-          const kotak = jalur.getBoundingClientRect();
-          const isi = kotak.height > 0 ? (acuan - kotak.top) / kotak.height : 0;
-          // clip-path, bukan scaleY, agar gradien warna tetap di tempatnya (sejajar titik langkah) saat garis bertambah.
-          const persen = Math.min(1, Math.max(0, isi)) * 100;
-          gsap.set(jalur, { clipPath: `inset(0 0 ${(100 - persen).toFixed(2)}% 0)` });
-        };
-        const pemicu = ScrollTrigger.create({
-          trigger: section.current,
-          start: "top bottom",
-          end: "bottom top",
-          onUpdate: hitung,
-          onRefresh: hitung,
+  // Tanpa GSAP/ScrollTrigger: listener scroll (dibatasi satu kali per frame) yang hanya aktif saat section
+  // terlihat, sehingga plugin ScrollTrigger tidak perlu dimuat di beranda.
+  useEffect(() => {
+    const kueri = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sec = section.current;
+    const ol = daftar.current;
+    const jalur = garis.current;
+    if (!sec || !ol || !jalur) return;
+
+    let lepas: (() => void) | null = null;
+    const pasang = () => {
+      setAktif(0);
+      jalur.style.clipPath = "inset(0 0 100% 0)";
+      const kartu = [...ol.querySelectorAll<HTMLElement>("[data-langkah]")];
+      // Dihitung dari posisi, bukan dari event masuk/keluar per kartu, agar tetap benar saat scroll melompat
+      // (tombol End, tautan jangkar, kembali ke halaman). Di atas daftar = langkah 1, setelah daftar = langkah 5.
+      const hitung = () => {
+        const acuan = garisAcuan(kolomKiri.current);
+        let idx = 0;
+        kartu.forEach((el, i) => {
+          const r = el.getBoundingClientRect();
+          if (r.top + r.height / 2 <= acuan + 1) idx = i;
         });
-        hitung();
-        return () => {
-          pemicu.kill();
-          setAktif(null);
-        };
+        setAktif(idx);
+        // Kotak garis itu sendiri (clip-path tidak mengubah getBoundingClientRect), bukan <ol> yang punya ruang bawah.
+        const kotak = jalur.getBoundingClientRect();
+        const isi = kotak.height > 0 ? (acuan - kotak.top) / kotak.height : 0;
+        // clip-path, bukan scaleY, agar gradien warna tetap di tempatnya (sejajar titik langkah) saat garis bertambah.
+        const persen = Math.min(1, Math.max(0, isi)) * 100;
+        jalur.style.clipPath = `inset(0 0 ${(100 - persen).toFixed(2)}% 0)`;
+      };
+      let bingkai = 0;
+      const jadwalkan = () => {
+        if (!bingkai) bingkai = requestAnimationFrame(() => ((bingkai = 0), hitung()));
+      };
+      let terlihat = false;
+      const pengintai = new IntersectionObserver(([c]) => {
+        terlihat = Boolean(c?.isIntersecting);
+        if (terlihat) jadwalkan();
       });
-      return () => mm.revert();
-    },
-    { scope: section },
-  );
+      pengintai.observe(sec);
+      const saatGulir = () => terlihat && jadwalkan();
+      window.addEventListener("scroll", saatGulir, { passive: true });
+      window.addEventListener("resize", jadwalkan);
+      hitung();
+      return () => {
+        pengintai.disconnect();
+        window.removeEventListener("scroll", saatGulir);
+        window.removeEventListener("resize", jadwalkan);
+        if (bingkai) cancelAnimationFrame(bingkai);
+        jalur.style.clipPath = "";
+        setAktif(null);
+      };
+    };
+
+    const terapkan = () => {
+      lepas?.();
+      lepas = kueri.matches ? null : pasang();
+    };
+    terapkan();
+    kueri.addEventListener("change", terapkan);
+    return () => {
+      kueri.removeEventListener("change", terapkan);
+      lepas?.();
+    };
+  }, []);
 
   const jumlahSelesai = aktif === null ? LANGKAH.length : aktif + 1;
   const sorotan = aktif ?? 0;

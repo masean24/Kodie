@@ -344,6 +344,13 @@ export function MaskotKiko({
     animRef.current.lastCycle = t0;
     let prevNow = t0;
     let rafId = 0;
+    /** Markup wajah hanya ditulis ulang bila berubah: `innerHTML` memicu parse SVG + style recalc. */
+    let wajahTerakhir = "";
+    const pasangWajah = (markup: string) => {
+      if (markup === wajahTerakhir || !faceRef.current) return;
+      faceRef.current.innerHTML = markup;
+      wajahTerakhir = markup;
+    };
 
     // Posisi awal lengan & kepala langsung diset sebelum frame pertama agar tidak berkedip
     armLRef.current?.setAttribute("transform", "translate(105 270) scale(-1 1) rotate(30)");
@@ -387,15 +394,15 @@ export function MaskotKiko({
       }
 
       if (reduced) {
-        if (faceRef.current) {
-          faceRef.current.innerHTML = bangunMarkupWajah({
+        pasangWajah(
+          bangunMarkupWajah({
             expr: s.ekspresi,
             t: 0.5,
             ox: s.isTypingChat ? -8.5 : 0,
             oy: s.isTypingChat ? 3.5 : 0,
             isSpeaking: s.isSpeaking,
-          });
-        }
+          }),
+        );
         rafId = requestAnimationFrame(frame);
         return;
       }
@@ -445,15 +452,15 @@ export function MaskotKiko({
       const targetOy = s.isTypingChat ? 3.5 : -a.mouseY * 5;
       a.eyeX += (targetOx - a.eyeX) * alphaHead;
       a.eyeY += (targetOy - a.eyeY) * alphaHead;
-      if (faceRef.current) {
-        faceRef.current.innerHTML = bangunMarkupWajah({
+      pasangWajah(
+        bangunMarkupWajah({
           expr: s.ekspresi,
           t,
           ox: a.eyeX,
           oy: a.eyeY,
           isSpeaking: s.isSpeaking,
-        });
-      }
+        }),
+      );
 
       // Interpolasi lengan dinormalisasi 60fps
       const alphaArm = 1 - Math.pow(1 - 0.14, step60);
@@ -477,7 +484,28 @@ export function MaskotKiko({
     };
 
     rafId = requestAnimationFrame(frame);
+
+    // Loop berhenti saat maskot tidak terlihat (disembunyikan di /program, /lab, dashboard, atau keluar layar),
+    // lalu berlanjut saat terlihat lagi. Tab tersembunyi sudah otomatis menjeda requestAnimationFrame.
+    let jalan = true;
+    const svg = rootRef.current?.ownerSVGElement;
+    const pengintai = svg
+      ? new IntersectionObserver(([c]) => {
+          const terlihat = Boolean(c?.isIntersecting);
+          if (!terlihat && jalan) {
+            cancelAnimationFrame(rafId);
+            jalan = false;
+          } else if (terlihat && !jalan) {
+            jalan = true;
+            prevNow = performance.now();
+            rafId = requestAnimationFrame(frame);
+          }
+        })
+      : null;
+    if (svg) pengintai?.observe(svg);
+
     return () => {
+      pengintai?.disconnect();
       cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mousedown", onTouchOrClick);

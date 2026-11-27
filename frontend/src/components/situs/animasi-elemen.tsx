@@ -77,15 +77,26 @@ function punyaLeluhurBeranimasi(el: Element, akar: Element): boolean {
 
 type Hasil = "ya" | "tunggu" | "tidak";
 
+/**
+ * Alasan pengecualian yang tetap (bukan kandidat, punya gaya inline, leluhurnya sudah dianimasikan, `fixed`)
+ * dicatat di `sudah`, jadi pemindaian ulang berikutnya tidak memeriksanya lagi. Tanpa cache ini, setiap pindaian
+ * (tiap 120 ms saat muat) memanggil `closest`/`getClientRects`/`getComputedStyle` untuk ratusan elemen yang sama
+ * dan memaksa layout berulang kali.
+ */
 function periksa(el: Element, akar: Element, sudah: WeakSet<Element>): Hasil {
-  if (!(el instanceof HTMLElement) || sudah.has(el) || !kandidat(el)) return "tidak";
+  if (!(el instanceof HTMLElement) || sudah.has(el)) return "tidak";
+  const tolakTetap = (): Hasil => {
+    sudah.add(el);
+    return "tidak";
+  };
+  if (!kandidat(el)) return tolakTetap();
   // Elemen yang sudah punya opacity/transform inline (Motion, posisi manual) tidak disentuh: `clearProps`
   // di akhir animasi akan menghapus nilai aslinya.
   const gaya = el.getAttribute("style");
-  if (gaya && (gaya.includes("opacity") || gaya.includes("transform"))) return "tidak";
-  if (punyaLeluhurBeranimasi(el, akar)) return "tidak";
+  if (gaya && (gaya.includes("opacity") || gaya.includes("transform"))) return tolakTetap();
+  if (punyaLeluhurBeranimasi(el, akar)) return tolakTetap();
   if (el.getClientRects().length === 0) return "tidak";
-  if (getComputedStyle(el).position === "fixed") return "tidak";
+  if (getComputedStyle(el).position === "fixed") return tolakTetap();
   return terhidrasi(el) ? "ya" : "tunggu";
 }
 
@@ -117,16 +128,15 @@ export function AnimasiElemen() {
         pengintai.unobserve(el);
         menunggu.delete(el);
       }
-      masuk.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
-      gsap.to(masuk, {
-        opacity: 1,
-        y: 0,
-        duration: 0.55,
-        ease: "power2.out",
-        stagger: 0.06,
-        overwrite: true,
-        clearProps: "opacity,transform",
-      });
+      const gaya = { opacity: 1, y: 0, duration: 0.55, ease: "power2.out", overwrite: true, clearProps: "opacity,transform" };
+      // Elemen dengan `data-tunda` (komponen `Muncul`) memakai jedanya sendiri; sisanya berurutan 0,06 dtk.
+      const bertunda = masuk.filter((el) => el instanceof HTMLElement && el.dataset.tunda);
+      const biasa = masuk.filter((el) => !bertunda.includes(el));
+      for (const el of bertunda) gsap.to(el, { ...gaya, delay: Number((el as HTMLElement).dataset.tunda) || 0 });
+      if (biasa.length > 0) {
+        biasa.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+        gsap.to(biasa, { ...gaya, stagger: 0.06 });
+      }
     };
 
     const pengintai = new IntersectionObserver(
@@ -165,26 +175,31 @@ export function AnimasiElemen() {
     /**
      * Saat halaman pertama dimuat, konten yang sudah terlihat di layar TIDAK dianimasikan: konten itu sudah
      * dilukis server, jadi menyembunyikannya lalu memunculkan lagi justru tampak berkedip (misalnya latar biru
-     * hero hilang sesaat saat refresh). Hanya konten di bawah layar yang muncul dengan animasi saat di-scroll.
-     * Konten yang datang lewat navigasi atau Suspense (MutationObserver) belum dilukis, jadi tetap dianimasikan.
+     * hero hilang sesaat saat refresh) dan menunda LCP. Hanya konten di bawah layar yang muncul dengan animasi
+     * saat di-scroll. Setelah navigasi klien, konten halaman baru di layar tetap dianimasikan.
      */
+    // Fase muat awal berakhir saat pengunjung menggulir atau pindah halaman lewat navigasi klien, bukan
+    // berdasarkan waktu: di ponsel lambat, bagian Suspense bisa baru terhidrasi beberapa detik kemudian, dan
+    // konten di layar itu (sering menjadi elemen LCP) tidak boleh disembunyikan lalu dimunculkan ulang.
     let muatAwal = true;
+    const jalurAwal = window.location.pathname;
     const akhiriMuatAwal = () => {
       muatAwal = false;
     };
     window.addEventListener("scroll", akhiriMuatAwal, { passive: true, once: true });
 
     /** Siapkan elemen yang layak; kembalikan jumlah elemen di layar yang masih menunggu hidrasi. */
-    const pindai = (dari: Element, dariMutasi = false) => {
+    const pindai = (dari: Element) => {
       const akar = akarAda.find((a) => a === dari || a.contains(dari));
       if (!akar) return 0;
+      if (muatAwal && window.location.pathname !== jalurAwal) akhiriMuatAwal();
       const calon = dari.matches(PILIH) ? [dari, ...dari.querySelectorAll(PILIH)] : [...dari.querySelectorAll(PILIH)];
       const siap: HTMLElement[] = [];
       let tertunda = 0;
       for (const el of calon) {
         const h = periksa(el, akar, sudah);
         if (h === "ya") {
-          if (muatAwal && !dariMutasi && diLayar(el)) sudah.add(el);
+          if (muatAwal && diLayar(el)) sudah.add(el);
           else siap.push(el as HTMLElement);
         } else if (h === "tunggu" && diLayar(el)) tertunda++;
       }
@@ -208,17 +223,14 @@ export function AnimasiElemen() {
     const timer = window.setInterval(() => {
       const tertunda = pindaiSemua();
       const lama = performance.now() - mulai;
-      if (tertunda === 0 && lama > 1500) akhiriMuatAwal();
-      if (lama > MASA_TUNGGU_HIDRASI) {
-        akhiriMuatAwal();
-        window.clearInterval(timer);
-      }
+      if (tertunda === 0 && lama > MASA_TUNGGU_HIDRASI) window.clearInterval(timer);
+      else if (lama > MASA_TUNGGU_HIDRASI * 2) window.clearInterval(timer);
     }, 120);
 
     const pengamat = new MutationObserver((catatan) => {
       for (const c of catatan) {
         for (const n of c.addedNodes) {
-          if (n instanceof Element && !n.closest(LUAR)) pindai(n, true);
+          if (n instanceof Element && !n.closest(LUAR)) pindai(n);
         }
       }
     });

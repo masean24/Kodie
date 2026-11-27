@@ -834,23 +834,102 @@ h4 {
   }
 }
 
-/* ===== HERO REVEAL (GSAP, components/situs/reveal-hero.tsx) =====
- * Mulai transparan agar tidak berkedip sebelum hidrasi. Cadangan tanpa JavaScript: tampil sendiri setelah 3 detik.
+/* ===== HERO REVEAL (CSS murni, components/situs/reveal-hero.tsx) =====
+ * Terjemahan 1:1 timeline GSAP lama. Berjalan sejak paint pertama (tanpa menunggu hidrasi), jadi teks hero
+ * yang menjadi elemen LCP tampil lebih cepat. Jadwal per bagian (`--rh-*`) dihitung `RevealHero` dari jumlah
+ * kata; urutan kata `--i` dipasang `KataHero`. `both` menjaga elemen tetap transparan selama jeda.
+ * Easing: power3.out ≈ cubic-bezier(0.215, 0.61, 0.355, 1); back.out ≈ cubic-bezier(0.175, 0.885, 0.32, 1.275).
  */
-.kata-hero,
-.hero-muncul {
-  opacity: 0;
-  animation: hero-cadangan 0s 3s forwards;
+.reveal-hero [data-hero="badge"] {
+  animation: hero-naik-12 450ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
 }
-@keyframes hero-cadangan {
-  to {
-    opacity: 1;
+.reveal-hero h1 .kata-hero {
+  animation: hero-kata-judul 600ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  animation-delay: calc(var(--rh-judul) + var(--i, 0) * 90ms);
+}
+.reveal-hero [data-hero="pil"] {
+  animation: hero-pil 550ms cubic-bezier(0.175, 0.885, 0.32, 1.4) both;
+  animation-delay: var(--rh-pil);
+}
+.reveal-hero p .kata-hero {
+  animation: hero-naik-8 400ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  animation-delay: calc(var(--rh-teks) + var(--i, 0) * 22ms);
+}
+.reveal-hero [data-hero="aksi"] {
+  animation: hero-naik-16 500ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  animation-delay: calc(var(--rh-aksi) + var(--i, 0) * 100ms);
+}
+/* Ilustrasi kanan beranda, paralel dengan teks. */
+.reveal-hero [data-hero="orbit"] {
+  animation: hero-orbit 1000ms cubic-bezier(0.215, 0.61, 0.355, 1) 200ms both;
+}
+.reveal-hero [data-hero="ubin"] {
+  animation: hero-ubin 750ms cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  animation-delay: calc(350ms + var(--i, 0) * 120ms);
+}
+.reveal-hero [data-hero="lencana-kiri"] {
+  animation: hero-lencana-kiri 600ms cubic-bezier(0.215, 0.61, 0.355, 1) 1000ms both;
+}
+.reveal-hero [data-hero="lencana-kanan"] {
+  animation: hero-lencana-kanan 600ms cubic-bezier(0.215, 0.61, 0.355, 1) 1150ms both;
+}
+@keyframes hero-naik-12 {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes hero-naik-8 {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes hero-naik-16 {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes hero-kata-judul {
+  from {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+}
+@keyframes hero-pil {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.7);
+  }
+}
+@keyframes hero-orbit {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@keyframes hero-ubin {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.4) rotate(-12deg);
+  }
+}
+@keyframes hero-lencana-kiri {
+  from {
+    opacity: 0;
+    transform: translate(-40px, -10px);
+  }
+}
+@keyframes hero-lencana-kanan {
+  from {
+    opacity: 0;
+    transform: translate(40px, 10px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .kata-hero,
-  .hero-muncul {
-    opacity: 1;
+  .reveal-hero [data-hero],
+  .reveal-hero .kata-hero {
     animation: none;
   }
 }

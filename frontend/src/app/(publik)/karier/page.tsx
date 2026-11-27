@@ -7,7 +7,7 @@ import { ObjekBidang } from "@/components/kategori";
 import { Muncul } from "@/components/ui/gerak";
 import { DaftarPosisi } from "@/components/karier/daftar-posisi";
 import { BandKodie, LencanaBand, SorotanBand } from "@/components/situs/judul-halaman";
-import { KataHero } from "@/components/situs/reveal-hero";
+import { KataHero, jumlahKata } from "@/components/situs/reveal-hero";
 
 export const metadata: Metadata = {
   title: "Karier pengajar",
@@ -17,10 +17,13 @@ export const metadata: Metadata = {
 
 const IKON_KEUNTUNGAN: LucideIcon[] = [CalendarClock, Laptop, BookOpenCheck, Sparkles];
 
+const TEKS_KARIER =
+  "Untuk mahasiswa, lulusan, dan pencari kerja yang ingin mengajar coding dan teknologi ke siswa SD sampai SMA. Daring, paruh waktu, dengan jadwal yang kamu atur sendiri.";
+
 export default function HalamanKarier() {
   return (
     <>
-      <BandKodie className="hero-layar flex flex-col">
+      <BandKodie className="hero-layar flex flex-col" kataJudul={3} kataTeks={jumlahKata(TEKS_KARIER)}>
         <ObjekBidang bidang="software" ukuran={120} miring={-8} className="absolute -left-6 top-[84px] hidden lg:block" />
         <ObjekBidang bidang="jaringan" ukuran={96} miring={8} className="absolute right-[6%] top-12 hidden lg:block" />
         <ObjekBidang bidang="iot" ukuran={104} miring={6} className="absolute bottom-14 left-[8%] hidden xl:block" />
@@ -28,10 +31,10 @@ export default function HalamanKarier() {
         <Kontainer className="relative flex w-full flex-1 flex-col items-center justify-center pb-16 pt-8 text-center">
           <LencanaBand>Karier di Kodie</LencanaBand>
           <h1 className="mt-5 max-w-3xl text-32 leading-[42px] font-extrabold tracking-tight sm:text-48 sm:leading-[54px] lg:text-56 lg:leading-[68px]">
-            <KataHero teks="Bagikan ilmumu," /> <SorotanBand>jadi pengajar</SorotanBand> <KataHero teks="Kodie" />
+            <KataHero teks="Bagikan ilmumu," /> <SorotanBand>jadi pengajar</SorotanBand> <KataHero teks="Kodie" mulaiDari={2} />
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-ice md:text-lg md:leading-8">
-            <KataHero teks="Untuk mahasiswa, lulusan, dan pencari kerja yang ingin mengajar coding dan teknologi ke siswa SD sampai SMA. Daring, paruh waktu, dengan jadwal yang kamu atur sendiri." />
+            <KataHero teks={TEKS_KARIER} />
           </p>
           <div data-hero="aksi" className="hero-muncul mt-8 flex flex-wrap items-center justify-center gap-3.5">
             <TombolTautan href="#posisi" varian="ajakan" ukuran="lg" panah>

@@ -39,7 +39,8 @@ import {
   type StatusPercakapanChat,
 } from "@/lib/chatbot";
 import { cx } from "@/lib/cx";
-import { buatClientBrowser } from "@/lib/supabase/browser";
+/** Client Supabase (±260 KB) dimuat malas: baru saat panel dibuka, pesan dikirim, atau live chat aktif. */
+const muatSupabase = () => import("@/lib/supabase/browser");
 import { buatUuid } from "@/lib/uuid";
 import { jawabanCadanganKiko } from "@/lib/chatbot-cadangan";
 import { AvatarKiko } from "./avatar-kiko";
@@ -211,6 +212,8 @@ export function WidgetKiko({
   }, [terbuka, menutup]);
 
   const bukaPanel = useCallback(() => {
+    // Mulai memuat client Supabase saat panel dibuka, supaya siap ketika pesan pertama dikirim.
+    void muatSupabase();
     if (tutupTimerRef.current) clearTimeout(tutupTimerRef.current);
     setMenutup(false);
     setTerbuka(true);
@@ -365,8 +368,13 @@ export function WidgetKiko({
       return () => clearInterval(timer);
     }
 
-    const supabase = buatClientBrowser();
-    const channel = supabase
+    // Client Supabase (±260 KB) dimuat saat benar-benar dibutuhkan, bukan saat halaman dibuka.
+    let batal = false;
+    let lepas: (() => void) | null = null;
+    void muatSupabase().then(({ buatClientBrowser }) => {
+      if (batal) return;
+      const supabase = buatClientBrowser();
+      const channel = supabase
       .channel(`widget-chat-${percakapanId}`)
       .on(
         "postgres_changes",
@@ -417,14 +425,17 @@ export function WidgetKiko({
       .subscribe((st) => {
         realtimeOkRef.current = st === "SUBSCRIBED";
       });
+      lepas = () => void supabase.removeChannel(channel);
+    });
 
     const fallback = setInterval(() => {
       if (!realtimeOkRef.current) void segarkanPercakapan();
     }, 8_000);
 
     return () => {
+      batal = true;
       clearInterval(fallback);
-      void supabase.removeChannel(channel);
+      lepas?.();
     };
   }, [percakapanId, pengguna, dalamModeAdmin, segarkanPercakapan, picuBicaraSenang]);
 
@@ -617,8 +628,11 @@ export function WidgetKiko({
     aturBatas(BATAS_TOKEN_PERTAMA_MS);
 
     try {
-      const supabase = buatClientBrowser();
-      const sesi = await denganBatas(supabase.auth.getSession(), BATAS_SESI_MS).catch(() => null);
+      // Modul Supabase dimuat malas (lihat `muatSupabase`); waktu muatnya ikut dibatasi BATAS_SESI_MS.
+      const sesi = await denganBatas(
+        muatSupabase().then(({ buatClientBrowser }) => buatClientBrowser().auth.getSession()),
+        BATAS_SESI_MS,
+      ).catch(() => null);
       if (habisWaktu) return;
       const session = sesi?.data.session ?? null;
 

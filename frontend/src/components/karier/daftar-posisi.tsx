@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { ArrowRight, Clock, GraduationCap, MapPin } from "lucide-react";
 import type { Bidang } from "@/types/database";
 import type { Posisi } from "@/lib/karier";
@@ -13,7 +13,7 @@ import { TagBidang } from "@/components/kategori";
 type Filter = Bidang | "semua";
 
 /** Daftar lowongan pengajar dengan filter bidang. Kartu bergeser halus saat filter berubah. */
-export function DaftarPosisi({ posisi }: { posisi: Posisi[] }) {
+function IsiDaftarPosisi({ posisi }: { posisi: Posisi[] }) {
   const [filter, setFilter] = useState<Filter>("semua");
   const terlihat = filter === "semua" ? posisi : posisi.filter((p) => p.bidang === filter);
   const pilihan: { nilai: Filter; label: string; jumlah: number }[] = [
@@ -123,5 +123,14 @@ function KartuPosisi({ p }: { p: Posisi }) {
         <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </span>
     </article>
+  );
+}
+
+/** Motion dipakai lokal di sini (bukan di root layout) agar tidak dimuat di setiap halaman. */
+export function DaftarPosisi({ posisi }: { posisi: Posisi[] }) {
+  return (
+    <MotionConfig reducedMotion="user">
+      <IsiDaftarPosisi posisi={posisi} />
+    </MotionConfig>
   );
 }

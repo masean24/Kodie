@@ -1,20 +1,27 @@
-"use client";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
 
-import { Fragment, useRef, type ReactNode } from "react";
-import { gsap, kurangiGerak, useGSAP } from "@/lib/gsap";
+/** Jumlah kata dalam teks, dipakai untuk menghitung jadwal reveal (`RevealHero`). */
+export function jumlahKata(teks: string): number {
+  return teks.split(" ").filter(Boolean).length;
+}
 
 /**
  * Pecah teks menjadi kata `.kata-hero` untuk reveal kata demi kata. Spasi tetap berupa teks biasa
  * agar pembaca layar membaca kalimat utuh dan baris bisa terlipat normal.
+ *
+ * `mulaiDari`: urutan kata pertama bila satu judul/paragraf dipecah ke beberapa `KataHero`
+ * (mis. judul dengan sorotan di tengah), supaya jeda antarkata tetap berurutan.
  */
-export function KataHero({ teks }: { teks: string }) {
+export function KataHero({ teks, mulaiDari = 0 }: { teks: string; mulaiDari?: number }) {
   const kata = teks.split(" ").filter(Boolean);
   return (
     <>
       {kata.map((k, i) => (
         <Fragment key={`${k}-${i}`}>
           {i > 0 ? " " : null}
-          <span className="kata-hero inline-block">{k}</span>
+          <span className="kata-hero inline-block" style={{ "--i": mulaiDari + i } as CSSProperties}>
+            {k}
+          </span>
         </Fragment>
       ))}
     </>
@@ -22,78 +29,50 @@ export function KataHero({ teks }: { teks: string }) {
 }
 
 /**
- * Entrance hero beranda dengan GSAP: badge muncul, judul terungkap kata demi kata, pill "SD sampai SMA"
- * meletup, paragraf menyusul kata demi kata, lalu tombol dan chip naik. Bersamaan dengan itu ilustrasi kanan
- * masuk: orbit membesar, empat ubin bidang meletup berurutan, lalu dua lencana meluncur dari sisi masing-masing.
- *
- * Elemen `.kata-hero` dan `.hero-muncul` mulai transparan lewat CSS (`globals.css`, blok HERO REVEAL)
- * supaya tidak berkedip sebelum hidrasi. CSS juga punya cadangan: bila JavaScript tidak berjalan,
- * elemen tampil sendiri setelah 3 detik; dengan `prefers-reduced-motion` semuanya langsung tampil.
+ * Jadwal reveal hero/band, sama dengan timeline GSAP sebelumnya (detik, relatif terhadap paint pertama):
+ * lencana 0–0,45 → kata judul mulai 0,30 (0,6 dtk per kata, jeda 0,09) → sorotan meletup 0,3 dtk sebelum
+ * judul selesai → kata paragraf menyusul (0,4 dtk, jeda 0,022) → tombol aksi (jeda 0,1).
  */
-export function RevealHero({ children, className }: { children: ReactNode; className?: string }) {
-  const akar = useRef<HTMLDivElement>(null);
+function jadwal(kataJudul: number, kataTeks: number) {
+  const judul = 0.3;
+  const judulSelesai = judul + Math.max(kataJudul - 1, 0) * 0.09 + 0.6;
+  const pil = judulSelesai - 0.3;
+  const teks = pil + 0.55 - 0.3;
+  const teksSelesai = teks + Math.max(kataTeks - 1, 0) * 0.022 + 0.4;
+  const aksi = teksSelesai - 0.35;
+  const dtk = (n: number) => `${Math.round(n * 1000)}ms`;
+  return {
+    "--rh-judul": dtk(judul),
+    "--rh-pil": dtk(pil),
+    "--rh-teks": dtk(teks),
+    "--rh-aksi": dtk(aksi),
+  } as CSSProperties;
+}
 
-  useGSAP(
-    () => {
-      if (kurangiGerak()) return;
-      const q = gsap.utils.selector(akar);
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.fromTo(q("[data-hero='badge']"), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.45 })
-        .fromTo(
-          q("h1 .kata-hero"),
-          { autoAlpha: 0, yPercent: 40 },
-          { autoAlpha: 1, yPercent: 0, duration: 0.6, stagger: 0.09 },
-          "-=0.15",
-        )
-        .fromTo(
-          q("[data-hero='pil']"),
-          { autoAlpha: 0, scale: 0.7, y: 10 },
-          { autoAlpha: 1, scale: 1, y: 0, duration: 0.55, ease: "back.out(2)" },
-          "-=0.3",
-        )
-        .fromTo(
-          q("p .kata-hero"),
-          { autoAlpha: 0, y: 8 },
-          { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.022 },
-          "-=0.3",
-        )
-        .fromTo(
-          q("[data-hero='aksi']"),
-          { autoAlpha: 0, y: 16 },
-          { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.1 },
-          "-=0.35",
-        )
-        // Ilustrasi kanan (desktop), berjalan paralel dengan teks sejak detik 0,2.
-        .fromTo(
-          q("[data-hero='orbit']"),
-          { autoAlpha: 0, scale: 0.6 },
-          { autoAlpha: 1, scale: 1, duration: 1, ease: "power3.out" },
-          0.2,
-        )
-        .fromTo(
-          q("[data-hero='ubin']"),
-          { autoAlpha: 0, scale: 0.4, y: 40, rotate: -12 },
-          { autoAlpha: 1, scale: 1, y: 0, rotate: 0, duration: 0.75, ease: "back.out(1.7)", stagger: 0.12 },
-          0.35,
-        )
-        .fromTo(
-          q("[data-hero='lencana-kiri']"),
-          { autoAlpha: 0, x: -40, y: -10 },
-          { autoAlpha: 1, x: 0, y: 0, duration: 0.6 },
-          1.0,
-        )
-        .fromTo(
-          q("[data-hero='lencana-kanan']"),
-          { autoAlpha: 0, x: 40, y: 10 },
-          { autoAlpha: 1, x: 0, y: 0, duration: 0.6 },
-          1.15,
-        );
-    },
-    { scope: akar },
-  );
-
+/**
+ * Entrance hero beranda dan band halaman: lencana muncul, judul terungkap kata demi kata, sorotan meletup,
+ * paragraf menyusul kata demi kata, lalu tombol naik. Di beranda, ilustrasi kanan ikut masuk (orbit, empat
+ * ubin, dua lencana).
+ *
+ * Animasi memakai CSS murni (blok HERO REVEAL di `globals.css`), bukan GSAP: berjalan sejak paint pertama
+ * tanpa menunggu JavaScript dan hidrasi, sehingga teks hero (elemen LCP) tampil jauh lebih cepat.
+ * Dengan `prefers-reduced-motion`, semuanya langsung tampil.
+ */
+export function RevealHero({
+  children,
+  className,
+  kataJudul,
+  kataTeks,
+}: {
+  children: ReactNode;
+  className?: string;
+  /** Jumlah kata `KataHero` di dalam `h1` (tanpa sorotan). */
+  kataJudul: number;
+  /** Jumlah kata `KataHero` di dalam paragraf. */
+  kataTeks: number;
+}) {
   return (
-    <div ref={akar} className={className}>
+    <div className={className ? `reveal-hero ${className}` : "reveal-hero"} style={jadwal(kataJudul, kataTeks)}>
       {children}
     </div>
   );

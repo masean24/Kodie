@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Kontainer, Sorotan } from "@/components/ui/dasar";
 import { ObjekBidang } from "@/components/kategori";
-import { KataHero, RevealHero } from "@/components/situs/reveal-hero";
+import { KataHero, RevealHero, jumlahKata } from "@/components/situs/reveal-hero";
 import { cx } from "@/lib/cx";
 import { TombolKembali } from "@/components/situs/tombol-kembali";
 
@@ -18,10 +18,15 @@ export function BandKodie({
   children,
   className,
   labelledBy,
+  kataJudul,
+  kataTeks,
 }: {
   children: ReactNode;
   className?: string;
   labelledBy?: string;
+  /** Jumlah kata judul dan paragraf, untuk jadwal reveal (lihat `RevealHero`). */
+  kataJudul: number;
+  kataTeks: number;
 }) {
   return (
     <section aria-labelledby={labelledBy} className="px-0 sm:px-4 lg:px-6">
@@ -32,7 +37,9 @@ export function BandKodie({
         <Kontainer data-tanpa-animasi className="relative z-10 pt-4 md:pt-6">
           <TombolKembali diBlok />
         </Kontainer>
-        <RevealHero className="contents">{children}</RevealHero>
+        <RevealHero className="contents" kataJudul={kataJudul} kataTeks={kataTeks}>
+          {children}
+        </RevealHero>
       </div>
     </section>
   );
@@ -62,7 +69,7 @@ export function SorotanBand({ children }: { children: string }) {
 /** Band judul untuk halaman daftar (Program, Kelas, Tes minat). */
 export function JudulHalaman({ judul, sorotan, keterangan }: { judul: string; sorotan?: string; keterangan?: string }) {
   return (
-    <BandKodie>
+    <BandKodie kataJudul={jumlahKata(judul)} kataTeks={keterangan ? jumlahKata(keterangan) : 0}>
       <ObjekBidang bidang="software" ukuran={112} miring={-8} className="absolute -left-4 top-[76px] hidden lg:block" />
       <ObjekBidang bidang="iot" ukuran={84} miring={6} className="absolute left-[8%] top-[110px] hidden xl:block" />
       <ObjekBidang bidang="jaringan" ukuran={92} miring={8} className="absolute right-[8%] top-4 hidden xl:block" />

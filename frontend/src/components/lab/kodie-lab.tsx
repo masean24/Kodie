@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as KeyboardEventReact, type ReactNode } from "react";
-import { motion } from "motion/react";
+import { MotionConfig, motion } from "motion/react";
 import { Code2, Copy, Eraser, FileCode2, Lightbulb, Loader2, Play, Puzzle, RotateCcw, Square, Terminal, Turtle, X } from "lucide-react";
 import { cx } from "@/lib/cx";
 import { blokKePython, CONTOH_BLOK, jalankanBlok } from "@/lib/lab/blok";
@@ -129,7 +129,7 @@ ${js}
 
 const tambahBaris = (lama: Baris[], baru: Baris) => [...lama, baru].slice(-MAKS_BARIS);
 
-export function KodieLab() {
+function IsiKodieLab() {
   const [kode, setKode] = useState<Simpanan>(bacaSimpanan);
   const mode = kode.mode;
   const [berkas, setBerkas] = useState<BerkasWeb>("html");
@@ -842,5 +842,14 @@ function PanelKonsol({
         )}
       </div>
     </section>
+  );
+}
+
+/** Motion dipakai lokal di sini (bukan di root layout) agar tidak dimuat di setiap halaman. */
+export function KodieLab() {
+  return (
+    <MotionConfig reducedMotion="user">
+      <IsiKodieLab />
+    </MotionConfig>
   );
 }

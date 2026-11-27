@@ -11,7 +11,6 @@ import { cx } from "@/lib/cx";
 import { gsap, kurangiGerak, useGSAP } from "@/lib/gsap";
 import { formatTanggalJam } from "@/lib/format";
 import { jumlahBelumDibaca } from "@/lib/sesi";
-import { buatClientBrowser } from "@/lib/supabase/browser";
 
 const EVENT_NOTIF = "kodie:notifikasi-sinkron";
 
@@ -104,8 +103,14 @@ export function LoncengNotifikasi({
       return () => clearInterval(timer);
     }
 
-    const supabase = buatClientBrowser();
-    const channel = supabase
+    // Client Supabase (±260 KB) diimpor malas. Komponen ini diimpor layout situs, jadi impor statis membuat
+    // client Supabase ikut dimuat di semua halaman, termasuk untuk tamu yang tidak pernah melihat lonceng.
+    let batal = false;
+    let lepas: (() => void) | null = null;
+    void import("@/lib/supabase/browser").then(({ buatClientBrowser }) => {
+      if (batal) return;
+      const supabase = buatClientBrowser();
+      const channel = supabase
       .channel(`notifikasi-${penggunaId}`)
       .on(
         "postgres_changes",
@@ -131,6 +136,8 @@ export function LoncengNotifikasi({
       .subscribe((status) => {
         realtimeTerhubung.current = status === "SUBSCRIBED";
       });
+      lepas = () => void supabase.removeChannel(channel);
+    });
 
     const fallback = setInterval(() => {
       if (!realtimeTerhubung.current) {
@@ -139,8 +146,9 @@ export function LoncengNotifikasi({
     }, 30_000);
 
     return () => {
+      batal = true;
       clearInterval(fallback);
-      void supabase.removeChannel(channel);
+      lepas?.();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- pantau hanya bergantung pada penggunaId & router
   }, [pantau, penggunaId, router]);

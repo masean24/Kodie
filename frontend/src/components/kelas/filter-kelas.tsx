@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState, useSyncExternalStore, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { ChevronDown, LoaderCircle, Search } from "lucide-react";
 import { Pilihan } from "@/components/ui/formulir";
 import { Tombol } from "@/components/ui/tombol";
@@ -16,7 +16,6 @@ import { cx } from "@/lib/cx";
  * supaya panel tidak menutup sendiri setelah memilih filter.
  */
 let panelTerbukaTerakhir = false;
-const langganKosong = () => () => {};
 
 /** Filter katalog. Nilai disimpan di URL, jadi bisa dibagikan dan dipakai tombol kembali. */
 export function FilterKelas({ program, nilai }: { program: { slug: string; nama: string }[]; nilai: Filter }) {
@@ -25,8 +24,8 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
   const [menunggu, mulai] = useTransition();
   const tundaCari = useRef(0);
   const [buka, setBuka] = useState(panelTerbukaTerakhir);
-  // Sebelum hidrasi (atau tanpa JavaScript) panel selalu terbuka, karena tombol lipat belum berfungsi.
-  const terhidrasi = useSyncExternalStore(langganKosong, () => true, () => false);
+  // Panel sudah terlipat sejak HTML server (di ponsel), jadi hidrasi tidak menggeser daftar hasil (CLS).
+  // Tanpa JavaScript, `<noscript>` di bawah membuka panel dan menyembunyikan tombol lipat.
   const jumlahAktif = [nilai.program, nilai.jenjang, nilai.hari, nilai.jam].filter(Boolean).length;
 
   function ubahBuka() {
@@ -93,13 +92,16 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
           />
         </div>
       </div>
+      <noscript>
+        <style>{"#f-lainnya{display:flex!important}#tombol-f-lainnya{display:none!important}"}</style>
+      </noscript>
       <Tombol
+        id="tombol-f-lainnya"
         varian="kedua"
         className="w-full lg:hidden"
         aria-expanded={buka}
         aria-controls="f-lainnya"
         onClick={ubahBuka}
-        hidden={!terhidrasi}
       >
         <span>
           Filter lainnya
@@ -107,7 +109,7 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
         </span>
         <ChevronDown aria-hidden className={cx("size-5 transition-transform motion-reduce:transition-none", buka && "rotate-180")} />
       </Tombol>
-      <div id="f-lainnya" className={cx("flex-col gap-4 lg:flex", !terhidrasi || buka ? "flex" : "hidden")}>
+      <div id="f-lainnya" className={cx("flex-col gap-4 lg:flex", buka ? "flex" : "hidden")}>
       <Pilihan id="f-program" name="program" label="Program" defaultValue={nilai.program ?? ""}>
         <option value="">Semua program</option>
         {program.map((p) => (

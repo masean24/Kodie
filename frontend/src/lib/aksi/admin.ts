@@ -1,6 +1,7 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
+import { TAG_PROGRAM } from "@/lib/api/program";
 import type { StatusMasalah } from "@/types/database";
 import {
   adminCobaBuatMeet,
@@ -159,6 +160,8 @@ export async function aksiAdminUbahProgram(programId: string, masukan: unknown):
   } catch (e) {
     return { galat: pesanError(e) };
   }
+  // Data program publik di-cache (lib/api/program.ts); hapus cache agar harga/status baru langsung tampil.
+  updateTag(TAG_PROGRAM);
   refresh();
   return { ok: true };
 }

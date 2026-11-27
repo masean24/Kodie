@@ -1,4 +1,4 @@
-import { connection } from "next/server";
+import { cacheLife, cacheTag } from "next/cache";
 import type { Program, SilabusSesi } from "@/types/database";
 import { programMock } from "@/lib/mock/data";
 import { silabusMock } from "@/lib/mock/silabus";
@@ -29,21 +29,27 @@ function denganSilabusMock(p: Program): Program {
   return { ...p, silabus: silabusMock[p.slug] ?? [] };
 }
 
-/** Tabel `program` dengan aktif = true. */
-export async function ambilDaftarProgram(): Promise<Program[]> {
-  if (pakaiMock) return programMock.filter((p) => p.aktif).map(denganSilabusMock);
-  await connection();
+/**
+ * Data program publik (tanpa cookie) di-cache dengan tag `TAG_PROGRAM`, jadi kartu program bisa langsung ada
+ * di HTML awal tanpa menunggu Supabase di setiap request (elemen LCP di /program dan beranda).
+ * Setiap perubahan program oleh admin wajib memanggil `updateTag(TAG_PROGRAM)` (lihat `aksiAdminUbahProgram`),
+ * supaya harga dan status yang tampil tidak pernah basi. `cacheLife("hours")` hanya batas atas cadangan.
+ */
+export const TAG_PROGRAM = "program";
+
+async function ambilDaftarProgramTercache(): Promise<Program[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(TAG_PROGRAM);
   const { data, error } = await clientPublik().from("program").select("*").eq("aktif", true).order("kelas_min");
   lemparJikaError(error);
   return (data ?? []).map((r) => normalisasiProgram(r as Record<string, unknown>));
 }
 
-export async function ambilProgram(slug: string): Promise<Program | null> {
-  if (pakaiMock) {
-    const p = programMock.find((x) => x.slug === slug && x.aktif);
-    return p ? denganSilabusMock(p) : null;
-  }
-  await connection();
+async function ambilProgramTercache(slug: string): Promise<Program | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(TAG_PROGRAM);
   const { data, error } = await clientPublik()
     .from("program")
     .select("*")
@@ -52,4 +58,18 @@ export async function ambilProgram(slug: string): Promise<Program | null> {
     .maybeSingle();
   lemparJikaError(error);
   return data ? normalisasiProgram(data as Record<string, unknown>) : null;
+}
+
+/** Tabel `program` dengan aktif = true. */
+export async function ambilDaftarProgram(): Promise<Program[]> {
+  if (pakaiMock) return programMock.filter((p) => p.aktif).map(denganSilabusMock);
+  return ambilDaftarProgramTercache();
+}
+
+export async function ambilProgram(slug: string): Promise<Program | null> {
+  if (pakaiMock) {
+    const p = programMock.find((x) => x.slug === slug && x.aktif);
+    return p ? denganSilabusMock(p) : null;
+  }
+  return ambilProgramTercache(slug);
 }
