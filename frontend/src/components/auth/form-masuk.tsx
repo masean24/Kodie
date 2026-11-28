@@ -84,18 +84,18 @@ export function FormMasuk({
       {form}
       <p className="mt-6 text-center">
         Belum punya akun?{" "}
-        <Link href="/daftar" className="font-display font-semibold text-primary underline-offset-4 hover:underline">
+        <Link href="/daftar" className="font-display font-semibold text-primary underline-offset-4 hover:underline max-md:inline-flex max-md:min-h-touch max-md:items-center">
           Daftar
         </Link>
       </p>
       <p className="mt-2 text-center text-sm">
-        <Link href="/lupa-password" className="font-bold text-primary underline-offset-4 hover:underline">
+        <Link href="/lupa-password" className="font-bold text-primary underline-offset-4 hover:underline max-md:inline-flex max-md:min-h-touch max-md:items-center">
           Lupa password?
         </Link>
       </p>
       {demo ? (
         <details className="mt-6 rounded-card-sm bg-surface p-4 text-sm">
-          <summary className="cursor-pointer font-bold">{demo.judul}</summary>
+          <summary className="cursor-pointer font-bold max-md:py-3">{demo.judul}</summary>
           <p className="mt-2">Password semua akun: {demo.password}</p>
           <ul className="mt-1 list-disc pl-5">
             {demo.akun.map((a) => (

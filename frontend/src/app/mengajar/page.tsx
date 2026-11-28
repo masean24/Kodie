@@ -18,7 +18,7 @@ export default async function DashboardPengajar() {
   const terverifikasi = p.status === "terverifikasi";
 
   return (
-    <div className="flex flex-col gap-6">
+    <div data-akar-area className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-32 leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
@@ -97,7 +97,7 @@ export default async function DashboardPengajar() {
           judul="Sesi aktif & mendatang"
           id="judul-sesi-pengajar"
           aksi={
-            <Link href="/mengajar/kelas" className="font-display text-sm font-semibold text-primary hover:underline">
+            <Link href="/mengajar/kelas" className="font-display text-sm font-semibold text-primary hover:underline max-md:inline-flex max-md:min-h-touch max-md:items-center">
               Semua kelas
             </Link>
           }

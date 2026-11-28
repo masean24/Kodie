@@ -122,7 +122,7 @@ export default async function DashboardAdmin() {
   ];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div data-akar-area className="flex flex-col gap-6">
       <div className="kodie-blok-sorot rounded-card p-6 md:px-7 md:py-6">
         <span aria-hidden className="mb-2 inline-block h-1.5 w-8 rounded-full bg-lime" />
         <h1 className="text-32 leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">

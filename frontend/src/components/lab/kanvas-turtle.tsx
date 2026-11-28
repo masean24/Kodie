@@ -107,7 +107,7 @@ export function KanvasTurtle({ adegan, putaran }: { adegan: Adegan | null; putar
               aria-checked={kecepatan === k}
               onClick={() => setKecepatan(k)}
               className={cx(
-                "min-h-[36px] rounded-full px-3 text-sm font-bold transition-colors",
+                "min-h-[36px] max-md:min-h-touch rounded-full px-3 text-sm font-bold transition-colors",
                 kecepatan === k ? "bg-primary text-primary-foreground" : "text-text-muted hover:bg-surface-sunken hover:text-text",
               )}
             >
@@ -121,7 +121,7 @@ export function KanvasTurtle({ adegan, putaran }: { adegan: Adegan | null; putar
             aria-pressed={grid}
             onClick={() => setGrid((g) => !g)}
             className={cx(
-              "inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-sm font-bold transition-colors",
+              "inline-flex min-h-[36px] max-md:min-h-touch items-center gap-1.5 rounded-full px-3 text-sm font-bold transition-colors",
               grid ? "bg-primary-subtle text-primary" : "text-text-muted hover:bg-surface-sunken hover:text-text",
             )}
           >
@@ -132,7 +132,7 @@ export function KanvasTurtle({ adegan, putaran }: { adegan: Adegan | null; putar
             type="button"
             onClick={() => setUlang((u) => u + 1)}
             disabled={!adegan}
-            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-3 text-sm font-bold text-text-muted transition-colors hover:bg-surface-sunken hover:text-text disabled:opacity-50"
+            className="inline-flex min-h-[36px] max-md:min-h-touch items-center gap-1.5 rounded-full px-3 text-sm font-bold text-text-muted transition-colors hover:bg-surface-sunken hover:text-text disabled:opacity-50"
           >
             <RotateCcw aria-hidden className="size-4" />
             Ulangi animasi

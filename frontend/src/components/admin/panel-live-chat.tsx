@@ -246,7 +246,7 @@ export function PanelLiveChat({
                 aria-selected={aktif}
                 onClick={() => setFilter(op.nilai)}
                 className={cx(
-                  "inline-flex min-h-[40px] items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-bold transition-colors",
+                  "inline-flex min-h-[40px] max-md:min-h-touch items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-bold transition-colors",
                   aktif
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-surface text-text hover:bg-surface-sunken",

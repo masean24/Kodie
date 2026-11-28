@@ -80,7 +80,7 @@ export function DetailRapor({ item, basePath }: { item: RaporRinci; basePath: "/
         <div className="flex flex-col items-start gap-1">
           <TagProgram slug="simulasi-jurusan-it">Simulasi Jurusan IT</TagProgram>
           <h1 className="mt-1 text-32 leading-[38px] font-extrabold md:text-40 md:leading-[48px]">
-            Rapor Rekomendasi Jurusan · {siswa.nama}
+            Rapor rekomendasi jurusan · {siswa.nama}
           </h1>
           <p className="text-text-muted">
             {labelKelas(siswa.jenjang, siswa.kelas)}

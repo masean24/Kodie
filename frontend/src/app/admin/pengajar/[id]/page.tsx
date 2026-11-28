@@ -107,7 +107,7 @@ export default async function HalamanDetailPengajarAdmin({
       <div>
         <Link
           href="/admin/pengajar"
-          className="inline-flex items-center gap-1.5 text-sm font-bold text-text-muted hover:text-ink"
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-text-muted hover:text-ink max-md:min-h-touch"
         >
           <ArrowLeft data-kembali aria-hidden className="size-4" /> Kembali ke daftar pengajar
         </Link>

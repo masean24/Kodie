@@ -334,7 +334,7 @@ export function FormProfilPengajar({
                   key={s.nilai}
                   className="flex min-h-touch cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-border-strong px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus"
                 >
-                  <input type="radio" value={s.nilai} className="size-4 accent-primary" {...register("status_kerja")} />
+                  <input type="radio" value={s.nilai} className="size-5 accent-primary" {...register("status_kerja")} />
                   {s.label}
                 </label>
               ))}
@@ -360,7 +360,7 @@ export function FormProfilPengajar({
                   key={b}
                   className="flex min-h-touch cursor-pointer items-center gap-2 rounded-full border-[1.5px] border-border-strong px-4 has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:font-bold has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-focus"
                 >
-                  <input type="checkbox" value={b} className="size-4 accent-primary" {...register("keahlian")} />
+                  <input type="checkbox" value={b} className="size-5 accent-primary" {...register("keahlian")} />
                   {NAMA_BIDANG[b]}
                 </label>
               ))}

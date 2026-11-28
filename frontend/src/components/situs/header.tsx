@@ -97,7 +97,14 @@ export function Header({
     if (!buka) return;
     const tutup = (e: KeyboardEvent) => e.key === "Escape" && setBuka(false);
     window.addEventListener("keydown", tutup);
-    return () => window.removeEventListener("keydown", tutup);
+    // Kunci scroll halaman di belakang laci; nilai lama dipulihkan saat laci ditutup.
+    const html = document.documentElement;
+    const overflowLama = html.style.overflow;
+    html.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", tutup);
+      html.style.overflow = overflowLama;
+    };
   }, [buka]);
 
   const tautan = (mobile: boolean) => {
