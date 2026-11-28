@@ -9,6 +9,7 @@ import { Tombol } from "@/components/ui/tombol";
 import { RENTANG_JAM, type FilterKelas as Filter } from "@/lib/kelas";
 import { namaHari } from "@/lib/format";
 import { cx } from "@/lib/cx";
+import { fiturLanjutan } from "@/lib/api/sumber";
 
 /*
  * Di ponsel, filter selain pencarian dilipat agar daftar kelas langsung terlihat.
@@ -120,6 +121,7 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
       </Pilihan>
       <Pilihan id="f-jenjang" name="jenjang" label="Jenjang" defaultValue={nilai.jenjang ?? ""}>
         <option value="">Semua jenjang</option>
+        {fiturLanjutan ? <option value="TK">TK (usia 5–6)</option> : null}
         <option value="SD">SD</option>
         <option value="SMP">SMP</option>
         <option value="SMA">SMA</option>

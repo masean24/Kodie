@@ -1,8 +1,10 @@
-import type { Peran } from "@/types/database";
+import type { Jenjang, Peran } from "@/types/database";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilKelas } from "@/lib/api/kelas";
 import { ambilProgram } from "@/lib/api/program";
 import { ambilDaftarAnak, ambilSiswaSaya } from "@/lib/api/siswa";
+import { ambilDaftarBooking } from "@/lib/api/booking";
+import { fiturLanjutan } from "@/lib/api/sumber";
 import { alasanTidakBisaDipesan } from "@/lib/kelas";
 import { alasanTidakCocok } from "@/lib/booking";
 import { Catatan } from "@/components/ui/dasar";
@@ -38,7 +40,7 @@ export async function HalamanPesan({ peran, kelasId }: { peran: Extract<Peran, "
 
   const program = await ambilProgram(kelas.program_slug);
   const cek = (s: { jenjang: string; kelas: number }) =>
-    program ? alasanTidakCocok(s as { jenjang: "SD" | "SMP" | "SMA"; kelas: number }, program) : null;
+    program ? alasanTidakCocok(s as { jenjang: Jenjang; kelas: number }, program) : null;
 
   let kandidat: KandidatSiswa[];
   if (peran === "siswa") {
@@ -85,9 +87,20 @@ export async function HalamanPesan({ peran, kelasId }: { peran: Extract<Peran, "
     kandidat = anak.map((a) => ({ id: a.id, nama: a.nama, jenjang: a.jenjang, kelas: a.kelas, alasan: cek(a) }));
   }
 
+  // Trial gratis sekali per anak: tandai anak yang sudah pernah memakainya (status apa pun kecuali batal/kedaluwarsa).
+  if (fiturLanjutan) {
+    const riwayat = await ambilDaftarBooking();
+    const sudahTrial = new Set(
+      riwayat
+        .filter((r) => r.booking.jenis === "trial" && r.booking.status !== "dibatalkan" && r.booking.status !== "kedaluwarsa")
+        .map((r) => r.booking.siswa_id),
+    );
+    kandidat = kandidat.map((k) => ({ ...k, sudahTrial: sudahTrial.has(k.id) }));
+  }
+
   return (
     <div className="max-w-[720px]">
-      <AlurPesan kelas={kelas} kandidat={kandidat} untukDiriSendiri={peran === "siswa"} />
+      <AlurPesan kelas={kelas} kandidat={kandidat} untukDiriSendiri={peran === "siswa"} fiturLanjutan={fiturLanjutan} />
     </div>
   );
 }

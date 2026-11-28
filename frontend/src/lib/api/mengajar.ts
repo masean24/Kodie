@@ -36,7 +36,9 @@ import type { InputBukaKelas, InputLaporanForm, InputProfilPengajar } from "@/li
 import { ambilPenggunaSaya } from "./auth";
 import type { SiswaRingkas } from "./booking";
 import { ambilDaftarProgram } from "./program";
-import { lemparJikaError, pakaiMock } from "./sumber";
+import { fiturLanjutan, lemparJikaError, pakaiMock } from "./sumber";
+import { hitungHonorPerSesi } from "@/lib/referral";
+import { pesertaBerbayarMock } from "./pengajar-lanjutan";
 
 /** Area pengajar: F7, F8, F9, F10, F11, F13. Hanya untuk server (memakai sesi di cookie). */
 
@@ -201,6 +203,8 @@ export interface KelasPengajarRinci {
   dibuat_pada?: string;
   sesi: SesiSaya[];
   siswa: SiswaRingkas[];
+  /** Siswa yang ikut lewat trial gratis: hanya terdaftar di Sesi 1 (keputusan 2026-11-28). */
+  siswaTrial?: string[];
   laporanBySesi: Record<string, LaporanSesi>;
 }
 
@@ -239,6 +243,10 @@ async function ambilKelasMilikPengajar(pengajarId: string): Promise<KelasPengaja
         const siswa = store.siswa
           .filter((s) => siswaIds.includes(s.id))
           .map(({ id, nama, jenjang, kelas }) => ({ id, nama, jenjang, kelas }));
+        const siswaTrial = bookingTerkonfirmasi
+          .filter((b) => b.kelas_id === k.id && b.jenis === "trial")
+          .map((b) => b.siswa_id)
+          .filter((id) => !bookingTerkonfirmasi.some((b) => b.kelas_id === k.id && b.siswa_id === id && (b.jenis ?? "paket") === "paket"));
         const laporanBySesi: Record<string, LaporanSesi> = {};
         for (const l of laporanSemua) {
           if (sesi.some((s) => s.id === l.sesi_id)) laporanBySesi[l.sesi_id] = l;
@@ -252,6 +260,7 @@ async function ambilKelasMilikPengajar(pengajarId: string): Promise<KelasPengaja
           status: k.status,
           sesi,
           siswa,
+          siswaTrial,
           laporanBySesi,
         };
       })
@@ -271,13 +280,17 @@ async function ambilKelasMilikPengajar(pengajarId: string): Promise<KelasPengaja
   const kelasIds = barisKelas.map((k) => k.id);
   const [sesiRes, bookingRes] = await Promise.all([
     supabase.from("sesi_saya").select("*").in("kelas_id", kelasIds).order("nomor"),
-    supabase.from("booking").select("kelas_id, siswa_id, status").in("kelas_id", kelasIds).in("status", ["terkonfirmasi", "selesai"]),
+    supabase
+      .from("booking")
+      .select(fiturLanjutan ? "kelas_id, siswa_id, status, jenis" : "kelas_id, siswa_id, status")
+      .in("kelas_id", kelasIds)
+      .in("status", ["terkonfirmasi", "selesai"]),
   ]);
   lemparJikaError(sesiRes.error);
   lemparJikaError(bookingRes.error);
 
   const semuaSesi = (sesiRes.data ?? []) as SesiSaya[];
-  const semuaBooking = (bookingRes.data ?? []) as Pick<Booking, "kelas_id" | "siswa_id" | "status">[];
+  const semuaBooking = (bookingRes.data ?? []) as unknown as Pick<Booking, "kelas_id" | "siswa_id" | "status" | "jenis">[];
   const sesiIds = semuaSesi.map((s) => s.id);
   const siswaIds = [...new Set(semuaBooking.map((b) => b.siswa_id))];
 
@@ -295,6 +308,11 @@ async function ambilKelasMilikPengajar(pengajarId: string): Promise<KelasPengaja
     const sesi = semuaSesi.filter((s) => s.kelas_id === k.id).sort((a, b) => a.nomor - b.nomor);
     const sIds = new Set(semuaBooking.filter((b) => b.kelas_id === k.id).map((b) => b.siswa_id));
     const siswa = semuaSiswa.filter((s) => sIds.has(s.id));
+    const milikKelas = semuaBooking.filter((b) => b.kelas_id === k.id);
+    const siswaTrial = milikKelas
+      .filter((b) => b.jenis === "trial")
+      .map((b) => b.siswa_id)
+      .filter((id) => !milikKelas.some((b) => b.siswa_id === id && (b.jenis ?? "paket") === "paket"));
     const laporanBySesi: Record<string, LaporanSesi> = {};
     for (const l of semuaLaporan) {
       if (sesi.some((s) => s.id === l.sesi_id)) laporanBySesi[l.sesi_id] = l;
@@ -310,6 +328,7 @@ async function ambilKelasMilikPengajar(pengajarId: string): Promise<KelasPengaja
       dibuat_pada: k.dibuat_pada,
       sesi,
       siswa,
+      siswaTrial,
       laporanBySesi,
     };
   });
@@ -571,7 +590,7 @@ export async function ambilHalamanLaporan(sesiId: string): Promise<DataHalamanLa
     sesi,
     kelas: { id: kelas.id, level: kelas.level },
     program: kelas.program,
-    siswa: kelas.siswa,
+    siswa: sesi.nomor > 1 ? kelas.siswa.filter((x) => !kelas.siswaTrial?.includes(x.id)) : kelas.siswa,
     laporanSesi,
     laporanSiswa,
     raporJurusan,
@@ -674,15 +693,25 @@ export async function kirimAtauUbahLaporan(sesiId: string, data: InputLaporanFor
       }
       sesi.status = "selesai";
       if (!store.honor.some((h) => h.sesi_id === sesiId)) {
+        // Bagi hasil (keputusan 2026-11-28): 30% pembayaran tiap siswa terkonfirmasi (+10% via referral) ÷ 4 sesi.
+        const katalog = buatKelasMock(new Date()).find((k) => k.id === halaman.kelas.id);
+        const jumlah = katalog
+          ? hitungHonorPerSesi(pesertaBerbayarMock(katalog, true), katalog.jumlah_sesi)
+          : halaman.program.honor_per_sesi;
         store.honor.push({
           id: crypto.randomUUID(),
           pengajar_id: p.id,
           sesi_id: sesiId,
-          jumlah: halaman.program.honor_per_sesi,
+          jumlah,
           status: "belum_dibayar",
           dibayar_pada: null,
           dibayar_oleh: null,
         });
+      }
+      if (sesi.nomor === 1) {
+        for (const b of store.booking) {
+          if (b.kelas_id === halaman.kelas.id && b.jenis === "trial" && b.status === "terkonfirmasi") b.status = "selesai";
+        }
       }
       if (sesi.nomor === 4) {
         for (const b of store.booking) {

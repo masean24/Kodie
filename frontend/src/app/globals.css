@@ -71,6 +71,11 @@
   --k-simulasi-jurusan-deep: #1e3a8a;
   --k-simulasi-jurusan-block: #dbeafe;
   --k-simulasi-jurusan-block-to: #eff6ff;
+  --k-kenal-komputer-soft: #f8fafc;
+  --k-kenal-komputer-strong: #e2e8f0;
+  --k-kenal-komputer-deep: #0f172a;
+  --k-kenal-komputer-block: #e2e8f0;
+  --k-kenal-komputer-block-to: #f8fafc;
   --k-software-soft: #eff6ff;
   --k-software-strong: #60a5fa;
   --k-software-deep: #1e3a8a;
@@ -180,6 +185,10 @@
   --k-simulasi-jurusan-deep: #eff6ff;
   --k-simulasi-jurusan-block: #dcebff;
   --k-simulasi-jurusan-block-to: #dcebff;
+  --k-kenal-komputer-soft: #1e293b;
+  --k-kenal-komputer-deep: #f1f5f9;
+  --k-kenal-komputer-block: #e2e8f0;
+  --k-kenal-komputer-block-to: #e2e8f0;
   --k-software-soft: #111c33;
   --k-software-deep: #dbeafe;
   --k-jaringan-soft: #111c33;
@@ -254,6 +263,10 @@
     --k-simulasi-jurusan-deep: #eff6ff;
     --k-simulasi-jurusan-block: #dcebff;
     --k-simulasi-jurusan-block-to: #dcebff;
+    --k-kenal-komputer-soft: #1e293b;
+    --k-kenal-komputer-deep: #f1f5f9;
+    --k-kenal-komputer-block: #e2e8f0;
+    --k-kenal-komputer-block-to: #e2e8f0;
     --k-software-soft: #111c33;
     --k-software-deep: #dbeafe;
     --k-jaringan-soft: #111c33;
@@ -331,6 +344,9 @@
   --color-primary-subtle: var(--k-primary-subtle);
   --color-success: var(--k-success);
   --color-success-subtle: var(--k-success-subtle);
+  /* Bintang rating: kuning (saran pembimbing 2026-11-28) dengan garis amber agar tetap terbaca di latar terang. */
+  --color-bintang: #facc15;
+  --color-bintang-garis: #b45309;
   --color-warning: var(--k-warning);
   --color-warning-subtle: var(--k-warning-subtle);
   --color-danger: var(--k-danger);
@@ -377,6 +393,11 @@
   --color-simulasi-jurusan-deep: var(--k-simulasi-jurusan-deep);
   --color-simulasi-jurusan-block: var(--k-simulasi-jurusan-block);
   --color-simulasi-jurusan-block-to: var(--k-simulasi-jurusan-block-to);
+  --color-kenal-komputer-soft: var(--k-kenal-komputer-soft);
+  --color-kenal-komputer-strong: var(--k-kenal-komputer-strong);
+  --color-kenal-komputer-deep: var(--k-kenal-komputer-deep);
+  --color-kenal-komputer-block: var(--k-kenal-komputer-block);
+  --color-kenal-komputer-block-to: var(--k-kenal-komputer-block-to);
   --color-software-soft: var(--k-software-soft);
   --color-software-strong: var(--k-software-strong);
   --color-software-deep: var(--k-software-deep);
@@ -1702,6 +1723,22 @@ select.pilihan-kodie::-ms-expand {
   --mp-link: #1d4ed8;
   --mp-shadow: 0 2px 8px rgb(15 23 42 / 0.04), 0 12px 28px -10px rgb(15 23 42 / 0.08);
 
+  /* Program 0: Kenal Komputer (Slate netral) */
+  --mp-p0-block-bg: #e2e8f0;
+  --mp-p0-block-fg: #0f172a;
+  --mp-p0-block-muted: #334155;
+  --mp-p0-col-bg: #f8fafc;
+  --mp-p0-col-border: rgb(100 116 139 / 0.4);
+  --mp-p0-chip-bg: #f1f5f9;
+  --mp-p0-chip-fg: #1e293b;
+  --mp-p0-chip-border: #cbd5e1;
+  --mp-p0-check-bg: #e2e8f0;
+  --mp-p0-check-fg: #1d4ed8;
+  --mp-p0-cta-bg: #1d4ed8;
+  --mp-p0-cta-fg: #ffffff;
+  --mp-p0-cta-arrow-bg: #c6f64d;
+  --mp-p0-cta-arrow-fg: #0f172a;
+
   /* Program 1: Coding Dasar (Lime) */
   --mp-p1-block-bg: #e4ff90;
   --mp-p1-block-fg: #0f172a;
@@ -1763,6 +1800,22 @@ select.pilihan-kodie::-ms-expand {
   --mp-row-hover-tint: rgb(255 255 255 / 0.055);
   --mp-link: #7cb2ff;
   --mp-shadow: 0 2px 8px rgb(0 0 0 / 0.36), 0 14px 32px -12px rgb(0 0 0 / 0.56), inset 0 1px 0 rgb(255 255 255 / 0.04);
+
+  /* Program 0: Kenal Komputer (Dark Mode) */
+  --mp-p0-block-bg: #e2e8f0;
+  --mp-p0-block-fg: #0a0a0c;
+  --mp-p0-block-muted: #334155;
+  --mp-p0-col-bg: rgb(226 232 240 / 0.05);
+  --mp-p0-col-border: rgb(226 232 240 / 0.3);
+  --mp-p0-chip-bg: rgb(226 232 240 / 0.12);
+  --mp-p0-chip-fg: #e2e8f0;
+  --mp-p0-chip-border: rgb(226 232 240 / 0.28);
+  --mp-p0-check-bg: rgb(226 232 240 / 0.18);
+  --mp-p0-check-fg: #e2e8f0;
+  --mp-p0-cta-bg: #e2e8f0;
+  --mp-p0-cta-fg: #0a0a0c;
+  --mp-p0-cta-arrow-bg: #1d4ed8;
+  --mp-p0-cta-arrow-fg: #ffffff;
 
   /* Program 1: Coding Dasar (Dark Mode) */
   --mp-p1-block-bg: #d9ff66;
@@ -1852,6 +1905,16 @@ select.pilihan-kodie::-ms-expand {
 
 .matrix-col.is-highlighted {
   box-shadow: inset 0 0 0 2px var(--k-accent);
+}
+
+.matrix-head-p0 {
+  background-color: var(--mp-p0-block-bg);
+  color: var(--mp-p0-block-fg);
+}
+
+.matrix-lane-p0 {
+  background-color: var(--mp-p0-col-bg);
+  border-left: 1px solid var(--mp-p0-col-border);
 }
 
 .matrix-head-p1 {

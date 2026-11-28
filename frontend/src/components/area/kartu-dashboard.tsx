@@ -10,6 +10,7 @@ import { cx } from "@/lib/cx";
 import { TagProgram } from "@/components/kategori";
 import { Lencana } from "@/components/ui/dasar";
 import { kelasTombol } from "@/components/ui/tombol";
+import { ChipAnak } from "./chip-anak";
 
 /** Sapaan sesuai jam WIB, untuk judul dashboard. */
 export function sapaan(sekarang: Date): string {
@@ -83,6 +84,7 @@ export function SesiTerdekat({
               className="flex flex-col gap-3 rounded-card-sm bg-surface-sunken p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="min-w-0">
+                {basePath === "/orang-tua" ? <ChipAnak id={item.siswa.id} nama={item.siswa.nama} className="mb-2" /> : null}
                 <div className="flex flex-wrap items-center gap-2">
                   <TagProgram slug={item.kelas.program_slug}>{item.kelas.program_nama}</TagProgram>
                   {item.bisaMasuk ? <Lencana nada="aksen">Sedang berlangsung</Lencana> : null}
@@ -91,8 +93,8 @@ export function SesiTerdekat({
                   {item.kelas.program_nama} Level {item.kelas.level} · Sesi {item.sesi.nomor}
                 </p>
                 <p className="text-sm text-text-muted">
-                  {formatTanggal(item.sesi.mulai_pada)}, {rentangJamWib(item.sesi.mulai_pada, item.sesi.selesai_pada)} ·{" "}
-                  {item.siswa.nama.split(" ")[0]}
+                  {formatTanggal(item.sesi.mulai_pada)}, {rentangJamWib(item.sesi.mulai_pada, item.sesi.selesai_pada)}
+                  {basePath === "/orang-tua" ? null : ` · ${item.siswa.nama.split(" ")[0]}`}
                 </p>
               </div>
               <Link
@@ -128,9 +130,11 @@ export function LaporanTerbaru({
                 href={`${basePath}/sesi/${item.sesi.id}`}
                 className="block rounded-card-sm bg-surface-sunken p-4 transition-colors hover:bg-primary-subtle"
               >
+                {basePath === "/orang-tua" ? <ChipAnak id={item.siswa.id} nama={item.siswa.nama} className="mb-2" /> : null}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-display font-semibold">
-                    {item.kelas.program_nama} · Sesi {item.sesi.nomor} ({item.siswa.nama.split(" ")[0]})
+                    {item.kelas.program_nama} · Sesi {item.sesi.nomor}
+                    {basePath === "/orang-tua" ? null : ` (${item.siswa.nama.split(" ")[0]})`}
                   </p>
                   {item.baru ? <Lencana nada="aksen">Baru</Lencana> : null}
                 </div>
@@ -160,8 +164,10 @@ export function RaporJurusan({
       </h2>
       {terbaru ? (
         <>
+          {basePath === "/orang-tua" ? <ChipAnak id={terbaru.siswa.id} nama={terbaru.siswa.nama} className="mt-3" /> : null}
           <p className="mt-2 font-display text-lg font-bold text-primary">
-            {NAMA_BIDANG[terbaru.rapor.bidang_rekomendasi]} ({terbaru.siswa.nama.split(" ")[0]})
+            {NAMA_BIDANG[terbaru.rapor.bidang_rekomendasi]}
+            {basePath === "/orang-tua" ? null : ` (${terbaru.siswa.nama.split(" ")[0]})`}
           </p>
           <p className="mt-1 text-sm text-text-muted">Hasil pengamatan Simulasi Jurusan IT tersedia.</p>
           <Link

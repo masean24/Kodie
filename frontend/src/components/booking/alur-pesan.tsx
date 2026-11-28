@@ -1,34 +1,56 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { BookOpen, CalendarDays, Check, Info, User } from "lucide-react";
+import { BookOpen, CalendarDays, Check, Gift, Info, Ticket, User } from "lucide-react";
 import type { KelasKatalog } from "@/types/database";
 import { aksiBuatBooking } from "@/lib/aksi/booking";
-import { formatJamTeks, formatRupiah, formatTanggal, namaHari } from "@/lib/format";
+import { formatJamTeks, formatRupiah, formatTanggal, namaHari, labelKelas } from "@/lib/format";
 import { inisialNama } from "@/lib/nama";
 import { cx } from "@/lib/cx";
 import { Tombol } from "@/components/ui/tombol";
 import { TagProgram } from "@/components/kategori";
 import { PesanFormulir } from "@/components/auth/bagian";
 import { LangkahPesan } from "./langkah-pesan";
+import { Input } from "@/components/ui/formulir";
+import { bacaKodeReferral, hitungPotongan, kodeValid, normalisasiKode, PERSEN_POTONGAN_REFERRAL } from "@/lib/referral";
 
-export type KandidatSiswa = { id: string; nama: string; jenjang: string; kelas: number; alasan: string | null };
+export type KandidatSiswa = {
+  id: string;
+  nama: string;
+  jenjang: string;
+  kelas: number;
+  alasan: string | null;
+  /** Sudah pernah memakai trial gratis (sekali per anak). */
+  sudahTrial?: boolean;
+};
 
 type Props = {
   kelas: KelasKatalog;
   kandidat: KandidatSiswa[];
   /** Siswa memesan untuk dirinya sendiri: langkah pilih siswa dilewati. */
   untukDiriSendiri: boolean;
+  /** Trial gratis & kode referral aktif (mode mock atau backend sudah siap). */
+  fiturLanjutan?: boolean;
 };
 
-export function AlurPesan({ kelas, kandidat, untukDiriSendiri }: Props) {
+export function AlurPesan({ kelas, kandidat, untukDiriSendiri, fiturLanjutan = false }: Props) {
   const cocok = kandidat.filter((k) => !k.alasan);
   const [siswaId, setSiswaId] = useState<string | null>(untukDiriSendiri || cocok.length === 1 ? (cocok[0]?.id ?? null) : null);
   const [langkah, setLangkah] = useState<1 | 2>(untukDiriSendiri ? 2 : 1);
   const [galat, setGalat] = useState<string>();
   const [galatPilih, setGalatPilih] = useState(false);
   const [menunggu, mulai] = useTransition();
+  const [jenis, setJenis] = useState<"paket" | "trial">("paket");
+  const [kodeRef, setKodeRef] = useState("");
   const judulRef = useRef<HTMLHeadingElement>(null);
+
+  // Kode dari tautan profil pengajar yang dibagikan (?ref=) diisi otomatis sekali saat halaman dibuka.
+  useEffect(() => {
+    if (!fiturLanjutan) return;
+    const tersimpan = bacaKodeReferral(kelas.pengajar_id);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage hanya ada di browser, bukan saat render server
+    if (tersimpan) setKodeRef(tersimpan);
+  }, [fiturLanjutan, kelas.pengajar_id]);
   const pertama = useRef(true);
 
   useEffect(() => {
@@ -88,7 +110,7 @@ export function AlurPesan({ kelas, kandidat, untukDiriSendiri }: Props) {
                     <span className="min-w-0 flex-1">
                       <span className="block font-bold">{k.nama}</span>
                       <span className="block text-sm text-text-muted">
-                        {k.jenjang} kelas {k.kelas}
+                        {labelKelas(k.jenjang, k.kelas)}
                         {k.alasan ? ` · Tidak cocok: ${k.alasan}` : ""}
                       </span>
                     </span>
@@ -117,11 +139,27 @@ export function AlurPesan({ kelas, kandidat, untukDiriSendiri }: Props) {
     );
   }
 
+  // Trial gratis hanya Sesi 1, sekali per anak, dan hanya sebelum Sesi 1 dimulai (keputusan 2026-11-28).
+  const trialBisa = fiturLanjutan && kelas.bisa_dibooking && !siswa?.sudahTrial;
+  const jenisEfektif = jenis === "trial" && trialBisa ? "trial" : "paket";
+  const kodeBersih = normalisasiKode(kodeRef);
+  const kodeTerisi = jenisEfektif === "paket" && kodeBersih.length > 0;
+  const formatKodeSalah = kodeTerisi && !kodeValid(kodeBersih);
+  const potongan = kodeTerisi && !formatKodeSalah ? hitungPotongan(kelas.harga_paket) : 0;
+  const total = jenisEfektif === "trial" ? 0 : kelas.harga_paket - potongan;
+
   const pesan = () =>
     mulai(async () => {
       setGalat(undefined);
       if (!siswa) return;
-      const hasil = await aksiBuatBooking(kelas.id, siswa.id);
+      if (formatKodeSalah) {
+        setGalat("Format kode referral tidak valid. Gunakan huruf, angka, dan tanda hubung.");
+        return;
+      }
+      const hasil = await aksiBuatBooking(kelas.id, siswa.id, {
+        jenis: jenisEfektif,
+        kodeReferral: kodeTerisi ? kodeBersih : null,
+      });
       if (hasil?.galat) setGalat(hasil.galat);
     });
 
@@ -139,7 +177,7 @@ export function AlurPesan({ kelas, kandidat, untukDiriSendiri }: Props) {
               <dt className="text-sm text-text-muted">Siswa</dt>
               <dd className="font-bold">{siswa?.nama}</dd>
               <dd className="text-sm text-text-muted">
-                {siswa?.jenjang} kelas {siswa?.kelas}
+                {labelKelas(siswa?.jenjang, siswa?.kelas)}
               </dd>
             </div>
           </div>
@@ -167,18 +205,118 @@ export function AlurPesan({ kelas, kandidat, untukDiriSendiri }: Props) {
             </div>
           </div>
         </dl>
-        <div className="mt-6 flex items-center justify-between rounded-card-sm bg-surface-sunken p-4">
-          <span className="font-bold">Total</span>
-          <span className="font-display text-2xl font-semibold">{formatRupiah(kelas.harga_paket)}</span>
+
+        {fiturLanjutan ? (
+          <fieldset className="mt-6 flex flex-col gap-3">
+            <legend className="font-bold">Jenis pesanan</legend>
+            <label
+              className={cx(
+                "flex cursor-pointer gap-3 rounded-card-sm border-[1.5px] p-4",
+                jenisEfektif === "paket" ? "border-primary bg-primary-subtle" : "border-border-strong",
+              )}
+            >
+              <input
+                type="radio"
+                name="jenis-pesanan"
+                value="paket"
+                checked={jenisEfektif === "paket"}
+                onChange={() => setJenis("paket")}
+                className="mt-1 size-5 accent-[var(--k-royal)]"
+              />
+              <span>
+                <span className="block font-bold">Paket {kelas.jumlah_sesi} sesi · {formatRupiah(kelas.harga_paket)}</span>
+                <span className="block text-sm text-text-muted">Semua sesi, laporan tiap sesi, dan karya akhir.</span>
+              </span>
+            </label>
+            <label
+              className={cx(
+                "flex gap-3 rounded-card-sm border-[1.5px] p-4",
+                !trialBisa ? "cursor-not-allowed opacity-70" : "cursor-pointer",
+                jenisEfektif === "trial" ? "border-primary bg-primary-subtle" : "border-border-strong",
+              )}
+            >
+              <input
+                type="radio"
+                name="jenis-pesanan"
+                value="trial"
+                checked={jenisEfektif === "trial"}
+                disabled={!trialBisa}
+                onChange={() => setJenis("trial")}
+                aria-describedby="ket-trial"
+                className="mt-1 size-5 accent-[var(--k-royal)]"
+              />
+              <span>
+                <span className="flex items-center gap-1.5 font-bold">
+                  <Gift aria-hidden className="size-4 text-primary" /> Trial gratis: ikut Sesi 1 saja
+                </span>
+                <span id="ket-trial" className="block text-sm text-text-muted">
+                  {siswa?.sudahTrial
+                    ? "Anak ini sudah pernah memakai trial gratis."
+                    : !kelas.bisa_dibooking
+                      ? "Trial hanya bisa diambil sebelum Sesi 1 dimulai."
+                      : "Sekali per anak. Setelah Sesi 1, lanjutkan dengan memesan paket penuh."}
+                </span>
+              </span>
+            </label>
+          </fieldset>
+        ) : null}
+
+        {fiturLanjutan && jenisEfektif === "paket" ? (
+          <div className="mt-5">
+            <Input
+              id="kode-referral"
+              label="Kode referral pengajar (opsional)"
+              value={kodeRef}
+              onChange={(e) => setKodeRef(e.target.value.toUpperCase())}
+              maxLength={20}
+              autoComplete="off"
+              galat={formatKodeSalah ? "Gunakan huruf, angka, dan tanda hubung (4–20 karakter)." : undefined}
+              petunjuk={`Kode dari pengajar kelas ini memberi potongan ${PERSEN_POTONGAN_REFERRAL}%. Kode diperiksa saat Anda menekan Pesan kelas.`}
+            />
+          </div>
+        ) : null}
+
+        <div className="mt-6 flex flex-col gap-2 rounded-card-sm bg-surface-sunken p-4">
+          {potongan > 0 ? (
+            <>
+              <div className="flex items-center justify-between text-sm">
+                <span>Harga paket</span>
+                <span className="tabular-nums">{formatRupiah(kelas.harga_paket)}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm text-success">
+                <span className="inline-flex items-center gap-1.5">
+                  <Ticket aria-hidden className="size-4" /> Potongan referral {PERSEN_POTONGAN_REFERRAL}%
+                </span>
+                <span className="tabular-nums">−{formatRupiah(potongan)}</span>
+              </div>
+            </>
+          ) : null}
+          <div className="flex items-center justify-between">
+            <span className="font-bold">Total</span>
+            <span className="font-display text-2xl font-semibold" aria-live="polite">
+              {jenisEfektif === "trial" ? "Gratis" : formatRupiah(total)}
+            </span>
+          </div>
         </div>
       </section>
       <div className="flex gap-3 rounded-card-sm bg-info-subtle p-5">
         <Info aria-hidden className="mt-0.5 size-5 shrink-0 text-info" />
         <div>
-          <p className="font-display font-semibold text-info">Kursi ditahan 24 jam</p>
-          <p className="mt-1">
-            Setelah Anda menekan Pesan kelas, bayar dan unggah bukti sebelum batas waktu. Kalau tidak, kursi dilepas untuk siswa lain.
-          </p>
+          {jenisEfektif === "trial" ? (
+            <>
+              <p className="font-display font-semibold text-info">Kursi Sesi 1 langsung terkonfirmasi</p>
+              <p className="mt-1">
+                Tidak perlu membayar. Tombol masuk kelas muncul di halaman sesi 15 menit sebelum Sesi 1 dimulai.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-display font-semibold text-info">Kursi ditahan 24 jam</p>
+              <p className="mt-1">
+                Setelah Anda menekan Pesan kelas, bayar dan unggah bukti sebelum batas waktu. Kalau tidak, kursi dilepas untuk siswa lain.
+              </p>
+            </>
+          )}
         </div>
       </div>
       <PesanFormulir galat={galat} />
@@ -193,7 +331,7 @@ export function AlurPesan({ kelas, kandidat, untukDiriSendiri }: Props) {
             "Memesan…"
           ) : (
             <>
-              <Check aria-hidden className="size-5" /> Pesan kelas
+              <Check aria-hidden className="size-5" /> {jenisEfektif === "trial" ? "Ambil trial gratis" : "Pesan kelas"}
             </>
           )}
         </Tombol>

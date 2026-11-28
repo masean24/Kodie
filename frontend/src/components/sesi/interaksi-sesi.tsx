@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AlertTriangle, CheckCircle2, ExternalLink, Flag, Star, Video } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ExternalLink, Flag, Video } from "lucide-react";
+import { Bintang } from "@/components/ui/bintang";
 import type { KategoriMasalah } from "@/types/database";
 import { aksiBeriRating, aksiLaporMasalah, aksiMasukKelasPengguna } from "@/lib/aksi/sesi";
 import { cx } from "@/lib/cx";
@@ -141,7 +142,7 @@ export function FormRating({ sesiId, siswaId }: { sesiId: string; siswaId: strin
                   aktif ? "border-primary bg-accent-subtle text-on-accent" : "border-border-strong bg-surface text-text-muted hover:bg-surface-sunken",
                 )}
               >
-                <Star aria-hidden className={cx("size-6", aktif && "fill-current text-primary")} />
+                <Bintang terisi={aktif} ukuran="lg" />
               </button>
             );
           })}

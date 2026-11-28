@@ -5,6 +5,33 @@ import type { SilabusSesi } from "@/types/database";
  * (migration 12). Mode Supabase membaca kolom itu langsung.
  */
 export const silabusMock: Record<string, SilabusSesi[]> = {
+  // Paket baru 2026-11-28 (usia 5–7 tahun). Belum ada di seed backend; lihat spesifikasi di docs/KEPUTUSAN.md.
+  "kenal-komputer": [
+    {
+      "sesi": 1,
+      "judul": "Halo Komputer: Mouse, Keyboard, dan Layar",
+      "topik": "Mengenal bagian komputer, menyalakan dan mematikan dengan benar, menggerakkan mouse, klik dan klik dua kali, serta posisi duduk yang sehat.",
+      "hasil_proyek": "Mewarnai gambar di Paint dengan klik dan seret."
+    },
+    {
+      "sesi": 2,
+      "judul": "Jelajah Windows: Desktop, Ikon, dan Jendela",
+      "topik": "Mengenal desktop, menu Start, membuka dan menutup aplikasi, memperbesar, mengecilkan, dan memindahkan jendela.",
+      "hasil_proyek": "Membuka tiga aplikasi sendiri dan menatanya berdampingan."
+    },
+    {
+      "sesi": 3,
+      "judul": "Rumah untuk Karya: Folder dan File",
+      "topik": "Membuat folder, memberi nama, menyimpan gambar ke folder yang tepat, menyalin, memindahkan, dan menghapus file dengan aman.",
+      "hasil_proyek": "Folder \"Karyaku\" berisi gambar dari sesi 1 dan 2 yang tersusun rapi."
+    },
+    {
+      "sesi": 4,
+      "judul": "Mengetik Nama dan Aman di Internet",
+      "topik": "Mengetik huruf dan angka di keyboard, membuka peramban bersama orang tua, dan aturan aman: tidak membagikan data pribadi.",
+      "hasil_proyek": "Kartu nama digital sederhana disimpan di folder \"Karyaku\"."
+    }
+  ],
   "coding-dasar": [
     {
       "sesi": 1,

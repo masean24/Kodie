@@ -37,8 +37,15 @@ function Ringkasan({ r }: { r: BookingRinci }) {
           </div>
         ) : null}
         <div>
-          <dt className="text-sm text-text-muted">Total</dt>
-          <dd className="font-display text-xl font-semibold">{formatRupiah(r.booking.total)}</dd>
+          <dt className="text-sm text-text-muted">{r.booking.jenis === "trial" ? "Jenis pesanan" : "Total"}</dt>
+          <dd className="font-display text-xl font-semibold">
+            {r.booking.jenis === "trial" ? "Trial gratis · Sesi 1 saja" : formatRupiah(r.booking.total)}
+          </dd>
+          {r.booking.potongan && r.booking.kode_referral ? (
+            <dd className="text-sm text-success">
+              Termasuk potongan referral {formatRupiah(r.booking.potongan)} (kode {r.booking.kode_referral})
+            </dd>
+          ) : null}
         </div>
       </dl>
     </section>
@@ -133,6 +140,7 @@ function PanelBayar({ r, info }: { r: BookingRinci; info: InfoPembayaran }) {
 export function DetailBooking({ r, info, basePath }: { r: BookingRinci; info: InfoPembayaran | null; basePath: string }) {
   const b = r.booking;
   const status = b.status;
+  const trial = b.jenis === "trial";
   return (
     <div className="flex flex-col gap-6">
       <Link href={basePath} className="inline-flex min-h-touch items-center gap-2 self-start font-display font-semibold text-primary hover:underline">
@@ -169,13 +177,28 @@ export function DetailBooking({ r, info, basePath }: { r: BookingRinci; info: In
           <CheckCircle2 aria-hidden className="mt-0.5 size-5 shrink-0 text-success" />
           <div>
             <p className="font-display font-semibold text-success">
-              {status === "selesai" ? "Kelas sudah selesai" : "Pembayaran terkonfirmasi"}
+              {trial
+                ? status === "selesai"
+                  ? "Trial Sesi 1 sudah selesai"
+                  : "Trial gratis terkonfirmasi"
+                : status === "selesai"
+                  ? "Kelas sudah selesai"
+                  : "Pembayaran terkonfirmasi"}
             </p>
             <p className="mt-1">
-              {status === "selesai"
-                ? "Laporan setiap sesi dan rapor (untuk Simulasi Jurusan IT) bisa dilihat di dashboard."
-                : "Tombol Masuk kelas muncul di dashboard 15 menit sebelum setiap sesi dimulai."}
+              {trial
+                ? status === "selesai"
+                  ? "Laporan Sesi 1 ada di dashboard. Pilih jadwal paket 4 sesi untuk melanjutkan program ini."
+                  : "Tidak perlu membayar. Tombol Masuk kelas muncul di dashboard 15 menit sebelum Sesi 1 dimulai."
+                : status === "selesai"
+                  ? "Laporan setiap sesi dan rapor (untuk Simulasi Jurusan IT) bisa dilihat di dashboard."
+                  : "Tombol Masuk kelas muncul di dashboard 15 menit sebelum setiap sesi dimulai."}
             </p>
+            {trial && status === "selesai" && r.kelas ? (
+              <TombolTautan href={`/kelas?program=${r.kelas.program_slug}`} className="mt-3">
+                Lanjut paket penuh
+              </TombolTautan>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -199,10 +222,10 @@ export function DetailBooking({ r, info, basePath }: { r: BookingRinci; info: In
       {(status === "terkonfirmasi" || status === "menunggu_verifikasi") && r.kelas ? (
         <section aria-labelledby="judul-jadwal" className="rounded-card bg-surface p-6">
           <h2 id="judul-jadwal" className="text-xl font-semibold">
-            Jadwal {r.kelas.jumlah_sesi} sesi
+            {trial ? "Jadwal trial (Sesi 1)" : `Jadwal ${r.kelas.jumlah_sesi} sesi`}
           </h2>
           <ol className="mt-4 flex flex-col gap-3">
-            {jadwalSesi(r.kelas.mulai_pada, r.kelas.jumlah_sesi).map((s, i) => (
+            {jadwalSesi(r.kelas.mulai_pada, trial ? 1 : r.kelas.jumlah_sesi).map((s, i) => (
               <li key={s} className="flex items-center gap-4">
                 <CalendarDays aria-hidden className="size-5 shrink-0 text-primary" />
                 <span className="w-16 font-bold">Sesi {i + 1}</span>
@@ -211,7 +234,10 @@ export function DetailBooking({ r, info, basePath }: { r: BookingRinci; info: In
             ))}
           </ol>
           <p className="mt-4 flex gap-2 text-sm text-text-muted">
-            <Info aria-hidden className="mt-0.5 size-4 shrink-0" /> Tanggal sesi 2–4 bisa digeser pengajar. Perubahan akan diberitahukan.
+            <Info aria-hidden className="mt-0.5 size-4 shrink-0" />{" "}
+            {trial
+              ? "Trial hanya berlaku untuk Sesi 1. Sesi 2–4 ikut setelah memesan paket penuh."
+              : "Tanggal sesi 2–4 bisa digeser pengajar. Perubahan akan diberitahukan."}
           </p>
         </section>
       ) : null}

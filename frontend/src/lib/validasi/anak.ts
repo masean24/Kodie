@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-/** Kelas yang boleh dipilih per jenjang di profil anak (F3). */
-export const KELAS_ANAK = { SD: [1, 2, 3, 4, 5, 6], SMP: [7, 8, 9], SMA: [10, 11, 12] } as const;
+/** Kelas yang boleh dipilih per jenjang di profil anak (F3). Anak TK (TK B) disimpan dengan kelas 0. */
+export const KELAS_ANAK = { TK: [0], SD: [1, 2, 3, 4, 5, 6], SMP: [7, 8, 9], SMA: [10, 11, 12] } as const;
 
 export const skemaAnak = z
   .object({
@@ -12,8 +12,8 @@ export const skemaAnak = z
       .refine((v) => {
         const umur = (Date.now() - new Date(v).getTime()) / (365.25 * 86_400_000);
         return umur >= 5 && umur <= 21;
-      }, "Tanggal lahir belum sesuai untuk siswa SD sampai SMA."),
-    jenjang: z.enum(["SD", "SMP", "SMA"], { message: "Pilih jenjang." }),
+      }, "Tanggal lahir belum sesuai untuk siswa TK B sampai SMA (usia 5–21 tahun)."),
+    jenjang: z.enum(["TK", "SD", "SMP", "SMA"], { message: "Pilih jenjang." }),
     kelas: z.coerce.number().int(),
     sekolah: z.union([z.string().trim().max(120, "Nama sekolah terlalu panjang."), z.literal("")]).optional(),
   })

@@ -9,8 +9,9 @@ import type { HasilMinat, Siswa } from "@/types/database";
 import { aksiHapusAnak, aksiSimpanAnak } from "@/lib/aksi/akun";
 import { NAMA_BIDANG } from "@/lib/tes-minat";
 import { inisialNama } from "@/lib/nama";
-import { formatTanggal } from "@/lib/format";
+import { formatTanggal, labelKelas } from "@/lib/format";
 import { KELAS_ANAK, skemaAnak } from "@/lib/validasi/anak";
+import { fiturLanjutan } from "@/lib/api/sumber";
 import { Input, Pilihan } from "@/components/ui/formulir";
 import { Lencana, StateKosong } from "@/components/ui/dasar";
 import { Tombol } from "@/components/ui/tombol";
@@ -29,7 +30,8 @@ function FormAnak({ anak, selesai }: { anak: Siswa | null; selesai: (pesan?: str
   const [galat, setGalat] = useState<string>();
   const [menunggu, mulai] = useTransition();
   const jenjang = useWatch({ control, name: "jenjang" }) as string;
-  const daftarKelas = jenjang === "SD" || jenjang === "SMP" || jenjang === "SMA" ? KELAS_ANAK[jenjang] : [];
+  const daftarKelas: readonly number[] =
+    jenjang === "TK" || jenjang === "SD" || jenjang === "SMP" || jenjang === "SMA" ? KELAS_ANAK[jenjang] : [];
   const e = formState.errors;
   const awalan = anak ? `ubah-${anak.id}` : "tambah";
 
@@ -58,6 +60,7 @@ function FormAnak({ anak, selesai }: { anak: Siswa | null; selesai: (pesan?: str
           {...register("jenjang", { onChange: () => setValue("kelas", "") })}
         >
           <option value="">Pilih jenjang</option>
+          {fiturLanjutan || anak?.jenjang === "TK" ? <option value="TK">TK (usia 5–6 tahun)</option> : null}
           <option value="SD">SD</option>
           <option value="SMP">SMP</option>
           <option value="SMA">SMA</option>
@@ -66,7 +69,7 @@ function FormAnak({ anak, selesai }: { anak: Siswa | null; selesai: (pesan?: str
           <option value="">{daftarKelas.length ? "Pilih kelas" : "Pilih jenjang dulu"}</option>
           {daftarKelas.map((k) => (
             <option key={k} value={k}>
-              Kelas {k}
+              {jenjang === "TK" ? "TK B" : `Kelas ${k}`}
             </option>
           ))}
         </Pilihan>
@@ -142,7 +145,7 @@ export function ManajerAnak({ anak, hasilMinat }: { anak: Siswa[]; hasilMinat: R
                   <div className="min-w-0 flex-1">
                     <h2 className="text-xl font-semibold">{s.nama}</h2>
                     <p className="text-text-muted">
-                      {s.jenjang} kelas {s.kelas}
+                      {labelKelas(s.jenjang, s.kelas)}
                       {s.sekolah ? ` · ${s.sekolah}` : ""} · lahir {formatTanggal(`${s.tanggal_lahir}T00:00:00+07:00`).split(", ")[1]}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">

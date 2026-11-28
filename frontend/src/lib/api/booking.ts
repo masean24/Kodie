@@ -2,6 +2,7 @@ import type {
   Booking,
   HasilBuatBooking,
   InfoPembayaran,
+  JenisBooking,
   KelasKatalog,
   Pembayaran,
   Siswa,
@@ -12,7 +13,8 @@ import { buatClientServer } from "@/lib/supabase/server";
 import { STATUS_AKTIF, kodeBooking, statusEfektif } from "@/lib/booking";
 import { ambilPenggunaSaya } from "./auth";
 import { ambilKelasByIds } from "./kelas";
-import { lemparJikaError, pakaiMock } from "./sumber";
+import { fiturLanjutan, lemparJikaError, pakaiMock } from "./sumber";
+import { hitungPotongan, kodeValid, normalisasiKode } from "@/lib/referral";
 
 /** Booking dan pembayaran (PRD F6). Hanya untuk server (memakai sesi di cookie). */
 
@@ -46,7 +48,18 @@ function rapikanMock() {
   for (const b of storeMock().booking) b.status = statusEfektif(b, sekarang);
 }
 
-export async function buatBooking(kelasId: string, siswaId: string): Promise<HasilBuatBooking> {
+export interface OpsiBooking {
+  /** `trial` = gratis, hanya Sesi 1, sekali per anak (keputusan 2026-11-28). */
+  jenis?: JenisBooking;
+  /** Kode referral pengajar kelas ini; memberi potongan 5% untuk paket. */
+  kodeReferral?: string | null;
+}
+
+export async function buatBooking(kelasId: string, siswaId: string, opsi: OpsiBooking = {}): Promise<HasilBuatBooking> {
+  const jenis: JenisBooking = opsi.jenis ?? "paket";
+  const kodeRef = jenis === "paket" && opsi.kodeReferral ? normalisasiKode(opsi.kodeReferral) : "";
+  if ((jenis === "trial" || kodeRef) && !fiturLanjutan) throw new Error("FITUR_BELUM_TERSEDIA");
+  if (kodeRef && !kodeValid(kodeRef)) throw new Error("KODE_REFERRAL_TIDAK_VALID");
   const p = await wajibLogin();
   if (p.peran !== "orang_tua" && p.peran !== "siswa") throw new Error("TIDAK_BERHAK");
   if (pakaiMock) {
@@ -63,7 +76,19 @@ export async function buatBooking(kelasId: string, siswaId: string): Promise<Has
       throw new Error("BOOKING_GANDA");
     }
     if (kelas.sisa_kursi <= 0) throw new Error("KELAS_PENUH");
-    if (!kelas.bisa_dibooking) throw new Error("VALIDASI_GAGAL");
+    if (!kelas.bisa_dibooking) throw new Error(jenis === "trial" ? "TRIAL_TIDAK_TERSEDIA" : "VALIDASI_GAGAL");
+    if (
+      jenis === "trial" &&
+      store.booking.some((b) => b.siswa_id === siswaId && b.jenis === "trial" && b.status !== "dibatalkan" && b.status !== "kedaluwarsa")
+    ) {
+      throw new Error("TRIAL_SUDAH_DIPAKAI");
+    }
+    let potongan = 0;
+    if (kodeRef) {
+      const pemilik = store.kodeReferral.find((k) => k.kode === kodeRef);
+      if (!pemilik || pemilik.pengajar_id !== kelas.pengajar_id) throw new Error("KODE_REFERRAL_TIDAK_VALID");
+      potongan = hitungPotongan(kelas.harga_paket);
+    }
     const sekarang = new Date();
     const baru: Booking = {
       id: crypto.randomUUID(),
@@ -71,19 +96,30 @@ export async function buatBooking(kelasId: string, siswaId: string): Promise<Has
       kelas_id: kelasId,
       siswa_id: siswaId,
       dibuat_oleh: p.id,
-      status: "menunggu_pembayaran",
-      total: kelas.harga_paket,
-      batas_bayar_pada: new Date(sekarang.getTime() + 24 * JAM).toISOString(),
+      // Trial gratis langsung terkonfirmasi tanpa pembayaran.
+      status: jenis === "trial" ? "terkonfirmasi" : "menunggu_pembayaran",
+      total: jenis === "trial" ? 0 : kelas.harga_paket - potongan,
+      batas_bayar_pada: (jenis === "trial" ? sekarang : new Date(sekarang.getTime() + 24 * JAM)).toISOString(),
       dibuat_pada: sekarang.toISOString(),
+      jenis,
+      kode_referral: kodeRef || null,
+      potongan,
     };
     store.booking.push(baru);
     const { id, kode, status, total, batas_bayar_pada } = baru;
     return { id, kode, status, total, batas_bayar_pada };
   }
   const supabase = await buatClientServer();
-  const { data, error } = await supabase.rpc("buat_booking", { p_kelas_id: kelasId, p_siswa_id: siswaId });
+  if (jenis === "trial") {
+    const { data, error } = await supabase.rpc("buat_booking_trial" as never, { p_kelas_id: kelasId, p_siswa_id: siswaId } as never);
+    lemparJikaError(error);
+    return data as unknown as HasilBuatBooking;
+  }
+  const { data, error } = kodeRef
+    ? await supabase.rpc("buat_booking", { p_kelas_id: kelasId, p_siswa_id: siswaId, p_kode_referral: kodeRef } as never)
+    : await supabase.rpc("buat_booking", { p_kelas_id: kelasId, p_siswa_id: siswaId });
   lemparJikaError(error);
-  return data as HasilBuatBooking;
+  return data as unknown as HasilBuatBooking;
 }
 
 async function lengkapi(daftar: Booking[]): Promise<BookingRinci[]> {

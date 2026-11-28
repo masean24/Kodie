@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen, CalendarDays, CheckCircle2, FileText, Users } from "lucide-react";
 import { ambilDetailKelasPengajar } from "@/lib/api/mengajar";
-import { formatTanggal } from "@/lib/format";
+import { formatTanggal, labelKelas } from "@/lib/format";
 import {
   bisaGeserSesi,
   bisaIsiLaporan,
@@ -114,7 +114,7 @@ export default async function HalamanDetailKelasPengajar({ params }: PageProps<"
               <li key={s.id} className="rounded-md bg-surface-sunken p-3">
                 <p className="font-bold">{s.nama}</p>
                 <p className="text-sm text-text-muted">
-                  {s.jenjang} kelas {s.kelas}
+                  {labelKelas(s.jenjang, s.kelas)}
                 </p>
               </li>
             ))}

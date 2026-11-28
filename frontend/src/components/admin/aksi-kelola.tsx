@@ -19,6 +19,7 @@ import { ACCEPT_QRIS, cekFileQris } from "@/lib/validasi/admin";
 import { Input, Pilihan, Textarea } from "@/components/ui/formulir";
 import { Tombol } from "@/components/ui/tombol";
 import { PesanFormulir } from "@/components/auth/bagian";
+import { fiturLanjutan } from "@/lib/api/sumber";
 
 /** Tombol ubah status laporan masalah (PRD F12). */
 export function TombolStatusMasalah({ id, statusSaatIni }: { id: string; statusSaatIni: StatusMasalah }) {
@@ -235,6 +236,7 @@ export function FormProgramAdmin({ program }: { program: Program }) {
           label="Honor/sesi (Rp)"
           value={honor}
           onChange={(e) => setHonor(e.target.value)}
+          petunjuk={fiturLanjutan ? "Tidak dipakai lagi: honor kini 30% per siswa terkonfirmasi ÷ 4 sesi." : undefined}
         />
         <Input
           id={`durasi-${program.id}`}

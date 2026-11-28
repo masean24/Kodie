@@ -10,6 +10,9 @@ import { NAMA_BIDANG } from "@/lib/tes-minat";
 import { kelasTombol } from "@/components/ui/tombol";
 import { inisialNama } from "@/lib/nama";
 import { KartuBagian, LaporanTerbaru, RaporJurusan, SesiTerdekat, sapaan } from "@/components/area/kartu-dashboard";
+import { labelKelas } from "@/lib/format";
+import { KartuLangkahBerikutnya, hitungSaranLanjutan } from "@/components/area/langkah-berikutnya";
+import type { Bidang } from "@/types/database";
 
 export const metadata: Metadata = { title: "Dashboard orang tua" };
 
@@ -21,6 +24,9 @@ export default async function DashboardOrangTua() {
     ambilRingkasanSesiDanLaporan(),
   ]);
   const hasil = await ambilHasilMinatTerbaru(anak.map((a) => a.id));
+  const bidangRapor: Record<string, Bidang | undefined> = {};
+  for (const r of ringkasan.raporDaftar) bidangRapor[r.siswa.id] ??= r.rapor.bidang_rekomendasi;
+  const saranLanjutan = hitungSaranLanjutan(anak, booking, bidangRapor);
 
   return (
     <div className="flex flex-col gap-6">
@@ -34,6 +40,7 @@ export default async function DashboardOrangTua() {
       <div className="grid items-start gap-6 xl:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-6">
           <SesiTerdekat daftar={ringkasan.sesiTerdekat} basePath="/orang-tua" />
+          <KartuLangkahBerikutnya saran={saranLanjutan} />
           <LaporanTerbaru daftar={ringkasan.laporanTerbaru} basePath="/orang-tua" />
         </div>
         <div className="flex flex-col gap-6">
@@ -52,7 +59,7 @@ export default async function DashboardOrangTua() {
                       <div>
                         <p className="font-bold">{a.nama}</p>
                         <p className="text-sm text-text-muted">
-                          {a.jenjang} kelas {a.kelas}
+                          {labelKelas(a.jenjang, a.kelas)}
                           {a.pengguna_id ? " · punya akun sendiri" : ""}
                         </p>
                         <p className="text-sm text-text-muted">

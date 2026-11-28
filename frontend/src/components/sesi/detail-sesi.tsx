@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft, Check, ExternalLink, GraduationCap, Star } from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, GraduationCap } from "lucide-react";
+import { DeretBintang } from "@/components/ui/bintang";
+import { ChipAnak } from "@/components/area/chip-anak";
 import type { DetailSesiPengguna } from "@/lib/api/sesi";
 import { formatTanggal, formatTanggalJam } from "@/lib/format";
 import { rentangJamWib } from "@/lib/mengajar";
@@ -16,7 +18,7 @@ export function DetailSesi({ data, basePath }: { data: DetailSesiPengguna; baseP
   const sekarang = new Date();
   const pertama = peserta[0];
   const namaSiswaGabung = peserta.map((p) => p.siswa.nama.split(" ")[0]).join(", ");
-  const adaAnakSd = peserta.some((p) => p.siswa.jenjang === "SD");
+  const adaAnakSd = peserta.some((p) => p.siswa.jenjang === "SD" || p.siswa.jenjang === "TK");
   const adaLaporan = peserta.some((p) => Boolean(p.laporan));
 
   return (
@@ -34,9 +36,18 @@ export function DetailSesi({ data, basePath }: { data: DetailSesiPengguna; baseP
           <h1 className="mt-1 text-32 leading-[38px] font-extrabold md:text-40 md:leading-[48px]">
             {kelas.program_nama} Level {kelas.level} · Sesi {sesi.nomor}
           </h1>
+          {basePath === "/orang-tua" && peserta.length > 0 ? (
+            <ul aria-label="Anak di sesi ini" className="mt-1 flex flex-wrap gap-2">
+              {peserta.map((x) => (
+                <li key={x.siswa.id}>
+                  <ChipAnak id={x.siswa.id} nama={x.siswa.nama} />
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <p className="text-text-muted">
-            {formatTanggal(sesi.mulai_pada)}, {rentangJamWib(sesi.mulai_pada, sesi.selesai_pada)} · {namaSiswaGabung} ·{" "}
-            {kelas.pengajar_nama}
+            {formatTanggal(sesi.mulai_pada)}, {rentangJamWib(sesi.mulai_pada, sesi.selesai_pada)}
+            {basePath === "/orang-tua" ? "" : ` · ${namaSiswaGabung}`} · {kelas.pengajar_nama}
           </p>
         </div>
         {pertama ? <LencanaStatus status={pertama.booking.status} /> : null}
@@ -77,7 +88,7 @@ export function DetailSesi({ data, basePath }: { data: DetailSesiPengguna; baseP
                 <li className="flex items-start gap-2.5">
                   <Check aria-hidden className="mt-1 size-5 shrink-0 text-success" />
                   <span>
-                    {adaAnakSd ? "Dampingi anak SD selama kelas" : "Siapkan pertanyaan atau catatan materi sebelumnya"}
+                    {adaAnakSd ? "Dampingi anak TK/SD selama kelas" : "Siapkan pertanyaan atau catatan materi sebelumnya"}
                   </span>
                 </li>
               </ul>
@@ -172,16 +183,8 @@ export function DetailSesi({ data, basePath }: { data: DetailSesiPengguna; baseP
                     <h2 id={`judul-rating-${item.siswa.id}`} className="text-xl font-semibold">
                       Rating Anda untuk {item.siswa.nama.split(" ")[0]}
                     </h2>
-                    <div className="mt-3 flex items-center gap-1" aria-label={`${item.rating.bintang} dari 5 bintang`}>
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <Star
-                          key={n}
-                          aria-hidden
-                          className={
-                            n <= item.rating!.bintang ? "size-6 fill-primary text-primary" : "size-6 text-border-strong"
-                          }
-                        />
-                      ))}
+                    <div className="mt-3 flex items-center gap-1">
+                      <DeretBintang nilai={item.rating.bintang} ukuran="lg" />
                       <span className="ml-2 font-bold">{item.rating.bintang}/5</span>
                     </div>
                     {item.rating.komentar ? <p className="mt-3">{item.rating.komentar}</p> : null}

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ShieldCheck, Star } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
+import { DeretBintang } from "@/components/ui/bintang";
 import type { PengajarPublik, StatusKerja } from "@/types/database";
 import { TagBidang } from "@/components/kategori";
 import { Avatar } from "./avatar-pengajar";
@@ -21,11 +22,13 @@ export function Rating({ p }: { p: PengajarPublik }) {
     return <p className="text-sm text-text-muted">Rating tampil setelah ada minimal 3 penilaian.</p>;
   }
   return (
-    <p className="flex items-center gap-2 text-sm">
-      <Star aria-hidden className="size-5 fill-warning text-warning" />
+    <p className="flex flex-wrap items-center gap-2 text-sm">
+      <DeretBintang nilai={p.rata_rata_rating} ukuran="md" />
       <span>
-        {p.rata_rata_rating.toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} dari 5 ·{" "}
-        {p.jumlah_rating} rating
+        <strong className="font-bold">
+          {p.rata_rata_rating.toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+        </strong>{" "}
+        dari 5 · {p.jumlah_rating} rating
       </span>
     </p>
   );

@@ -1,12 +1,30 @@
 /**
  * Data mock. Bentuknya mengikuti tabel/view Supabase (src/types/database.ts).
- * Semua nama adalah karangan. Harga, durasi, dan kapasitas mengikuti docs/SERAH-TERIMA-FE.md.
+ * Semua nama adalah karangan. Durasi dan kapasitas mengikuti docs/SERAH-TERIMA-FE.md; harga paket dinaikkan
+ * dan paket Kenal Komputer (TK B–SD kelas 1) ditambahkan per keputusan 2026-11-28 (docs/KEPUTUSAN.md).
  */
 import type { Bidang, KelasKatalog, KodeOpsi, PengajarPublik, Playbook, Program } from "@/types/database";
 import { storeMock } from "./store";
 import { STATUS_AKTIF } from "@/lib/booking";
+import { batasKapasitas } from "@/lib/mengajar";
 
 export const programMock: Program[] = [
+  {
+    id: "00000000-0000-4000-8000-000000000004",
+    slug: "kenal-komputer",
+    nama: "Kenal Komputer",
+    jenjang: ["TK", "SD"],
+    kelas_min: 0,
+    kelas_maks: 1,
+    level: 1,
+    deskripsi:
+      "Kenalan dengan komputer untuk anak usia 5–7 tahun: memakai mouse dan keyboard, membuka aplikasi di Windows, menyimpan karya ke folder, dan aman di internet. Didampingi orang tua di setiap sesi.",
+    durasi_menit: 45,
+    jumlah_sesi: 4,
+    harga_paket: 225_000,
+    honor_per_sesi: 0,
+    aktif: true,
+  },
   {
     id: "00000000-0000-4000-8000-000000000001",
     slug: "coding-dasar",
@@ -19,7 +37,7 @@ export const programMock: Program[] = [
       "Belajar logika dan berpikir komputasional lewat pemrograman blok. Setiap sesi ditutup dengan satu proyek kecil yang bisa ditunjukkan ke orang tua.",
     durasi_menit: 60,
     jumlah_sesi: 4,
-    harga_paket: 200_000,
+    harga_paket: 250_000,
     honor_per_sesi: 50_000,
     aktif: true,
   },
@@ -35,7 +53,7 @@ export const programMock: Program[] = [
       "Pemrograman, web, IoT virtual, dan AI dasar yang naik bertahap per level. Setiap bulan siswa menyelesaikan satu proyek.",
     durasi_menit: 90,
     jumlah_sesi: 4,
-    harga_paket: 275_000,
+    harga_paket: 350_000,
     honor_per_sesi: 65_000,
     aktif: true,
   },
@@ -51,7 +69,7 @@ export const programMock: Program[] = [
       "Empat sesi untuk mencoba software engineering, jaringan komputer, IoT, dan integrasi AI. Di akhir, siswa mendapat rapor rekomendasi jurusan kuliah.",
     durasi_menit: 90,
     jumlah_sesi: 4,
-    harga_paket: 300_000,
+    harga_paket: 400_000,
     honor_per_sesi: 75_000,
     aktif: true,
   },
@@ -123,6 +141,7 @@ const rencana: RencanaKelas[] = [
   { id: "00000000-0000-4000-a000-000000000004", program: "kelas-reguler-teknologi", pengajar: "00000000-0000-4000-9000-000000000002", level: 1, hari: 4, jam: 19, minggu: 0, terpakai: 13 },
   { id: "00000000-0000-4000-a000-000000000005", program: "simulasi-jurusan-it", pengajar: "00000000-0000-4000-9000-000000000002", level: 1, hari: 6, jam: 13, minggu: 1, terpakai: 2 },
   { id: "00000000-0000-4000-a000-000000000006", program: "simulasi-jurusan-it", pengajar: "00000000-0000-4000-9000-000000000001", level: 1, hari: 2, jam: 19, minggu: -2, terpakai: 8, status: "berjalan" },
+  { id: "00000000-0000-4000-a000-000000000007", program: "kenal-komputer", pengajar: "00000000-0000-4000-9000-000000000003", level: 1, hari: 7, jam: 9, minggu: 0, terpakai: 2 },
 ];
 
 /** Bentuk view kelas_katalog, dihitung terhadap waktu `sekarang`. */
@@ -131,7 +150,7 @@ export function buatKelasMock(sekarang: Date): KelasKatalog[] {
   const bawaan = rencana.map((r) => {
     const program = programMock.find((p) => p.slug === r.program)!;
     const pengajar = pengajarMock.find((p) => p.id === r.pengajar)!;
-    const kapasitas = program.jenjang.includes("SD") ? 10 : 15;
+    const kapasitas = batasKapasitas(program.jenjang);
     // Booking aktif yang dibuat di mode mock ikut menghitung kursi terpakai.
     const terpakai = r.terpakai + store.booking.filter((b) => b.kelas_id === r.id && STATUS_AKTIF.includes(b.status)).length;
     const mulai_pada = waktuWib(sekarang, r.hari, r.jam, r.minggu);

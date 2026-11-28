@@ -50,6 +50,7 @@ export function alasanTidakCocok(
   program: Pick<Program, "jenjang" | "kelas_min" | "kelas_maks" | "nama">,
 ): string | null {
   if (!program.jenjang.includes(siswa.jenjang as Jenjang) || siswa.kelas < program.kelas_min || siswa.kelas > program.kelas_maks) {
+    if (program.kelas_min === 0) return `${program.nama} untuk anak TK B sampai SD kelas ${program.kelas_maks}.`;
     return `${program.nama} untuk kelas ${program.kelas_min}–${program.kelas_maks}.`;
   }
   return null;

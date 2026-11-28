@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { formatLamaMenunggu, LABEL_STATUS_PEMBAYARAN, type UrutanAntrean } from "@/lib/admin";
 import { ambilAntreanPembayaran, ambilRingkasanAdmin } from "@/lib/api/admin";
-import { formatRupiah, formatTanggalJam } from "@/lib/format";
+import { formatRupiah, formatTanggalJam, labelKelas } from "@/lib/format";
 import { FilterAntrean, RingkasanAntreanPills } from "@/components/admin/filter-antrean";
 import { TagProgram } from "@/components/kategori";
 import { Kartu, Lencana, StateKosong } from "@/components/ui/dasar";
@@ -80,7 +80,7 @@ export default async function HalamanPembayaranAdmin({ searchParams }: PageProps
                     <td className="px-5 py-4">
                       <p className="font-mono font-bold text-ink">{item.booking.kode}</p>
                       <p className="text-text-muted">
-                        {item.siswa ? `${item.siswa.nama} (${item.siswa.jenjang} kelas ${item.siswa.kelas})` : "Siswa"}
+                        {item.siswa ? `${item.siswa.nama} (${labelKelas(item.siswa.jenjang, item.siswa.kelas)})` : "Siswa"}
                       </p>
                     </td>
                     <td className="px-5 py-4">
@@ -139,7 +139,7 @@ export default async function HalamanPembayaranAdmin({ searchParams }: PageProps
                 ) : null}
                 <div className="text-sm">
                   <p className="font-semibold">
-                    {item.siswa ? `${item.siswa.nama} (${item.siswa.jenjang} kelas ${item.siswa.kelas})` : "Siswa"}
+                    {item.siswa ? `${item.siswa.nama} (${labelKelas(item.siswa.jenjang, item.siswa.kelas)})` : "Siswa"}
                   </p>
                   <p className="mt-1 font-display text-lg font-bold tabular-nums">
                     {formatRupiah(item.booking.total)}

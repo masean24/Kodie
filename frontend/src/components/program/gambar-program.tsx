@@ -2,6 +2,19 @@ import { ObjekBidang } from "@/components/kategori";
 
 /** Ilustrasi vektor sederhana per program (dekoratif, sesuai kartu Figma). */
 export function GambarProgram({ slug }: { slug: string }) {
+  if (slug === "kenal-komputer") {
+    // Layar komputer dengan dua ikon folder dan kursor: pengenalan Windows dan foldering.
+    return (
+      <div aria-hidden className="grid h-32 place-items-center rounded-card-sm bg-white/60">
+        <div className="relative flex h-20 w-[64%] items-end gap-3 rounded-md border-4 border-ink bg-sky-soft p-3">
+          <span className="h-6 w-8 rounded-sm bg-lime" />
+          <span className="h-6 w-8 rounded-sm bg-royal-bright" />
+          <span className="absolute right-4 top-3 size-0 border-x-[7px] border-b-[12px] border-x-transparent border-b-ink" />
+        </div>
+        <span className="-mt-3 h-2 w-[30%] rounded-full bg-ink" />
+      </div>
+    );
+  }
   if (slug === "coding-dasar") {
     return (
       <div aria-hidden className="relative h-32 overflow-hidden rounded-card-sm bg-white/60">

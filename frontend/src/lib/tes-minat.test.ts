@@ -73,6 +73,8 @@ describe("semuaTerjawab", () => {
 
 describe("rekomendasiProgram", () => {
   it("mengikuti tabel jenjang PRD F4", () => {
+    expect(rekomendasiProgram("TK", 0)).toEqual(["kenal-komputer"]);
+    expect(rekomendasiProgram("SD", 1)).toEqual(["kenal-komputer"]);
     expect(rekomendasiProgram("SD", 5)).toEqual(["coding-dasar"]);
     expect(rekomendasiProgram("SMP", 8)).toEqual(["kelas-reguler-teknologi"]);
     expect(rekomendasiProgram("SMP", 9)).toEqual(["simulasi-jurusan-it", "kelas-reguler-teknologi"]);

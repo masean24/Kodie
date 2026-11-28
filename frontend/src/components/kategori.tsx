@@ -5,6 +5,11 @@ import { cx } from "@/lib/cx";
 
 /** Warna program punya arti tetap (docs/KEPUTUSAN.md). Teks di atas warna kuat selalu tinta. */
 export const WARNA_PROGRAM: Record<string, { tag: string; blok: string; deep: string }> = {
+  "kenal-komputer": {
+    tag: "bg-kenal-komputer-strong text-ink",
+    blok: "from-kenal-komputer-block to-kenal-komputer-block-to",
+    deep: "text-kenal-komputer-deep",
+  },
   "coding-dasar": {
     tag: "bg-coding-dasar-strong text-on-strong",
     blok: "from-coding-dasar-block to-coding-dasar-block-to",
@@ -54,6 +59,9 @@ export function TagBidang({ bidang }: { bidang: Bidang }) {
 }
 
 export function labelJenjang(jenjang: Jenjang[], kelasMin?: number, kelasMaks?: number): string {
+  if (jenjang.includes("TK")) {
+    return jenjang.includes("SD") && kelasMaks ? `Usia 5–7 · TK B–SD kelas ${romawi(kelasMaks)}` : "Usia 5–6 · TK B";
+  }
   if (jenjang.length === 1 && jenjang[0] === "SD") {
     return kelasMin && kelasMaks ? `SD kelas ${romawi(kelasMin)}–${romawi(kelasMaks)}` : "SD";
   }

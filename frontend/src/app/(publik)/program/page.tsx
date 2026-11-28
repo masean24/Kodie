@@ -6,10 +6,12 @@ import { JudulHalaman } from "@/components/situs/judul-halaman";
 import { TombolTanyaKiko } from "@/components/chatbot/tombol-tanya-kiko";
 import { KartuProgram } from "@/components/program/kartu-program";
 import { MatriksProgram } from "@/components/program/matriks-program";
+import { JalurBelajar } from "@/components/program/jalur-belajar";
 
 export const metadata: Metadata = {
   title: "Program",
-  description: "Tiga program Kodie: Coding Dasar untuk SD, Kelas Reguler Teknologi untuk SMP dan SMA, dan Simulasi Jurusan IT. Setiap paket 4 sesi daring dalam kelompok kecil.",
+  description:
+    "Program Kodie dari usia 5 tahun sampai SMA: Kenal Komputer, Coding Dasar, Kelas Reguler Teknologi, dan Simulasi Jurusan IT, dengan jalur level berkelanjutan. Setiap paket 4 sesi daring dalam kelompok kecil.",
   alternates: { canonical: "/program" },
 };
 
@@ -17,9 +19,9 @@ export default function HalamanProgram() {
   return (
     <>
       <JudulHalaman
-        judul="Tiga program,"
+        judul="Satu jalur,"
         sorotan="naik bertahap"
-        keterangan="Setiap paket berisi 4 sesi daring, seminggu sekali, dalam kelompok kecil."
+        keterangan="Dari usia 5 tahun sampai SMA. Setiap paket berisi 4 sesi daring, seminggu sekali, dalam kelompok kecil."
       />
       <Kontainer className="pb-24 pt-10 md:pt-14">
         <div className="mb-8 flex justify-center">
@@ -49,12 +51,13 @@ async function Daftar() {
   }
   return (
     <>
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className={daftar.length > 3 ? "grid gap-6 md:grid-cols-2 xl:grid-cols-4" : "grid gap-6 md:grid-cols-3"}>
         {daftar.map((p) => (
           <KartuProgram key={p.id} p={p} judulTag="h2" />
         ))}
       </div>
       <MatriksProgram daftar={daftar} />
+      <JalurBelajar slugTersedia={daftar.map((p) => p.slug)} />
     </>
   );
 }

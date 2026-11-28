@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft, CalendarDays, Check } from "lucide-react";
+import { ArrowLeft, CalendarDays, Check, Gift } from "lucide-react";
 import { ambilKelas } from "@/lib/api/kelas";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilPengajarPublik } from "@/lib/api/pengajar";
@@ -18,6 +18,7 @@ import { KartuPengajar } from "@/components/pengajar/kartu-pengajar";
 import { TombolWaitlist } from "@/components/kelas/tombol-waitlist";
 import { ambilWaitlistSaya } from "@/lib/api/waitlist";
 import { ambilDaftarAnak } from "@/lib/api/siswa";
+import { fiturLanjutan } from "@/lib/api/sumber";
 
 export async function generateMetadata({ params }: PageProps<"/kelas/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -178,6 +179,12 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
             </TombolTautan>
           )}
           <ul className="flex flex-col gap-2 text-sm">
+            {fiturLanjutan && k.bisa_dibooking ? (
+              <li className="flex gap-2 rounded-card-sm bg-accent-subtle px-3 py-2 font-bold text-text">
+                <Gift aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" /> Belum yakin? Pilih trial gratis Sesi 1 saat
+                memesan (sekali per anak).
+              </li>
+            ) : null}
             <li className="flex gap-2">
               <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-success" /> Kursi ditahan 24 jam setelah Anda memesan.
             </li>

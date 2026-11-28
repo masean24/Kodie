@@ -13,6 +13,8 @@ import { skemaBukaKelas } from "@/lib/validasi/mengajar";
 import { Input, Pilihan } from "@/components/ui/formulir";
 import { Tombol } from "@/components/ui/tombol";
 import { Kelompok, PesanFormulir, fokusGalatPertama } from "@/components/auth/bagian";
+import { fiturLanjutan } from "@/lib/api/sumber";
+import { PERSEN_BAGI_HASIL } from "@/lib/referral";
 
 type I = z.input<typeof skemaBukaKelas>;
 
@@ -79,7 +81,8 @@ export function FormBukaKelas({ programDisetujui, tanggalMin }: { programDisetuj
         >
           {programDisetujui.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.nama} ({p.jenjang.join("/")} · {p.durasi_menit} menit · honor {formatRupiah(p.honor_per_sesi)}/sesi)
+              {p.nama} ({p.jenjang.join("/")} · {p.durasi_menit} menit ·{" "}
+              {fiturLanjutan ? `bagi hasil ${PERSEN_BAGI_HASIL}% per siswa` : `honor ${formatRupiah(p.honor_per_sesi)}/sesi`})
             </option>
           ))}
         </Pilihan>

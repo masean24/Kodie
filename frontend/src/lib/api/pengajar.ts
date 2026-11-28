@@ -1,8 +1,17 @@
 import { connection } from "next/server";
-import type { Bidang, PengajarPublik, StatusKerja, UlasanPengajarPublik } from "@/types/database";
+import type {
+  Bidang,
+  DetailProfilPengajar,
+  PengajarPublik,
+  PengalamanPengajar,
+  SertifikatPengajar,
+  StatusKerja,
+  UlasanPengajarPublik,
+} from "@/types/database";
 import { pengajarMock } from "@/lib/mock/data";
+import { storeMock } from "@/lib/mock/store";
 import { clientPublik } from "@/lib/supabase/publik";
-import { lemparJikaError, pakaiMock } from "./sumber";
+import { fiturLanjutan, lemparJikaError, pakaiMock } from "./sumber";
 
 interface BarisPengajarPublik {
   id: string;
@@ -110,6 +119,30 @@ export async function ambilPengajarPublik(id: string): Promise<PengajarPublik | 
   const { data, error } = await clientPublik().from("pengajar_publik").select("*").eq("id", id).maybeSingle();
   lemparJikaError(error);
   return data ? normalisasiPengajar(data as BarisPengajarPublik) : null;
+}
+
+/**
+ * Pengalaman dan sertifikat pengajar untuk profil publik (spesifikasi 2026-11-28: tabel `pengalaman_pengajar`
+ * dan `sertifikat_pengajar`, baca publik untuk pengajar terverifikasi). Sebelum backend siap, mode Supabase
+ * mengembalikan daftar kosong agar halaman tetap tampil.
+ */
+export async function ambilDetailProfilPengajar(pengajarId: string): Promise<DetailProfilPengajar> {
+  if (pakaiMock) {
+    const d = storeMock().detailPengajar[pengajarId];
+    return { pengalaman: d?.pengalaman ?? [], sertifikat: d?.sertifikat ?? [] };
+  }
+  if (!fiturLanjutan) return { pengalaman: [], sertifikat: [] };
+  await connection();
+  const [pengalaman, sertifikat] = await Promise.all([
+    clientPublik().from("pengalaman_pengajar" as never).select("id, peran, tempat, periode, deskripsi").eq("pengajar_id", pengajarId).order("urutan"),
+    clientPublik().from("sertifikat_pengajar" as never).select("id, nama, penerbit, tahun, tautan").eq("pengajar_id", pengajarId).order("tahun", { ascending: false }),
+  ]);
+  lemparJikaError(pengalaman.error);
+  lemparJikaError(sertifikat.error);
+  return {
+    pengalaman: (pengalaman.data ?? []) as unknown as PengalamanPengajar[],
+    sertifikat: (sertifikat.data ?? []) as unknown as SertifikatPengajar[],
+  };
 }
 
 /** View `ulasan_pengajar_publik`: ulasan terverifikasi (pengajar dengan ≥ 3 rating), terbaru dulu. */

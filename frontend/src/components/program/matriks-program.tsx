@@ -8,9 +8,10 @@ import { labelJenjang } from "@/components/kategori";
 import { cx } from "@/lib/cx";
 import { formatRupiah } from "@/lib/format";
 import { kalimatPertama } from "./kartu-program";
+import { batasKapasitas } from "@/lib/mengajar";
 
-type ColorVar = "p1" | "p2" | "p3";
-type GradeTag = "sd56" | "smp78" | "smp9sma";
+type ColorVar = "p0" | "p1" | "p2" | "p3";
+type GradeTag = "tk1" | "sd56" | "smp78" | "smp9sma";
 type GradeFilter = "all" | GradeTag;
 
 interface ProgramMatriks {
@@ -44,6 +45,15 @@ const META_PROGRAM: Record<
     jurusanRapor: boolean;
   }
 > = {
+  "kenal-komputer": {
+    shortName: "Kenal Komputer",
+    gradeTags: ["tk1"],
+    colorVar: "p0",
+    tagline: "Pertama kali memakai komputer dengan aman",
+    tools: ["Mouse & keyboard", "Windows", "Folder"],
+    output: "Folder karya pertama anak",
+    jurusanRapor: false,
+  },
   "coding-dasar": {
     shortName: "Coding Dasar",
     gradeTags: ["sd56"],
@@ -75,6 +85,7 @@ const META_PROGRAM: Record<
 
 const GRADE_PILLS: { id: GradeFilter; label: string }[] = [
   { id: "all", label: "Semua jenjang" },
+  { id: "tk1", label: "Usia 5–7 (TK B–SD 1)" },
   { id: "sd56", label: "SD kelas 5–6" },
   { id: "smp78", label: "SMP kelas 7–8" },
   { id: "smp9sma", label: "SMP kelas 9 / SMA" },
@@ -82,7 +93,8 @@ const GRADE_PILLS: { id: GradeFilter; label: string }[] = [
 
 function turunkanTags(p: Program): GradeTag[] {
   const tags: GradeTag[] = [];
-  if (p.jenjang.includes("SD")) tags.push("sd56");
+  if (p.jenjang.includes("TK")) tags.push("tk1");
+  else if (p.jenjang.includes("SD")) tags.push("sd56");
   if (p.jenjang.includes("SMP") && p.kelas_min <= 8) tags.push("smp78");
   if (p.jenjang.includes("SMA") || (p.jenjang.includes("SMP") && p.kelas_maks >= 9)) tags.push("smp9sma");
   return tags.length > 0 ? tags : ["smp9sma"];
@@ -105,7 +117,7 @@ function petakanProgram(p: Program): ProgramMatriks {
     tools: meta?.tools ?? toolsFallback,
     duration: `${p.jumlah_sesi} sesi × ${p.durasi_menit} menit`,
     sessionCount: p.jumlah_sesi,
-    quota: `Maks. ${p.jenjang.includes("SD") ? 10 : 15} siswa`,
+    quota: `Maks. ${batasKapasitas(p.jenjang)} siswa`,
     output: meta?.output ?? "Proyek praktik tiap sesi",
     parentReport: true,
     jurusanRapor: meta?.jurusanRapor ?? p.slug === "simulasi-jurusan-it",
@@ -281,13 +293,16 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
       {/* TAMPILAN DESKTOP: Matriks 3-Kolom Color-Block */}
       <div className="matrix-panel mt-6 hidden overflow-hidden rounded-[26px] md:block">
         <div className="overflow-x-auto">
-          <table className="matrix-table w-full min-w-[680px] table-fixed text-left">
+          <table className="matrix-table w-full min-w-[760px] table-fixed text-left">
             <caption className="sr-only">
               Perbandingan jenjang, fokus belajar, durasi, kuota, output, laporan, dan harga program Kodie
             </caption>
             <thead>
               <tr>
-                <th className="w-[23.5%] px-4 py-5 align-bottom lg:px-6 lg:py-6" style={{ backgroundColor: "var(--mp-surface)" }}>
+                <th
+                  className="px-4 py-5 align-bottom lg:px-6 lg:py-6"
+                  style={{ backgroundColor: "var(--mp-surface)", width: programs.length > 3 ? "20%" : "23.5%" }}
+                >
                   <p
                     className="font-display text-sm font-bold"
                     style={{ color: "var(--mp-link)" }}
@@ -311,9 +326,9 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                         "matrix-col",
                         `matrix-head-${p.colorVar}`,
                         stateCls,
-                        "w-[25.5%] px-4 py-5 align-top lg:px-6 lg:py-6",
+                        "px-4 py-5 align-top lg:px-6 lg:py-6",
                       )}
-                      style={{ borderLeft: "1px solid rgb(15 23 42 / 0.16)" }}
+                      style={{ borderLeft: "1px solid rgb(15 23 42 / 0.16)", width: `${(programs.length > 3 ? 80 : 76.5) / programs.length}%` }}
                     >
                       <div className="flex flex-wrap items-center justify-between gap-1.5">
                         <span
@@ -445,7 +460,7 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
         <div
           role="group"
           aria-label="Pilih program yang dibandingkan"
-          className="grid grid-cols-3 gap-1.5 rounded-2xl border p-1"
+          className={cx("grid gap-1.5 rounded-2xl border p-1", programs.length > 3 ? "grid-cols-2" : "grid-cols-3")}
           style={{
             backgroundColor: "var(--mp-surface-sunken)",
             borderColor: "var(--mp-border)",

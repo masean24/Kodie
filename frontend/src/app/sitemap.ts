@@ -1,10 +1,19 @@
 import type { MetadataRoute } from "next";
 import { POSISI } from "@/lib/karier";
+import { fiturLanjutan } from "@/lib/api/sumber";
 
 const SITUS = (process.env.NEXT_PUBLIC_SITE_URL || "https://kodie.xevora.me").replace(/\/$/, "");
 
-/** Tiga program tetap sesuai PRD (slug sama dengan tabel `program`). */
-const SLUG_PROGRAM = ["coding-dasar", "kelas-reguler-teknologi", "simulasi-jurusan-it"];
+/**
+ * Program tetap sesuai PRD (slug sama dengan tabel `program`). Kenal Komputer (2026-11-28) baru masuk peta situs
+ * setelah barisnya ada di backend, supaya mesin pencari tidak diarahkan ke halaman 404.
+ */
+const SLUG_PROGRAM = [
+  ...(fiturLanjutan ? ["kenal-komputer"] : []),
+  "coding-dasar",
+  "kelas-reguler-teknologi",
+  "simulasi-jurusan-it",
+];
 
 /** Peta situs halaman publik. Area login, persetujuan, dan API tidak dimasukkan. */
 export default function sitemap(): MetadataRoute.Sitemap {

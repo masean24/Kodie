@@ -3,7 +3,11 @@
  * beserta tipe domain aplikasi untuk UI dan lapisan API frontend.
  */
 
-export type Jenjang = "SD" | "SMP" | "SMA";
+/**
+ * `TK` ditambahkan untuk paket Kenal Komputer (usia 5–7 tahun, keputusan 2026-11-28). Enum backend
+ * `jenjang_pendidikan` belum memuatnya; lihat spesifikasi di docs/KEPUTUSAN.md. Kelas TK dicatat sebagai 0.
+ */
+export type Jenjang = "TK" | "SD" | "SMP" | "SMA";
 export type Bidang = "software" | "jaringan" | "iot" | "ai_data";
 export type KodeOpsi = "A" | "B" | "C" | "D";
 export type StatusKelas = "terbuka" | "berjalan" | "selesai" | "disembunyikan";
@@ -179,6 +183,9 @@ export type StatusBooking =
   | "kedaluwarsa"
   | "dibatalkan";
 
+/** `paket` = 4 sesi berbayar; `trial` = gratis, hanya Sesi 1, sekali per anak (keputusan 2026-11-28). */
+export type JenisBooking = "paket" | "trial";
+
 export interface Booking {
   id: string;
   kode: string;
@@ -189,6 +196,42 @@ export interface Booking {
   total: number;
   batas_bayar_pada: string;
   dibuat_pada: string;
+  /** Kolom baru (spesifikasi 2026-11-28). Tidak ada = `paket`. */
+  jenis?: JenisBooking;
+  /** Kode referral pengajar yang dipakai saat booking, bila ada. */
+  kode_referral?: string | null;
+  /** Potongan rupiah dari kode referral (5% harga paket). `total` sudah dikurangi potongan ini. */
+  potongan?: number;
+}
+
+/** Kode referral milik pengajar (spesifikasi 2026-11-28): satu kode aktif per pengajar. */
+export interface KodeReferral {
+  pengajar_id: string;
+  kode: string;
+  dibuat_pada: string;
+}
+
+/** Riwayat pengalaman di profil pengajar (spesifikasi 2026-11-28). */
+export interface PengalamanPengajar {
+  id: string;
+  peran: string;
+  tempat: string;
+  periode: string;
+  deskripsi: string | null;
+}
+
+/** Sertifikat di profil pengajar (spesifikasi 2026-11-28). */
+export interface SertifikatPengajar {
+  id: string;
+  nama: string;
+  penerbit: string;
+  tahun: number;
+  tautan: string | null;
+}
+
+export interface DetailProfilPengajar {
+  pengalaman: PengalamanPengajar[];
+  sertifikat: SertifikatPengajar[];
 }
 
 export interface HasilBuatBooking {

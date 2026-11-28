@@ -5,6 +5,8 @@
  */
 import type {
   Booking,
+  DetailProfilPengajar,
+  KodeReferral,
   HasilMinat,
   Honor,
   KelasKatalog,
@@ -72,6 +74,10 @@ type Store = {
   chatbotConfig: KonfigurasiChatbot;
   percakapanChat: PercakapanChat[];
   pesanChat: PesanChat[];
+  /** Kode referral pengajar (spesifikasi 2026-11-28). */
+  kodeReferral: KodeReferral[];
+  /** Pengalaman & sertifikat per pengajar_id (spesifikasi 2026-11-28). */
+  detailPengajar: Record<string, DetailProfilPengajar>;
 };
 
 const ORTU = "00000000-0000-4000-c000-000000000001";
@@ -94,7 +100,7 @@ function awal(): Store {
     siswa_id: "00000000-0000-4000-d000-000000000002",
     dibuat_oleh: ORTU,
     status: "menunggu_pembayaran",
-    total: 300_000,
+    total: 400_000,
     batas_bayar_pada: new Date(sekarang + 20 * jam).toISOString(),
     dibuat_pada: new Date(sekarang - 30 * jam).toISOString(),
   };
@@ -104,7 +110,7 @@ function awal(): Store {
     bukti_path: `${bookingContoh.id}/contoh.jpg`,
     diunggah_pada: new Date(sekarang - 6 * jam).toISOString(),
     status: "ditolak",
-    alasan_penolakan: "Nominal transfer Rp250.000, kurang Rp50.000. Mohon transfer kekurangannya lalu unggah bukti baru.",
+    alasan_penolakan: "Nominal transfer Rp350.000, kurang Rp50.000. Mohon transfer kekurangannya lalu unggah bukti baru.",
     diverifikasi_oleh: ADMIN_MOCK,
     diverifikasi_pada: new Date(sekarang - 4 * jam).toISOString(),
   };
@@ -117,7 +123,7 @@ function awal(): Store {
     siswa_id: "00000000-0000-4000-d000-000000000002",
     dibuat_oleh: ORTU,
     status: "menunggu_verifikasi",
-    total: 275_000,
+    total: 350_000,
     batas_bayar_pada: new Date(sekarang + 18 * jam).toISOString(),
     dibuat_pada: new Date(sekarang - 5 * jam).toISOString(),
   };
@@ -140,7 +146,7 @@ function awal(): Store {
     siswa_id: "00000000-0000-4000-d000-000000000001",
     dibuat_oleh: ORTU,
     status: "terkonfirmasi",
-    total: 200_000,
+    total: 250_000,
     batas_bayar_pada: new Date(sekarang - 7 * hari).toISOString(),
     dibuat_pada: new Date(sekarang - 8 * hari).toISOString(),
   };
@@ -151,7 +157,7 @@ function awal(): Store {
     siswa_id: "00000000-0000-4000-d000-000000000004",
     dibuat_oleh: "00000000-0000-4000-c000-000000000099",
     status: "terkonfirmasi",
-    total: 200_000,
+    total: 250_000,
     batas_bayar_pada: new Date(sekarang - 7 * hari).toISOString(),
     dibuat_pada: new Date(sekarang - 8 * hari).toISOString(),
   };
@@ -162,7 +168,7 @@ function awal(): Store {
     siswa_id: "00000000-0000-4000-d000-000000000002",
     dibuat_oleh: ORTU,
     status: "selesai",
-    total: 300_000,
+    total: 400_000,
     batas_bayar_pada: new Date(sekarang - 20 * hari).toISOString(),
     dibuat_pada: new Date(sekarang - 21 * hari).toISOString(),
   };
@@ -173,7 +179,7 @@ function awal(): Store {
     siswa_id: "00000000-0000-4000-d000-000000000002",
     dibuat_oleh: ORTU,
     status: "terkonfirmasi",
-    total: 275_000,
+    total: 350_000,
     batas_bayar_pada: new Date(sekarang - 2 * hari).toISOString(),
     dibuat_pada: new Date(sekarang - 3 * hari).toISOString(),
   };
@@ -688,6 +694,47 @@ function awal(): Store {
         dibuat_pada: new Date(sekarang - 10 * menit).toISOString(),
       },
     ],
+    kodeReferral: [
+      { pengajar_id: PENGAJAR_VERIFIED, kode: "NADIA-K7Q2", dibuat_pada: new Date(sekarang - 5 * hari).toISOString() },
+    ],
+    detailPengajar: {
+      [PENGAJAR_VERIFIED]: {
+        pengalaman: [
+          {
+            id: "00000000-0000-4000-c700-000000000001",
+            peran: "Asisten praktikum Pemrograman Dasar",
+            tempat: "Laboratorium Informatika, Universitas Contoh Nusantara",
+            periode: "2025 – sekarang",
+            deskripsi: "Mendampingi 40 mahasiswa baru per semester belajar Python dan logika algoritma.",
+          },
+          {
+            id: "00000000-0000-4000-c700-000000000002",
+            peran: "Relawan pengajar coding anak",
+            tempat: "Komunitas Belajar Kode (contoh)",
+            periode: "2024 – 2025",
+            deskripsi: "Mengajar Scratch untuk siswa SD kelas 4–6 setiap akhir pekan.",
+          },
+        ],
+        sertifikat: [
+          { id: "00000000-0000-4000-c800-000000000001", nama: "Dasar Pemrograman Python", penerbit: "Lembaga Sertifikasi Contoh", tahun: 2025, tautan: null },
+          { id: "00000000-0000-4000-c800-000000000002", nama: "Pengenalan Machine Learning", penerbit: "Platform Kursus Contoh", tahun: 2026, tautan: null },
+        ],
+      },
+      "00000000-0000-4000-9000-000000000002": {
+        pengalaman: [
+          {
+            id: "00000000-0000-4000-c700-000000000003",
+            peran: "Teknisi jaringan magang",
+            tempat: "Perusahaan Contoh Telekomunikasi",
+            periode: "2025",
+            deskripsi: "Konfigurasi router dan pemantauan jaringan kantor cabang.",
+          },
+        ],
+        sertifikat: [
+          { id: "00000000-0000-4000-c800-000000000003", nama: "Dasar Jaringan Komputer", penerbit: "Lembaga Sertifikasi Contoh", tahun: 2024, tautan: null },
+        ],
+      },
+    },
   };
 }
 
@@ -705,7 +752,9 @@ export function storeMock(): Store {
     g.__kodieMock.pengaturan === undefined ||
     g.__kodieMock.chatbotConfig === undefined ||
     g.__kodieMock.percakapanChat === undefined ||
-    g.__kodieMock.pesanChat === undefined
+    g.__kodieMock.pesanChat === undefined ||
+    g.__kodieMock.kodeReferral === undefined ||
+    g.__kodieMock.detailPengajar === undefined
   ) {
     const isi = awal();
     g.__kodieMock.booking ??= isi.booking;
@@ -729,6 +778,8 @@ export function storeMock(): Store {
     g.__kodieMock.chatbotConfig ??= isi.chatbotConfig;
     g.__kodieMock.percakapanChat ??= isi.percakapanChat;
     g.__kodieMock.pesanChat ??= isi.pesanChat;
+    g.__kodieMock.kodeReferral ??= isi.kodeReferral;
+    g.__kodieMock.detailPengajar ??= isi.detailPengajar;
   }
   return g.__kodieMock;
 }

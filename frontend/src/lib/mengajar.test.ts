@@ -18,6 +18,7 @@ import { buatSkemaLaporan, cekDokumenPengajar, cekFotoPengajar } from "./validas
 describe("aturan waktu & kapasitas pengajar", () => {
   it("batas kapasitas 10 untuk SD dan 15 untuk SMP/SMA", () => {
     expect(batasKapasitas(["SD"])).toBe(10);
+    expect(batasKapasitas(["TK", "SD"])).toBe(6);
     expect(batasKapasitas(["SMP", "SMA"])).toBe(15);
   });
 

@@ -5,6 +5,7 @@ import type { HasilPersetujuan, HasilTesMinat, JawabanMinat, KeputusanPersetujua
 import { buatLinkPersetujuan, putuskanPersetujuan } from "@/lib/api/persetujuan";
 import { hapusAnak, tambahAnak, ubahAnak } from "@/lib/api/siswa";
 import { hitungTesMinat } from "@/lib/api/tes-minat";
+import { fiturLanjutan } from "@/lib/api/sumber";
 import { pesanError } from "@/lib/errors";
 import { skemaAnak } from "@/lib/validasi/anak";
 
@@ -40,6 +41,10 @@ export async function aksiSimpanAnak(id: string | null, masukan: unknown): Promi
     const galatIsian: Record<string, string> = {};
     for (const i of cek.error.issues) galatIsian[String(i.path[0])] ??= i.message;
     return { galatIsian };
+  }
+  // Enum jenjang backend belum memuat TK; jangan kirim sebelum spesifikasi 2026-11-28 diterapkan.
+  if (cek.data.jenjang === "TK" && !fiturLanjutan) {
+    return { galatIsian: { jenjang: "Jenjang TK belum tersedia. Pilih SD, SMP, atau SMA." } };
   }
   try {
     if (id) await ubahAnak(id, cek.data);

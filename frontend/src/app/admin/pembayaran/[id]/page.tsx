@@ -5,7 +5,7 @@ import { ArrowLeft, ExternalLink, FileImage } from "lucide-react";
 import { LABEL_STATUS_PEMBAYARAN } from "@/lib/admin";
 import { ambilDetailPembayaranAdmin } from "@/lib/api/admin";
 import { LABEL_STATUS_BOOKING } from "@/lib/booking";
-import { formatJamTeks, formatRupiah, formatTanggalJam, namaHari } from "@/lib/format";
+import { formatJamTeks, formatRupiah, formatTanggalJam, namaHari, labelKelas } from "@/lib/format";
 import { AksiVerifikasiPembayaran } from "@/components/admin/aksi-pembayaran";
 import { TagProgram } from "@/components/kategori";
 import { Catatan, Kartu, Lencana } from "@/components/ui/dasar";
@@ -76,7 +76,7 @@ export default async function HalamanDetailPembayaranAdmin({
             <div>
               <dt className="text-text-muted">Siswa</dt>
               <dd className="mt-0.5 font-semibold">
-                {siswa ? `${siswa.nama} (${siswa.jenjang} kelas ${siswa.kelas})` : "Data siswa"}
+                {siswa ? `${siswa.nama} (${labelKelas(siswa.jenjang, siswa.kelas)})` : "Data siswa"}
               </dd>
             </div>
             <div>

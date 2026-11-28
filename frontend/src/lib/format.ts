@@ -42,3 +42,9 @@ export function namaHari(hari: number): string {
 export function formatRupiah(nilai: number): string {
   return `Rp${Math.round(nilai).toLocaleString("id-ID")}`;
 }
+
+/** Label jenjang dan kelas siswa, misalnya "SD kelas 5". Anak TK disimpan dengan kelas 0 dan tampil "TK B". */
+export function labelKelas(jenjang: string | null | undefined, kelas: number | string | null | undefined): string {
+  if (jenjang === "TK") return "TK B";
+  return `${jenjang ?? ""} kelas ${kelas ?? ""}`.trim();
+}

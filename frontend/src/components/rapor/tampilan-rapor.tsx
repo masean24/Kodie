@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, GraduationCap } from "lucide-react";
 import type { RaporRinci } from "@/lib/api/sesi";
-import { formatTanggal } from "@/lib/format";
+import { formatTanggal, labelKelas } from "@/lib/format";
 import { SKOR_BIDANG_URUT } from "@/lib/mengajar";
 import { skorPengajarKePersen } from "@/lib/sesi";
 import { JURUSAN_PER_BIDANG, NAMA_BIDANG } from "@/lib/tes-minat";
@@ -45,7 +45,7 @@ export function DaftarRapor({ daftar, basePath }: { daftar: RaporRinci[]; basePa
                   </div>
                   <h2 className="mt-1 text-xl font-semibold">{item.siswa.nama}</h2>
                   <p className="text-sm text-text-muted">
-                    {item.siswa.jenjang} kelas {item.siswa.kelas} · Diterbitkan {formatTanggal(item.rapor.dibuat_pada)}
+                    {labelKelas(item.siswa.jenjang, item.siswa.kelas)} · Diterbitkan {formatTanggal(item.rapor.dibuat_pada)}
                     {item.kelas ? ` · ${item.kelas.pengajar_nama}` : ""}
                   </p>
                 </div>
@@ -83,7 +83,7 @@ export function DetailRapor({ item, basePath }: { item: RaporRinci; basePath: "/
             Rapor Rekomendasi Jurusan · {siswa.nama}
           </h1>
           <p className="text-text-muted">
-            {siswa.jenjang} kelas {siswa.kelas}
+            {labelKelas(siswa.jenjang, siswa.kelas)}
             {sesi ? ` · Sesi 4 (${formatTanggal(sesi.mulai_pada)})` : ""}
             {kelas ? ` · Pengajar: ${kelas.pengajar_nama}` : ""}
           </p>

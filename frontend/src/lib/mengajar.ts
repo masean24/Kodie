@@ -4,8 +4,9 @@ const JAM = 3_600_000;
 const MENIT = 60_000;
 const HARI = 86_400_000;
 
-/** Kapasitas maksimal kelas per jenjang (PRD F5, F8): 10 SD, 15 SMP dan SMA. */
+/** Kapasitas maksimal kelas per jenjang (PRD F5, F8): 6 bila memuat TK (Kenal Komputer), 10 SD, 15 SMP dan SMA. */
 export function batasKapasitas(jenjang: Jenjang[]): number {
+  if (jenjang.includes("TK")) return 6;
   return jenjang.includes("SD") ? 10 : 15;
 }
 

@@ -11,6 +11,7 @@ import { BIDANG_PILIHAN } from "@/lib/validasi/auth";
 import { Input, Pilihan, Textarea } from "@/components/ui/formulir";
 import { Tombol } from "@/components/ui/tombol";
 import { PesanFormulir, fokusGalatPertama } from "@/components/auth/bagian";
+import { labelKelas } from "@/lib/format";
 
 type StateSiswa = {
   siswa_id: string;
@@ -196,7 +197,7 @@ export function FormLaporan({
                   <div>
                     <p className="font-bold">{s.nama}</p>
                     <p className="text-sm text-text-muted">
-                      {s.jenjang} kelas {s.kelas}
+                      {labelKelas(s.jenjang, s.kelas)}
                     </p>
                   </div>
 

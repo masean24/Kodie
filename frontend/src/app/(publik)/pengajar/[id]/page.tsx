@@ -2,9 +2,13 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ShieldCheck, Star } from "lucide-react";
+import { Award, BriefcaseBusiness, ShieldCheck } from "lucide-react";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
-import { ambilPengajarPublik, ambilUlasanPengajar } from "@/lib/api/pengajar";
+import { ambilDetailProfilPengajar, ambilPengajarPublik, ambilUlasanPengajar } from "@/lib/api/pengajar";
+import { Bintang, DeretBintang } from "@/components/ui/bintang";
+import { TangkapReferral, TombolBagikanProfil } from "@/components/pengajar/bagikan-profil";
+import { fiturLanjutan } from "@/lib/api/sumber";
+import { cx } from "@/lib/cx";
 import { formatTanggal } from "@/lib/format";
 import { ambilKatalogKelas } from "@/lib/api/kelas";
 import { Kartu, Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
@@ -19,8 +23,14 @@ export async function generateMetadata({ params }: PageProps<"/pengajar/[id]">):
   return p
     ? {
         title: `${p.nama} · Pengajar`,
-        description: `${p.nama}, pengajar Kodie terverifikasi (${keteranganPengajar(p)}). Lihat keahlian, rating, dan kelas yang diajar.`,
+        description: `${p.nama}, pengajar Kodie terverifikasi (${keteranganPengajar(p)}). Lihat pengalaman, sertifikat, testimoni, rating, dan kelas yang diajar.`,
         alternates: { canonical: `/pengajar/${id}` },
+        openGraph: {
+          title: `${p.nama} · Pengajar Kodie`,
+          description: `Pengajar terverifikasi Kodie: ${keteranganPengajar(p)}.`,
+          url: `/pengajar/${id}`,
+          type: "profile",
+        },
       }
     : { title: "Pengajar tidak ditemukan" };
 }
@@ -47,9 +57,16 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [p, pengguna] = await Promise.all([ambilPengajarPublik(id), ambilPenggunaSaya()]);
   if (!p) notFound();
-  const [semuaKelas, ulasan] = await Promise.all([ambilKatalogKelas(), ambilUlasanPengajar(p.id)]);
+  const [semuaKelas, ulasan, detail] = await Promise.all([
+    ambilKatalogKelas(),
+    ambilUlasanPengajar(p.id),
+    ambilDetailProfilPengajar(p.id),
+  ]);
   const kelas = semuaKelas.filter((k) => k.pengajar_id === p.id);
   const bolehLapor = pengguna?.peran === "orang_tua" || pengguna?.peran === "siswa";
+  const pendidikan = [p.jurusan, p.kampus].filter(Boolean).join(" · ");
+  // Sebelum tabel sertifikat ada di backend (fitur lanjutan mati), bagian sertifikat disembunyikan.
+  const adaSertifikat = fiturLanjutan || detail.sertifikat.length > 0;
 
   return (
     <>
@@ -91,8 +108,35 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
             ))}
           </ul>
           <Rating p={p} />
+          <TombolBagikanProfil path={`/pengajar/${p.id}`} nama={p.nama} />
         </div>
       </Kartu>
+      <TangkapReferral pengajarId={p.id} />
+
+      <dl className="mt-6 grid gap-4 sm:grid-cols-3">
+        <div className="rounded-card-sm bg-surface p-5 shadow-kartu">
+          <dt className="text-sm text-text-muted">Rating rata-rata</dt>
+          <dd className="mt-1 flex items-center gap-2 font-display text-2xl font-extrabold">
+            {p.rata_rata_rating !== null ? (
+              <>
+                <Bintang ukuran="lg" />
+                {p.rata_rata_rating.toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                <span className="text-base font-semibold text-text-muted">/ 5</span>
+              </>
+            ) : (
+              <span className="text-base font-semibold text-text-muted">Belum cukup rating</span>
+            )}
+          </dd>
+        </div>
+        <div className="rounded-card-sm bg-surface p-5 shadow-kartu">
+          <dt className="text-sm text-text-muted">Jumlah penilaian</dt>
+          <dd className="mt-1 font-display text-2xl font-extrabold">{p.jumlah_rating}</dd>
+        </div>
+        <div className="rounded-card-sm bg-surface p-5 shadow-kartu">
+          <dt className="text-sm text-text-muted">Kelas dibuka</dt>
+          <dd className="mt-1 font-display text-2xl font-extrabold">{kelas.length}</dd>
+        </div>
+      </dl>
 
       {p.bio ? (
         <section aria-labelledby="judul-bio" className="mt-10">
@@ -103,25 +147,82 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
         </section>
       ) : null}
 
+      <div className={cx("mt-10 grid gap-8", adaSertifikat ? "lg:grid-cols-2" : "")}>
+        <section aria-labelledby="judul-pengalaman">
+          <h2 id="judul-pengalaman" className="flex items-center gap-2 text-2xl font-bold">
+            <BriefcaseBusiness aria-hidden className="size-6 text-primary" /> Pendidikan dan pengalaman
+          </h2>
+          <ol className="mt-4 flex flex-col gap-4 border-l-2 border-border pl-5">
+            {pendidikan ? (
+              <li className="relative">
+                <span aria-hidden className="absolute -left-[27px] top-1.5 size-3 rounded-full bg-primary" />
+                <p className="font-bold">{keteranganPengajar(p)}</p>
+                <p className="text-text-muted">{pendidikan}</p>
+              </li>
+            ) : null}
+            {detail.pengalaman.map((x) => (
+              <li key={x.id} className="relative">
+                <span aria-hidden className="absolute -left-[27px] top-1.5 size-3 rounded-full bg-lime ring-2 ring-ink/20" />
+                <p className="font-bold">{x.peran}</p>
+                <p className="text-text-muted">
+                  {x.tempat} · {x.periode}
+                </p>
+                {x.deskripsi ? <p className="mt-1 leading-7">{x.deskripsi}</p> : null}
+              </li>
+            ))}
+          </ol>
+          {detail.pengalaman.length === 0 && fiturLanjutan ? (
+            <p className="mt-3 text-sm text-text-muted">Pengajar belum menambahkan riwayat pengalaman.</p>
+          ) : null}
+        </section>
+
+        {adaSertifikat ? (
+          <section aria-labelledby="judul-sertifikat">
+            <h2 id="judul-sertifikat" className="flex items-center gap-2 text-2xl font-bold">
+              <Award aria-hidden className="size-6 text-primary" /> Sertifikat
+            </h2>
+            {detail.sertifikat.length === 0 ? (
+              <p className="mt-3 text-sm text-text-muted">Pengajar belum menambahkan sertifikat.</p>
+            ) : (
+              <ul className="mt-4 grid gap-3">
+                {detail.sertifikat.map((s) => (
+                  <li key={s.id} className="flex items-start gap-3 rounded-card-sm bg-surface p-4 shadow-kartu">
+                    <Award aria-hidden className="mt-0.5 size-5 shrink-0 text-bintang-garis" />
+                    <div>
+                      <p className="font-bold">{s.nama}</p>
+                      <p className="text-sm text-text-muted">
+                        {s.penerbit} · {s.tahun}
+                      </p>
+                      {s.tautan ? (
+                        <a
+                          href={s.tautan}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-flex min-h-touch items-center text-sm font-bold text-primary underline-offset-4 hover:underline"
+                        >
+                          Lihat sertifikat<span className="sr-only"> {s.nama} (tab baru)</span>
+                        </a>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ) : null}
+      </div>
+
       <section aria-labelledby="judul-ulasan" className="mt-10">
         <h2 id="judul-ulasan" className="text-2xl font-bold">
-          Ulasan orang tua dan siswa
+          Testimoni orang tua dan siswa
         </h2>
         {ulasan.length === 0 ? (
-          <p className="mt-3 text-text-muted">Ulasan tampil setelah pengajar menerima minimal 3 rating dari kelas yang selesai.</p>
+          <p className="mt-3 text-text-muted">Testimoni tampil setelah pengajar menerima minimal 3 rating dari kelas yang selesai.</p>
         ) : (
           <ul className="mt-4 grid gap-4 md:grid-cols-2">
             {ulasan.map((u) => (
               <li key={u.id} className="flex flex-col gap-2 rounded-card-sm bg-surface p-5 shadow-kartu">
-                <p className="flex items-center gap-1" aria-label={`${u.bintang} dari 5 bintang`}>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star
-                      key={i}
-                      aria-hidden
-                      className={i <= u.bintang ? "size-4 fill-warning text-warning" : "size-4 text-border-strong"}
-                    />
-                  ))}
-                </p>
+                <DeretBintang nilai={u.bintang} ukuran="sm" />
                 <p className="leading-7">&ldquo;{u.komentar}&rdquo;</p>
                 <p className="mt-auto text-sm text-text-muted">
                   {u.pemberi_label}

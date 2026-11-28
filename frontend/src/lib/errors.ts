@@ -17,6 +17,11 @@ export const PESAN_ERROR: Record<string, string> = {
   SESI_BELUM_DIBUKA: "Kelas bisa dimasuki mulai 15 menit sebelum sesi dimulai.",
   LINK_MEET_BELUM_ADA: "Link kelas belum siap. Coba lagi beberapa menit lagi atau hubungi admin.",
   LAPORAN_TERKUNCI: "Laporan sudah terkunci karena lewat 24 jam sejak dikirim.",
+  // Kode baru dari spesifikasi saran pembimbing (2026-11-28, docs/KEPUTUSAN.md)
+  KODE_REFERRAL_TIDAK_VALID: "Kode referral tidak dikenal atau bukan milik pengajar kelas ini.",
+  TRIAL_SUDAH_DIPAKAI: "Anak ini sudah pernah memakai trial gratis. Silakan pesan paket penuh.",
+  TRIAL_TIDAK_TERSEDIA: "Trial hanya bisa diambil sebelum Sesi 1 kelas dimulai.",
+  FITUR_BELUM_TERSEDIA: "Fitur ini belum aktif. Coba lagi nanti atau hubungi admin.",
   // Kode frontend untuk error Supabase Auth (PRD bagian 8: dipetakan frontend dari respons Auth)
   EMAIL_SUDAH_DIPAKAI: "Email sudah dipakai.",
   LOGIN_GAGAL: "Email atau password salah.",

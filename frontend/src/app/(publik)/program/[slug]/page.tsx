@@ -13,6 +13,7 @@ import { TombolTautan } from "@/components/ui/tombol";
 import { labelJenjang, warnaProgram } from "@/components/kategori";
 import { KartuKelas } from "@/components/kelas/kartu-kelas";
 import { GambarProgram } from "@/components/program/gambar-program";
+import { batasKapasitas } from "@/lib/mengajar";
 
 export async function generateMetadata({ params }: PageProps<"/program/[slug]">): Promise<Metadata> {
   const { slug } = await params;
@@ -48,7 +49,7 @@ async function Isi({ params }: { params: Promise<{ slug: string }> }) {
   const p = await ambilProgram(slug);
   if (!p) notFound();
   const w = warnaProgram(p.slug);
-  const kapasitas = p.jenjang.includes("SD") ? 10 : 15;
+  const kapasitas = batasKapasitas(p.jenjang);
 
   return (
     <>

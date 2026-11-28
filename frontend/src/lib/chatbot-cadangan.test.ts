@@ -7,11 +7,12 @@ describe("jawabanCadanganKiko", () => {
     expect(jawabanCadanganKiko("Apa kabar Kiko?").isi.length).toBeGreaterThan(0);
   });
 
-  it("menjawab pertanyaan biaya dengan harga ketiga program", () => {
+  it("menjawab pertanyaan biaya dengan harga keempat program", () => {
     const j = jawabanCadanganKiko("Berapa biaya program Coding Dasar?").isi;
-    expect(j).toContain("Rp200.000");
-    expect(j).toContain("Rp275.000");
-    expect(j).toContain("Rp300.000");
+    expect(j).toContain("Rp225.000");
+    expect(j).toContain("Rp250.000");
+    expect(j).toContain("Rp350.000");
+    expect(j).toContain("Rp400.000");
   });
 
   it("memakai jawaban pertanyaan populer bila cocok persis", () => {
@@ -21,7 +22,7 @@ describe("jawabanCadanganKiko", () => {
   });
 
   it("tidak salah menangkap kata yang hanya mengandung huruf rp", () => {
-    expect(jawabanCadanganKiko("Apakah kelasnya terpisah per jenjang?").isi).not.toContain("Rp275.000 per paket");
+    expect(jawabanCadanganKiko("Apakah kelasnya terpisah per jenjang?").isi).not.toContain("Biaya per paket");
   });
 
   it("mengenali Tes Minat dan Kodie Lab", () => {

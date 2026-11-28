@@ -8,6 +8,7 @@ import { cx } from "@/lib/cx";
 import { Tombol, TombolTautan } from "@/components/ui/tombol";
 import { Pilihan } from "@/components/ui/formulir";
 import { bacaJawaban, simpanHasil, simpanJawaban } from "./penyimpanan";
+import { labelKelas } from "@/lib/format";
 
 /** Siapa yang mengerjakan tes (PRD F4). Tamu: hasil tidak disimpan. */
 export type Peserta =
@@ -63,7 +64,7 @@ export function Kuis({ soal, peserta }: { soal: SoalMinatPublik[]; peserta: Pese
             <option value="">Pilih anak</option>
             {peserta.anak.map((a) => (
               <option key={a.id} value={a.id}>
-                {a.nama} ({a.jenjang} kelas {a.kelas})
+                {a.nama} ({labelKelas(a.jenjang, a.kelas)})
               </option>
             ))}
           </Pilihan>

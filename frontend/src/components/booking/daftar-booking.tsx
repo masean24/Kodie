@@ -6,6 +6,7 @@ import { formatRupiah, formatTanggalJam } from "@/lib/format";
 import { StateKosong } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { LencanaStatus } from "./status-booking";
+import { ChipAnak } from "@/components/area/chip-anak";
 
 const URUTAN: { k: KelompokBooking; judul: string }[] = [
   { k: "perlu_dibayar", judul: "Perlu dibayar" },
@@ -27,9 +28,11 @@ export function KartuBooking({ r, basePath }: { r: BookingRinci; basePath: strin
           <LencanaStatus status={b.status} />
           <span className="text-sm text-text-muted">{b.kode}</span>
         </div>
+        {r.siswa && basePath.startsWith("/orang-tua") ? <ChipAnak id={r.siswa.id} nama={r.siswa.nama} className="mt-2" /> : null}
         <p className="mt-2 font-display text-lg font-semibold">{judul}</p>
         <p className="text-sm text-text-muted">
-          Untuk {r.siswa?.nama ?? "-"} · {formatRupiah(b.total)}
+          {b.jenis === "trial" ? "Trial gratis Sesi 1" : formatRupiah(b.total)}
+          {b.kode_referral ? ` · kode ${b.kode_referral}` : ""}
           {b.status === "menunggu_pembayaran" ? ` · bayar sebelum ${formatTanggalJam(b.batas_bayar_pada)}` : ""}
         </p>
         {b.status === "menunggu_pembayaran" && r.pembayaranTerakhir?.status === "ditolak" ? (

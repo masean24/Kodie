@@ -38,6 +38,11 @@ function normalisasiRaporSaya(row: RaporSaya): RaporSaya {
   };
 }
 
+/** Booking trial (keputusan 2026-11-28) hanya berlaku untuk Sesi 1; booking paket untuk semua sesi. */
+function bolehIkutSesi(b: Pick<Booking, "jenis">, nomorSesi: number): boolean {
+  return b.jenis !== "trial" || nomorSesi === 1;
+}
+
 /** Halaman sesi, laporan, rating, laporan masalah, dan rapor (PRD F8, F10–F12). Hanya untuk server. */
 
 async function wajibSiswaAtauOrtu(): Promise<Pengguna> {
@@ -133,7 +138,7 @@ export async function ambilRingkasanSesiDanLaporan(): Promise<RingkasanSesiLapor
       const st = siswaList.find((x) => x.id === b.siswa_id);
       if (!k || !st) continue;
       const siswaRingkas: SiswaRingkas = { id: st.id, nama: st.nama, jenjang: st.jenjang, kelas: st.kelas };
-      const daftarSesi = sesiKelasMock(k, sekarang);
+      const daftarSesi = sesiKelasMock(k, sekarang).filter((s) => bolehIkutSesi(b, s.nomor));
 
       for (const s of daftarSesi) {
         sesiById.set(s.id, { sesi: s, kelas: k });
@@ -241,7 +246,7 @@ export async function ambilRingkasanSesiDanLaporan(): Promise<RingkasanSesiLapor
     const k = kelasMap.get(b.kelas_id);
     const st = siswaMap.get(b.siswa_id);
     if (!k || !st) continue;
-    for (const s of sesiList.filter((x) => x.kelas_id === b.kelas_id)) {
+    for (const s of sesiList.filter((x) => x.kelas_id === b.kelas_id && bolehIkutSesi(b, x.nomor))) {
       if (s.status !== "dibatalkan" && s.status !== "selesai" && new Date(s.selesai_pada) >= sekarang) {
         sesiTerdekat.push({
           sesi: s,
@@ -328,7 +333,8 @@ export async function ambilDetailSesiPengguna(sesiId: string): Promise<DetailSes
       (b) =>
         b.kelas_id === ditemukan.kelas.id &&
         siswaIds.has(b.siswa_id) &&
-        (b.status === "terkonfirmasi" || b.status === "selesai"),
+        (b.status === "terkonfirmasi" || b.status === "selesai") &&
+        bolehIkutSesi(b, ditemukan.sesi.nomor),
     );
     if (bookings.length === 0) return null;
 
@@ -391,7 +397,7 @@ export async function ambilDetailSesiPengguna(sesiId: string): Promise<DetailSes
   lemparJikaError(raporRes.error);
 
   const kelas = kelasList[0] ?? null;
-  const bookings = (bookingRes.data ?? []) as Booking[];
+  const bookings = ((bookingRes.data ?? []) as Booking[]).filter((b) => bolehIkutSesi(b, sesi.nomor));
   if (!kelas || bookings.length === 0) return null;
 
   const siswaIds = [...new Set(bookings.map((b) => b.siswa_id))];

@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
-import { batalkanBooking, buatBooking, kirimBuktiBayar } from "@/lib/api/booking";
+import { batalkanBooking, buatBooking, kirimBuktiBayar, type OpsiBooking } from "@/lib/api/booking";
 import { pesanError } from "@/lib/errors";
 import { DASHBOARD } from "@/lib/peran";
 
@@ -11,12 +11,14 @@ import { DASHBOARD } from "@/lib/peran";
 
 type Hasil = { galat?: string };
 
-export async function aksiBuatBooking(kelasId: string, siswaId: string): Promise<Hasil> {
+export async function aksiBuatBooking(kelasId: string, siswaId: string, opsi: OpsiBooking = {}): Promise<Hasil> {
   let tujuan: string;
   try {
     const p = await ambilPenggunaSaya();
     if (!p) return { galat: pesanError("TIDAK_BERHAK") };
-    const hasil = await buatBooking(kelasId, siswaId);
+    const jenis = opsi.jenis === "trial" ? "trial" : "paket";
+    const kodeReferral = typeof opsi.kodeReferral === "string" ? opsi.kodeReferral.slice(0, 30) : null;
+    const hasil = await buatBooking(kelasId, siswaId, { jenis, kodeReferral });
     tujuan = `${DASHBOARD[p.peran]}/booking/${hasil.id}`;
   } catch (e) {
     return { galat: pesanError(e) };

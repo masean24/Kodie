@@ -88,7 +88,7 @@ const MASALAH_KODIE: {
     kategori: "Akses & biaya",
     judul: "Biaya mahal & terpusat",
     masalah: "Kursus coding bermutu sering mahal dan terpusat di kota besar, sehingga kesenjangan literasi digital makin lebar.",
-    solusi: "Daring mulai Rp200rb/paket + Lab gratis",
+    solusi: "Daring mulai Rp225rb/paket + Lab gratis",
   },
   {
     ikon: Users,
@@ -167,7 +167,7 @@ function MengapaKodie() {
                 tiap sesi untuk orang tua.
               </p>
               <p className="mt-6 border-t border-white/20 pt-4 text-sm font-bold text-lime">
-                Mulai Rp200rb/paket · Tes Minat &amp; Kodie Lab gratis
+                Mulai Rp225rb/paket · Tes Minat &amp; Kodie Lab gratis
               </p>
             </article>
           </Muncul>

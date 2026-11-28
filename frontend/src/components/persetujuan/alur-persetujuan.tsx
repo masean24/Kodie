@@ -6,7 +6,7 @@ import { Check, CheckCircle2, Eye, FileText, ShieldCheck, XCircle, type LucideIc
 import type { InfoPersetujuan, Peran } from "@/types/database";
 import { aksiPutuskan } from "@/lib/aksi/akun";
 import { aksiKeluar } from "@/app/(auth)/aksi";
-import { formatTanggal } from "@/lib/format";
+import { formatTanggal, labelKelas } from "@/lib/format";
 import { cx } from "@/lib/cx";
 import { Tombol, TombolTautan } from "@/components/ui/tombol";
 import { KartuAuth, Langkah, PesanFormulir } from "@/components/auth/bagian";
@@ -104,7 +104,7 @@ export function AlurPersetujuan({ token, info, pengguna, sudahSetuju, akunMock }
           {panggilan} meminta persetujuan Anda
         </h1>
         <p className="mt-3 text-text-muted">
-          {info.nama} ({info.jenjang} kelas {info.kelas}
+          {info.nama} ({labelKelas(info.jenjang, info.kelas)}
           {info.sekolah ? `, ${info.sekolah}` : ""}) mendaftar kelas teknologi daring di Kodie. Akunnya baru aktif setelah Anda
           setuju. Link ini berlaku sampai {formatTanggal(info.kedaluwarsa_pada)}.
         </p>

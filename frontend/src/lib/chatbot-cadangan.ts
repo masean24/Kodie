@@ -17,7 +17,7 @@ const JAWABAN: JawabanCadangan[] = [
       "dan percabangan sambil membuat animasi dan game kecil dengan **Scratch**.\n\n" +
       "- 4 sesi per paket, seminggu sekali, 60 menit per sesi\n" +
       "- Maksimal 10 siswa per kelas\n" +
-      "- **Rp200.000** untuk satu paket\n\n" +
+      "- **Rp250.000** untuk satu paket\n\n" +
       "Jadwal dan sisa kursi bisa dilihat di katalog kelas [2].",
     sitasi: [
       { index: 1, title: "Coding Dasar", url: "/program/coding-dasar" },
@@ -29,7 +29,7 @@ const JAWABAN: JawabanCadangan[] = [
       "**Simulasi Jurusan IT** untuk siswa SMP kelas 9 dan SMA kelas 10–12 [1]. Dalam 4 sesi, siswa mencoba empat " +
       "bidang kuliah IT: Software Engineering, Jaringan & Keamanan Siber, Internet of Things, serta AI & Data.\n\n" +
       "Siswa yang hadir di sesi ke-4 mendapat **Rapor Rekomendasi Jurusan** dari pengajar, disandingkan dengan hasil " +
-      "Tes Minat. Paketnya **Rp300.000** (4 sesi × 90 menit). Tes Minat bisa dicoba gratis tanpa akun [2].",
+      "Tes Minat. Paketnya **Rp400.000** (4 sesi × 90 menit). Tes Minat bisa dicoba gratis tanpa akun [2].",
     sitasi: [
       { index: 1, title: "Simulasi Jurusan IT", url: "/program/simulasi-jurusan-it" },
       { index: 2, title: "Tes Minat Jurusan IT", url: "/tes-minat" },
@@ -61,9 +61,10 @@ const JAWABAN: JawabanCadangan[] = [
 const INFO_BIAYA: JawabanCadangan = {
   isi:
     "Biaya per paket (4 sesi, seminggu sekali) [1]:\n\n" +
-    "- **Coding Dasar** (SD kelas 5–6): mulai **Rp200.000**\n" +
-    "- **Kelas Reguler Teknologi** (SMP–SMA): mulai **Rp275.000**\n" +
-    "- **Simulasi Jurusan IT** (SMP kelas 9 dan SMA): mulai **Rp300.000**\n\n" +
+    "- **Kenal Komputer** (usia 5–7 tahun, TK B–SD kelas 1): mulai **Rp225.000**\n" +
+    "- **Coding Dasar** (SD kelas 5–6): mulai **Rp250.000**\n" +
+    "- **Kelas Reguler Teknologi** (SMP–SMA): mulai **Rp350.000**\n" +
+    "- **Simulasi Jurusan IT** (SMP kelas 9 dan SMA): mulai **Rp400.000**\n\n" +
     "Jadwal dan sisa kursi tiap kelas ada di katalog kelas [2].",
   sitasi: [
     { index: 1, title: "Program", url: "/program" },
@@ -88,8 +89,8 @@ const INFO_LAB: JawabanCadangan = {
 const INFO_UMUM: JawabanCadangan = {
   isi:
     "Kiko sedang tidak bisa terhubung ke layanan jawaban, jadi ini ringkasan info Kodie:\n\n" +
-    "- **Program**: Coding Dasar mulai Rp200.000, Kelas Reguler Teknologi mulai Rp275.000, Simulasi Jurusan IT mulai " +
-    "Rp300.000 per paket 4 sesi [1].\n" +
+    "- **Program**: Kenal Komputer mulai Rp225.000, Coding Dasar mulai Rp250.000, Kelas Reguler Teknologi mulai " +
+    "Rp350.000, Simulasi Jurusan IT mulai Rp400.000 per paket 4 sesi [1].\n" +
     "- **Tes Minat**: 12 soal, gratis, tanpa akun [2].\n" +
     "- **Kodie Lab**: latihan coding di browser, gratis tanpa akun [3].\n" +
     "- **Daftar**: orang tua mendaftar lalu menambah profil anak; siswa SMP/SMA boleh daftar sendiri lalu meminta " +

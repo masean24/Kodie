@@ -16,6 +16,7 @@ import { ambilPenggunaSaya } from "./auth";
 import { lemparJikaError, pakaiMock } from "./sumber";
 
 const NAMA_KE_SLUG_PROGRAM: Record<string, string> = {
+  "Kenal Komputer": "kenal-komputer",
   "Coding Dasar": "coding-dasar",
   "Kelas Reguler Teknologi": "kelas-reguler-teknologi",
   "Simulasi Jurusan IT": "simulasi-jurusan-it",

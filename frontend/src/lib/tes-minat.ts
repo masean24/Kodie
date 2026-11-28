@@ -59,6 +59,7 @@ export function bidangTeratas(mentah: SkorBidang): Bidang {
 
 /** PRD F4: program yang disarankan per jenjang dan kelas (slug). */
 export function rekomendasiProgram(jenjang: Jenjang, kelas: number): string[] {
+  if (jenjang === "TK" || (jenjang === "SD" && kelas <= 1)) return ["kenal-komputer"];
   if (jenjang === "SD") return ["coding-dasar"];
   if (jenjang === "SMP" && kelas <= 8) return ["kelas-reguler-teknologi"];
   return ["simulasi-jurusan-it", "kelas-reguler-teknologi"];

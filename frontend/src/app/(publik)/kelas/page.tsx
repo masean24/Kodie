@@ -30,7 +30,7 @@ function bacaFilter(q: CariParam): Filter {
   return {
     cari: satu(q.cari)?.trim().slice(0, 60) || undefined,
     program: satu(q.program) || undefined,
-    jenjang: jenjang === "SD" || jenjang === "SMP" || jenjang === "SMA" ? (jenjang as Jenjang) : undefined,
+    jenjang: jenjang === "TK" || jenjang === "SD" || jenjang === "SMP" || jenjang === "SMA" ? (jenjang as Jenjang) : undefined,
     hari: Number.isInteger(hari) && hari >= 1 && hari <= 7 ? hari : undefined,
     jam: jam && jam in RENTANG_JAM ? (jam as RentangJam) : undefined,
   };
