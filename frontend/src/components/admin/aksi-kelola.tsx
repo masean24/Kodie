@@ -13,7 +13,8 @@ import {
 } from "@/lib/aksi/admin";
 import type { KonfigurasiChatbot } from "@/lib/chatbot";
 import { aksiAdminSimpanPengaturanChatbot } from "@/lib/aksi/chatbot";
-import { unggahGambarQris } from "@/lib/api/unggah";
+import { ekstrakPayloadGambarQris, unggahGambarQris } from "@/lib/api/unggah";
+import { uraiQrisStatis } from "@/lib/qris";
 import { pesanError } from "@/lib/errors";
 import { ACCEPT_QRIS, cekFileQris } from "@/lib/validasi/admin";
 import { Input, Pilihan, Textarea } from "@/components/ui/formulir";
@@ -277,6 +278,7 @@ export function FormPengaturanAdmin({
     nama_pemilik_rekening: string;
     qris_path: string | null;
     qris_url: string | null;
+    qris_payload?: string | null;
   };
 }) {
   const inputFile = useRef<HTMLInputElement>(null);
@@ -284,9 +286,11 @@ export function FormPengaturanAdmin({
   const [noRek, setNoRek] = useState(awal.nomor_rekening);
   const [pemilik, setPemilik] = useState(awal.nama_pemilik_rekening);
   const [qrisPath, setQrisPath] = useState<string | null>(awal.qris_path);
+  const [qrisPayload, setQrisPayload] = useState<string | null>(awal.qris_payload ?? null);
   const [galat, setGalat] = useState<string>();
   const [info, setInfo] = useState<string>();
   const [menunggu, mulai] = useTransition();
+  const infoMerchant = uraiQrisStatis(qrisPayload);
 
   const pilihQris = (file: File | undefined) => {
     setGalat(undefined);
@@ -300,16 +304,27 @@ export function FormPengaturanAdmin({
     }
     mulai(async () => {
       try {
-        const path = await unggahGambarQris(file);
+        const [path, payload] = await Promise.all([
+          unggahGambarQris(file),
+          ekstrakPayloadGambarQris(file),
+        ]);
         setQrisPath(path);
+        setQrisPayload(payload);
         const res = await aksiAdminSimpanPengaturan({
           nama_bank: namaBank,
           nomor_rekening: noRek,
           nama_pemilik_rekening: pemilik,
           qris_path: path,
+          qris_payload: payload ?? "",
         });
         if (res.galat) setGalat(res.galat);
-        else setInfo("Gambar QRIS baru berhasil diunggah dan disimpan.");
+        else {
+          setInfo(
+            payload
+              ? "Gambar QRIS disimpan. Mode QRIS dinamis aktif — nominal otomatis mengikuti tagihan siswa."
+              : "Gambar QRIS baru disimpan sebagai gambar statis (kode EMVCo QRIS tidak terdeteksi).",
+          );
+        }
       } catch (e) {
         setGalat(pesanError(e));
       }
@@ -326,6 +341,7 @@ export function FormPengaturanAdmin({
         nomor_rekening: noRek,
         nama_pemilik_rekening: pemilik,
         qris_path: qrisPath,
+        qris_payload: qrisPayload ?? "",
       });
       if (res.galat) setGalat(res.galat);
       else if (res.galatIsian) setGalat(Object.values(res.galatIsian)[0]);
@@ -364,6 +380,16 @@ export function FormPengaturanAdmin({
         {awal.qris_url ? (
           // eslint-disable-next-line @next/next/no-img-element -- signed URL bucket privat pengaturan
           <img src={awal.qris_url} alt="QRIS saat ini" width={160} height={160} className="size-40 rounded-md bg-white object-contain p-1" />
+        ) : null}
+        {infoMerchant.valid ? (
+          <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-success">
+            <CheckCircle2 aria-hidden className="size-4 shrink-0" />
+            QRIS dinamis otomatis aktif{infoMerchant.merchantNama ? ` · ${infoMerchant.merchantNama}` : ""}
+          </p>
+        ) : qrisPath ? (
+          <p className="text-xs text-text-muted">
+            Mode QRIS statis. Unggah gambar QRIS berformat standar QRIS agar nominal terisi otomatis.
+          </p>
         ) : null}
         <input
           ref={inputFile}

@@ -241,12 +241,13 @@ export async function kirimBuktiBayar(bookingId: string, path: string): Promise<
 export async function ambilInfoPembayaran(): Promise<InfoPembayaran> {
   await wajibLogin();
   if (pakaiMock) {
-    const { nama_bank, nomor_rekening, nama_pemilik_rekening, qris_path } = storeMock().pengaturan;
+    const { nama_bank, nomor_rekening, nama_pemilik_rekening, qris_payload } = storeMock().pengaturan;
     return {
       nama_bank,
       nomor_rekening,
       nama_pemilik_rekening,
-      qris_url: qris_path ? "/qris-contoh.svg" : "/qris-contoh.svg",
+      qris_url: "/qris-contoh.svg",
+      qris_payload: qris_payload ?? null,
     };
   }
   const supabase = await buatClientServer();
@@ -263,5 +264,6 @@ export async function ambilInfoPembayaran(): Promise<InfoPembayaran> {
     nomor_rekening: nilai.nomor_rekening ?? "",
     nama_pemilik_rekening: nilai.nama_pemilik_rekening ?? "",
     qris_url,
+    qris_payload: nilai.qris_payload || null,
   };
 }

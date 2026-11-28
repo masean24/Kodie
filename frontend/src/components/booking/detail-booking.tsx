@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, CalendarDays, CheckCircle2, Clock, Info, XCircle } from "lucide-react";
+import QRCode from "qrcode";
+import { AlertTriangle, ArrowLeft, CalendarDays, CheckCircle2, Clock, Download, Info, XCircle } from "lucide-react";
 import type { InfoPembayaran } from "@/types/database";
 import type { BookingRinci } from "@/lib/api/booking";
 import { formatJamTeks, formatRupiah, formatTanggal, formatTanggalJam, namaHari } from "@/lib/format";
 import { jadwalSesi } from "@/lib/kelas";
-import { Catatan } from "@/components/ui/dasar";
+import { buatQrisDinamis, uraiQrisStatis } from "@/lib/qris";
+import { Catatan, Lencana } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { LangkahPesan } from "./langkah-pesan";
 import { LencanaStatus } from "./status-booking";
@@ -52,9 +54,24 @@ function Ringkasan({ r }: { r: BookingRinci }) {
   );
 }
 
-function PanelBayar({ r, info }: { r: BookingRinci; info: InfoPembayaran }) {
+async function PanelBayar({ r, info }: { r: BookingRinci; info: InfoPembayaran }) {
   const b = r.booking;
   const ditolak = r.pembayaranTerakhir?.status === "ditolak" ? r.pembayaranTerakhir : null;
+  const payloadDinamis = buatQrisDinamis(info.qris_payload, b.total);
+  const infoMerchant = payloadDinamis ? uraiQrisStatis(payloadDinamis) : null;
+  let qrisDinamisUrl: string | null = null;
+  if (payloadDinamis) {
+    try {
+      qrisDinamisUrl = await QRCode.toDataURL(payloadDinamis, {
+        errorCorrectionLevel: "M",
+        margin: 2,
+        width: 320,
+      });
+    } catch {
+      qrisDinamisUrl = null;
+    }
+  }
+  const sumberQr = qrisDinamisUrl ?? info.qris_url;
   return (
     <>
       {ditolak ? (
@@ -108,17 +125,43 @@ function PanelBayar({ r, info }: { r: BookingRinci; info: InfoPembayaran }) {
             </dl>
           </section>
           <section aria-labelledby="judul-qris" className="flex flex-col gap-4 rounded-card bg-surface p-6 sm:flex-row sm:items-center">
-            {info.qris_url ? (
-              // eslint-disable-next-line @next/next/no-img-element -- signed URL Supabase berumur 5 menit
-              <img src={info.qris_url} alt="Kode QRIS pembayaran Kodie" width={160} height={160} className="size-40 shrink-0 rounded-md bg-white object-contain p-1" />
+            {sumberQr ? (
+              // eslint-disable-next-line @next/next/no-img-element -- QRIS dinamis (data URL) atau signed URL Supabase
+              <img
+                src={sumberQr}
+                alt={qrisDinamisUrl ? `Kode QRIS pembayaran ${formatRupiah(b.total)}` : "Kode QRIS pembayaran Kodie"}
+                width={176}
+                height={176}
+                className="size-44 shrink-0 rounded-md bg-white object-contain p-1.5"
+              />
             ) : null}
             <div>
+              {qrisDinamisUrl ? (
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <Lencana nada="sukses">Nominal otomatis {formatRupiah(b.total)}</Lencana>
+                  {infoMerchant?.merchantNama ? (
+                    <span className="text-xs font-medium text-text-muted">{infoMerchant.merchantNama}</span>
+                  ) : null}
+                </div>
+              ) : null}
               <h2 id="judul-qris" className="text-xl font-semibold">
                 Atau bayar dengan QRIS
               </h2>
               <p className="mt-2 text-text-muted">
-                Pindai kode dengan aplikasi bank atau dompet digital, lalu masukkan nominal {formatRupiah(b.total)}.
+                {qrisDinamisUrl
+                  ? `Pindai dengan aplikasi bank atau dompet digital — nominal ${formatRupiah(b.total)} langsung terisi otomatis tanpa perlu mengetik manual.`
+                  : `Pindai kode dengan aplikasi bank atau dompet digital, lalu masukkan nominal ${formatRupiah(b.total)}.`}
               </p>
+              {qrisDinamisUrl ? (
+                <a
+                  href={qrisDinamisUrl}
+                  download={`QRIS-${b.kode}.png`}
+                  className="mt-3 inline-flex min-h-touch items-center gap-2 rounded-full border border-border-strong px-4 py-2 font-display text-sm font-semibold transition-colors hover:bg-surface-sunken"
+                >
+                  <Download aria-hidden className="size-4" />
+                  Unduh gambar QRIS
+                </a>
+              ) : null}
             </div>
           </section>
         </div>

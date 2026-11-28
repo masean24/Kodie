@@ -260,6 +260,7 @@ export interface InfoPembayaran {
   nomor_rekening: string;
   nama_pemilik_rekening: string;
   qris_url: string | null;
+  qris_payload?: string | null;
 }
 
 export interface ProfilPengajar {

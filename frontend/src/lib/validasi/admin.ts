@@ -47,6 +47,7 @@ export const skemaPengaturanRekening = z.object({
   nomor_rekening: z.string().trim().min(4, "Nomor rekening wajib diisi.").max(40),
   nama_pemilik_rekening: z.string().trim().min(2, "Nama pemilik rekening wajib diisi.").max(120),
   qris_path: z.string().nullable().optional(),
+  qris_payload: z.string().trim().max(600).nullable().optional(),
 });
 
 export const skemaPengaturanChatbot = z.object({

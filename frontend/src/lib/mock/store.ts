@@ -67,6 +67,7 @@ type Store = {
     nomor_rekening: string;
     nama_pemilik_rekening: string;
     qris_path: string | null;
+    qris_payload: string | null;
   };
   programOverride: Record<string, Partial<Pick<Program, "harga_paket" | "durasi_menit" | "jumlah_sesi" | "honor_per_sesi" | "aktif">>>;
   sesiTanpaMeetIds: string[];
@@ -631,6 +632,8 @@ function awal(): Store {
       nomor_rekening: "1234 5678 90",
       nama_pemilik_rekening: "Kodie (contoh)",
       qris_path: null,
+      qris_payload:
+        "00020101021126610014ID.CO.QRIS.WWW01189360000000000000000210MOCK0000010303UMI5204899953033605802ID5922Kodie Edukasi (Contoh)6007JAKARTA6105101106304946B",
     },
     programOverride: {},
     sesiTanpaMeetIds: [sesiReguler[3].id],
@@ -774,6 +777,9 @@ export function storeMock(): Store {
     g.__kodieMock.laporanMasalah ??= isi.laporanMasalah;
     g.__kodieMock.notifikasi ??= isi.notifikasi;
     g.__kodieMock.pengaturan ??= isi.pengaturan;
+    if (g.__kodieMock.pengaturan.qris_payload === undefined) {
+      g.__kodieMock.pengaturan.qris_payload = isi.pengaturan.qris_payload;
+    }
     g.__kodieMock.programOverride ??= isi.programOverride;
     g.__kodieMock.sesiTanpaMeetIds ??= isi.sesiTanpaMeetIds;
     g.__kodieMock.logAdmin ??= isi.logAdmin;

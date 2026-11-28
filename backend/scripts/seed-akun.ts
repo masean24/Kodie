@@ -313,6 +313,7 @@ async function ensureStaticSeed() {
       { kunci: 'nomor_rekening', nilai: '1230009876543' },
       { kunci: 'nama_pemilik_rekening', nilai: 'Yayasan Edukasi Teknologi SEVENT X' },
       { kunci: 'qris_path', nilai: 'qris-demo.png' },
+      { kunci: 'qris_payload', nilai: '' },
     ],
     { onConflict: 'kunci', ignoreDuplicates: true },
   );

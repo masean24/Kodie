@@ -918,11 +918,12 @@ export async function ambilPengaturanAdmin(): Promise<{
   nama_pemilik_rekening: string;
   qris_path: string | null;
   qris_url: string | null;
+  qris_payload: string | null;
 }> {
   await wajibAdmin();
   if (pakaiMock) {
     const p = storeMock().pengaturan;
-    return { ...p, qris_url: "/qris-contoh.svg" };
+    return { ...p, qris_url: "/qris-contoh.svg", qris_payload: p.qris_payload ?? null };
   }
   const supabase = await buatClientServer();
   const { data, error } = await supabase.from("pengaturan").select("kunci, nilai");
@@ -939,6 +940,7 @@ export async function ambilPengaturanAdmin(): Promise<{
     nama_pemilik_rekening: nilai.nama_pemilik_rekening ?? "",
     qris_path: nilai.qris_path ?? null,
     qris_url,
+    qris_payload: nilai.qris_payload || null,
   };
 }
 
@@ -951,6 +953,10 @@ export async function adminSimpanPengaturan(input: InputPengaturanRekening): Pro
       nomor_rekening: input.nomor_rekening.trim(),
       nama_pemilik_rekening: input.nama_pemilik_rekening.trim(),
       qris_path: input.qris_path ?? store.pengaturan.qris_path,
+      qris_payload:
+        input.qris_payload !== undefined
+          ? input.qris_payload || null
+          : store.pengaturan.qris_payload,
     };
     catatLogMock(admin.id, "ubah_pengaturan", "pengaturan", "rekening");
     return;
@@ -962,6 +968,9 @@ export async function adminSimpanPengaturan(input: InputPengaturanRekening): Pro
     { kunci: "nama_pemilik_rekening", nilai: input.nama_pemilik_rekening.trim() },
   ];
   if (input.qris_path) entri.push({ kunci: "qris_path", nilai: input.qris_path });
+  if (input.qris_payload !== undefined) {
+    entri.push({ kunci: "qris_payload", nilai: input.qris_payload ?? "" });
+  }
   const { error } = await supabase.from("pengaturan").upsert(entri, { onConflict: "kunci" });
   lemparJikaError(error);
 }
