@@ -5,23 +5,24 @@ import { cx } from "@/lib/cx";
 import { KerangkaSitus } from "@/components/situs/kerangka-situs";
 import { PenjagaArea } from "./penjaga-area";
 import { ambilRingkasanAdmin } from "@/lib/api/admin";
+import { hitungChatMenungguAdmin } from "@/lib/api/chatbot";
 import { NavPeran, type AngkaNav } from "./nav-peran";
 import { adaNavPeran } from "./menu-peran";
 
 /** Sidebar admin dengan angka antrean. Gagal/ bukan admin → tanpa angka (penjaga area yang menangani akses). */
 async function NavAdminBerangka() {
   let angka: AngkaNav | undefined;
-  try {
-    const r = await ambilRingkasanAdmin();
+  const [ringkasan, chat] = await Promise.allSettled([ambilRingkasanAdmin(), hitungChatMenungguAdmin()]);
+  if (ringkasan.status === "fulfilled") {
+    const r = ringkasan.value;
     angka = {
       booking_menunggu_verifikasi: r.booking_menunggu_verifikasi,
       pengajar_menunggu_verifikasi: r.pengajar_menunggu_verifikasi,
       laporan_masalah_baru: r.laporan_masalah_baru,
       honor_belum_dibayar: r.honor_belum_dibayar ?? 0,
     };
-  } catch {
-    angka = undefined;
   }
+  if (chat.status === "fulfilled") angka = { ...angka, chat_menunggu_admin: chat.value };
   return <NavPeran peran="admin" angka={angka} />;
 }
 

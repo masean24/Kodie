@@ -17,10 +17,21 @@ const ulangiPassword = z.string().min(1, "Ulangi password Anda.");
 /** Centang wajib persetujuan Kebijakan Privasi sebelum membuat akun. */
 const setujuPrivasi = z.literal(true, { message: "Centang persetujuan Kebijakan Privasi untuk melanjutkan." });
 
-/** Ulangi password harus sama persis dengan password. */
+/**
+ * Ulangi password harus sama persis dengan password.
+ * `when`: tetap dicek walau field lain (misalnya centang privasi) masih salah. Tanpa ini, zod 4 melewati
+ * refine objek selama ada galat lain, sehingga pesan "tidak sama" baru muncul paling akhir.
+ */
 const cocokPassword = {
   cek: (d: { password: string; ulangi_password: string }) => d.password === d.ulangi_password,
-  pesan: { path: ["ulangi_password"], message: "Password tidak sama. Ketik ulang password yang sama." },
+  pesan: {
+    path: ["ulangi_password"],
+    message: "Password tidak sama. Ketik ulang password yang sama.",
+    when(payload: { value: unknown }) {
+      const v = payload.value as { password?: unknown; ulangi_password?: unknown } | null;
+      return typeof v?.password === "string" && typeof v.ulangi_password === "string" && v.ulangi_password.length > 0;
+    },
+  },
 };
 const nama = z.string().trim().min(3, "Nama lengkap minimal 3 huruf.").max(100, "Nama terlalu panjang.");
 const noWa = z

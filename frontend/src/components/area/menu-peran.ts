@@ -24,8 +24,16 @@ export type ItemMenu = {
   ikon: LucideIcon;
   /** Judul kelompok di sidebar desktop (admin). Item berurutan dengan grup sama dikelompokkan. */
   grup?: string;
-  /** Kolom `admin_ringkasan` yang angkanya ditampilkan sebagai lencana antrean. */
-  angka?: "booking_menunggu_verifikasi" | "pengajar_menunggu_verifikasi" | "laporan_masalah_baru" | "honor_belum_dibayar";
+  /**
+   * Angka antrean yang ditampilkan sebagai lencana. Empat pertama dari view `admin_ringkasan`;
+   * `chat_menunggu_admin` dihitung dari `percakapan_chat` berstatus `menunggu_admin`.
+   */
+  angka?:
+    | "booking_menunggu_verifikasi"
+    | "pengajar_menunggu_verifikasi"
+    | "laporan_masalah_baru"
+    | "honor_belum_dibayar"
+    | "chat_menunggu_admin";
 };
 
 /** Label "Workspace" di kepala sidebar. */
@@ -87,7 +95,7 @@ export const MENU_PERAN: Partial<Record<Peran, ItemMenu[]>> = {
       grup: "Antrean & layanan",
       angka: "laporan_masalah_baru",
     },
-    { href: "/admin/chat", label: "Live chat", ikon: MessageSquare, grup: "Antrean & layanan" },
+    { href: "/admin/chat", label: "Live chat", ikon: MessageSquare, grup: "Antrean & layanan", angka: "chat_menunggu_admin" },
     { href: "/admin/kelas", label: "Kelas", ikon: BookOpen, grup: "Akademik & keuangan" },
     { href: "/admin/program", label: "Program", ikon: Blocks, grup: "Akademik & keuangan" },
     { href: "/admin/honor", label: "Honor", ikon: Banknote, grup: "Akademik & keuangan", angka: "honor_belum_dibayar" },

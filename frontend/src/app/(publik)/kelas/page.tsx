@@ -8,6 +8,7 @@ import { namaHari } from "@/lib/format";
 import { Kerangka, Kontainer, StateKosong, StatusMemuat } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { JudulHalaman } from "@/components/situs/judul-halaman";
+import { TombolTanyaKiko } from "@/components/chatbot/tombol-tanya-kiko";
 import { FilterKelas } from "@/components/kelas/filter-kelas";
 import { KartuKelas } from "@/components/kelas/kartu-kelas";
 import Link from "next/link";
@@ -46,6 +47,9 @@ export default function HalamanKatalog({ searchParams }: PageProps<"/kelas">) {
     <>
       <JudulHalaman judul="Katalog kelas" keterangan="Pilih jadwal yang cocok. Setiap paket berisi 4 sesi, seminggu sekali." />
       <Kontainer className="py-10 md:py-12">
+        <div className="mb-8 flex justify-center">
+          <TombolTanyaKiko />
+        </div>
         <Suspense
           fallback={
             <div className="grid gap-8 lg:grid-cols-[300px_1fr]">

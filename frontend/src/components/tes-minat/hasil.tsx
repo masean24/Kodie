@@ -53,7 +53,8 @@ export function HasilTes({ namaProgram }: { namaProgram: Record<string, string> 
   const teratas = hasil.bidang_teratas;
   const urut = [...URUTAN_BIDANG].sort((a, b) => hasil.skor[b] - hasil.skor[a] || URUTAN_BIDANG.indexOf(a) - URUTAN_BIDANG.indexOf(b));
   const nama = (slug: string) => namaProgram[slug] ?? slug;
-  const programUtama = hasil.rekomendasi_program[0] ?? "simulasi-jurusan-it";
+  // Tamu tidak memberi jenjang, jadi tidak ada satu program utama; tampilkan tabel per jenjang.
+  const programUtama: string | undefined = hasil.rekomendasi_program[0];
 
   return (
     <div className="flex flex-col gap-6">
@@ -126,7 +127,18 @@ export function HasilTes({ namaProgram }: { namaProgram: Record<string, string> 
                   <li key={r.untuk} className="flex gap-2">
                     <Check aria-hidden className="mt-1 size-5 shrink-0 text-primary" />
                     <span>
-                      {r.untuk}: {r.program.map(nama).join(", lalu ")}
+                      {r.untuk}:{" "}
+                      {r.program.map((slug, i) => (
+                        <span key={slug}>
+                          {i === 0 ? null : ", lalu "}
+                          <Link
+                            href={`/kelas?program=${slug}`}
+                            className="font-semibold text-primary underline-offset-4 hover:underline"
+                          >
+                            {nama(slug)}
+                          </Link>
+                        </span>
+                      ))}
                     </span>
                   </li>
                 ))}
@@ -140,9 +152,15 @@ export function HasilTes({ namaProgram }: { namaProgram: Record<string, string> 
             Daftar dan simpan hasil
           </TombolTautan>
         )}
-        <Link href={`/kelas?program=${programUtama}`} className="flex min-h-touch items-center font-display font-semibold text-primary hover:underline">
-          Lihat kelas {nama(programUtama)}
-        </Link>
+        {programUtama ? (
+          <Link href={`/kelas?program=${programUtama}`} className="flex min-h-touch items-center font-display font-semibold text-primary hover:underline">
+            Lihat kelas {nama(programUtama)}
+          </Link>
+        ) : (
+          <Link href="/program" className="flex min-h-touch items-center font-display font-semibold text-primary hover:underline">
+            Bandingkan semua program
+          </Link>
+        )}
         <Link href="/tes-minat" onClick={hapusTes} className="flex min-h-touch items-center font-display font-semibold text-primary hover:underline">
           Ulangi tes
         </Link>

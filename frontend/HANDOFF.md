@@ -7,7 +7,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 - Repository: monorepo `sevent-x-bimbel`. Area kerja frontend hanya `frontend/` (plus catatan keputusan di `docs/KEPUTUSAN.md`). **Jangan ubah** `backend/` dan `docs/PRD.md`.
 - Worktree aktif terakhir: `.claude/worktrees/prompt-revision-design-c2bf99` (branch `claude/frontend-fondasi`, selalu di-rebase ke `origin/main`). Worktree lama `ui-ux-bimbel-design-306056` dan `baca-handoff-md-315ddd` masih ada; selalu `git fetch` dan mulai dari `origin/main`.
 - Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
-- Commit terakhir yang sudah di-push ke `main`: Revisi 31 dan pembaruan handoff ini, 28 November 2026, setelah `a331c9b`. Periksa ulang dengan `git log --oneline -3 origin/main` sebelum mulai.
+- Commit terakhir yang sudah di-push ke `main`: Revisi 33 dan pembaruan handoff ini, 28 November 2026, setelah `0221a2c`. Periksa ulang dengan `git log --oneline -3 origin/main` sebelum mulai.
 - **Backend**: area tim lain. Mengubah `backend/` atau data Supabase Cloud hanya dengan persetujuan eksplisit pengguna per tugas.
 - Di Git Bash, argumen berupa path URL seperti `/` atau `/program` untuk skrip Node diubah jadi path Windows. Jalankan dengan `MSYS_NO_PATHCONV=1`.
 - Produksi: `https://kodie.xevora.me` (Coolify, auto-redeploy setiap push ke `main`; lihat `frontend/DEPLOY-COOLIFY.md`).
@@ -61,6 +61,7 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 29 | **Saran dosen pembimbing** (10 butir, `docs/KEPUTUSAN.md` 2026-11-28): bintang kuning, chip nama anak, bagi hasil 30%/40% + kode referral, profil pengajar lengkap & bisa dibagikan, jalur belajar berkelanjutan, testimoni, trial gratis Sesi 1, paket Kenal Komputer (TK), harga baru | Selesai | `d09d76f`, `e55bf80`, `6b93eb6` (backend migrasi 13–15 oleh tim) |
 | Revisi 30 | **Slug profil pengajar** `/pengajar/<slug>`: fallback `pengajar-1`, redirect 307 UUID → slug di `proxy.ts`, peringatan ganti username, 404 khusus profil, pencarian slug tidak digerbang flag | Selesai | `ec3802b`, `a331c9b` (backend migrasi 16–17 oleh tim) |
 | Revisi 32 | **Dashboard gaya "Soft"** dari `docs/kodie_dashboard_ui_ux_dark_mode_explorer.html`: sidebar Workspace (grup + lencana antrean admin, menempel), Ringkasan admin (blok sapaan biru, strip peringatan, ubin angka berikon), blok biru `kodie-blok-sorot` untuk honor pengajar & rapor jurusan, kartu `kodie-kartu-lime` hasil tes minat. Tombol "Tanya Kiko AI" sidebar dipertahankan; halaman dalam & gaya Bold tidak diubah; teks tetap ≥ 14 px | Selesai | commit 28 November setelah `936c9ca` |
+| Revisi 33 | **Perbaikan audit menyeluruh P0–P1** (`frontend/PROMPT-AUDIT-MENYELURUH.md`): hasil tes minat tamu memuat Kenal Komputer per jenjang + tautan kelas; pesan "Password tidak sama" muncul walau field lain salah (zod `when`); `not-found.tsx` per segmen tanpa kerangka ganda (header/footer/`<main>` tunggal); hitungan sesi tanpa Meet `/admin/kelas` = `terjadwal` seperti `admin_ringkasan`; lencana Live chat (`hitungChatMenungguAdmin`); Kiko melayang diganti tombol inline di `/kelas`; Playbook dicetak satu kolom. Data Cloud: 12 anak `Temp Uji …` + 7 booking, 3 honor Citra Rp23.750, 3 laporan uji dihapus (dengan persetujuan pengguna) | Selesai | commit 28 November setelah `0221a2c` |
 | Revisi 31 | Beranda: judul "Empat program" + grid 4 kolom, tombol karier gelap, tombol **Coba trial gratis Sesi 1** di hero (alur `?trial=1` sampai form pesan); tabel "Bandingkan program" tidak bergeser; data demo Nadia 9 siswa; perbaikan 8 *issues* dev overlay | Selesai | commit 28 November setelah `a331c9b` |
 
 ## Checkpoint 28 November 2026 (Revisi 29–31)
@@ -304,7 +305,8 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 ## Pekerjaan tertunda
 
 - **Rotasi rahasia backend** setelah demo: service role key, Google client secret & refresh token, Agnes & Gemini API key, dan password akun demo pernah ditempel di percakapan (28 November). `backend/.env` lokal hanya berisi URL + service role dan diabaikan git.
-- Redeploy Coolify setelah push supaya Revisi 29–31 tampil di produksi; uji ujung ke ujung booking referral, booking trial, dan honor di produksi dengan akun demo (dilakukan pengguna).
+- **Sisa audit (Revisi 33)**: 4 kelas Coding Dasar uji milik Citra (`92fc7148…`, `7a7e2970…`, `29474f68…`, `1c89315d…`, kosong, 13 sesi tanpa Meet) belum dihapus, menunggu keputusan pengguna; jam `BK-DEMO-LIVE-0001` (19.00 vs sesi 14.47) belum diputuskan; temuan P2 (noindex dashboard, og:image profil, panah `<select>` ganda, copy "TK sampai SMA", kontras biru) dan soft-404 HTTP 200 (batas streaming PPR) belum dikerjakan.
+- Coolify auto-redeploy setiap push; uji ujung ke ujung booking referral, booking trial, dan honor di produksi dengan akun demo (dilakukan pengguna).
 
 - **Playbook H-1 akun demo**: backend menyediakan `npm run demo:reset` (sesi `k5` +18 jam untuk Nadia, `k7Live` live +5 menit). Jalankan ulang mendekati penjurian.
 - Tautan footer "Panduan belajar" masih ke `/program` (halaman valid, label kurang pas); belum diputuskan.

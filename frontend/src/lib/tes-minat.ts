@@ -67,7 +67,8 @@ export function rekomendasiProgram(jenjang: Jenjang, kelas: number): string[] {
 
 /** Tabel rekomendasi umum untuk tamu yang jenjangnya tidak diketahui. */
 export const REKOMENDASI_UMUM: { untuk: string; program: string[] }[] = [
-  { untuk: "SD", program: ["coding-dasar"] },
+  { untuk: "TK B–SD kelas 1", program: ["kenal-komputer"] },
+  { untuk: "SD kelas 2–6", program: ["coding-dasar"] },
   { untuk: "SMP kelas 7–8", program: ["kelas-reguler-teknologi"] },
   { untuk: "SMP kelas 9 dan SMA", program: ["simulasi-jurusan-it", "kelas-reguler-teknologi"] },
 ];

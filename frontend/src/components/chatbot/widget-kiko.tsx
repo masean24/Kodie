@@ -120,10 +120,11 @@ export function WidgetKiko({
   const pathname = usePathname() ?? "/";
   // Di halaman padat kartu/editor/form auth, maskot pemicu melayang disembunyikan supaya bebas oklusi CTA:
   // - /lab & /admin: akses Kiko lewat tombol "Tanya Kiko AI" di footer
-  // - /program: akses Kiko lewat tombol inline "Tanya Kiko AI" di atas kartu + footer
+  // - /program dan katalog /kelas: akses Kiko lewat tombol inline "Tanya Kiko AI" di atas kartu + footer
+  //   (di /kelas maskot sempat menutupi tombol "Pesan kelas" di kartu, AUD-PUB-03)
   // - /orang-tua, /siswa, /mengajar: akses Kiko lewat tombol sidebar kiri & tab bawah ponsel
   const diLab = pathname === "/lab" || pathname.startsWith("/lab/");
-  const diProgram = pathname === "/program" || pathname.startsWith("/program/");
+  const diProgram = pathname === "/program" || pathname.startsWith("/program/") || pathname === "/kelas";
   const diDashboard = /^\/(orang-tua|siswa|mengajar|admin)(\/|$)/.test(pathname);
   const diAuth = /^\/(masuk|daftar|lupa-password|atur-ulang-password|persetujuan)(\/|$)/.test(pathname);
   const sembunyiPemicu = diLab || diProgram || diDashboard || diAuth;

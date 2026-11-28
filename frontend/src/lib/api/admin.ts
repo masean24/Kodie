@@ -740,7 +740,7 @@ export async function ambilDaftarKelasAdmin(): Promise<{
   const supabase = await buatClientServer();
   const [kRes, sRes] = await Promise.all([
     supabase.from("kelas").select("*, program(nama, slug), pengguna:pengajar_id(nama)").order("dibuat_pada", { ascending: false }),
-    supabase.from("sesi").select("id, kelas_id, nomor, mulai_pada, meet_gagal_terakhir").is("meet_uri", null).neq("status", "dibatalkan").order("mulai_pada"),
+    supabase.from("sesi").select("id, kelas_id, nomor, mulai_pada, meet_gagal_terakhir").is("meet_uri", null).eq("status", "terjadwal").order("mulai_pada"), // sama dengan admin_ringkasan.sesi_tanpa_meet
   ]);
   lemparJikaError(kRes.error);
   lemparJikaError(sRes.error);

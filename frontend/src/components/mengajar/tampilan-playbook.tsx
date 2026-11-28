@@ -17,7 +17,9 @@ export function TampilanPlaybook({ playbook, durasiMenit }: { playbook: Playbook
   const bagian = uraiKontenPlaybook(playbook.konten_md);
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[1fr_360px]">
+    // Saat dicetak, kolom samping (persiapan, alat, catatan keamanan) turun ke bawah selebar halaman
+    // supaya materi utama tidak menyempit (AUD-NFN-01). Isinya tetap ikut tercetak.
+    <div className="grid items-start gap-6 lg:grid-cols-[1fr_360px] print:grid-cols-1">
       <div className="flex flex-col gap-5">
         {bagian.tujuan ? (
           <section aria-labelledby="pb-tujuan" className="rounded-card bg-surface p-6">

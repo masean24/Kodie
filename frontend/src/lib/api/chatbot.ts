@@ -363,6 +363,19 @@ export async function adminSimpanPengaturanChatbot(input: InputPengaturanChatbot
   lemparJikaError(error);
 }
 
+/** Jumlah percakapan berstatus `menunggu_admin`, untuk lencana menu Live chat di sidebar admin. */
+export async function hitungChatMenungguAdmin(): Promise<number> {
+  await wajibAdmin();
+  if (pakaiMock) return storeMock().percakapanChat.filter((pc) => pc.status === "menunggu_admin").length;
+  const supabase = await buatClientServer();
+  const { count, error } = await supabase
+    .from("percakapan_chat")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "menunggu_admin");
+  lemparJikaError(error);
+  return count ?? 0;
+}
+
 export async function ambilDaftarPercakapanChatAdmin(): Promise<ItemPercakapanAdmin[]> {
   await wajibAdmin();
 
