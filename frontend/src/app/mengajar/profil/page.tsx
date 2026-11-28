@@ -39,6 +39,7 @@ export default async function HalamanProfilPengajar() {
       {fiturLanjutan ? (
         <KartuSlugProfil
           awalSlug={data.profil?.slug ?? buatSlugDariNama(data.pengguna.nama)}
+          slugTersimpan={data.profil?.slug ?? null}
           pengajarId={data.pengguna.id}
           nama={data.pengguna.nama}
           terverifikasi={terverifikasi}

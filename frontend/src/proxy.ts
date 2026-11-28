@@ -2,13 +2,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Peran } from "@/types/database";
 import { pakaiMock } from "@/lib/api/sumber";
+import { ambilSlugPengajar } from "@/lib/api/pengajar";
 import { DASHBOARD, peranArea, rutekhususTamu } from "@/lib/peran";
 
 /**
  * Proxy (pengganti middleware.ts di Next.js 16). Tugasnya hanya pemeriksaan cepat:
  * 1. menyegarkan sesi Supabase di cookie,
  * 2. tamu yang membuka area login diarahkan ke /masuk?lanjut=…,
- * 3. pengguna yang sudah login tidak perlu membuka /masuk dan /daftar.
+ * 3. pengguna yang sudah login tidak perlu membuka /masuk dan /daftar,
+ * 4. tautan profil lama `/pengajar/<uuid>` dialihkan ke `/pengajar/<slug>` (query `?ref=` ikut).
  * Pemeriksaan peran yang menentukan ada di layout tiap area (lihat components/area/penjaga-area.tsx),
  * dan pengaman sebenarnya tetap RLS di backend.
  */
@@ -69,6 +71,16 @@ export async function proxy(request: NextRequest) {
   }
   if (peran && rutekhususTamu(path)) {
     return alihkan(new URL(DASHBOARD[peran], request.url));
+  }
+  // Tautan profil lama berbasis UUID → URL slug, dengan 307 asli (redirect di dalam Suspense hanya bisa 200 + meta refresh).
+  const uuidProfil = /^\/pengajar\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i.exec(path)?.[1];
+  if (uuidProfil) {
+    const slug = await ambilSlugPengajar(uuidProfil);
+    if (slug) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/pengajar/${slug}`;
+      return alihkan(url);
+    }
   }
   return response;
 }

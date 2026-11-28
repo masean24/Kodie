@@ -144,6 +144,25 @@ describe("slug profil pengajar (custom & redirect UUID)", () => {
     expect(skemaSlugPengajar.safeParse("nama--dobel").success).toBe(false);
   });
 
+  it("usulan slug dari nama selalu lolos validasi, termasuk nama pendek dan kata tercadang", async () => {
+    const { skemaSlugPengajar, buatSlugDariNama, buatSlugUnik } = await import("@/lib/validasi/pengajar-lanjutan");
+    for (const nama of ["Al", "李明", "Admin", "Pengajar", "Hélène Dupont", "  "]) {
+      expect(skemaSlugPengajar.safeParse(buatSlugDariNama(nama)).success, nama).toBe(true);
+    }
+    expect(buatSlugDariNama("Al")).toBe("pengajar-1");
+    expect(buatSlugDariNama("Hélène Dupont")).toBe("helene-dupont");
+    expect(buatSlugUnik("Al", new Set(["pengajar-1"]))).toBe("pengajar-2");
+    expect(buatSlugUnik("Citra Lestari", new Set(["citra-lestari", "citra-lestari-1"]))).toBe("citra-lestari-2");
+  });
+
+  it("proxy menemukan slug untuk tautan UUID lama", async () => {
+    await siapkan();
+    const { ambilSlugPengajar } = await import("./pengajar");
+    await expect(ambilSlugPengajar("00000000-0000-4000-9000-000000000002")).resolves.toBe("dimas-pratama");
+    await expect(ambilSlugPengajar("dimas-pratama")).resolves.toBeNull();
+    await expect(ambilSlugPengajar("00000000-0000-4000-9000-0000000000ff")).resolves.toBeNull();
+  });
+
   it("bisa ubah slug kustom, tetap mencari via UUID maupun slug baru, dan tolak duplikat", async () => {
     await siapkan();
     pengguna = {

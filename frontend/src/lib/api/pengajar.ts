@@ -147,6 +147,32 @@ export async function ambilPengajarPublik(idAtauSlug: string): Promise<PengajarP
 }
 
 /**
+ * Slug profil untuk ID pengajar, dipakai proxy agar tautan lama `/pengajar/<uuid>` dialihkan dengan status 307
+ * sebelum halaman dirender. Null bila tidak ada, fitur lanjutan mati, atau permintaan gagal: halaman tetap
+ * menangani tautan UUID sendiri sebagai cadangan.
+ */
+export async function ambilSlugPengajar(id: string): Promise<string | null> {
+  if (!adalahUuid(id)) return null;
+  const kunci = id.trim().toLowerCase();
+  if (pakaiMock) {
+    const pr = storeMock().profilPengajar.find((x) => x.pengguna_id === kunci);
+    return pr?.slug ?? pengajarMock.find((x) => x.id === kunci)?.slug ?? null;
+  }
+  if (!fiturLanjutan) return null;
+  try {
+    const { data, error } = await clientPublik()
+      .from("pengajar_publik")
+      .select("slug")
+      .eq("id", kunci)
+      .maybeSingle();
+    if (error) return null;
+    return (data as { slug?: string | null } | null)?.slug ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Pengalaman dan sertifikat pengajar untuk profil publik (spesifikasi 2026-11-28: tabel `pengalaman_pengajar`
  * dan `sertifikat_pengajar`, baca publik untuk pengajar terverifikasi). Sebelum backend siap, mode Supabase
  * mengembalikan daftar kosong agar halaman tetap tampil.

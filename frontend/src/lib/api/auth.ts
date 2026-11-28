@@ -7,7 +7,7 @@ import { storeMock } from "@/lib/mock/store";
 import { buatClientServer } from "@/lib/supabase/server";
 import { kodeErrorAuth } from "@/lib/errors";
 import { dataSignUp, type InputDaftar, type InputMasuk } from "@/lib/validasi/auth";
-import { buatSlugDariNama } from "@/lib/validasi/pengajar-lanjutan";
+import { buatSlugUnik } from "@/lib/validasi/pengajar-lanjutan";
 import { pakaiMock } from "./sumber";
 
 /**
@@ -162,13 +162,7 @@ export async function daftar(input: InputDaftar): Promise<{ pengguna: Pengguna |
           (x): x is string => Boolean(x),
         ),
       );
-      const dasar = buatSlugDariNama(input.nama);
-      let slug = dasar;
-      let n = 2;
-      while (dipakai.has(slug)) {
-        slug = `${dasar}-${n}`;
-        n += 1;
-      }
+      const slug = buatSlugUnik(input.nama, dipakai);
       store.profilPengajar.push({
         pengguna_id: pengguna.id,
         slug,

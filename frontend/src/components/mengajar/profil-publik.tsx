@@ -109,23 +109,28 @@ export function KartuKodeReferral({
 /** Username / slug tautan profil publik pengajar (`/pengajar/<slug>`). */
 export function KartuSlugProfil({
   awalSlug,
+  slugTersimpan,
   pengajarId,
   nama,
   terverifikasi,
 }: {
   awalSlug: string;
+  /** Slug yang sudah tersimpan di profil; null bila `awalSlug` baru usulan dari nama. */
+  slugTersimpan: string | null;
   pengajarId: string;
   nama: string;
   terverifikasi: boolean;
 }) {
   const [nilai, setNilai] = useState(awalSlug);
-  const [slugAktif, setSlugAktif] = useState(awalSlug);
+  const [slugAktif, setSlugAktif] = useState(slugTersimpan ?? "");
   const [galat, setGalat] = useState<string>();
   const [galatIsian, setGalatIsian] = useState<string>();
   const [pesan, setPesan] = useState<string>();
   const [menunggu, mulai] = useTransition();
 
   const pratinjau = nilai.trim().toLowerCase() || slugAktif;
+  // Tautan lama tidak dialihkan (belum ada riwayat slug di backend), jadi pengajar diberi tahu sebelum menyimpan.
+  const berubah = Boolean(slugAktif) && nilai.trim().toLowerCase() !== slugAktif;
   const pathProfil = `/pengajar/${slugAktif || pengajarId}`;
 
   const simpan = (e: React.FormEvent) => {
@@ -179,6 +184,12 @@ export function KartuSlugProfil({
           maxLength={40}
           placeholder="misal: citra-lestari"
         />
+        {berubah ? (
+          <p className="rounded-card-sm bg-warning-subtle p-4 text-sm">
+            <strong>Perhatian:</strong> setelah disimpan, tautan lama <code>/pengajar/{slugAktif}</code> tidak bisa dibuka
+            lagi. Bagikan ulang tautan baru ke orang tua yang sudah menerima tautan lama.
+          </p>
+        ) : null}
         <div className="flex flex-wrap items-center gap-3">
           <Tombol type="submit" disabled={menunggu} aria-busy={menunggu}>
             {menunggu ? "Menyimpan…" : "Simpan username"}

@@ -19,16 +19,32 @@ export function adalahUuid(nilai: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nilai.trim());
 }
 
-/** Membentuk slug dasar (3–32 karakter) dari nama pengajar, selaras dengan fungsi backend. */
-export function buatSlugDariNama(nama: string): string {
+/**
+ * Slug unik dari nama pengajar: dasar 3–32 karakter, lalu `-1`, `-2`, … bila sudah dipakai (urutan sama dengan
+ * `buat_slug_pengajar_unik` di backend). Nama yang tidak menghasilkan dasar sah (terlalu pendek, bukan huruf latin,
+ * kata tercadang) memakai dasar `pengajar` yang selalu diberi akhiran, karena `pengajar` sendiri tercadang.
+ */
+export function buatSlugUnik(nama: string, dipakai: ReadonlySet<string> = new Set()): string {
   const dasar = nama
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 32)
     .replace(/-+$/g, "");
-  if (dasar.length < 3 || adalahUuid(dasar) || SLUG_TERCADANG.has(dasar)) return "pengajar";
-  return dasar;
+  const sah = dasar.length >= 3 && !adalahUuid(dasar) && !SLUG_TERCADANG.has(dasar);
+  const awal = sah ? dasar : "pengajar";
+  if (sah && !dipakai.has(awal)) return awal;
+  for (let n = 1; ; n++) {
+    const kandidat = `${awal}-${n}`;
+    if (!dipakai.has(kandidat)) return kandidat;
+  }
+}
+
+/** Usulan slug dari nama saja (tanpa cek keunikan), selalu lolos `skemaSlugPengajar`. */
+export function buatSlugDariNama(nama: string): string {
+  return buatSlugUnik(nama);
 }
 
 export const skemaSlugPengajar = z
