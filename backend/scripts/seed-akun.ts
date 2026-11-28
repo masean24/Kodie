@@ -35,6 +35,7 @@ const PROGRAM_IDS = {
   codingDasar: '11111111-1111-4111-8111-000000000001',
   kelasReguler: '11111111-1111-4111-8111-000000000002',
   simulasiIt: '11111111-1111-4111-8111-000000000003',
+  kenalKomputer: '11111111-1111-4111-8111-000000000004',
 } as const;
 
 const KELAS_IDS = {
@@ -44,6 +45,7 @@ const KELAS_IDS = {
   k4: '22222222-2222-4222-8222-000000000004',
   k5: '22222222-2222-4222-8222-000000000005',
   k6Selesai: '22222222-2222-4222-8222-000000000006',
+  k8Kenal: '22222222-2222-4222-8222-000000000008',
 } as const;
 
 // PNG 1x1 pixel valid untuk demo placeholder QRIS & bukti bayar
@@ -120,7 +122,7 @@ async function ensureStaticSeed() {
           'Belajar logika, berpikir komputasional, dan pemrograman blok interaktif menggunakan Scratch. Setiap sesi menghasilkan proyek animasi atau game mini.',
         durasi_menit: 60,
         jumlah_sesi: 4,
-        harga_paket: 200000,
+        harga_paket: 250000,
         honor_per_sesi: 50000,
         aktif: true,
         silabus: [
@@ -166,7 +168,7 @@ async function ensureStaticSeed() {
           'Kelas berjenjang yang membahas pemrograman web (HTML, CSS, JavaScript), simulasi IoT virtual, dan pengenalan AI dasar dengan proyek nyata.',
         durasi_menit: 90,
         jumlah_sesi: 4,
-        harga_paket: 275000,
+        harga_paket: 350000,
         honor_per_sesi: 65000,
         aktif: true,
         silabus: [
@@ -212,7 +214,7 @@ async function ensureStaticSeed() {
           'Program eksplorasi 4 sesi (Software Engineering, Jaringan Komputer, IoT, dan Integrasi AI) untuk membantu siswa kelas 9–12 memilih jurusan kuliah IT.',
         durasi_menit: 90,
         jumlah_sesi: 4,
-        harga_paket: 300000,
+        harga_paket: 400000,
         honor_per_sesi: 75000,
         aktif: true,
         silabus: [
@@ -243,6 +245,52 @@ async function ensureStaticSeed() {
             topik:
               'Mencoba eksperimen klasifikasi teks AI, evaluasi kesalahan model, dan refleksi minat keempat bidang IT.',
             hasil_proyek: 'Notebook klasifikasi AI dan Rapor Rekomendasi Jurusan Kuliah.',
+          },
+        ] as unknown as Json,
+      },
+      {
+        id: PROGRAM_IDS.kenalKomputer,
+        slug: 'kenal-komputer',
+        nama: 'Kenal Komputer',
+        jenjang: ['TK', 'SD'],
+        kelas_min: 0,
+        kelas_maks: 1,
+        level: 1,
+        deskripsi:
+          'Kenalan dengan komputer untuk anak usia 5–7 tahun: memakai mouse dan keyboard, membuka aplikasi di Windows, menyimpan karya ke folder, dan aman di internet. Didampingi orang tua di setiap sesi.',
+        durasi_menit: 45,
+        jumlah_sesi: 4,
+        harga_paket: 225000,
+        honor_per_sesi: 0,
+        aktif: true,
+        silabus: [
+          {
+            sesi: 1,
+            judul: 'Halo Komputer: Mouse, Keyboard, dan Layar',
+            topik:
+              'Mengenal bagian komputer, menyalakan dan mematikan dengan benar, menggerakkan mouse, klik dan klik dua kali, serta posisi duduk yang sehat.',
+            hasil_proyek: 'Mewarnai gambar di Paint dengan klik dan seret.',
+          },
+          {
+            sesi: 2,
+            judul: 'Jelajah Windows: Desktop, Ikon, dan Jendela',
+            topik:
+              'Mengenal desktop, menu Start, membuka dan menutup aplikasi, memperbesar, mengecilkan, dan memindahkan jendela.',
+            hasil_proyek: 'Membuka tiga aplikasi sendiri dan menatanya berdampingan.',
+          },
+          {
+            sesi: 3,
+            judul: 'Rumah untuk Karya: Folder dan File',
+            topik:
+              'Membuat folder, memberi nama, menyimpan gambar ke folder yang tepat, menyalin, memindahkan, dan menghapus file dengan aman.',
+            hasil_proyek: 'Folder "Karyaku" berisi gambar dari sesi 1 dan 2 yang tersusun rapi.',
+          },
+          {
+            sesi: 4,
+            judul: 'Mengetik Nama dan Aman di Internet',
+            topik:
+              'Mengetik huruf dan angka di keyboard, membuka peramban bersama orang tua, dan aturan aman: tidak membagikan data pribadi.',
+            hasil_proyek: 'Kartu nama digital sederhana disimpan di folder "Karyaku".',
           },
         ] as unknown as Json,
       },
@@ -412,7 +460,8 @@ async function ensureStaticSeed() {
     level: number;
     nomor_sesi: number;
     judul: string;
-    starter_url: string;
+    starter_url: string | null;
+    konten_md?: string;
   }> = [
     {
       file: 'coding-dasar-l1-s1.md',
@@ -510,13 +559,139 @@ async function ensureStaticSeed() {
       judul: 'Simulasi Jurusan IT Sesi 4: AI & Sains Data + Rapor Jurusan',
       starter_url: 'https://colab.research.google.com/',
     },
+    {
+      file: 'kenal-komputer-l1-s1.md',
+      program_id: PROGRAM_IDS.kenalKomputer,
+      level: 1,
+      nomor_sesi: 1,
+      judul: 'Kenal Komputer Sesi 1: Mouse, Keyboard, dan Layar',
+      starter_url: null,
+      konten_md: `## Tujuan sesi
+Setelah sesi ini, anak (didampingi orang tua) bisa:
+1. Mengenal layar monitor, mouse, dan keyboard dengan posisi duduk yang nyaman.
+2. Melakukan gerakan mouse, klik kiri, klik dua kali, dan klik-seret di Paint.
+
+## Persiapan pengajar
+- Pastikan orang tua mendampingi anak di samping perangkat pada awal kelas.
+- Siapkan contoh gambar rumah sederhana di Paint.
+
+## Alur kelas (45 menit)
+- **00–07 Pembukaan:** Sapa anak dan orang tua, periksa layar serta posisi tangan di mouse.
+- **07–25 Praktik terpandu:** Buka aplikasi Paint, pilih kuas dan warna, latih klik-seret membentuk garis dan lingkaran.
+- **25–38 Tantangan:** Anak mewarnai bentuk matahari dan rumah dengan minimal 3 warna berbeda.
+- **38–45 Penutup:** Anak memamerkan gambar di layar; apresiasi bersama orang tua.
+
+## Tantangan untuk siswa
+1. **Dasar:** Gambar satu bentuk rumah atau wajah tersenyum memakai kuas warna favorit di Paint.
+2. **Lanjutan:** Isi warna di dalam gambar menggunakan ikon ember cat (*Fill*).
+
+## Kunci jawaban dan solusi umum
+- *Warna tumpah ke seluruh layar:* Pastikan bentuk bangun tertutup rapat atau gunakan tombol Undo (\`Ctrl+Z\`).
+- *Mouse terasa terlalu cepat:* Minta orang tua membantu memegangi tangan anak perlahan di langkah awal.
+
+## Catatan keamanan
+- Kelas anak usia 5–7 tahun wajib didampingi orang tua dan selalu lewat link resmi platform.`,
+    },
+    {
+      file: 'kenal-komputer-l1-s2.md',
+      program_id: PROGRAM_IDS.kenalKomputer,
+      level: 1,
+      nomor_sesi: 2,
+      judul: 'Kenal Komputer Sesi 2: Desktop, Ikon, dan Jendela',
+      starter_url: null,
+      konten_md: `## Tujuan sesi
+Setelah sesi ini, anak (didampingi orang tua) bisa:
+1. Mengenali tampilan Desktop, menu Start, dan ikon aplikasi.
+2. Membuka, memperbesar, mengecilkan, memindahkan, dan menutup jendela aplikasi.
+
+## Persiapan pengajar
+- Siapkan 3 aplikasi bawaan (Paint, Notepad, Kalkulator) untuk simulasi buka-tutup.
+
+## Alur kelas (45 menit)
+- **00–06 Pembukaan:** Ulas klik dan klik dua kali dari sesi 1.
+- **06–25 Praktik terpandu:** Membuka menu Start, mengenali tombol minimalkan (\`_\`), maksimalkan (\`□\`), dan tutup (\`×\`).
+- **25–38 Tantangan:** Anak membuka Paint dan Kalkulator bersamaan lalu menatanya berdampingan.
+- **38–45 Penutup:** Rangkuman fungsi tombol jendela dan pratinjau folder di sesi 3.
+
+## Tantangan untuk siswa
+1. **Dasar:** Buka aplikasi Notepad lewat menu Start, lalu kecilkan dan besarkan lagi jendelanya.
+2. **Lanjutan:** Susun jendela Paint di sebelah kiri dan Notepad di sebelah kanan.
+
+## Kunci jawaban dan solusi umum
+- *Jendela hilang ke bawah:* Arahkan anak melihat ikon aplikasi yang menyala di taskbar bawah.
+
+## Catatan keamanan
+- Pastikan orang tua mendampingi saat menavigasi menu sistem agar tidak menutup jendela Meet secara tidak sengaja.`,
+    },
+    {
+      file: 'kenal-komputer-l1-s3.md',
+      program_id: PROGRAM_IDS.kenalKomputer,
+      level: 1,
+      nomor_sesi: 3,
+      judul: 'Kenal Komputer Sesi 3: Folder dan File Karyaku',
+      starter_url: null,
+      konten_md: `## Tujuan sesi
+Setelah sesi ini, anak (didampingi orang tua) bisa:
+1. Memahami konsep folder sebagai "rumah" tempat menyimpan file karya.
+2. Membuat folder bernama \`Karyaku\` dan menyimpan gambar Paint ke dalamnya.
+
+## Persiapan pengajar
+- Siapkan contoh folder rapi di Desktop untuk demonstrasi *File Explorer*.
+
+## Alur kelas (45 menit)
+- **00–06 Pembukaan:** Analogi lemari map dan laci penyimpanan untuk mengenalkan folder dan file.
+- **06–25 Praktik terpandu:** Klik kanan di Desktop/Dokumen untuk membuat folder \`Karyaku\`, lalu simpan file gambar ke folder itu.
+- **25–38 Tantangan:** Anak membuat satu gambar baru, menyimpannya dengan nama sendiri di folder \`Karyaku\`, lalu membukanya kembali.
+- **38–45 Penutup:** Apresiasi anak karena sudah bisa merapikan karyanya sendiri.
+
+## Tantangan untuk siswa
+1. **Dasar:** Buat folder bernama \`Karyaku\` dan simpan minimal 1 gambar di dalamnya.
+2. **Lanjutan:** Salin satu gambar ke folder tersebut atau ubah namanya menjadi \`gambar-aku\`.
+
+## Kunci jawaban dan solusi umum
+- *Lupa lokasi menyimpan file:* Cek bilah lokasi paling kiri di jendela Save As (\`Desktop\` atau \`Documents\`).
+
+## Catatan keamanan
+- Ingatkan anak hanya menghapus atau memindahkan file karyanya sendiri di folder \`Karyaku\`, jangan menyentuh folder sistem.`,
+    },
+    {
+      file: 'kenal-komputer-l1-s4.md',
+      program_id: PROGRAM_IDS.kenalKomputer,
+      level: 1,
+      nomor_sesi: 4,
+      judul: 'Kenal Komputer Sesi 4: Mengetik Nama & Aman di Internet',
+      starter_url: null,
+      konten_md: `## Tujuan sesi
+Setelah sesi ini, anak (didampingi orang tua) bisa:
+1. Mengetik huruf kapital, spasi, dan angka di keyboard untuk membuat kartu nama digital di Notepad/Paint.
+2. Memahami aturan dasar aman berinternet bersama orang tua.
+
+## Persiapan pengajar
+- Siapkan ilustrasi lampu hijau/merah aturan aman internet untuk anak usia dini.
+
+## Alur kelas (45 menit)
+- **00–06 Pembukaan:** Kenali tombol \`Shift\`, \`Space\`, \`Enter\`, dan \`Backspace\` di keyboard.
+- **06–25 Praktik terpandu:** Mengetik nama panggilan, kelas, dan hobi singkat di Notepad/Paint menjadi kartu nama digital.
+- **25–37 Tantangan & Keamanan:** Menyimpan kartu nama ke folder \`Karyaku\`, lalu kuis singkat memilih hal yang boleh vs tidak boleh dibagikan online.
+- **37–45 Penutup:** Showcase kartu nama karya semua anak; tutup program Kenal Komputer Level 1 bersama orang tua.
+
+## Tantangan untuk siswa
+1. **Dasar:** Ketik nama panggilan dan 1 benda/warna kesukaan, lalu simpan di folder \`Karyaku\`.
+2. **Lanjutan:** Tambahkan gambar bintang di samping nama menggunakan aplikasi Paint.
+
+## Kunci jawaban dan solusi umum
+- *Huruf besar semua terus-menerus:* Cek lampu tombol \`Caps Lock\` dan tekan sekali untuk mematikannya.
+
+## Catatan keamanan
+- Tekankan aturan wajib: anak tidak pernah membuka peramban tanpa orang tua dan tidak membagikan alamat rumah, nomor HP, atau foto pribadi di internet.`,
+    },
   ];
 
   for (const pb of playbookFiles) {
     const filePath = path.join(playbookDir, pb.file);
     const konten_md = fs.existsSync(filePath)
       ? fs.readFileSync(filePath, 'utf-8')
-      : `# ${pb.judul}`;
+      : (pb.konten_md ?? `# ${pb.judul}`);
     const { error: pbErr } = await supabase.from('playbook').upsert(
       {
         program_id: pb.program_id,
@@ -646,7 +821,7 @@ async function main() {
   for (const [pid, progs] of [
     [pengajar1Id, [PROGRAM_IDS.kelasReguler, PROGRAM_IDS.simulasiIt]],
     [pengajar2Id, [PROGRAM_IDS.kelasReguler, PROGRAM_IDS.simulasiIt]],
-    [pengajar3Id, [PROGRAM_IDS.codingDasar, PROGRAM_IDS.kelasReguler]],
+    [pengajar3Id, [PROGRAM_IDS.kenalKomputer, PROGRAM_IDS.codingDasar, PROGRAM_IDS.kelasReguler]],
   ] as Array<[string, string[]]>) {
     await supabase.from('pengguna').update({ status: 'terverifikasi' }).eq('id', pid);
     await supabase
@@ -668,6 +843,96 @@ async function main() {
         .upsert({ pengajar_id: pid, program_id: progId, disetujui: true });
     }
   }
+
+  // Kode referral, pengalaman, dan sertifikat pengajar terverifikasi
+  await supabase.from('kode_referral').upsert(
+    [
+      { pengajar_id: pengajar1Id, kode: 'NADIA-K7Q2' },
+      { pengajar_id: pengajar2Id, kode: 'BAGUS-M4P9' },
+      { pengajar_id: pengajar3Id, kode: 'CITRA-T8R3' },
+    ],
+    { onConflict: 'pengajar_id' },
+  );
+
+  await supabase.from('pengalaman_pengajar').upsert(
+    [
+      {
+        id: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000001',
+        pengajar_id: pengajar1Id,
+        peran: 'Mentor Frontend & AI Pemula',
+        tempat: 'Komunitas EduTech Bandung',
+        periode: '2024 – Sekarang',
+        deskripsi: 'Membimbing siswa SMP/SMA membangun proyek web interaktif dan eksperimen klasifikasi teks.',
+        urutan: 1,
+      },
+      {
+        id: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000002',
+        pengajar_id: pengajar1Id,
+        peran: 'Asisten Praktikum Dasar Pemrograman',
+        tempat: 'STEI ITB',
+        periode: '2023 – 2024',
+        deskripsi: 'Mendampingi sesi laboratorium algoritma dan debugging bagi mahasiswa tingkat awal.',
+        urutan: 2,
+      },
+      {
+        id: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000003',
+        pengajar_id: pengajar2Id,
+        peran: 'Fasilitator Jaringan & IoT Remaja',
+        tempat: 'MakerSpace Jakarta',
+        periode: '2023 – Sekarang',
+        deskripsi: 'Mengajar simulasi sensor ESP32 di Wokwi dan keamanan dasar internet.',
+        urutan: 1,
+      },
+      {
+        id: 'aaaaaaaa-aaaa-4aaa-8aaa-000000000004',
+        pengajar_id: pengajar3Id,
+        peran: 'Pengajar Coding Anak & Literasi Digital',
+        tempat: 'Klub Kreator Cilik Yogyakarta',
+        periode: '2023 – Sekarang',
+        deskripsi: 'Membimbing anak TK–SD mengenal komputer dasar dan game logika Scratch dengan ramah.',
+        urutan: 1,
+      },
+    ],
+    { onConflict: 'id' },
+  );
+
+  await supabase.from('sertifikat_pengajar').upsert(
+    [
+      {
+        id: 'bbbbbbbb-bbbb-4bbb-8bbb-000000000001',
+        pengajar_id: pengajar1Id,
+        nama: 'Belajar Pengembangan Web & JavaScript Modern',
+        penerbit: 'Dicoding Indonesia',
+        tahun: 2024,
+        tautan: 'https://www.dicoding.com/',
+      },
+      {
+        id: 'bbbbbbbb-bbbb-4bbb-8bbb-000000000002',
+        pengajar_id: pengajar1Id,
+        nama: 'AI Fundamentals for Educators',
+        penerbit: 'Google Cloud Skills Boost',
+        tahun: 2025,
+        tautan: 'https://www.cloudskillsboost.google/',
+      },
+      {
+        id: 'bbbbbbbb-bbbb-4bbb-8bbb-000000000003',
+        pengajar_id: pengajar2Id,
+        nama: 'CCNA: Introduction to Networks & IoT',
+        penerbit: 'Cisco Networking Academy',
+        tahun: 2023,
+        tautan: 'https://www.netacad.com/',
+      },
+      {
+        id: 'bbbbbbbb-bbbb-4bbb-8bbb-000000000004',
+        pengajar_id: pengajar3Id,
+        nama: 'Creative Computing with Scratch',
+        penerbit: 'Harvard Graduate School of Education',
+        tahun: 2024,
+        tautan: 'https://scratched.gse.harvard.edu/',
+      },
+    ],
+    { onConflict: 'id' },
+  );
 
   await supabase
     .from('profil_pengajar')
@@ -746,11 +1011,12 @@ async function main() {
     throw new Error('Gagal menemukan baris siswa mandiri setelah registrasi.');
   }
 
-  // 3 Profil anak tanpa akun login (termasuk 1 SD)
+  // 4 Profil anak tanpa akun login (termasuk 1 TK dan 1 SD)
   const anakIds = {
     bimaSd: '33333333-3333-4333-8333-000000000001',
     sintaSmp: '33333333-3333-4333-8333-000000000002',
     rakaSma: '33333333-3333-4333-8333-000000000003',
+    kiranaTk: '33333333-3333-4333-8333-000000000004',
   };
 
   await supabase.from('siswa').upsert(
@@ -782,17 +1048,27 @@ async function main() {
         sekolah: 'SMAN 1 Bekasi',
         orang_tua_id: ortu2Id,
       },
+      {
+        id: anakIds.kiranaTk,
+        nama: 'Kirana Putri',
+        tanggal_lahir: '2020-04-12',
+        jenjang: 'TK',
+        kelas: 0,
+        sekolah: 'TK Pelita Harapan',
+        orang_tua_id: ortu2Id,
+      },
     ],
     { onConflict: 'id' },
   );
 
   // --------------------------------------------------------------------------
-  // 3. ENAM KELAS & 24 SESI (termasuk 1 kelas penuh & 1 kelas selesai)
+  // 3. TUJUH KELAS & 28 SESI (termasuk Kenal Komputer, kelas penuh & selesai)
   // --------------------------------------------------------------------------
-  console.log('3. Membuat 6 kelas demo beserta 24 sesi...');
+  console.log('3. Membuat 7 kelas demo beserta 28 sesi...');
 
   const kelasSeeds: Array<{
     id: string;
+    sesiUuidPrefix: string;
     program_id: string;
     pengajar_id: string;
     kapasitas: number;
@@ -806,6 +1082,7 @@ async function main() {
   }> = [
     {
       id: KELAS_IDS.k1,
+      sesiUuidPrefix: '1',
       program_id: PROGRAM_IDS.codingDasar,
       pengajar_id: pengajar3Id,
       kapasitas: 10,
@@ -819,6 +1096,7 @@ async function main() {
     },
     {
       id: KELAS_IDS.k2Penuh,
+      sesiUuidPrefix: '2',
       program_id: PROGRAM_IDS.codingDasar,
       pengajar_id: pengajar3Id,
       kapasitas: 1, // Sengaja kapasitas 1 lalu diisi 1 booking -> Penuh di katalog!
@@ -832,6 +1110,7 @@ async function main() {
     },
     {
       id: KELAS_IDS.k3,
+      sesiUuidPrefix: '3',
       program_id: PROGRAM_IDS.kelasReguler,
       pengajar_id: pengajar1Id,
       kapasitas: 15,
@@ -845,6 +1124,7 @@ async function main() {
     },
     {
       id: KELAS_IDS.k4,
+      sesiUuidPrefix: '4',
       program_id: PROGRAM_IDS.kelasReguler,
       pengajar_id: pengajar2Id,
       kapasitas: 15,
@@ -858,6 +1138,7 @@ async function main() {
     },
     {
       id: KELAS_IDS.k5,
+      sesiUuidPrefix: '5',
       program_id: PROGRAM_IDS.simulasiIt,
       pengajar_id: pengajar1Id,
       kapasitas: 15,
@@ -871,6 +1152,7 @@ async function main() {
     },
     {
       id: KELAS_IDS.k6Selesai,
+      sesiUuidPrefix: '6',
       program_id: PROGRAM_IDS.simulasiIt,
       pengajar_id: pengajar2Id,
       kapasitas: 15,
@@ -881,6 +1163,20 @@ async function main() {
       minuteWib: 0,
       durasi: 90,
       sesiSelesaiCount: 4,
+    },
+    {
+      id: KELAS_IDS.k8Kenal,
+      sesiUuidPrefix: '8',
+      program_id: PROGRAM_IDS.kenalKomputer,
+      pengajar_id: pengajar3Id,
+      kapasitas: 6,
+      jam_mulai: '09:00:00',
+      status: 'terbuka',
+      startDaysOffset: 4,
+      hourWib: 9,
+      minuteWib: 0,
+      durasi: 45,
+      sesiSelesaiCount: 0,
     },
   ];
 
@@ -903,7 +1199,7 @@ async function main() {
 
     sesiMap[k.id] = [];
     for (let sNum = 1; sNum <= 4; sNum++) {
-      const sesiId = `44444444-4444-4444-8444-0000000000${Object.keys(sesiMap).length}${sNum}`;
+      const sesiId = `44444444-4444-4444-8444-0000000000${k.sesiUuidPrefix}${sNum}`;
       const mulai = wibDateIso(k.startDaysOffset + (sNum - 1) * 7, k.hourWib, k.minuteWib);
       const selesai = addMinutesIso(mulai, k.durasi);
       const isDone = sNum <= k.sesiSelesaiCount;
@@ -956,7 +1252,7 @@ async function main() {
       siswa_id: anakIds.bimaSd,
       dibuat_oleh: ortu1Id,
       status: 'menunggu_pembayaran',
-      total: 200000,
+      total: 250000,
       batasOffsetHours: 24,
     },
     {
@@ -966,7 +1262,7 @@ async function main() {
       siswa_id: anakIds.bimaSd,
       dibuat_oleh: ortu1Id,
       status: 'terkonfirmasi',
-      total: 200000,
+      total: 250000,
       batasOffsetHours: 24,
     },
     {
@@ -976,7 +1272,7 @@ async function main() {
       siswa_id: anakIds.sintaSmp,
       dibuat_oleh: ortu1Id,
       status: 'menunggu_verifikasi',
-      total: 275000,
+      total: 350000,
       batasOffsetHours: 20,
     },
     {
@@ -986,7 +1282,7 @@ async function main() {
       siswa_id: siswaAktifRow.id,
       dibuat_oleh: siswaAktifUserId,
       status: 'kedaluwarsa',
-      total: 275000,
+      total: 350000,
       batasOffsetHours: -12,
     },
     {
@@ -996,7 +1292,7 @@ async function main() {
       siswa_id: anakIds.rakaSma,
       dibuat_oleh: ortu2Id,
       status: 'dibatalkan',
-      total: 300000,
+      total: 400000,
       batasOffsetHours: 24,
     },
     {
@@ -1006,7 +1302,7 @@ async function main() {
       siswa_id: siswaAktifRow.id,
       dibuat_oleh: siswaAktifUserId,
       status: 'selesai',
-      total: 300000,
+      total: 400000,
       batasOffsetHours: -600,
     },
     {
@@ -1016,7 +1312,7 @@ async function main() {
       siswa_id: anakIds.rakaSma,
       dibuat_oleh: ortu2Id,
       status: 'selesai',
-      total: 300000,
+      total: 400000,
       batasOffsetHours: -600,
     },
   ];
@@ -1114,7 +1410,7 @@ async function main() {
     {
       pengajar_id: pengajar2Id,
       sesi_id: sesiK6_4,
-      jumlah: 75000,
+      jumlah: 60000,
       status: 'belum_dibayar',
     },
     { onConflict: 'sesi_id' },

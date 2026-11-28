@@ -174,7 +174,7 @@ export function matchDeterministicFastPath(
       lower,
     )
   ) {
-    return `Hai! Aku **${botName}**, asisten resmi **Kodie**. Ada yang ingin kamu tanyakan seputar program kelas teknologi (SD, SMP, SMA), Tes Minat Jurusan IT, cara pembayaran, atau jadwal belajarmu?`;
+    return `Hai! Aku **${botName}**, asisten resmi **Kodie**. Ada yang ingin kamu tanyakan seputar program kelas teknologi (TK B, SD, SMP, SMA), Tes Minat Jurusan IT, cara pembayaran, atau jadwal belajarmu?`;
   }
 
   // 2. Ucapan terima kasih

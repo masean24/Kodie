@@ -86,10 +86,10 @@ function formatSseEvent(event: string, data: unknown): string {
 }
 
 const CATALOG_KEYWORDS =
-  /\b(program|kelas|katalog|jadwal|kursi|kuota|harga|biaya|tarif|pengajar|guru|mentor|coding\s*dasar|reguler|simulasi|jurusan|sd|smp|sma|paket|sesi)\b/i;
+  /\b(program|kelas|katalog|jadwal|kursi|kuota|harga|biaya|tarif|pengajar|guru|mentor|kenal\s*komputer|coding\s*dasar|reguler|simulasi|jurusan|tk|sd|smp|sma|paket|sesi|trial|coba\s*gratis|referral|diskon)\b/i;
 
 const PERSONAL_KEYWORDS =
-  /\b(saya|aku|anak\s*saya|booking|pesanan|tagihan|pembayaran|status|jadwal\s*saya|sesi\s*saya|laporan|rapor|nilai|persetujuan|akun\s*saya)\b/i;
+  /\b(saya|aku|anak\s*saya|booking|pesanan|tagihan|pembayaran|status|jadwal\s*saya|sesi\s*saya|laporan|rapor|nilai|persetujuan|akun\s*saya|referral|potongan)\b/i;
 
 Deno.serve(async (req: Request) => {
   const corsHeaders = getCorsHeaders(req);
@@ -423,7 +423,7 @@ Deno.serve(async (req: Request) => {
             userClient.from('pengguna').select('nama, peran, status').eq('id', userId).single(),
             userClient
               .from('booking')
-              .select('kode, status, total, batas_bayar_pada, dibuat_pada')
+              .select('kode, jenis, kode_referral, potongan, status, total, batas_bayar_pada, dibuat_pada')
               .order('dibuat_pada', { ascending: false })
               .limit(5),
             userClient
@@ -480,7 +480,7 @@ Deno.serve(async (req: Request) => {
         if (!hasGroundedContext) {
           const lowConfMsg =
             `Maaf, aku belum menemukan informasi yang cukup pasti mengenai hal tersebut di basis data **Kodie**. ` +
-            `Boleh perjelas pertanyaanmu (misalnya seputar program **Coding Dasar**, **Kelas Reguler Teknologi**, **Simulasi Jurusan IT**, cara booking, atau jadwal sesi)?\n\n` +
+            `Boleh perjelas pertanyaanmu (misalnya seputar program **Kenal Komputer**, **Coding Dasar**, **Kelas Reguler Teknologi**, **Simulasi Jurusan IT**, kelas coba gratis, kode referral, atau jadwal sesi)?\n\n` +
             `Kalau kamu butuh bantuan langsung dari tim kami, kamu bisa menekan tombol **Hubungi via WhatsApp**${
               userId ? ' atau **Minta Bantuan Admin (Live Chat)**' : ''
             } di bawah pesan ini ya!`;

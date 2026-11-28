@@ -30,7 +30,8 @@ Tes Minat Jurusan IT adalah fitur kuis interaktif gratis di Kodie untuk membantu
 
 | Jenjang Siswa | Rekomendasi Program Kodie |
 | --- | --- |
-| **SD (Kelas 5–6)** | Coding Dasar |
+| **TK & SD Kelas 1 (Usia 5–7 tahun)** | Kenal Komputer |
+| **SD (Kelas 2–6)** | Coding Dasar |
 | **SMP (Kelas 7–8)** | Kelas Reguler Teknologi |
 | **SMP Kelas 9 & SMA (Kelas 10–12)** | Simulasi Jurusan IT, lalu Kelas Reguler Teknologi |
 

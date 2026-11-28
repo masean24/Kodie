@@ -7,12 +7,12 @@ Di platform Kodie terdapat 3 peran pendaftaran:
 2. **Siswa Mandiri (khusus SMP dan SMA)** — daftar melalui halaman `/daftar`.
 3. **Pengajar** — melamar dan membuat akun pengajar melalui halaman rekrutmen **`/karier`** (tautan `/daftar?peran=pengajar` otomatis diarahkan ke `/karier`).
 
-## Aturan Pendaftaran Siswa SD vs SMP/SMA
+## Aturan Pendaftaran Siswa TK/SD vs SMP/SMA
 
-### Siswa SD (Kelas 5–6)
-- Siswa SD **tidak memiliki akun login sendiri**.
-- Orang tua mendaftar menggunakan peran **Orang Tua**, lalu masuk ke menu **Profil Anak** (`/orang-tua/anak`) untuk menambahkan data anak (nama lengkap, tanggal lahir, jenjang SD, kelas, dan nama sekolah).
-- Satu akun orang tua dapat mendaftarkan dan mengelola satu atau beberapa profil anak sekaligus (baik SD, SMP, maupun SMA).
+### Siswa TK dan SD
+- Siswa jenjang **TK** dan **SD** **tidak memiliki akun login sendiri**.
+- Orang tua mendaftar menggunakan peran **Orang Tua**, lalu masuk ke menu **Profil Anak** (`/orang-tua/anak`) untuk menambahkan data anak (nama lengkap, tanggal lahir, jenjang **TK** atau **SD**, tingkat kelas: **0** untuk TK atau **1–6** untuk SD, serta nama sekolah/TK).
+- Satu akun orang tua dapat mendaftarkan dan mengelola satu atau beberapa profil anak sekaligus (baik TK, SD, SMP, maupun SMA).
 
 ### Siswa SMP dan SMA yang Mendaftar Sendiri (Persetujuan Orang Tua)
 Sesuai **Pasal 25 UU Pelindungan Data Pribadi (UU PDP)**, akun siswa di bawah 18 tahun yang mendaftar sendiri wajib mendapat persetujuan orang tua sebelum dapat memesan kelas:
@@ -35,5 +35,5 @@ Mahasiswa, lulusan, atau pencari kerja paruh waktu dapat bergabung menjadi penga
    - Tautan CV atau portofolio, foto profil, unggahan **Kartu Identitas (KTP atau KTM)**, dan unggahan **SKCK** (format JPG/PNG/PDF, maksimal 2 MB).
 3. Tim Admin Kodie akan memeriksa dokumen dan melakukan wawancara singkat.
 4. Setelah **KTP/KTM, SKCK, dan wawancara selesai** diverifikasi Admin, status pengajar berubah menjadi **`terverifikasi`**.
-5. Hanya pengajar berstatus **`terverifikasi`** yang profilnya tampil di halaman publik dan dapat membuka kelas baru sesuai program yang disetujui Admin.
-6. Pengajar menerima honor per sesi setiap kali selesai mengajar dan mengirimkan **Laporan Sesi** (Coding Dasar: Rp50.000/sesi, Kelas Reguler Teknologi: Rp65.000/sesi, Simulasi Jurusan IT: Rp75.000/sesi).
+5. Hanya pengajar berstatus **`terverifikasi`** yang profilnya tampil di halaman publik dan dapat membuka kelas baru sesuai program yang disetujui Admin. Pengajar juga dapat menambahkan riwayat **pengalaman** dan **sertifikat** pada halaman `/mengajar/profil` agar tampil di profil publik pengajar, serta membuat **kode referral pengajar** unik.
+6. Pengajar menerima **bagi hasil per sesi** setiap kali selesai mengajar dan mengirimkan **Laporan Sesi**: **30%** dari pendapatan paket berbayar per sesi (atau **40%** untuk siswa paket yang mendaftar memakai kode referral milik pengajar tersebut), dibagi jumlah sesi program.

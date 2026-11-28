@@ -606,8 +606,11 @@ export type Database = {
           dibuat_oleh: string
           dibuat_pada: string
           id: string
+          jenis: Database["public"]["Enums"]["jenis_booking"]
           kelas_id: string
           kode: string
+          kode_referral: string | null
+          potongan: number
           siswa_id: string
           status: Database["public"]["Enums"]["status_booking"]
           total: number
@@ -617,8 +620,11 @@ export type Database = {
           dibuat_oleh: string
           dibuat_pada?: string
           id?: string
+          jenis?: Database["public"]["Enums"]["jenis_booking"]
           kelas_id: string
           kode: string
+          kode_referral?: string | null
+          potongan?: number
           siswa_id: string
           status?: Database["public"]["Enums"]["status_booking"]
           total: number
@@ -628,8 +634,11 @@ export type Database = {
           dibuat_oleh?: string
           dibuat_pada?: string
           id?: string
+          jenis?: Database["public"]["Enums"]["jenis_booking"]
           kelas_id?: string
           kode?: string
+          kode_referral?: string | null
+          potongan?: number
           siswa_id?: string
           status?: Database["public"]["Enums"]["status_booking"]
           total?: number
@@ -662,6 +671,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "kelas_katalog"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_kelas_id_fkey"
+            columns: ["kelas_id"]
+            isOneToOne: false
+            referencedRelation: "perkiraan_bagi_hasil_saya"
+            referencedColumns: ["kelas_id"]
           },
           {
             foreignKeyName: "booking_siswa_id_fkey"
@@ -928,6 +944,39 @@ export type Database = {
           source_url?: string
         }
         Relationships: []
+      }
+      kode_referral: {
+        Row: {
+          dibuat_pada: string
+          kode: string
+          pengajar_id: string
+        }
+        Insert: {
+          dibuat_pada?: string
+          kode: string
+          pengajar_id: string
+        }
+        Update: {
+          dibuat_pada?: string
+          kode?: string
+          pengajar_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kode_referral_pengajar_id_fkey"
+            columns: ["pengajar_id"]
+            isOneToOne: true
+            referencedRelation: "pengajar_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kode_referral_pengajar_id_fkey"
+            columns: ["pengajar_id"]
+            isOneToOne: true
+            referencedRelation: "pengguna"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       laporan_masalah: {
         Row: {
@@ -1303,6 +1352,54 @@ export type Database = {
             columns: ["program_id"]
             isOneToOne: false
             referencedRelation: "program"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pengalaman_pengajar: {
+        Row: {
+          deskripsi: string | null
+          dibuat_pada: string
+          id: string
+          pengajar_id: string
+          peran: string
+          periode: string
+          tempat: string
+          urutan: number
+        }
+        Insert: {
+          deskripsi?: string | null
+          dibuat_pada?: string
+          id?: string
+          pengajar_id: string
+          peran: string
+          periode: string
+          tempat: string
+          urutan: number
+        }
+        Update: {
+          deskripsi?: string | null
+          dibuat_pada?: string
+          id?: string
+          pengajar_id?: string
+          peran?: string
+          periode?: string
+          tempat?: string
+          urutan?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pengalaman_pengajar_pengajar_id_fkey"
+            columns: ["pengajar_id"]
+            isOneToOne: false
+            referencedRelation: "pengajar_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pengalaman_pengajar_pengajar_id_fkey"
+            columns: ["pengajar_id"]
+            isOneToOne: false
+            referencedRelation: "pengguna"
             referencedColumns: ["id"]
           },
         ]
@@ -1833,6 +1930,51 @@ export type Database = {
           },
         ]
       }
+      sertifikat_pengajar: {
+        Row: {
+          dibuat_pada: string
+          id: string
+          nama: string
+          penerbit: string
+          pengajar_id: string
+          tahun: number
+          tautan: string | null
+        }
+        Insert: {
+          dibuat_pada?: string
+          id?: string
+          nama: string
+          penerbit: string
+          pengajar_id: string
+          tahun: number
+          tautan?: string | null
+        }
+        Update: {
+          dibuat_pada?: string
+          id?: string
+          nama?: string
+          penerbit?: string
+          pengajar_id?: string
+          tahun?: number
+          tautan?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sertifikat_pengajar_pengajar_id_fkey"
+            columns: ["pengajar_id"]
+            isOneToOne: false
+            referencedRelation: "pengajar_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sertifikat_pengajar_pengajar_id_fkey"
+            columns: ["pengajar_id"]
+            isOneToOne: false
+            referencedRelation: "pengguna"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sesi: {
         Row: {
           id: string
@@ -1884,6 +2026,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "kelas_katalog"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sesi_kelas_id_fkey"
+            columns: ["kelas_id"]
+            isOneToOne: false
+            referencedRelation: "perkiraan_bagi_hasil_saya"
+            referencedColumns: ["kelas_id"]
           },
         ]
       }
@@ -2021,6 +2170,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "kelas_katalog"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_kelas_kelas_id_fkey"
+            columns: ["kelas_id"]
+            isOneToOne: false
+            referencedRelation: "perkiraan_bagi_hasil_saya"
+            referencedColumns: ["kelas_id"]
           },
           {
             foreignKeyName: "waitlist_kelas_pengguna_id_fkey"
@@ -2199,6 +2355,13 @@ export type Database = {
             referencedRelation: "kelas_katalog"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sesi_kelas_id_fkey"
+            columns: ["kelas_id"]
+            isOneToOne: false
+            referencedRelation: "perkiraan_bagi_hasil_saya"
+            referencedColumns: ["kelas_id"]
+          },
         ]
       }
       pengajar_publik: {
@@ -2218,6 +2381,20 @@ export type Database = {
           status_kerja:
             | Database["public"]["Enums"]["status_kerja_pengajar"]
             | null
+        }
+        Relationships: []
+      }
+      perkiraan_bagi_hasil_saya: {
+        Row: {
+          honor_per_sesi: number | null
+          jumlah_sesi: number | null
+          jumlah_siswa: number | null
+          kelas_id: string | null
+          level: number | null
+          program_nama: string | null
+          program_slug: string | null
+          siswa_referral: number | null
+          status: Database["public"]["Enums"]["status_kelas"] | null
         }
         Relationships: []
       }
@@ -2298,6 +2475,13 @@ export type Database = {
             referencedRelation: "kelas_katalog"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "sesi_kelas_id_fkey"
+            columns: ["kelas_id"]
+            isOneToOne: false
+            referencedRelation: "perkiraan_bagi_hasil_saya"
+            referencedColumns: ["kelas_id"]
+          },
         ]
       }
       sesi_saya: {
@@ -2353,6 +2537,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "kelas_katalog"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sesi_kelas_id_fkey"
+            columns: ["kelas_id"]
+            isOneToOne: false
+            referencedRelation: "perkiraan_bagi_hasil_saya"
+            referencedColumns: ["kelas_id"]
           },
         ]
       }
@@ -2410,6 +2601,10 @@ export type Database = {
       adalah_booking_saya: { Args: { p_booking_id: string }; Returns: boolean }
       adalah_kelas_pengajar_saya: {
         Args: { p_kelas_id: string }
+        Returns: boolean
+      }
+      adalah_pengajar_terverifikasi: {
+        Args: { p_pengajar_id: string }
         Returns: boolean
       }
       adalah_percakapan_chat_saya: {
@@ -2478,9 +2673,18 @@ export type Database = {
         Returns: Json
       }
       buat_booking: {
+        Args: {
+          p_kelas_id: string
+          p_kode_referral?: string
+          p_siswa_id: string
+        }
+        Returns: Json
+      }
+      buat_booking_trial: {
         Args: { p_kelas_id: string; p_siswa_id: string }
         Returns: Json
       }
+      buat_kode_referral: { Args: never; Returns: Json }
       buat_link_persetujuan: { Args: never; Returns: Json }
       buka_kelas: {
         Args: {
@@ -2567,6 +2771,10 @@ export type Database = {
         Args: { p_keputusan: string; p_token: string }
         Returns: Json
       }
+      simpan_detail_profil_pengajar: {
+        Args: { p_pengalaman: Json; p_sertifikat: Json }
+        Returns: Json
+      }
       status_saya: {
         Args: never
         Returns: Database["public"]["Enums"]["status_pengguna"]
@@ -2585,7 +2793,8 @@ export type Database = {
     }
     Enums: {
       bidang_it: "software" | "jaringan" | "iot" | "ai_data"
-      jenjang_pendidikan: "SD" | "SMP" | "SMA"
+      jenis_booking: "paket" | "trial"
+      jenjang_pendidikan: "TK" | "SD" | "SMP" | "SMA"
       kategori_masalah:
         | "perilaku_tidak_pantas"
         | "pengajar_tidak_hadir"
@@ -2763,7 +2972,8 @@ export const Constants = {
   public: {
     Enums: {
       bidang_it: ["software", "jaringan", "iot", "ai_data"],
-      jenjang_pendidikan: ["SD", "SMP", "SMA"],
+      jenis_booking: ["paket", "trial"],
+      jenjang_pendidikan: ["TK", "SD", "SMP", "SMA"],
       kategori_masalah: [
         "perilaku_tidak_pantas",
         "pengajar_tidak_hadir",

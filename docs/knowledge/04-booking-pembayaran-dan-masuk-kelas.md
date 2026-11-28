@@ -1,12 +1,14 @@
 # Panduan Booking Kelas, Pembayaran, Masuk Kelas, dan Laporan Sesi
 
-## 1. Memilih Kelas dan Membuat Booking (`/kelas`)
+## 1. Memilih Kelas, Kode Referral, dan Kelas Coba Gratis (`/kelas`)
 
-1. Buka katalog kelas di `/kelas`. Anda dapat menyaring kelas berdasarkan **Program**, **Jenjang (SD/SMP/SMA)**, **Hari**, dan **Jam**.
-2. Setiap kartu kelas menampilkan nama pengajar terverifikasi, jadwal mingguan (4 sesi), harga paket, serta **sisa kursi** (misalnya *"3 dari 15 kursi tersisa"*).
+1. Buka katalog kelas di `/kelas`. Anda dapat menyaring kelas berdasarkan **Program**, **Jenjang (TK/SD/SMP/SMA)**, **Hari**, dan **Jam**.
+2. Setiap kartu kelas menampilkan nama pengajar terverifikasi, jadwal mingguan (4 sesi), harga paket, serta **sisa kursi** (misalnya *"3 dari 15 kursi tersisa"* atau *"Maks. 6 siswa"* untuk Kenal Komputer).
 3. Kelas yang kursinya sudah penuh atau sesi pertamanya sudah lewat tidak dapat dipesan.
-4. Klik **Pesan** pada kelas yang sesuai dengan jenjang dan kelas siswa. Satu siswa tidak bisa memiliki dua booking aktif di kelas yang sama.
-5. Setelah booking dibuat:
+4. Klik **Pesan** atau **Coba Gratis 1 Sesi** pada kelas yang sesuai dengan jenjang dan tingkat kelas siswa. Satu siswa tidak bisa memiliki dua booking aktif di kelas yang sama.
+5. **Diskon Kode Referral Pengajar (5%):** Saat membuat booking paket berbayar, Anda dapat memasukkan kode referral dari pengajar untuk memperoleh **potongan 5%** otomatis dari harga paket.
+6. **Kelas Coba Gratis 1x (Trial Sesi 1):** Setiap profil siswa mendapat jatah **1 kali kelas coba gratis** untuk mengikuti **Sesi 1 saja** (tanpa perlu pembayaran). Peserta trial dapat masuk Google Meet Sesi 1, menerima laporan Sesi 1, dan memberi rating Sesi 1; setelah laporan Sesi 1 dikirim, status booking trial otomatis selesai dan tidak berlanjut ke Sesi 2–4 kecuali mendaftar paket penuh.
+7. Setelah booking paket dibuat:
    - Kursi otomatis **ditahan selama 24 jam** dengan status **`menunggu_pembayaran`**.
    - Anda mendapatkan kode booking unik (contoh: `BK-20261124-0007`).
 

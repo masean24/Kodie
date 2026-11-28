@@ -2,13 +2,14 @@
 
 ## Bergabung Menjadi Pengajar Paruh Waktu di Kodie
 
-Kodie membuka kesempatan kerja paruh waktu yang fleksibel bagi **mahasiswa aktif, lulusan baru, dan pencari kerja** di bidang teknologi untuk mengajar siswa SD, SMP, dan SMA secara daring.
+Kodie membuka kesempatan kerja paruh waktu yang fleksibel bagi **mahasiswa aktif, lulusan baru, dan pencari kerja** di bidang teknologi untuk mengajar siswa **TK B, SD, SMP, dan SMA** secara daring.
 
 ### Keuntungan Mengajar di Kodie
 - **Jadwal Fleksibel:** Pengajar bebas membuka kelas dan menentukan jadwal mengajarnya sendiri.
 - **Sepenuhnya Daring:** Dapat mengajar dari mana saja cukup dengan laptop dan koneksi internet stabil.
 - **Materi Sudah Siap (Teaching Playbook):** Setiap sesi sudah dilengkapi Teaching Playbook langkah demi langkah sehingga pengajar pemula pun bisa mengajar dengan standar yang sama.
-- **Honor Jelas per Sesi:** Honor tercatat otomatis begitu laporan sesi dikirim (Coding Dasar Rp50.000/sesi, Kelas Reguler Teknologi Rp65.000/sesi, Simulasi Jurusan IT Rp75.000/sesi).
+- **Skema Bagi Hasil 30%–40% per Sesi:** Honor dihitung otomatis begitu laporan sesi dikirim sebesar **30%** dari pendapatan paket berbayar (dibagi jumlah sesi), dan naik menjadi **40%** untuk peserta paket yang mendaftar memakai **kode referral** milik pengajar tersebut. Dashboard pengajar juga menampilkan **Perkiraan Bagi Hasil** untuk kelas yang sedang berlangsung.
+- **Kode Referral & Profil Profesional:** Pengajar terverifikasi bisa membuat kode referral unik (memberikan diskon **5%** bagi siswa sekaligus bonus bagi hasil **40%**), serta menampilkan riwayat **pengalaman** dan **sertifikat** di profil publik pengajar.
 - **Portofolio & Pengalaman Nyata:** Membangun pengalaman mengajar dan komunikasi teknis untuk karier di industri IT.
 
 ## Enam Posisi Pengajar yang Dibuka di `/karier`

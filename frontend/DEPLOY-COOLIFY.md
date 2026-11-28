@@ -53,11 +53,12 @@ Buka **Environment Variables** → **Add** untuk setiap variabel di bawah. Semua
 | Nama | Nilai | Build time |
 | --- | --- | --- |
 | `NEXT_PUBLIC_USE_MOCK` | `false` | Available during build |
+| `NEXT_PUBLIC_FITUR_LANJUTAN` | `true` | Available during build |
 | `NEXT_PUBLIC_SUPABASE_URL` | URL project Supabase | Available during build |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key Supabase | Available during build |
 | `NEXT_PUBLIC_SITE_URL` | `https://kodie.domainmu.id` (sama persis dengan domain langkah 3, tanpa `/` di akhir) | Available during build |
 
-`Dockerfile` sudah mendeklarasikan keempat `ARG` ini, jadi aman juga jika **Advanced → Build → Build arguments** diset "Managed manually in Dockerfile".
+`Dockerfile` sudah mendeklarasikan kelima `ARG` ini, jadi aman juga jika **Advanced → Build → Build arguments** diset "Managed manually in Dockerfile".
 
 > Mengubah variabel build-time butuh **Redeploy**, bukan sekadar **Restart**.
 

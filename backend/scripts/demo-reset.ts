@@ -31,6 +31,7 @@ const KELAS_IDS = {
   k4: '22222222-2222-4222-8222-000000000004',
   k5: '22222222-2222-4222-8222-000000000005',
   k7Live: '22222222-2222-4222-8222-000000000007',
+  k8Kenal: '22222222-2222-4222-8222-000000000008',
 } as const;
 
 const BOOKING_K1_PENDING_ID = '55555555-5555-4555-8555-000000000001';
@@ -252,6 +253,14 @@ async function main() {
     durationMinutes: 90,
     adminToken,
   });
+  await updateKelasScheduleAndEnsureMeet({
+    kelasId: KELAS_IDS.k8Kenal,
+    startDaysOffset: 4,
+    hourWib: 9,
+    minuteWib: 0,
+    durationMinutes: 45,
+    adminToken,
+  });
 
   // 4. Siapkan k7Live di Kelas Reguler Teknologi (Nadia + Fajar SMA/ortu1) agar tidak duplikat Coding Dasar
   console.log('4. Menyiapkan kelas Live H-15m k7Live (Nadia + Fajar SMA / ortu1)...');
@@ -331,7 +340,7 @@ async function main() {
       siswa_id: siswaAktifRow.id,
       dibuat_oleh: siswaAktifUserId,
       status: 'terkonfirmasi',
-      total: 275000,
+      total: 350000,
       batas_bayar_pada: isoInHours(24),
     },
     { onConflict: 'kode' },

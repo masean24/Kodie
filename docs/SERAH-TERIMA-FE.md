@@ -70,12 +70,15 @@ Pastikan implementasi Frontend mengikuti detail berikut:
 3. **Tes Minat (`F4`):**
    - Tes minat **tidak memblokir** `buat_booking` untuk *Simulasi Jurusan IT* (hanya bersifat saran).
    - Rumus persentase: `ROUND((skor_bidang / total_skor_4_bidang) * 100)`, dengan *tie-break* `software > jaringan > iot > ai_data`.
-4. **Harga Paket (4 Sesi) & Honor Seed:**
-   - *Coding Dasar* (SD, kapasitas maks 10): `Rp200.000` (honor `Rp50.000`/sesi).
-   - *Kelas Reguler Teknologi* (SMP/SMA, kapasitas maks 15): `Rp275.000` (honor `Rp65.000`/sesi).
-   - *Simulasi Jurusan IT* (SMP 9/SMA, kapasitas maks 15): `Rp300.000` (honor `Rp75.000`/sesi).
+4. **Harga Paket (4 Sesi) & Skema Bagi Hasil Pengajar:**
+   - *Kenal Komputer* (TK/SD 1, kapasitas maks 6, 45 menit): `Rp225.000`.
+   - *Coding Dasar* (SD, kapasitas maks 10, 60 menit): `Rp250.000`.
+   - *Kelas Reguler Teknologi* (SMP/SMA, kapasitas maks 15, 90 menit): `Rp350.000`.
+   - *Simulasi Jurusan IT* (SMP 9/SMA, kapasitas maks 15, 90 menit): `Rp400.000`.
+   - **Bagi Hasil Pengajar:** `30%` dari pendapatan paket terkonfirmasi/selesai per siswa dibagi jumlah sesi (atau **`40%`** jika siswa memakai kode referral milik pengajar kelas tersebut; peserta `trial` gratis tidak menambah honor).
 5. **Profil Pengajar (`F1` & `F7`):**
    - Pilihan program (`pengajar_program`) diisi/diubah pengajar di halaman `/mengajar/profil` (setelah login) dengan `disetujui = false`, bukan saat `signUp` awal.
+   - Pengajar juga dapat mengelola **pengalaman** (`pengalaman_pengajar`) dan **sertifikat** (`sertifikat_pengajar`) maks. 10 baris lewat `simpan_detail_profil_pengajar`, serta membuat kode referral via `buat_kode_referral`.
 
 ---
 
@@ -86,13 +89,13 @@ Pastikan implementasi Frontend mengikuti detail berikut:
 Kirim field berikut di `options.data` (wajib ada `peran` dan `nama`). Opsional dapat menyertakan `privasi_disetujui: true` untuk audit kepatuhan (`pengguna.privasi_disetujui_pada`); bila dikirim eksplisit `false`, trigger menolak pendaftaran dengan `VALIDASI_GAGAL`:
 
 - **Orang tua:** `{ peran: 'orang_tua', nama, no_wa, privasi_disetujui?: true }`
-- **Siswa (hanya `SMP` / `SMA`; `SD` ditolak trigger):**
+- **Siswa (hanya `SMP` / `SMA`; `TK` & `SD` ditolak trigger dan dikelola dari Profil Anak Orang Tua):**
   `{ peran: 'siswa', nama, no_wa?, tanggal_lahir: 'YYYY-MM-DD', jenjang: 'SMP' | 'SMA', kelas: number, sekolah?, nama_orang_tua?, email_orang_tua?, privasi_disetujui?: true }`
 - **Pengajar:**
   `{ peran: 'pengajar', nama, no_wa?, status_kerja?: 'mahasiswa' | 'lulusan' | 'pencari_kerja', kampus?, jurusan?, keahlian?: ('software'|'jaringan'|'iot'|'ai_data')[], cv_url?, bio?, privasi_disetujui?: true }`
 - Peran `admin` akan selalu ditolak oleh trigger database.
 
-### B. 9 View untuk Read Data (`supabase.from('<nama_view>').select(...)`)
+### B. 10 View untuk Read Data (`supabase.from('<nama_view>').select(...)`)
 
 | View | Akses | Catatan Penting |
 | --- | --- | --- |
@@ -101,19 +104,22 @@ Kirim field berikut di `options.data` (wajib ada `peran` dan `nama`). Opsional d
 | `ulasan_pengajar_publik` | Publik | Ulasan terverifikasi berkomentar non-kosong untuk pengajar dengan `jumlah_rating >= 3`. Kolom: `id`, `pengajar_id`, `program_slug`, `program_nama`, `bintang`, `komentar`, `pemberi_label` (contoh `R*** · Orang Tua`), `dibuat_pada`. Tanpa `siswa_id`/`pemberi_id`. |
 | `soal_minat_publik` | Publik | 12 soal terurut, kolom `opsi` hanya berisi `[{ kode, teks }]` tanpa bobot. |
 | `chatbot_konfigurasi_publik` | Publik | Pengaturan aman widget Kiko (`chatbot_aktif`, `chatbot_nama`, `chatbot_sapaan`, `chatbot_kontak_wa`, `chatbot_kontak_email`). |
-| `sesi_saya` | Login (pemilik / admin) | Berisi jadwal sesi & flag `bisa_masuk_kelas` (boolean). **Tanpa `meet_uri`.** |
+| `sesi_saya` | Login (pemilik / admin) | Berisi jadwal sesi & flag `bisa_masuk_kelas` (boolean). Peserta `trial` hanya melihat Sesi 1. **Tanpa `meet_uri`.** |
 | `laporan_saya` | Login (pemilik / admin) | Hanya mengembalikan catatan siswa milik peminta. Kolom `rekaman_url` otomatis `null` bagi siswa/orang tua. |
 | `rapor_saya` | Login (pemilik / admin) | Menggabungkan `rapor_jurusan` dengan skor `hasil_minat` terbaru siswa. |
+| `perkiraan_bagi_hasil_saya` | Pengajar (`auth.uid()`) | Ringkasan kelas aktif/terbuka (`kelas_id`, `program_nama`, `program_slug`, `level`, `status`, `jumlah_siswa`, `siswa_referral`, `honor_per_sesi`, `jumlah_sesi`). |
 | `admin_ringkasan` | Admin saja | Angka statistik dashboard admin (non-admin mendapat 0 baris). |
 
-> **Catatan tambahan tabel `program` & `waitlist_kelas`:**
+> **Catatan tambahan tabel `program`, `waitlist_kelas`, & profil/referral:**
 > - Tabel `program` kini memiliki kolom **`silabus`** (`Array<{ sesi: number; judul: string; topik: string; hasil_proyek: string }>`) untuk Sesi 1–4 yang aman dibaca publik tanpa membuka `playbook`.
 > - Tabel `waitlist_kelas` dapat di-`select` oleh pengguna login untuk mengecek status antreannya (`menunggu` / `diberitahu` / `dibatalkan`) per `kelas_id`.
+> - Tabel `pengalaman_pengajar` dan `sertifikat_pengajar` dapat dibaca publik (`anon`, `authenticated`) khusus untuk pengajar `terverifikasi`.
+> - Tabel `kode_referral` hanya bisa dibaca oleh pengajar pemilik atau Admin (validasi kode saat checkout dilakukan via `buat_booking`).
 > - Tabel `sesi`, `playbook`, dan `soal_minat` tetap terkunci dari `select` langsung non-admin. Gunakan `sesi_saya`, `soal_minat_publik`, serta RPC `link_masuk_sesi` dan `playbook_sesi`.
 
 ### C. Daftar RPC (`supabase.rpc('<nama>', { ... })`)
 
-Error bisnis dilempar di `error.message` sesuai kode error PRD Bagian 8 (`VALIDASI_GAGAL`, `TIDAK_BERHAK`, `SISWA_BELUM_DISETUJUI`, `PENGAJAR_BELUM_TERVERIFIKASI`, `KAPASITAS_TIDAK_VALID`, `TOKEN_TIDAK_BERLAKU`, `KELAS_PENUH`, `BOOKING_GANDA`, `JADWAL_BENTROK`, `FILE_TIDAK_VALID`, `SESI_BELUM_DIBUKA`, `LINK_MEET_BELUM_ADA`, `LAPORAN_TERKUNCI`).
+Error bisnis dilempar di `error.message` sesuai kode error PRD Bagian 8 & saran pembimbing (`VALIDASI_GAGAL`, `TIDAK_BERHAK`, `SISWA_BELUM_DISETUJUI`, `PENGAJAR_BELUM_TERVERIFIKASI`, `KAPASITAS_TIDAK_VALID`, `TOKEN_TIDAK_BERLAKU`, `KELAS_PENUH`, `BOOKING_GANDA`, `JADWAL_BENTROK`, `FILE_TIDAK_VALID`, `SESI_BELUM_DIBUKA`, `LINK_MEET_BELUM_ADA`, `LAPORAN_TERKUNCI`, `KODE_REFERRAL_TIDAK_VALID`, `TRIAL_SUDAH_DIPAKAI`, `TRIAL_TIDAK_TERSEDIA`).
 
 - **Persetujuan Orang Tua (F2):**
   - `buat_link_persetujuan()` *(siswa)* → `{ token, kedaluwarsa_pada }`
@@ -123,8 +129,11 @@ Error bisnis dilempar di `error.message` sesuai kode error PRD Bagian 8 (`VALIDA
   - `hitung_tes_minat({ p_jawaban, p_siswa_id? })` *(publik/login)*
     - `p_jawaban` mendukung objek `{"1": "A", ..., "12": "D"}` atau array `[{ urutan: 1, kode: "A" }, ...]`.
     - Return: `{ id, tersimpan, skor: { software, jaringan, iot, ai_data }, skor_mentah, bidang_teratas, rekomendasi_jurusan, rekomendasi_program }`.
-- **Booking, Pembayaran & Waitlist (F6, QA T-11/T-16/T-17):**
-  - `buat_booking({ p_kelas_id, p_siswa_id })` → `{ id, kode, status, total, batas_bayar_pada }`
+- **Booking, Trial, Kode Referral, Pembayaran & Waitlist (F6, QA T-11/T-16/T-17):**
+  - `buat_booking({ p_kelas_id, p_siswa_id, p_kode_referral? })` → `{ id, kode, status, total, batas_bayar_pada }` *(diskon 5% jika `p_kode_referral` valid milik pengajar kelas; `jenis`, `kode_referral`, `potongan` tersimpan di tabel `booking`)*
+  - `buat_booking_trial({ p_kelas_id, p_siswa_id })` → `{ id, kode, status: 'terkonfirmasi', total: 0, batas_bayar_pada }` *(maks 1x per siswa untuk Sesi 1 saja, `booking.jenis = 'trial'`)*
+  - `buat_kode_referral()` *(pengajar `terverifikasi`, idempoten)* → `{ pengajar_id, kode, dibuat_pada }`
+  - `simpan_detail_profil_pengajar({ p_pengalaman, p_sertifikat })` *(pengajar)* → `{ pengalaman_count, sertifikat_count }`
   - `batalkan_booking({ p_booking_id })` → `{ id, status: 'dibatalkan' }`
   - `kirim_bukti_bayar({ p_booking_id, p_path })` → `{ pembayaran_id, booking_id, status: 'menunggu_verifikasi' }`
   - `daftar_waitlist_kelas({ p_kelas_id, p_siswa_id? })` *(khusus `orang_tua` / `siswa` aktif ketika kelas berstatus `terbuka` dengan `sisa_kursi = 0`)* → `{ id, kelas_id, siswa_id, status: 'menunggu', sudah_terdaftar: boolean }`. Error tambahan: `KELAS_MASIH_TERSEDIA`, `SUDAH_TERDAFTAR`. Notifikasi otomatis dikirim saat ada booking dibatalkan/kedaluwarsa (`tipe: 'booking_status'`).

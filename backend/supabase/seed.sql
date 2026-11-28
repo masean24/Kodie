@@ -37,7 +37,7 @@ VALUES
     'Belajar logika, berpikir komputasional, dan pemrograman blok interaktif menggunakan Scratch. Setiap sesi menghasilkan proyek animasi atau game mini.',
     60,
     4,
-    200000,
+    250000,
     50000,
     true,
     '[
@@ -58,7 +58,7 @@ VALUES
     'Kelas berjenjang yang membahas pemrograman web (HTML, CSS, JavaScript), simulasi IoT virtual, dan pengenalan AI dasar dengan proyek nyata.',
     90,
     4,
-    275000,
+    350000,
     65000,
     true,
     '[
@@ -79,7 +79,7 @@ VALUES
     'Program eksplorasi 4 sesi (Software Engineering, Jaringan Komputer, IoT, dan Integrasi AI) untuk membantu siswa kelas 9–12 memilih jurusan kuliah IT.',
     90,
     4,
-    300000,
+    400000,
     75000,
     true,
     '[
@@ -87,6 +87,27 @@ VALUES
       {"sesi":2,"judul":"Simulasi 2: Jaringan Komputer & Keamanan Siber","topik":"Memahami IP Address, DNS, router, protokol HTTP/HTTPS, inspeksi Network Tab, serta mengenali ancaman phishing.","hasil_proyek":"Analisis lalu lintas request browser dan investigasi keamanan tautan."},
       {"sesi":3,"judul":"Simulasi 3: Internet of Things (IoT) Virtual","topik":"Mengenal mikrokontroler ESP32/Arduino, wiring sensor jarak & suhu, serta pemrograman logika perangkat di Wokwi.","hasil_proyek":"Simulasi perangkat rumah pintar berbasis sensor otomatis."},
       {"sesi":4,"judul":"Simulasi 4: AI & Sains Data + Rapor Jurusan","topik":"Mencoba eksperimen klasifikasi teks AI, evaluasi kesalahan model, dan refleksi minat keempat bidang IT.","hasil_proyek":"Notebook klasifikasi AI dan Rapor Rekomendasi Jurusan Kuliah."}
+    ]'::jsonb
+  ),
+  (
+    '11111111-1111-4111-8111-000000000004',
+    'kenal-komputer',
+    'Kenal Komputer',
+    ARRAY['TK', 'SD']::public.jenjang_pendidikan[],
+    0,
+    1,
+    1,
+    'Kenalan dengan komputer untuk anak usia 5–7 tahun: memakai mouse dan keyboard, membuka aplikasi di Windows, menyimpan karya ke folder, dan aman di internet. Didampingi orang tua di setiap sesi.',
+    45,
+    4,
+    225000,
+    0,
+    true,
+    '[
+      {"sesi":1,"judul":"Halo Komputer: Mouse, Keyboard, dan Layar","topik":"Mengenal bagian komputer, menyalakan dan mematikan dengan benar, menggerakkan mouse, klik dan klik dua kali, serta posisi duduk yang sehat.","hasil_proyek":"Mewarnai gambar di Paint dengan klik dan seret."},
+      {"sesi":2,"judul":"Jelajah Windows: Desktop, Ikon, dan Jendela","topik":"Mengenal desktop, menu Start, membuka dan menutup aplikasi, memperbesar, mengecilkan, dan memindahkan jendela.","hasil_proyek":"Membuka tiga aplikasi sendiri dan menatanya berdampingan."},
+      {"sesi":3,"judul":"Rumah untuk Karya: Folder dan File","topik":"Membuat folder, memberi nama, menyimpan gambar ke folder yang tepat, menyalin, memindahkan, dan menghapus file dengan aman.","hasil_proyek":"Folder \"Karyaku\" berisi gambar dari sesi 1 dan 2 yang tersusun rapi."},
+      {"sesi":4,"judul":"Mengetik Nama dan Aman di Internet","topik":"Mengetik huruf dan angka di keyboard, membuka peramban bersama orang tua, dan aturan aman: tidak membagikan data pribadi.","hasil_proyek":"Kartu nama digital sederhana disimpan di folder \"Karyaku\"."}
     ]'::jsonb
   )
 ON CONFLICT (slug) DO UPDATE SET
@@ -627,6 +648,128 @@ Setelah sesi ini, siswa mencoba klasifikasi teks sederhana berbasis AI, menghubu
 ## Setelah kelas (WAJIB)
 Isi laporan sesi sekaligus **Rapor Rekomendasi Jurusan** (skor 1–5 Software, Jaringan, IoT, AI & Data, bidang rekomendasi, alasan, saran) untuk setiap siswa yang hadir.$md$,
     'https://colab.research.google.com/'
+  ),
+  (
+    '11111111-1111-4111-8111-000000000004',
+    1,
+    1,
+    'Kenal Komputer Sesi 1: Mouse, Keyboard, dan Layar',
+    $md$## Tujuan sesi
+Setelah sesi ini, anak (didampingi orang tua) bisa:
+1. Mengenal layar monitor, mouse, dan keyboard dengan posisi duduk yang nyaman.
+2. Melakukan gerakan mouse, klik kiri, klik dua kali, dan klik-seret di Paint.
+
+## Persiapan pengajar
+- Pastikan orang tua mendampingi anak di samping perangkat pada awal kelas.
+- Siapkan contoh gambar rumah sederhana di Paint.
+
+## Alur kelas (45 menit)
+- **00–07 Pembukaan:** Sapa anak dan orang tua, periksa layar serta posisi tangan di mouse.
+- **07–25 Praktik terpandu:** Buka aplikasi Paint, pilih kuas dan warna, latih klik-seret membentuk garis dan lingkaran.
+- **25–38 Tantangan:** Anak mewarnai bentuk matahari dan rumah dengan minimal 3 warna berbeda.
+- **38–45 Penutup:** Anak memamerkan gambar di layar; apresiasi bersama orang tua.
+
+## Tantangan untuk siswa
+1. **Dasar:** Gambar satu bentuk rumah atau wajah tersenyum memakai kuas warna favorit di Paint.
+2. **Lanjutan:** Isi warna di dalam gambar menggunakan ikon ember cat (*Fill*).
+
+## Kunci jawaban dan solusi umum
+- *Warna tumpah ke seluruh layar:* Pastikan bentuk bangun tertutup rapat atau gunakan tombol Undo (`Ctrl+Z`).
+- *Mouse terasa terlalu cepat:* Minta orang tua membantu memegangi tangan anak perlahan di langkah awal.
+
+## Catatan keamanan
+- Kelas anak usia 5–7 tahun wajib didampingi orang tua dan selalu lewat link resmi platform.$md$,
+    NULL
+  ),
+  (
+    '11111111-1111-4111-8111-000000000004',
+    1,
+    2,
+    'Kenal Komputer Sesi 2: Desktop, Ikon, dan Jendela',
+    $md$## Tujuan sesi
+Setelah sesi ini, anak (didampingi orang tua) bisa:
+1. Mengenali tampilan Desktop, menu Start, dan ikon aplikasi.
+2. Membuka, memperbesar, mengecilkan, memindahkan, dan menutup jendela aplikasi.
+
+## Persiapan pengajar
+- Siapkan 3 aplikasi bawaan (Paint, Notepad, Kalkulator) untuk simulasi buka-tutup.
+
+## Alur kelas (45 menit)
+- **00–06 Pembukaan:** Ulas klik dan klik dua kali dari sesi 1.
+- **06–25 Praktik terpandu:** Membuka menu Start, mengenali tombol minimalkan (`_`), maksimalkan (`□`), dan tutup (`×`).
+- **25–38 Tantangan:** Anak membuka Paint dan Kalkulator bersamaan lalu menatanya berdampingan.
+- **38–45 Penutup:** Rangkuman fungsi tombol jendela dan pratinjau folder di sesi 3.
+
+## Tantangan untuk siswa
+1. **Dasar:** Buka aplikasi Notepad lewat menu Start, lalu kecilkan dan besarkan lagi jendelanya.
+2. **Lanjutan:** Susun jendela Paint di sebelah kiri dan Notepad di sebelah kanan.
+
+## Kunci jawaban dan solusi umum
+- *Jendela hilang ke bawah:* Arahkan anak melihat ikon aplikasi yang menyala di taskbar bawah.
+
+## Catatan keamanan
+- Pastikan orang tua mendampingi saat menavigasi menu sistem agar tidak menutup jendela Meet secara tidak sengaja.$md$,
+    NULL
+  ),
+  (
+    '11111111-1111-4111-8111-000000000004',
+    1,
+    3,
+    'Kenal Komputer Sesi 3: Folder dan File Karyaku',
+    $md$## Tujuan sesi
+Setelah sesi ini, anak (didampingi orang tua) bisa:
+1. Memahami konsep folder sebagai "rumah" tempat menyimpan file karya.
+2. Membuat folder bernama `Karyaku` dan menyimpan gambar Paint ke dalamnya.
+
+## Persiapan pengajar
+- Siapkan contoh folder rapi di Desktop untuk demonstrasi *File Explorer*.
+
+## Alur kelas (45 menit)
+- **00–06 Pembukaan:** Analogi lemari map dan laci penyimpanan untuk mengenalkan folder dan file.
+- **06–25 Praktik terpandu:** Klik kanan di Desktop/Dokumen untuk membuat folder `Karyaku`, lalu simpan file gambar ke folder itu.
+- **25–38 Tantangan:** Anak membuat satu gambar baru, menyimpannya dengan nama sendiri di folder `Karyaku`, lalu membukanya kembali.
+- **38–45 Penutup:** Apresiasi anak karena sudah bisa merapikan karyanya sendiri.
+
+## Tantangan untuk siswa
+1. **Dasar:** Buat folder bernama `Karyaku` dan simpan minimal 1 gambar di dalamnya.
+2. **Lanjutan:** Salin satu gambar ke folder tersebut atau ubah namanya menjadi `gambar-aku`.
+
+## Kunci jawaban dan solusi umum
+- *Lupa lokasi menyimpan file:* Cek bilah lokasi paling kiri di jendela Save As (`Desktop` atau `Documents`).
+
+## Catatan keamanan
+- Ingatkan anak hanya menghapus atau memindahkan file karyanya sendiri di folder `Karyaku`, jangan menyentuh folder sistem.$md$,
+    NULL
+  ),
+  (
+    '11111111-1111-4111-8111-000000000004',
+    1,
+    4,
+    'Kenal Komputer Sesi 4: Mengetik Nama & Aman di Internet',
+    $md$## Tujuan sesi
+Setelah sesi ini, anak (didampingi orang tua) bisa:
+1. Mengetik huruf kapital, spasi, dan angka di keyboard untuk membuat kartu nama digital di Notepad/Paint.
+2. Memahami aturan dasar aman berinternet bersama orang tua.
+
+## Persiapan pengajar
+- Siapkan ilustrasi lampu hijau/merah aturan aman internet untuk anak usia dini.
+
+## Alur kelas (45 menit)
+- **00–06 Pembukaan:** Kenali tombol `Shift`, `Space`, `Enter`, dan `Backspace` di keyboard.
+- **06–25 Praktik terpandu:** Mengetik nama panggilan, kelas, dan hobi singkat di Notepad/Paint menjadi kartu nama digital.
+- **25–37 Tantangan & Keamanan:** Menyimpan kartu nama ke folder `Karyaku`, lalu kuis singkat memilih hal yang boleh vs tidak boleh dibagikan online.
+- **37–45 Penutup:** Showcase kartu nama karya semua anak; tutup program Kenal Komputer Level 1 bersama orang tua.
+
+## Tantangan untuk siswa
+1. **Dasar:** Ketik nama panggilan dan 1 benda/warna kesukaan, lalu simpan di folder `Karyaku`.
+2. **Lanjutan:** Tambahkan gambar bintang di samping nama menggunakan aplikasi Paint.
+
+## Kunci jawaban dan solusi umum
+- *Huruf besar semua terus-menerus:* Cek lampu tombol `Caps Lock` dan tekan sekali untuk mematikannya.
+
+## Catatan keamanan
+- Tekankan aturan wajib: anak tidak pernah membuka peramban tanpa orang tua dan tidak membagikan alamat rumah, nomor HP, atau foto pribadi di internet.$md$,
+    NULL
   )
 ON CONFLICT (program_id, level, nomor_sesi) DO UPDATE SET
   judul = EXCLUDED.judul,
