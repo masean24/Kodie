@@ -78,6 +78,7 @@ export const programMock: Program[] = [
 export const pengajarMock: PengajarPublik[] = [
   {
     id: "00000000-0000-4000-9000-000000000001",
+    slug: "nadia-putri",
     nama: "Nadia Putri",
     status_kerja: "mahasiswa",
     kampus: "Universitas Contoh Nusantara",
@@ -89,6 +90,7 @@ export const pengajarMock: PengajarPublik[] = [
   },
   {
     id: "00000000-0000-4000-9000-000000000002",
+    slug: "dimas-pratama",
     nama: "Dimas Pratama",
     status_kerja: "lulusan",
     kampus: "Politeknik Contoh Mandiri",
@@ -100,6 +102,7 @@ export const pengajarMock: PengajarPublik[] = [
   },
   {
     id: "00000000-0000-4000-9000-000000000003",
+    slug: "sekar-ayuningtyas",
     nama: "Sekar Ayuningtyas",
     status_kerja: "pencari_kerja",
     kampus: null,
@@ -175,6 +178,7 @@ export function buatKelasMock(sekarang: Date): KelasKatalog[] {
       jumlah_sesi: program.jumlah_sesi,
       harga_paket: program.harga_paket,
       pengajar_nama: pengajar.nama,
+      pengajar_slug: store.profilPengajar.find((x) => x.pengguna_id === pengajar.id)?.slug ?? pengajar.slug ?? null,
       pengajar_foto_url: pengajar.foto_url,
       mulai_pada,
     };

@@ -57,6 +57,7 @@ export interface KelasKatalog {
   jumlah_sesi: number;
   harga_paket: number;
   pengajar_nama: string;
+  pengajar_slug?: string | null;
   pengajar_foto_url: string | null;
   pengajar_foto_path?: string | null;
   /** Waktu mulai sesi 1, ISO 8601 UTC (dinormalisasi dari `sesi_pertama_mulai_pada`). */
@@ -68,6 +69,7 @@ export interface KelasKatalog {
 /** View `pengajar_publik`: hanya pengajar terverifikasi. */
 export interface PengajarPublik {
   id: string;
+  slug?: string | null;
   nama: string;
   status_kerja: StatusKerja;
   kampus: string | null;
@@ -262,6 +264,7 @@ export interface InfoPembayaran {
 
 export interface ProfilPengajar {
   pengguna_id: string;
+  slug?: string | null;
   status_kerja: StatusKerja;
   kampus: string | null;
   jurusan: string | null;
@@ -1677,6 +1680,7 @@ export type Database = {
           keahlian: Database["public"]["Enums"]["bidang_it"][]
           pengguna_id: string
           skck_path: string | null
+          slug: string
           status_kerja:
             | Database["public"]["Enums"]["status_kerja_pengajar"]
             | null
@@ -1695,6 +1699,7 @@ export type Database = {
           keahlian?: Database["public"]["Enums"]["bidang_it"][]
           pengguna_id: string
           skck_path?: string | null
+          slug: string
           status_kerja?:
             | Database["public"]["Enums"]["status_kerja_pengajar"]
             | null
@@ -1713,6 +1718,7 @@ export type Database = {
           keahlian?: Database["public"]["Enums"]["bidang_it"][]
           pengguna_id?: string
           skck_path?: string | null
+          slug?: string
           status_kerja?:
             | Database["public"]["Enums"]["status_kerja_pengajar"]
             | null
@@ -2249,6 +2255,7 @@ export type Database = {
           pengajar_foto_path: string | null
           pengajar_id: string | null
           pengajar_nama: string | null
+          pengajar_slug: string | null
           program_id: string | null
           program_nama: string | null
           program_slug: string | null
@@ -2378,6 +2385,7 @@ export type Database = {
           nama: string | null
           program_ids: string[] | null
           rata_rata_rating: number | null
+          slug: string | null
           status_kerja:
             | Database["public"]["Enums"]["status_kerja_pengajar"]
             | null
@@ -2686,6 +2694,10 @@ export type Database = {
       }
       buat_kode_referral: { Args: never; Returns: Json }
       buat_link_persetujuan: { Args: never; Returns: Json }
+      buat_slug_pengajar_unik: {
+        Args: { p_abaikan_id?: string; p_nama: string }
+        Returns: string
+      }
       buka_kelas: {
         Args: {
           p_jam_mulai: string
@@ -2790,6 +2802,7 @@ export type Database = {
         }
         Returns: Json
       }
+      ubah_slug_pengajar: { Args: { p_slug: string }; Returns: Json }
     }
     Enums: {
       bidang_it: "software" | "jaringan" | "iot" | "ai_data"

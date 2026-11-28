@@ -4,8 +4,9 @@ import { ExternalLink } from "lucide-react";
 import { ambilProfilLengkapPengajar } from "@/lib/api/mengajar";
 import { ambilDetailProfilSaya } from "@/lib/api/pengajar-lanjutan";
 import { fiturLanjutan } from "@/lib/api/sumber";
+import { buatSlugDariNama } from "@/lib/validasi/pengajar-lanjutan";
 import { FormProfilPengajar } from "@/components/mengajar/form-profil";
-import { FormDetailProfil } from "@/components/mengajar/profil-publik";
+import { FormDetailProfil, KartuSlugProfil } from "@/components/mengajar/profil-publik";
 
 export const metadata: Metadata = { title: "Profil pengajar" };
 
@@ -15,6 +16,7 @@ export default async function HalamanProfilPengajar() {
     fiturLanjutan ? ambilDetailProfilSaya() : Promise.resolve(null),
   ]);
   const terverifikasi = data.pengguna.status === "terverifikasi";
+  const pathProfil = `/pengajar/${data.profil?.slug || data.pengguna.id}`;
   return (
     <div className="flex max-w-[820px] flex-col gap-6">
       <div>
@@ -26,7 +28,7 @@ export default async function HalamanProfilPengajar() {
         </p>
         {terverifikasi ? (
           <Link
-            href={`/pengajar/${data.pengguna.id}`}
+            href={pathProfil}
             className="mt-3 inline-flex min-h-touch items-center gap-1.5 font-bold text-primary underline-offset-4 hover:underline"
           >
             Lihat profil publik saya <ExternalLink aria-hidden className="size-4" />
@@ -34,6 +36,14 @@ export default async function HalamanProfilPengajar() {
         ) : null}
       </div>
       <FormProfilPengajar {...data} />
+      {fiturLanjutan ? (
+        <KartuSlugProfil
+          awalSlug={data.profil?.slug ?? buatSlugDariNama(data.pengguna.nama)}
+          pengajarId={data.pengguna.id}
+          nama={data.pengguna.nama}
+          terverifikasi={terverifikasi}
+        />
+      ) : null}
       {detail ? <FormDetailProfil awal={detail} /> : null}
     </div>
   );

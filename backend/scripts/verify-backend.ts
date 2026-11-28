@@ -635,6 +635,48 @@ async function main() {
       'RLS menyembunyikan pengalaman & sertifikat pengajar belum terverifikasi dari publik',
     );
 
+    // 7C-bis. Slug Kustom & Otomatis Profil Pengajar (Migration 16)
+    const { data: pubSlugRows } = await anon
+      .from('pengajar_publik')
+      .select('id, slug')
+      .eq('id', pengajar3Id)
+      .single();
+    const { data: katSlugRows } = await anon
+      .from('kelas_katalog')
+      .select('pengajar_id, pengajar_slug')
+      .eq('pengajar_id', pengajar3Id)
+      .limit(1);
+    assert(
+      pubSlugRows?.slug === 'citra-lestari-handayani' &&
+        katSlugRows?.[0]?.pengajar_slug === 'citra-lestari-handayani',
+      'View pengajar_publik & kelas_katalog mengekspos slug pengajar terverifikasi',
+    );
+
+    const { error: dupSlugErr } = await pengajarPending.rpc('ubah_slug_pengajar', {
+      p_slug: 'nadia-kusuma-putri',
+    });
+    assert(
+      dupSlugErr?.message === 'SLUG_SUDAH_DIPAKAI',
+      'ubah_slug_pengajar menolak slug milik pengajar lain dengan SLUG_SUDAH_DIPAKAI',
+    );
+
+    const [{ error: resSlugErr }, { error: badSlugErr }] = await Promise.all([
+      pengajarPending.rpc('ubah_slug_pengajar', { p_slug: 'admin' }),
+      pengajarPending.rpc('ubah_slug_pengajar', { p_slug: 'nama--salah' }),
+    ]);
+    assert(
+      resSlugErr?.message === 'SLUG_TIDAK_VALID' && badSlugErr?.message === 'SLUG_TIDAK_VALID',
+      'ubah_slug_pengajar menolak slug tercadang/format salah dengan SLUG_TIDAK_VALID',
+    );
+
+    const { data: okSlugData, error: okSlugErr } = await pengajarPending.rpc('ubah_slug_pengajar', {
+      p_slug: 'dimas-mentor-it',
+    });
+    assert(
+      !okSlugErr && (okSlugData as { slug?: string })?.slug === 'dimas-mentor-it',
+      'Pengajar dapat mengubah slug kustom profil melalui ubah_slug_pengajar',
+    );
+
     // 7D. End-to-end Referral 5%, Trial 1x Sesi-1, Perkiraan Bagi Hasil, & Honor 30/40%
     const { data: siswaUjiRows, error: suErr } = await service
       .from('siswa')
@@ -871,6 +913,7 @@ async function main() {
       'Peserta trial bisa memberi rating pada Sesi 1 dan ditolak pada Sesi 2–4',
     );
   } finally {
+    await service.from('profil_pengajar').update({ slug: 'dimas-putra-mahendra' }).eq('pengguna_id', pengajarPendingId);
     await service.from('pengalaman_pengajar').delete().eq('pengajar_id', pengajarPendingId);
     await service.from('sertifikat_pengajar').delete().eq('pengajar_id', pengajarPendingId);
     if (cleanupHasilMinatIds.length > 0) {

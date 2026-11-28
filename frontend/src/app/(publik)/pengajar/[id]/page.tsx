@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Award, BriefcaseBusiness, ShieldCheck } from "lucide-react";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
@@ -20,22 +20,23 @@ import { FormLaporMasalah } from "@/components/sesi/interaksi-sesi";
 export async function generateMetadata({ params }: PageProps<"/pengajar/[id]">): Promise<Metadata> {
   const { id } = await params;
   const p = await ambilPengajarPublik(id);
+  const pathProfil = p ? `/pengajar/${p.slug || p.id}` : `/pengajar/${id}`;
   return p
     ? {
         title: `${p.nama} · Pengajar`,
         description: `${p.nama}, pengajar Kodie terverifikasi (${keteranganPengajar(p)}). Lihat pengalaman, sertifikat, testimoni, rating, dan kelas yang diajar.`,
-        alternates: { canonical: `/pengajar/${id}` },
+        alternates: { canonical: pathProfil },
         openGraph: {
           title: `${p.nama} · Pengajar Kodie`,
           description: `Pengajar terverifikasi Kodie: ${keteranganPengajar(p)}.`,
-          url: `/pengajar/${id}`,
+          url: pathProfil,
           type: "profile",
         },
       }
     : { title: "Pengajar tidak ditemukan" };
 }
 
-export default function HalamanPengajar({ params }: PageProps<"/pengajar/[id]">) {
+export default function HalamanPengajar({ params, searchParams }: PageProps<"/pengajar/[id]">) {
   return (
     <Kontainer className="py-8 md:py-12">
       <Suspense
@@ -47,16 +48,35 @@ export default function HalamanPengajar({ params }: PageProps<"/pengajar/[id]">)
           </div>
         }
       >
-        <Isi params={params} />
+        <Isi params={params} searchParams={searchParams} />
       </Suspense>
     </Kontainer>
   );
 }
 
-async function Isi({ params }: { params: Promise<{ id: string }> }) {
+async function Isi({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { id } = await params;
   const [p, pengguna] = await Promise.all([ambilPengajarPublik(id), ambilPenggunaSaya()]);
   if (!p) notFound();
+  if (p.slug && id !== p.slug) {
+    const sp = await searchParams;
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(sp)) {
+      if (Array.isArray(v)) {
+        for (const item of v) qs.append(k, item);
+      } else if (v !== undefined) {
+        qs.set(k, v);
+      }
+    }
+    const query = qs.toString();
+    redirect(`/pengajar/${p.slug}${query ? `?${query}` : ""}`);
+  }
   const [semuaKelas, ulasan, detail] = await Promise.all([
     ambilKatalogKelas(),
     ambilUlasanPengajar(p.id),
@@ -108,7 +128,7 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
             ))}
           </ul>
           <Rating p={p} />
-          <TombolBagikanProfil path={`/pengajar/${p.id}`} nama={p.nama} />
+          <TombolBagikanProfil path={`/pengajar/${p.slug || p.id}`} nama={p.nama} />
         </div>
       </Kartu>
       <TangkapReferral pengajarId={p.id} />

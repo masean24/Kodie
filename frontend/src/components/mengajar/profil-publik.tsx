@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { Award, BriefcaseBusiness, Check, Copy, ExternalLink, Plus, Ticket, Trash2 } from "lucide-react";
+import { Award, BriefcaseBusiness, Check, Copy, ExternalLink, Link2, Plus, Ticket, Trash2 } from "lucide-react";
 import type { DetailProfilPengajar, KodeReferral } from "@/types/database";
-import { aksiBuatKodeReferral, aksiSimpanDetailProfil } from "@/lib/aksi/pengajar-lanjutan";
+import { aksiBuatKodeReferral, aksiSimpanDetailProfil, aksiUbahSlugPengajar } from "@/lib/aksi/pengajar-lanjutan";
 import { PERSEN_BAGI_HASIL, PERSEN_BONUS_REFERRAL, PERSEN_POTONGAN_REFERRAL } from "@/lib/referral";
 import { Input } from "@/components/ui/formulir";
 import { Kartu } from "@/components/ui/dasar";
@@ -19,17 +19,20 @@ type Sertifikat = { id?: string; nama: string; penerbit: string; tahun: string; 
 export function KartuKodeReferral({
   kode,
   pengajarId,
+  slug,
   nama,
   terverifikasi,
 }: {
   kode: KodeReferral | null;
   pengajarId: string;
+  slug?: string | null;
   nama: string;
   terverifikasi: boolean;
 }) {
   const [galat, setGalat] = useState<string>();
   const [tersalin, setTersalin] = useState(false);
   const [menunggu, mulai] = useTransition();
+  const pathProfil = `/pengajar/${slug || pengajarId}`;
 
   const buat = () =>
     mulai(async () => {
@@ -89,9 +92,9 @@ export function KartuKodeReferral({
           <p className="font-bold">Bagikan profil dengan kode Anda</p>
           <p className="text-sm text-text-muted">Kode otomatis terisi saat pengunjung tautan ini memesan kelas Anda.</p>
           <div className="flex flex-wrap items-center gap-3">
-            <TombolBagikanProfil path={`/pengajar/${pengajarId}`} nama={nama} kode={kode.kode} />
+            <TombolBagikanProfil path={pathProfil} nama={nama} kode={kode.kode} />
             <Link
-              href={`/pengajar/${pengajarId}`}
+              href={pathProfil}
               className="inline-flex min-h-touch items-center gap-1.5 font-bold text-primary underline-offset-4 hover:underline"
             >
               Lihat profil publik <ExternalLink aria-hidden className="size-4" />
@@ -99,6 +102,100 @@ export function KartuKodeReferral({
           </div>
         </div>
       ) : null}
+    </Kartu>
+  );
+}
+
+/** Username / slug tautan profil publik pengajar (`/pengajar/<slug>`). */
+export function KartuSlugProfil({
+  awalSlug,
+  pengajarId,
+  nama,
+  terverifikasi,
+}: {
+  awalSlug: string;
+  pengajarId: string;
+  nama: string;
+  terverifikasi: boolean;
+}) {
+  const [nilai, setNilai] = useState(awalSlug);
+  const [slugAktif, setSlugAktif] = useState(awalSlug);
+  const [galat, setGalat] = useState<string>();
+  const [galatIsian, setGalatIsian] = useState<string>();
+  const [pesan, setPesan] = useState<string>();
+  const [menunggu, mulai] = useTransition();
+
+  const pratinjau = nilai.trim().toLowerCase() || slugAktif;
+  const pathProfil = `/pengajar/${slugAktif || pengajarId}`;
+
+  const simpan = (e: React.FormEvent) => {
+    e.preventDefault();
+    mulai(async () => {
+      setGalat(undefined);
+      setGalatIsian(undefined);
+      setPesan(undefined);
+      const h = await aksiUbahSlugPengajar(nilai);
+      if (h.galatIsian?.slug) {
+        setGalatIsian(h.galatIsian.slug);
+        return;
+      }
+      if (h.galat) {
+        setGalat(h.galat);
+        return;
+      }
+      if (h.ok && h.slug) {
+        setNilai(h.slug);
+        setSlugAktif(h.slug);
+        setPesan("Username tautan profil diperbarui.");
+      }
+    });
+  };
+
+  return (
+    <Kartu className="flex flex-col gap-4">
+      <form onSubmit={simpan} noValidate className="flex flex-col gap-4">
+        <div className="flex items-start gap-3">
+          <Link2 aria-hidden className="mt-1 size-6 shrink-0 text-primary" />
+          <div>
+            <h2 className="text-xl font-bold">Username tautan profil publik</h2>
+            <p className="mt-1 text-text-muted">
+              Otomatis dibuat dari nama Anda saat mendaftar. Bisa dikustomisasi kapan saja menggunakan huruf kecil, angka, dan tanda hubung (<code>-</code>).
+            </p>
+          </div>
+        </div>
+        <PesanFormulir galat={galat} />
+        {pesan ? (
+          <p role="status" className="rounded-card-sm bg-success-subtle p-4 font-bold text-success">
+            {pesan}
+          </p>
+        ) : null}
+        <Input
+          id="slug-profil-pengajar"
+          label="Username tautan profil"
+          petunjuk={`Pratinjau tautan: /pengajar/${pratinjau}`}
+          value={nilai}
+          onChange={(e) => setNilai(e.target.value)}
+          galat={galatIsian}
+          maxLength={40}
+          placeholder="misal: citra-lestari"
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Tombol type="submit" disabled={menunggu} aria-busy={menunggu}>
+            {menunggu ? "Menyimpan…" : "Simpan username"}
+          </Tombol>
+          {terverifikasi ? (
+            <>
+              <TombolBagikanProfil path={pathProfil} nama={nama} />
+              <Link
+                href={pathProfil}
+                className="inline-flex min-h-touch items-center gap-1.5 font-bold text-primary underline-offset-4 hover:underline"
+              >
+                Lihat profil publik <ExternalLink aria-hidden className="size-4" />
+              </Link>
+            </>
+          ) : null}
+        </div>
+      </form>
     </Kartu>
   );
 }

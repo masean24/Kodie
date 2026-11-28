@@ -1,5 +1,46 @@
 import { z } from "zod";
 
+export const SLUG_TERCADANG = new Set([
+  "admin",
+  "masuk",
+  "daftar",
+  "baru",
+  "profil",
+  "edit",
+  "api",
+  "auth",
+  "pengajar",
+  "kodie",
+  "kiko",
+  "support",
+]);
+
+export function adalahUuid(nilai: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nilai.trim());
+}
+
+/** Membentuk slug dasar (3–32 karakter) dari nama pengajar, selaras dengan fungsi backend. */
+export function buatSlugDariNama(nama: string): string {
+  const dasar = nama
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 32)
+    .replace(/-+$/g, "");
+  if (dasar.length < 3 || adalahUuid(dasar) || SLUG_TERCADANG.has(dasar)) return "pengajar";
+  return dasar;
+}
+
+export const skemaSlugPengajar = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3, "Username minimal 3 karakter.")
+  .max(40, "Username maksimal 40 karakter.")
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Gunakan huruf kecil, angka, dan tanda hubung tunggal (bukan di awal/akhir).")
+  .refine((s) => !adalahUuid(s), "Username tidak boleh menyerupai format UUID.")
+  .refine((s) => !SLUG_TERCADANG.has(s), "Username ini dicadangkan sistem. Pilih yang lain.");
+
 const teks = (min: number, maks: number, label: string) =>
   z.string().trim().min(min, `${label} wajib diisi.`).max(maks, `${label} maksimal ${maks} karakter.`);
 

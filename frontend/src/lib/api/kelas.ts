@@ -103,14 +103,14 @@ export async function ambilKelasByIds(kelasIds: string[]): Promise<KelasKatalog[
 
   const pengajarIds = [...new Set(barisKelas.map((k) => k.pengajar_id))];
   const [pengRes, sesiRes] = await Promise.all([
-    clientPublik().from("pengajar_publik").select("id, nama, foto_path").in("id", pengajarIds),
+    clientPublik().from("pengajar_publik").select("*").in("id", pengajarIds),
     supabase.from("sesi_saya").select("kelas_id, nomor, mulai_pada").in("kelas_id", sisa).eq("nomor", 1),
   ]);
   lemparJikaError(pengRes.error);
   lemparJikaError(sesiRes.error);
 
   const pengMap = new Map(
-    ((pengRes.data ?? []) as { id: string; nama: string; foto_path: string | null }[]).map((p) => [p.id, p]),
+    ((pengRes.data ?? []) as { id: string; nama: string; foto_path: string | null; slug?: string | null }[]).map((p) => [p.id, p]),
   );
   const sesi1Map = new Map(
     ((sesiRes.data ?? []) as { kelas_id: string; mulai_pada: string }[]).map((s) => [s.kelas_id, s.mulai_pada]),
@@ -145,6 +145,7 @@ export async function ambilKelasByIds(kelasIds: string[]): Promise<KelasKatalog[
         jumlah_sesi: prog.jumlah_sesi,
         harga_paket: prog.harga_paket,
         pengajar_nama: peng?.nama ?? "Pengajar",
+        pengajar_slug: peng?.slug ?? null,
         pengajar_foto_path: peng?.foto_path ?? null,
         sesi_pertama_mulai_pada: mulaiPada,
         dibuat_pada: k.dibuat_pada,

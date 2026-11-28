@@ -99,8 +99,8 @@ Kirim field berikut di `options.data` (wajib ada `peran` dan `nama`). Opsional d
 
 | View | Akses | Catatan Penting |
 | --- | --- | --- |
-| `kelas_katalog` | Publik (`anon`, `authenticated`) | Berisi `sisa_kursi`, `kursi_terpakai`, `bisa_dibooking`, `hari_mingguan` (1=Senin..7=Minggu WIB), nama & foto pengajar. **Tanpa `meet_uri`.** |
-| `pengajar_publik` | Publik | Hanya pengajar `terverifikasi`. Kini menyertakan `bio` (teks gaya mengajar). `rata_rata_rating` bernilai `null` jika `jumlah_rating < 3`. Tanpa dokumen sensitif. |
+| `kelas_katalog` | Publik (`anon`, `authenticated`) | Berisi `sisa_kursi`, `kursi_terpakai`, `bisa_dibooking`, `hari_mingguan` (1=Senin..7=Minggu WIB), nama, `pengajar_slug`, & foto pengajar. **Tanpa `meet_uri`.** |
+| `pengajar_publik` | Publik | Hanya pengajar `terverifikasi`. Kini menyertakan `bio` dan `slug` (`/pengajar/[slug]`). `rata_rata_rating` bernilai `null` jika `jumlah_rating < 3`. Tanpa dokumen sensitif. |
 | `ulasan_pengajar_publik` | Publik | Ulasan terverifikasi berkomentar non-kosong untuk pengajar dengan `jumlah_rating >= 3`. Kolom: `id`, `pengajar_id`, `program_slug`, `program_nama`, `bintang`, `komentar`, `pemberi_label` (contoh `R*** · Orang Tua`), `dibuat_pada`. Tanpa `siswa_id`/`pemberi_id`. |
 | `soal_minat_publik` | Publik | 12 soal terurut, kolom `opsi` hanya berisi `[{ kode, teks }]` tanpa bobot. |
 | `chatbot_konfigurasi_publik` | Publik | Pengaturan aman widget Kiko (`chatbot_aktif`, `chatbot_nama`, `chatbot_sapaan`, `chatbot_kontak_wa`, `chatbot_kontak_email`). |
@@ -119,7 +119,7 @@ Kirim field berikut di `options.data` (wajib ada `peran` dan `nama`). Opsional d
 
 ### C. Daftar RPC (`supabase.rpc('<nama>', { ... })`)
 
-Error bisnis dilempar di `error.message` sesuai kode error PRD Bagian 8 & saran pembimbing (`VALIDASI_GAGAL`, `TIDAK_BERHAK`, `SISWA_BELUM_DISETUJUI`, `PENGAJAR_BELUM_TERVERIFIKASI`, `KAPASITAS_TIDAK_VALID`, `TOKEN_TIDAK_BERLAKU`, `KELAS_PENUH`, `BOOKING_GANDA`, `JADWAL_BENTROK`, `FILE_TIDAK_VALID`, `SESI_BELUM_DIBUKA`, `LINK_MEET_BELUM_ADA`, `LAPORAN_TERKUNCI`, `KODE_REFERRAL_TIDAK_VALID`, `TRIAL_SUDAH_DIPAKAI`, `TRIAL_TIDAK_TERSEDIA`).
+Error bisnis dilempar di `error.message` sesuai kode error PRD Bagian 8 & saran pembimbing (`VALIDASI_GAGAL`, `TIDAK_BERHAK`, `SISWA_BELUM_DISETUJUI`, `PENGAJAR_BELUM_TERVERIFIKASI`, `KAPASITAS_TIDAK_VALID`, `TOKEN_TIDAK_BERLAKU`, `KELAS_PENUH`, `BOOKING_GANDA`, `JADWAL_BENTROK`, `FILE_TIDAK_VALID`, `SESI_BELUM_DIBUKA`, `LINK_MEET_BELUM_ADA`, `LAPORAN_TERKUNCI`, `KODE_REFERRAL_TIDAK_VALID`, `TRIAL_SUDAH_DIPAKAI`, `TRIAL_TIDAK_TERSEDIA`, `SLUG_TIDAK_VALID`, `SLUG_SUDAH_DIPAKAI`).
 
 - **Persetujuan Orang Tua (F2):**
   - `buat_link_persetujuan()` *(siswa)* → `{ token, kedaluwarsa_pada }`
@@ -134,6 +134,7 @@ Error bisnis dilempar di `error.message` sesuai kode error PRD Bagian 8 & saran 
   - `buat_booking_trial({ p_kelas_id, p_siswa_id })` → `{ id, kode, status: 'terkonfirmasi', total: 0, batas_bayar_pada }` *(maks 1x per siswa untuk Sesi 1 saja, `booking.jenis = 'trial'`)*
   - `buat_kode_referral()` *(pengajar `terverifikasi`, idempoten)* → `{ pengajar_id, kode, dibuat_pada }`
   - `simpan_detail_profil_pengajar({ p_pengalaman, p_sertifikat })` *(pengajar)* → `{ pengalaman_count, sertifikat_count }`
+  - `ubah_slug_pengajar({ p_slug })` *(pengajar)* → `{ pengajar_id, slug }` *(mengubah username tautan profil `/pengajar/[slug]`; auto-generated saat daftar)*
   - `batalkan_booking({ p_booking_id })` → `{ id, status: 'dibatalkan' }`
   - `kirim_bukti_bayar({ p_booking_id, p_path })` → `{ pembayaran_id, booking_id, status: 'menunggu_verifikasi' }`
   - `daftar_waitlist_kelas({ p_kelas_id, p_siswa_id? })` *(khusus `orang_tua` / `siswa` aktif ketika kelas berstatus `terbuka` dengan `sisa_kursi = 0`)* → `{ id, kelas_id, siswa_id, status: 'menunggu', sudah_terdaftar: boolean }`. Error tambahan: `KELAS_MASIH_TERSEDIA`, `SUDAH_TERDAFTAR`. Notifikasi otomatis dikirim saat ada booking dibatalkan/kedaluwarsa (`tipe: 'booking_status'`).

@@ -818,6 +818,13 @@ async function main() {
       'Lulusan Sistem Informasi ITS dengan pengalaman mentoring hackathon pelajar SMA dan penyusunan arsitektur aplikasi web modern.',
   };
 
+  const slugPengajar: Record<string, string> = {
+    [pengajar1Id]: 'nadia-kusuma-putri',
+    [pengajar2Id]: 'bagus-pratama-wijaya',
+    [pengajar3Id]: 'citra-lestari-handayani',
+    [pengajarPendingId]: 'dimas-putra-mahendra',
+  };
+
   for (const [pid, progs] of [
     [pengajar1Id, [PROGRAM_IDS.kelasReguler, PROGRAM_IDS.simulasiIt]],
     [pengajar2Id, [PROGRAM_IDS.kelasReguler, PROGRAM_IDS.simulasiIt]],
@@ -834,6 +841,7 @@ async function main() {
         diverifikasi_pada: new Date().toISOString(),
         diverifikasi_oleh: adminId,
         bio: bioPengajar[pid],
+        slug: slugPengajar[pid],
       })
       .eq('pengguna_id', pid);
 
@@ -942,6 +950,7 @@ async function main() {
       skck_path: `${pengajarPendingId}/skck-demo.png`,
       wawancara_selesai: false,
       bio: bioPengajar[pengajarPendingId],
+      slug: slugPengajar[pengajarPendingId],
     })
     .eq('pengguna_id', pengajarPendingId);
   await supabase.from('pengajar_program').upsert({

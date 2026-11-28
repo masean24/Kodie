@@ -557,6 +557,7 @@ function awal(): Store {
     profilPengajar: [
       {
         pengguna_id: PENGAJAR_VERIFIED,
+        slug: "nadia-putri",
         status_kerja: "mahasiswa",
         kampus: "Universitas Contoh Nusantara",
         jurusan: "Informatika",
@@ -572,6 +573,7 @@ function awal(): Store {
       },
       {
         pengguna_id: PENGAJAR_BARU,
+        slug: "yoga-pratama",
         status_kerja: "lulusan",
         kampus: "Institut Teknologi Contoh",
         jurusan: "Teknik Komputer",

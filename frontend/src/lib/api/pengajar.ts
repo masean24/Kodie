@@ -11,10 +11,12 @@ import type {
 import { pengajarMock } from "@/lib/mock/data";
 import { storeMock } from "@/lib/mock/store";
 import { clientPublik } from "@/lib/supabase/publik";
+import { adalahUuid } from "@/lib/validasi/pengajar-lanjutan";
 import { fiturLanjutan, lemparJikaError, pakaiMock } from "./sumber";
 
 interface BarisPengajarPublik {
   id: string;
+  slug?: string | null;
   nama: string;
   status_kerja: StatusKerja | null;
   kampus: string | null;
@@ -80,6 +82,7 @@ function normalisasiPengajar(row: BarisPengajarPublik): PengajarPublik {
     (row.foto_path ? clientPublik().storage.from("foto-pengajar").getPublicUrl(row.foto_path).data.publicUrl : null);
   return {
     id: row.id,
+    slug: row.slug ?? null,
     nama: row.nama,
     status_kerja: row.status_kerja ?? "mahasiswa",
     kampus: row.kampus ?? null,
@@ -99,7 +102,13 @@ function normalisasiPengajar(row: BarisPengajarPublik): PengajarPublik {
 
 /** View `pengajar_publik` (hanya terverifikasi), untuk bagian pengajar di beranda. */
 export async function ambilDaftarPengajarPublik(batas = 3): Promise<PengajarPublik[]> {
-  if (pakaiMock) return pengajarMock.slice(0, batas);
+  if (pakaiMock) {
+    const profils = storeMock().profilPengajar;
+    return pengajarMock.slice(0, batas).map((p) => {
+      const pr = profils.find((x) => x.pengguna_id === p.id);
+      return pr?.slug ? { ...p, slug: pr.slug } : p;
+    });
+  }
   await connection();
   const { data, error } = await clientPublik()
     .from("pengajar_publik")
@@ -110,13 +119,29 @@ export async function ambilDaftarPengajarPublik(batas = 3): Promise<PengajarPubl
   return ((data ?? []) as BarisPengajarPublik[]).map(normalisasiPengajar);
 }
 
-export async function ambilPengajarPublik(id: string): Promise<PengajarPublik | null> {
+export async function ambilPengajarPublik(idAtauSlug: string): Promise<PengajarPublik | null> {
+  const kunci = idAtauSlug.trim().toLowerCase();
   if (pakaiMock) {
-    const p = pengajarMock.find((x) => x.id === id);
+    const profils = storeMock().profilPengajar;
+    const daftar = pengajarMock.map((p) => {
+      const pr = profils.find((x) => x.pengguna_id === p.id);
+      return pr?.slug ? { ...p, slug: pr.slug } : p;
+    });
+    const p = daftar.find((x) => x.slug?.toLowerCase() === kunci || x.id.toLowerCase() === kunci);
     return p ? { ...p, bio: BIO_MOCK[p.id] ?? null } : null;
   }
   await connection();
-  const { data, error } = await clientPublik().from("pengajar_publik").select("*").eq("id", id).maybeSingle();
+  if (adalahUuid(idAtauSlug)) {
+    const { data, error } = await clientPublik().from("pengajar_publik").select("*").eq("id", idAtauSlug.trim()).maybeSingle();
+    lemparJikaError(error);
+    return data ? normalisasiPengajar(data as BarisPengajarPublik) : null;
+  }
+  if (!fiturLanjutan) return null;
+  const { data, error } = await clientPublik()
+    .from("pengajar_publik")
+    .select("*")
+    .eq("slug" as never, kunci)
+    .maybeSingle();
   lemparJikaError(error);
   return data ? normalisasiPengajar(data as BarisPengajarPublik) : null;
 }

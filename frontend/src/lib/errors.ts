@@ -22,6 +22,8 @@ export const PESAN_ERROR: Record<string, string> = {
   TRIAL_SUDAH_DIPAKAI: "Anak ini sudah pernah memakai trial gratis. Silakan pesan paket penuh.",
   TRIAL_TIDAK_TERSEDIA: "Trial hanya bisa diambil sebelum Sesi 1 kelas dimulai.",
   FITUR_BELUM_TERSEDIA: "Fitur ini belum aktif. Coba lagi nanti atau hubungi admin.",
+  SLUG_SUDAH_DIPAKAI: "Username tautan profil ini sudah dipakai pengajar lain. Pilih username lain.",
+  SLUG_TIDAK_VALID: "Format username tidak valid. Gunakan 3–40 huruf kecil, angka, atau tanda hubung tunggal.",
   // Kode frontend untuk error Supabase Auth (PRD bagian 8: dipetakan frontend dari respons Auth)
   EMAIL_SUDAH_DIPAKAI: "Email sudah dipakai.",
   LOGIN_GAGAL: "Email atau password salah.",

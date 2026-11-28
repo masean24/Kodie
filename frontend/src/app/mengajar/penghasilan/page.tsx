@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Banknote, CheckCircle2, Clock, Ticket } from "lucide-react";
-import { ambilPenghasilanPengajar } from "@/lib/api/mengajar";
+import { ambilPenghasilanPengajar, ambilProfilLengkapPengajar } from "@/lib/api/mengajar";
 import { ambilPenggunaSaya } from "@/lib/api/auth";
 import { ambilKodeReferralSaya, ambilPerkiraanBagiHasil } from "@/lib/api/pengajar-lanjutan";
 import { fiturLanjutan } from "@/lib/api/sumber";
@@ -14,11 +14,12 @@ import { Catatan, Kartu, Lencana, StateKosong } from "@/components/ui/dasar";
 export const metadata: Metadata = { title: "Penghasilan" };
 
 export default async function HalamanPenghasilan() {
-  const [{ bulanIni, belumDibayar, daftar }, pengguna, kode, perkiraan] = await Promise.all([
+  const [{ bulanIni, belumDibayar, daftar }, pengguna, kode, perkiraan, profilPengajar] = await Promise.all([
     ambilPenghasilanPengajar(),
     ambilPenggunaSaya(),
     fiturLanjutan ? ambilKodeReferralSaya() : Promise.resolve(null),
     fiturLanjutan ? ambilPerkiraanBagiHasil() : Promise.resolve([]),
+    fiturLanjutan ? ambilProfilLengkapPengajar() : Promise.resolve(null),
   ]);
 
   return (
@@ -65,6 +66,7 @@ export default async function HalamanPenghasilan() {
         <KartuKodeReferral
           kode={kode}
           pengajarId={pengguna.id}
+          slug={profilPengajar?.profil?.slug}
           nama={pengguna.nama}
           terverifikasi={pengguna.status === "terverifikasi"}
         />

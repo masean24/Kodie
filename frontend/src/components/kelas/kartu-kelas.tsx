@@ -65,7 +65,7 @@ export function KartuKelas({ k }: { k: KelasKatalog }) {
           <span>
             Pengajar:{" "}
             <Link
-              href={`/pengajar/${k.pengajar_id}`}
+              href={`/pengajar/${k.pengajar_slug || k.pengajar_id}`}
               className="relative inline-flex items-center gap-1 font-bold after:absolute after:-inset-y-2.5 after:inset-x-0 after:content-[''] text-primary underline-offset-4 hover:underline"
             >
               {k.pengajar_nama}

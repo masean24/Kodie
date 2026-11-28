@@ -57,7 +57,7 @@ export function KartuPengajar({ p, judulLevel = 3 }: { p: PengajarPublik; judulL
       </ul>
       <Rating p={p} />
       <Link
-        href={`/pengajar/${p.id}`}
+        href={`/pengajar/${p.slug || p.id}`}
         className="mt-auto flex min-h-touch items-center font-display font-semibold text-primary underline-offset-4 hover:underline"
       >
         Lihat profil<span className="sr-only"> {p.nama}</span>

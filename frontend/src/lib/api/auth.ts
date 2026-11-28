@@ -2,10 +2,12 @@ import { cookies } from "next/headers";
 import { connection } from "next/server";
 import type { Pengguna } from "@/types/database";
 import { akunMock } from "@/lib/mock/akun";
+import { pengajarMock } from "@/lib/mock/data";
 import { storeMock } from "@/lib/mock/store";
 import { buatClientServer } from "@/lib/supabase/server";
 import { kodeErrorAuth } from "@/lib/errors";
 import { dataSignUp, type InputDaftar, type InputMasuk } from "@/lib/validasi/auth";
+import { buatSlugDariNama } from "@/lib/validasi/pengajar-lanjutan";
 import { pakaiMock } from "./sumber";
 
 /**
@@ -154,8 +156,22 @@ export async function daftar(input: InputDaftar): Promise<{ pengguna: Pengguna |
         email_orang_tua: input.email_orang_tua || null,
       });
     } else if (input.peran === "pengajar") {
-      storeMock().profilPengajar.push({
+      const store = storeMock();
+      const dipakai = new Set<string>(
+        [...pengajarMock.map((x) => x.slug), ...store.profilPengajar.map((x) => x.slug)].filter(
+          (x): x is string => Boolean(x),
+        ),
+      );
+      const dasar = buatSlugDariNama(input.nama);
+      let slug = dasar;
+      let n = 2;
+      while (dipakai.has(slug)) {
+        slug = `${dasar}-${n}`;
+        n += 1;
+      }
+      store.profilPengajar.push({
         pengguna_id: pengguna.id,
+        slug,
         status_kerja: input.status_kerja,
         kampus: input.kampus,
         jurusan: input.jurusan,

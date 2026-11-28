@@ -132,3 +132,40 @@ describe("trial gratis", () => {
     expect(alasanTidakCocok({ jenjang: "SD", kelas: 2 }, kenal)).toMatch(/TK B sampai SD kelas 1/);
   });
 });
+
+describe("slug profil pengajar (custom & redirect UUID)", () => {
+  it("memvalidasi format, kata tercadang, dan penolakan bentuk UUID", async () => {
+    const { skemaSlugPengajar, buatSlugDariNama } = await import("@/lib/validasi/pengajar-lanjutan");
+    expect(buatSlugDariNama("Citra Lestari Handayani!")).toBe("citra-lestari-handayani");
+    expect(skemaSlugPengajar.safeParse("citra-lestari").success).toBe(true);
+    expect(skemaSlugPengajar.safeParse("admin").success).toBe(false);
+    expect(skemaSlugPengajar.safeParse("a323a9fb-976d-4141-89c8-085070598945").success).toBe(false);
+    expect(skemaSlugPengajar.safeParse("ab").success).toBe(false);
+    expect(skemaSlugPengajar.safeParse("nama--dobel").success).toBe(false);
+  });
+
+  it("bisa ubah slug kustom, tetap mencari via UUID maupun slug baru, dan tolak duplikat", async () => {
+    await siapkan();
+    pengguna = {
+      id: "00000000-0000-4000-9000-000000000001",
+      peran: "pengajar",
+      nama: "Nadia Putri",
+      no_wa: null,
+      status: "terverifikasi",
+      dibuat_pada: "2026-11-01T03:00:00.000Z",
+    };
+    const { ubahSlugPengajarSaya } = await import("./pengajar-lanjutan");
+    const { ambilPengajarPublik } = await import("./pengajar");
+
+    await expect(ubahSlugPengajarSaya("dimas-pratama")).rejects.toThrow("SLUG_SUDAH_DIPAKAI");
+
+    const baru = await ubahSlugPengajarSaya("nadia-kode-it");
+    expect(baru).toBe("nadia-kode-it");
+
+    const viaSlug = await ambilPengajarPublik("nadia-kode-it");
+    const viaUuid = await ambilPengajarPublik("00000000-0000-4000-9000-000000000001");
+    expect(viaSlug?.id).toBe("00000000-0000-4000-9000-000000000001");
+    expect(viaSlug?.slug).toBe("nadia-kode-it");
+    expect(viaUuid?.slug).toBe("nadia-kode-it");
+  });
+});

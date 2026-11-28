@@ -1,11 +1,11 @@
 import { connection } from "next/server";
 import type { DetailProfilPengajar, KelasKatalog, KodeReferral, Pengguna } from "@/types/database";
 import { STATUS_AKTIF } from "@/lib/booking";
-import { buatKelasMock } from "@/lib/mock/data";
+import { buatKelasMock, pengajarMock } from "@/lib/mock/data";
 import { storeMock } from "@/lib/mock/store";
 import { buatClientServer } from "@/lib/supabase/server";
 import { buatKodeAcak, hitungHonorPerSesi } from "@/lib/referral";
-import type { InputDetailProfil } from "@/lib/validasi/pengajar-lanjutan";
+import { skemaSlugPengajar, type InputDetailProfil } from "@/lib/validasi/pengajar-lanjutan";
 import { ambilPenggunaSaya } from "./auth";
 import { ambilDetailProfilPengajar } from "./pengajar";
 import { fiturLanjutan, lemparJikaError, pakaiMock } from "./sumber";
@@ -154,4 +154,54 @@ export async function simpanDetailProfilSaya(input: InputDetailProfil): Promise<
     p_sertifikat: input.sertifikat.map((x) => ({ nama: x.nama, penerbit: x.penerbit, tahun: x.tahun, tautan: x.tautan || null })),
   } as never);
   lemparJikaError(error);
+}
+
+/** Ubah username / slug tautan profil publik pengajar (otomatis dibuat saat daftar, bisa di-custom di profil). */
+export async function ubahSlugPengajarSaya(slugInput: string): Promise<string> {
+  const p = await wajibPengajar();
+  if (p.status === "nonaktif") throw new Error("TIDAK_BERHAK");
+  const cek = skemaSlugPengajar.safeParse(slugInput);
+  if (!cek.success) throw new Error("SLUG_TIDAK_VALID");
+  const slug = cek.data;
+
+  if (pakaiMock) {
+    const store = storeMock();
+    const dipakaiStore = store.profilPengajar.some((x) => x.pengguna_id !== p.id && x.slug?.toLowerCase() === slug);
+    const dipakaiMock = pengajarMock.some((m) => {
+      if (m.id === p.id) return false;
+      const override = store.profilPengajar.find((x) => x.pengguna_id === m.id);
+      return (override?.slug ?? m.slug)?.toLowerCase() === slug;
+    });
+    if (dipakaiStore || dipakaiMock) throw new Error("SLUG_SUDAH_DIPAKAI");
+
+    const ada = store.profilPengajar.find((x) => x.pengguna_id === p.id);
+    if (ada) {
+      ada.slug = slug;
+    } else {
+      const dasar = pengajarMock.find((m) => m.id === p.id);
+      store.profilPengajar.push({
+        pengguna_id: p.id,
+        slug,
+        status_kerja: dasar?.status_kerja ?? "mahasiswa",
+        kampus: dasar?.kampus ?? null,
+        jurusan: dasar?.jurusan ?? null,
+        keahlian: dasar?.keahlian ?? ["software"],
+        cv_url: dasar?.cv_url ?? null,
+        foto_path: null,
+        identitas_path: null,
+        skck_path: null,
+        wawancara_selesai: p.status === "terverifikasi",
+        alasan_penolakan: null,
+        diverifikasi_pada: dasar?.diverifikasi_pada ?? null,
+        diverifikasi_oleh: null,
+      });
+    }
+    return slug;
+  }
+
+  if (!fiturLanjutan) throw new Error("FITUR_BELUM_TERSEDIA");
+  const supabase = await buatClientServer();
+  const { error } = await supabase.rpc("ubah_slug_pengajar" as never, { p_slug: slug } as never);
+  lemparJikaError(error);
+  return slug;
 }
