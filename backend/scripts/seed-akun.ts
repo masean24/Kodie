@@ -314,7 +314,7 @@ async function ensureStaticSeed() {
       { kunci: 'nama_pemilik_rekening', nilai: 'Yayasan Edukasi Teknologi SEVENT X' },
       { kunci: 'qris_path', nilai: 'qris-demo.png' },
     ],
-    { onConflict: 'kunci' },
+    { onConflict: 'kunci', ignoreDuplicates: true },
   );
   if (pengErr) throw pengErr;
 

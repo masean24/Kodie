@@ -363,7 +363,7 @@ export function FormPengaturanAdmin({
         <p className="text-sm text-text-muted">JPG atau PNG, maksimal 1 MB.</p>
         {awal.qris_url ? (
           // eslint-disable-next-line @next/next/no-img-element -- signed URL bucket privat pengaturan
-          <img src={awal.qris_url} alt="QRIS saat ini" width={160} height={160} className="size-40 rounded-md" />
+          <img src={awal.qris_url} alt="QRIS saat ini" width={160} height={160} className="size-40 rounded-md bg-white object-contain p-1" />
         ) : null}
         <input
           ref={inputFile}

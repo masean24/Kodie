@@ -110,7 +110,7 @@ function PanelBayar({ r, info }: { r: BookingRinci; info: InfoPembayaran }) {
           <section aria-labelledby="judul-qris" className="flex flex-col gap-4 rounded-card bg-surface p-6 sm:flex-row sm:items-center">
             {info.qris_url ? (
               // eslint-disable-next-line @next/next/no-img-element -- signed URL Supabase berumur 5 menit
-              <img src={info.qris_url} alt="Kode QRIS pembayaran Kodie" width={160} height={160} className="size-40 shrink-0 rounded-md" />
+              <img src={info.qris_url} alt="Kode QRIS pembayaran Kodie" width={160} height={160} className="size-40 shrink-0 rounded-md bg-white object-contain p-1" />
             ) : null}
             <div>
               <h2 id="judul-qris" className="text-xl font-semibold">
