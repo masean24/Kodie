@@ -128,7 +128,7 @@ export function AlurDaftar({ peranAwal }: { peranAwal: PeranDaftar | null }) {
         </form>
         <p className="mt-6 text-center">
           Sudah punya akun?{" "}
-          <Link href="/masuk" className="font-display font-semibold text-primary underline-offset-4 hover:underline">
+          <Link href="/masuk" className="font-display font-semibold text-primary underline-offset-4 hover:underline max-md:inline-flex max-md:min-h-touch max-md:items-center">
             Masuk
           </Link>
         </p>

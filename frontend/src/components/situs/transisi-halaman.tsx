@@ -13,7 +13,8 @@ import { TombolKembali } from "./tombol-kembali";
  */
 export function BarisKembali({ children, diArea }: { children: ReactNode; diArea?: boolean }) {
   const kelas = cx(
-    "tanpa-cetak group-has-[.vt-band]/halaman:hidden group-has-[[data-kembali]]/halaman:hidden",
+    // [data-akar-area]: halaman utama area login tidak punya halaman induk, jadi tidak perlu tombol kembali.
+    "tanpa-cetak group-has-[.vt-band]/halaman:hidden group-has-[[data-kembali]]/halaman:hidden group-has-[[data-akar-area]]/halaman:hidden",
     diArea ? "mb-6" : "pt-4 md:pt-6",
   );
   return (

@@ -131,7 +131,8 @@ export function Catatan({
   return (
     <div className={cx("flex gap-3 rounded-card-sm p-5", warna)}>
       <Ikon aria-hidden className="judul mt-0.5 size-5 shrink-0" />
-      <div>
+      {/* min-w-0 + wrap-anywhere: tanpa keduanya, teks panjang tanpa spasi (mis. kode error Meet) melebarkan halaman di 360 px. */}
+      <div className="min-w-0 flex-1 wrap-anywhere">
         <p className="judul font-display font-semibold">{judul}</p>
         {children ? <div className="mt-1">{children}</div> : null}
       </div>

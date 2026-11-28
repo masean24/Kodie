@@ -39,13 +39,14 @@ export default async function HalamanKelasAdmin() {
 
       {sesiTanpaMeet.length > 0 ? (
         <Catatan nada="peringatan" judul={`${sesiTanpaMeet.length} sesi belum memiliki link Google Meet`}>
-          <div className="mt-3 flex flex-col gap-3">
+          {/* -ml-8 = lebar ikon Catatan (20 px) + gap (12 px): kartu sesi rata dengan padding kiri-kanan kotak. */}
+          <div className="mt-3 -ml-8 flex flex-col gap-3">
             {sesiTanpaMeet.map((item) => (
               <div
                 key={item.sesi.id}
                 className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-surface p-4 text-ink"
               >
-                <div className="flex flex-col gap-1">
+                <div className="flex min-w-0 flex-col gap-1">
                   <div className="flex items-center gap-2 font-semibold">
                     <VideoOff aria-hidden className="size-4 text-warning" />
                     <span>

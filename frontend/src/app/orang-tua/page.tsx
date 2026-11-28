@@ -29,7 +29,7 @@ export default async function DashboardOrangTua() {
   const saranLanjutan = hitungSaranLanjutan(anak, booking, bidangRapor);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div data-akar-area className="flex flex-col gap-6">
       <div>
         <h1 className="text-32 leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
           {sapaan(new Date())}, {p?.nama.split(" ")[0]}

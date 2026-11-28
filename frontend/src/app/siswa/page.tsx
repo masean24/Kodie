@@ -23,7 +23,7 @@ export default async function DashboardSiswa() {
   const aktif = p?.status === "aktif";
 
   return (
-    <div className="flex flex-col gap-6">
+    <div data-akar-area className="flex flex-col gap-6">
       <div>
         <h1 className="text-32 leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">Halo, {panggilan}</h1>
         <p className="mt-2 text-text-muted">
