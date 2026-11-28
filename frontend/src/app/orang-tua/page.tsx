@@ -31,7 +31,7 @@ export default async function DashboardOrangTua() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">
+        <h1 className="text-32 leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
           {sapaan(new Date())}, {p?.nama.split(" ")[0]}
         </h1>
         <p className="mt-2 text-text-muted">Ini ringkasan kelas anak-anak Anda.</p>

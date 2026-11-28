@@ -1994,3 +1994,66 @@ select.pilihan-kodie::-ms-expand {
     transform: none;
   }
 }
+
+/* ======================================================================
+   DASHBOARD (gaya "Soft" dari docs/kodie_dashboard_ui_ux_dark_mode_explorer.html)
+   Sidebar peran, ubin angka admin, blok sorotan biru, dan kartu aksen lime.
+   ====================================================================== */
+.kodie-nav-item-aktif {
+  background-color: var(--k-primary-subtle);
+  color: var(--k-primary);
+}
+.kodie-nav-indikator {
+  background-color: var(--k-primary);
+}
+:root[data-theme="dark"] .kodie-nav-item-aktif {
+  background-color: #222530;
+  color: #f4f5f8;
+}
+:root[data-theme="dark"] .kodie-nav-indikator {
+  background-color: var(--k-lime);
+}
+
+.kodie-kpi-ikon {
+  background-color: var(--k-primary-subtle);
+  color: var(--k-primary);
+}
+.kodie-kpi-ikon[data-sorot] {
+  background-color: var(--k-warning-subtle);
+  color: var(--k-warning);
+}
+:root[data-theme="dark"] .kodie-kpi-ikon:not([data-sorot]) {
+  color: #7cb2ff;
+}
+
+/* Blok sorotan biru bertitik: sapaan admin, ringkasan honor pengajar, rapor jurusan. */
+.kodie-blok-sorot {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(96 165 250 / 0.3);
+  background-color: #1d4ed8;
+  background-image:
+    radial-gradient(rgb(255 255 255 / 0.11) 1.25px, transparent 1.25px),
+    linear-gradient(130deg, #132f7c 0%, #1d4ed8 58%, #2563eb 100%);
+  background-size: 24px 24px, 100% 100%;
+  color: #fff;
+  box-shadow: 0 10px 26px -8px rgb(13 31 75 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.16);
+}
+.kodie-blok-sorot :is(h1, h2, h3) {
+  color: #fff;
+}
+
+/* Kartu putih berbingkai aksen (hasil tes minat). */
+.kodie-kartu-lime {
+  border: 1px solid color-mix(in srgb, var(--k-primary) 22%, var(--k-border));
+}
+.kodie-teks-sorot-lime {
+  color: var(--k-primary);
+}
+:root[data-theme="dark"] .kodie-kartu-lime {
+  border-color: rgb(198 246 77 / 0.35);
+  box-shadow: var(--k-shadow-kartu), inset 0 1px 0 rgb(198 246 77 / 0.14);
+}
+:root[data-theme="dark"] .kodie-teks-sorot-lime {
+  color: var(--k-lime);
+}

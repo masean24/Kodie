@@ -22,6 +22,18 @@ export type ItemMenu = {
   labelPonsel?: string;
   utamaPonsel?: boolean;
   ikon: LucideIcon;
+  /** Judul kelompok di sidebar desktop (admin). Item berurutan dengan grup sama dikelompokkan. */
+  grup?: string;
+  /** Kolom `admin_ringkasan` yang angkanya ditampilkan sebagai lencana antrean. */
+  angka?: "booking_menunggu_verifikasi" | "pengajar_menunggu_verifikasi" | "laporan_masalah_baru" | "honor_belum_dibayar";
+};
+
+/** Label "Workspace" di kepala sidebar. */
+export const NAMA_WORKSPACE: Partial<Record<Peran, string>> = {
+  orang_tua: "Orang tua",
+  siswa: "Siswa",
+  pengajar: "Pengajar",
+  admin: "Admin",
 };
 
 /**
@@ -48,16 +60,39 @@ export const MENU_PERAN: Partial<Record<Peran, ItemMenu[]>> = {
     { href: "/mengajar/penghasilan", label: "Penghasilan", ikon: Banknote },
   ],
   admin: [
-    { href: "/admin", label: "Ringkasan", utamaPonsel: true, ikon: LayoutDashboard },
-    { href: "/admin/pembayaran", label: "Pembayaran", labelPonsel: "Bayar", utamaPonsel: true, ikon: Wallet },
-    { href: "/admin/pengajar", label: "Pengajar", utamaPonsel: true, ikon: Users },
-    { href: "/admin/laporan-masalah", label: "Laporan masalah", labelPonsel: "Laporan", utamaPonsel: true, ikon: AlertTriangle },
-    { href: "/admin/chat", label: "Live chat", ikon: MessageSquare },
-    { href: "/admin/kelas", label: "Kelas", ikon: BookOpen },
-    { href: "/admin/program", label: "Program", ikon: Blocks },
-    { href: "/admin/honor", label: "Honor", ikon: Banknote },
-    { href: "/admin/pengaturan", label: "Pengaturan", ikon: Settings },
-    { href: "/admin/log", label: "Log aksi", ikon: ClipboardList },
+    { href: "/admin", label: "Ringkasan", utamaPonsel: true, ikon: LayoutDashboard, grup: "Antrean & layanan" },
+    {
+      href: "/admin/pembayaran",
+      label: "Pembayaran",
+      labelPonsel: "Bayar",
+      utamaPonsel: true,
+      ikon: Wallet,
+      grup: "Antrean & layanan",
+      angka: "booking_menunggu_verifikasi",
+    },
+    {
+      href: "/admin/pengajar",
+      label: "Pengajar",
+      utamaPonsel: true,
+      ikon: Users,
+      grup: "Antrean & layanan",
+      angka: "pengajar_menunggu_verifikasi",
+    },
+    {
+      href: "/admin/laporan-masalah",
+      label: "Laporan masalah",
+      labelPonsel: "Laporan",
+      utamaPonsel: true,
+      ikon: AlertTriangle,
+      grup: "Antrean & layanan",
+      angka: "laporan_masalah_baru",
+    },
+    { href: "/admin/chat", label: "Live chat", ikon: MessageSquare, grup: "Antrean & layanan" },
+    { href: "/admin/kelas", label: "Kelas", ikon: BookOpen, grup: "Akademik & keuangan" },
+    { href: "/admin/program", label: "Program", ikon: Blocks, grup: "Akademik & keuangan" },
+    { href: "/admin/honor", label: "Honor", ikon: Banknote, grup: "Akademik & keuangan", angka: "honor_belum_dibayar" },
+    { href: "/admin/pengaturan", label: "Pengaturan", ikon: Settings, grup: "Sistem" },
+    { href: "/admin/log", label: "Log aksi", ikon: ClipboardList, grup: "Sistem" },
   ],
 };
 

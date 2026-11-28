@@ -4,8 +4,26 @@ import { Kerangka, Kontainer, StatusMemuat } from "@/components/ui/dasar";
 import { cx } from "@/lib/cx";
 import { KerangkaSitus } from "@/components/situs/kerangka-situs";
 import { PenjagaArea } from "./penjaga-area";
-import { NavPeran } from "./nav-peran";
+import { ambilRingkasanAdmin } from "@/lib/api/admin";
+import { NavPeran, type AngkaNav } from "./nav-peran";
 import { adaNavPeran } from "./menu-peran";
+
+/** Sidebar admin dengan angka antrean. Gagal/ bukan admin → tanpa angka (penjaga area yang menangani akses). */
+async function NavAdminBerangka() {
+  let angka: AngkaNav | undefined;
+  try {
+    const r = await ambilRingkasanAdmin();
+    angka = {
+      booking_menunggu_verifikasi: r.booking_menunggu_verifikasi,
+      pengajar_menunggu_verifikasi: r.pengajar_menunggu_verifikasi,
+      laporan_masalah_baru: r.laporan_masalah_baru,
+      honor_belum_dibayar: r.honor_belum_dibayar ?? 0,
+    };
+  } catch {
+    angka = undefined;
+  }
+  return <NavPeran peran="admin" angka={angka} />;
+}
 
 /** Layout bersama area login: kerangka situs, menu peran, dan penjaga peran. */
 export function LayoutArea({ peran, children }: { peran: Peran; children: ReactNode }) {
@@ -25,8 +43,14 @@ export function LayoutArea({ peran, children }: { peran: Peran; children: ReactN
       >
         {nav ? (
           <>
-            <nav aria-label="Menu akun" className="tanpa-cetak hidden pt-10 md:pt-12 lg:block">
-              <NavPeran peran={peran} />
+            <nav aria-label="Menu akun" className="tanpa-cetak hidden pt-10 md:pt-12 lg:sticky lg:top-[84px] lg:block lg:self-start">
+              {peran === "admin" ? (
+                <Suspense fallback={<NavPeran peran={peran} />}>
+                  <NavAdminBerangka />
+                </Suspense>
+              ) : (
+                <NavPeran peran={peran} />
+              )}
             </nav>
             <nav
               aria-label="Menu akun ponsel"

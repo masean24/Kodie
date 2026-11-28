@@ -7,7 +7,7 @@ import { Menu, MessageCircle } from "lucide-react";
 import type { Peran } from "@/types/database";
 import { AvatarKiko } from "@/components/chatbot/avatar-kiko";
 import { cx } from "@/lib/cx";
-import { MENU_PERAN } from "./menu-peran";
+import { MENU_PERAN, NAMA_WORKSPACE, type ItemMenu } from "./menu-peran";
 
 function bukaKiko() {
   if (typeof window !== "undefined") {
@@ -19,31 +19,69 @@ function apakahAktif(href: string, pertamaHref: string, pathname: string) {
   return href === pertamaHref ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function DaftarDesktop({ peran, pathname }: { peran: Peran; pathname: string }) {
+/** Angka antrean per kolom ringkasan admin, untuk lencana di sidebar. */
+export type AngkaNav = Partial<Record<NonNullable<ItemMenu["angka"]>, number>>;
+
+function ItemDesktop({ m, aktif, angka }: { m: ItemMenu; aktif: boolean; angka?: number }) {
+  return (
+    <li>
+      <Link
+        href={m.href}
+        aria-current={aktif ? "page" : undefined}
+        className={cx(
+          "relative flex min-h-[44px] items-center gap-3 rounded-[10px] px-3.5 py-2 text-[15px] leading-6 transition-colors",
+          aktif ? "kodie-nav-item-aktif font-semibold" : "font-medium text-text-muted hover:bg-surface-sunken hover:text-text",
+        )}
+      >
+        {aktif ? <span aria-hidden className="kodie-nav-indikator absolute top-2 bottom-2 left-1 w-[3.5px] rounded-full" /> : null}
+        <m.ikon aria-hidden className="size-5 shrink-0" />
+        <span className="min-w-0 flex-1 truncate">{m.label}</span>
+        {angka ? (
+          <span className="ml-auto inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-warning-subtle px-1.5 text-sm font-bold tabular-nums text-warning ring-1 ring-warning/25 ring-inset">
+            {angka}
+            <span className="sr-only"> menunggu</span>
+          </span>
+        ) : null}
+      </Link>
+    </li>
+  );
+}
+
+function DaftarDesktop({ peran, pathname, angka }: { peran: Peran; pathname: string; angka?: AngkaNav }) {
   const items = MENU_PERAN[peran] ?? [];
   const pertamaHref = items[0]?.href ?? "";
+  // Kelompokkan item berurutan dengan `grup` yang sama (admin); peran lain satu kelompok tanpa judul.
+  const kelompok: { grup?: string; items: ItemMenu[] }[] = [];
+  for (const m of items) {
+    const akhir = kelompok.at(-1);
+    if (akhir && akhir.grup === m.grup) akhir.items.push(m);
+    else kelompok.push({ grup: m.grup, items: [m] });
+  }
   return (
-    <ul className="flex min-h-[420px] w-[260px] flex-col gap-1 rounded-card-sm bg-surface px-3 py-4">
-      {items.map((m) => {
-        const aktif = apakahAktif(m.href, pertamaHref, pathname);
-        return (
-          <li key={m.href}>
-            <Link
-              href={m.href}
-              aria-current={aktif ? "page" : undefined}
-              className={cx(
-                "flex min-h-[48px] items-center gap-3 rounded-[10px] px-4 py-3 text-17 leading-[27px] transition-colors",
-                aktif ? "bg-accent-subtle font-bold text-primary" : "font-normal text-text hover:bg-surface-sunken",
-              )}
-            >
-              <m.ikon aria-hidden className="size-5 shrink-0" />
-              <span>{m.label}</span>
-            </Link>
-          </li>
-        );
-      })}
+    <div className="w-[248px] rounded-card border border-border bg-surface p-3 shadow-kartu">
+      <div className="mb-2 border-b border-border px-3 pb-2.5">
+        <p className="text-sm font-bold tracking-[0.08em] text-text-muted uppercase">Workspace</p>
+        <p className="font-display text-base font-bold text-text">{NAMA_WORKSPACE[peran]}</p>
+      </div>
+      <div className="flex flex-col gap-3">
+        {kelompok.map((k, i) => (
+          <div key={k.grup ?? i}>
+            {k.grup ? <p className="px-3 pb-1 text-sm font-bold tracking-[0.04em] text-text-muted uppercase">{k.grup}</p> : null}
+            <ul className="flex flex-col gap-0.5">
+              {k.items.map((m) => (
+                <ItemDesktop
+                  key={m.href}
+                  m={m}
+                  aktif={apakahAktif(m.href, pertamaHref, pathname)}
+                  angka={m.angka ? angka?.[m.angka] : undefined}
+                />
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
       {peran !== "admin" ? (
-        <li className="mt-auto border-t border-border pt-3">
+        <div className="mt-3 border-t border-border pt-3">
           <button
             type="button"
             onClick={bukaKiko}
@@ -57,9 +95,9 @@ function DaftarDesktop({ peran, pathname }: { peran: Peran; pathname: string }) 
               <span className="block truncate text-sm text-text-muted">Butuh bantuan di sini?</span>
             </span>
           </button>
-        </li>
+        </div>
       ) : null}
-    </ul>
+    </div>
   );
 }
 
@@ -193,23 +231,25 @@ function DaftarPonsel({ peran, pathname }: { peran: Peran; pathname: string }) {
   );
 }
 
-function Daftar(props: { peran: Peran; pathname: string; ponsel?: boolean }) {
+type PropsNav = { peran: Peran; ponsel?: boolean; angka?: AngkaNav };
+
+function Daftar(props: PropsNav & { pathname: string }) {
   return props.ponsel ? (
     <DaftarPonsel peran={props.peran} pathname={props.pathname} />
   ) : (
-    <DaftarDesktop peran={props.peran} pathname={props.pathname} />
+    <DaftarDesktop peran={props.peran} pathname={props.pathname} angka={props.angka} />
   );
 }
 
-function Aktif(props: { peran: Peran; ponsel?: boolean }) {
+function Aktif(props: PropsNav) {
   return <Daftar {...props} pathname={usePathname()} />;
 }
 
 /** usePathname hanya ada saat request, jadi dibungkus Suspense (Cache Components). */
-export function NavPeran({ peran, ponsel }: { peran: Peran; ponsel?: boolean }) {
+export function NavPeran({ peran, ponsel, angka }: PropsNav) {
   return (
-    <Suspense fallback={<Daftar peran={peran} pathname="" ponsel={ponsel} />}>
-      <Aktif peran={peran} ponsel={ponsel} />
+    <Suspense fallback={<Daftar peran={peran} pathname="" ponsel={ponsel} angka={angka} />}>
+      <Aktif peran={peran} ponsel={ponsel} angka={angka} />
     </Suspense>
   );
 }

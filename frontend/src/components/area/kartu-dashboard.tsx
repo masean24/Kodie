@@ -158,27 +158,27 @@ export function RaporJurusan({
 }) {
   const terbaru = daftar[0];
   return (
-    <section aria-labelledby="judul-rapor" className="rounded-card bg-primary-subtle p-6">
+    <section aria-labelledby="judul-rapor" className="kodie-blok-sorot rounded-card p-6">
       <h2 id="judul-rapor" className="flex items-center gap-2 text-xl font-semibold">
         <GraduationCap aria-hidden className="size-5" /> Rapor jurusan
       </h2>
       {terbaru ? (
         <>
           {basePath === "/orang-tua" ? <ChipAnak id={terbaru.siswa.id} nama={terbaru.siswa.nama} className="mt-3" /> : null}
-          <p className="mt-2 font-display text-lg font-bold text-primary">
+          <p className="mt-2 font-display text-lg font-bold text-lime">
             {NAMA_BIDANG[terbaru.rapor.bidang_rekomendasi]}
             {basePath === "/orang-tua" ? null : ` (${terbaru.siswa.nama.split(" ")[0]})`}
           </p>
-          <p className="mt-1 text-sm text-text-muted">Hasil pengamatan Simulasi Jurusan IT tersedia.</p>
+          <p className="mt-1 text-sm text-white/85">Hasil pengamatan Simulasi Jurusan IT tersedia.</p>
           <Link
             href={`${basePath}/rapor/${terbaru.rapor.id}`}
-            className="mt-3 flex min-h-touch items-center font-display font-semibold text-primary underline-offset-4 hover:underline"
+            className="mt-4 inline-flex min-h-touch items-center rounded-xl bg-lime px-4 font-display text-sm font-bold text-ink transition-colors hover:bg-lime-pale"
           >
             Buka rapor jurusan
           </Link>
         </>
       ) : (
-        <p className="mt-2 text-text-muted">Tersedia setelah sesi ke-4 Simulasi Jurusan IT.</p>
+        <p className="mt-2 text-white/85">Tersedia setelah sesi ke-4 Simulasi Jurusan IT.</p>
       )}
     </section>
   );
@@ -186,11 +186,11 @@ export function RaporJurusan({
 
 export function HasilTesTerakhir({ hasil }: { hasil?: HasilMinat }) {
   return (
-    <KartuBagian judul="Hasil tes minat terakhir" id="judul-hasil-tes" className="bg-primary-subtle">
+    <KartuBagian judul="Hasil tes minat terakhir" id="judul-hasil-tes" className="kodie-kartu-lime">
       {hasil ? (
         <>
           <p className="text-sm text-text-muted">{formatTanggal(hasil.dibuat_pada)}</p>
-          <p className="mt-2 font-display text-28 font-extrabold leading-8 text-primary">
+          <p className="kodie-teks-sorot-lime mt-2 font-display text-28 font-extrabold leading-8">
             {NAMA_BIDANG[hasil.bidang_teratas]} {hasil.skor[hasil.bidang_teratas]}%
           </p>
           <p className="mt-2 text-sm text-text-muted">Hasil tes adalah saran, bukan keputusan.</p>

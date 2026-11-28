@@ -21,7 +21,7 @@ export default async function DashboardPengajar() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-32 leading-[38px] font-extrabold md:text-48 md:leading-[50px]">
+          <h1 className="text-32 leading-[38px] font-extrabold md:text-[44px] md:leading-[50px]">
             {sapaan(new Date())}, {p.nama.split(" ")[0]}
           </h1>
           <p className="mt-2 text-text-muted">
@@ -157,15 +157,13 @@ export default async function DashboardPengajar() {
         </KartuBagian>
 
         <div className="flex flex-col gap-6">
-          <KartuBagian judul="Ringkasan penghasilan" id="judul-honor-ringkas" className="bg-primary-subtle">
-            <p className="text-sm text-text-muted">Honor bulan ini</p>
-            <p className="mt-1 font-display text-28 font-extrabold leading-8 text-primary">
-              {formatRupiah(honorBulanIni)}
-            </p>
-            <p className="mt-3 text-sm text-text-muted">Belum dibayar: {formatRupiah(honorBelumDibayar)}</p>
+          <KartuBagian judul="Ringkasan penghasilan" id="judul-honor-ringkas" className="kodie-blok-sorot">
+            <p className="text-sm text-white/85">Honor bulan ini</p>
+            <p className="mt-1 font-display text-28 font-extrabold leading-8 text-lime">{formatRupiah(honorBulanIni)}</p>
+            <p className="mt-3 text-sm text-white/85">Belum dibayar: {formatRupiah(honorBelumDibayar)}</p>
             <Link
               href="/mengajar/penghasilan"
-              className="mt-3 flex min-h-touch items-center gap-2 font-display font-semibold text-primary underline-offset-4 hover:underline"
+              className="mt-4 inline-flex min-h-touch items-center gap-2 rounded-xl bg-lime px-4 font-display text-sm font-bold text-ink transition-colors hover:bg-lime-pale"
             >
               <Wallet aria-hidden className="size-4" /> Lihat rincian honor
             </Link>
