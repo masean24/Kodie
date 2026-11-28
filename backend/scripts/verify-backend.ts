@@ -516,6 +516,7 @@ async function main() {
   const cleanupSiswaIds: string[] = [];
   const cleanupHasilMinatIds: string[] = [];
   const cleanupNotifTautanNeedles: string[] = [];
+  const cleanupAuthUserIds: string[] = [];
 
   try {
     // 7A. Profil TK (kelas = 0) & rekomendasi hitung_tes_minat -> Kenal Komputer
@@ -675,6 +676,57 @@ async function main() {
     assert(
       !okSlugErr && (okSlugData as { slug?: string })?.slug === 'dimas-mentor-it',
       'Pengajar dapat mengubah slug kustom profil melalui ubah_slug_pengajar',
+    );
+
+    // Uji Migration 17: normalisasi diakritik NFD & fallback pengajar-1, -2 untuk nama pendek/non-latin
+    const { data: aksenSlug, error: aksenErr } = await service.rpc('buat_slug_pengajar_unik', {
+      p_nama: 'Hélène Dupont',
+    });
+    assert(
+      !aksenErr && aksenSlug === 'helene-dupont',
+      'buat_slug_pengajar_unik menormalisasi huruf beraksen (Hélène Dupont -> helene-dupont)',
+    );
+
+    const tsSlug = Date.now();
+    const { data: uPendek, error: uPendekErr } = await service.auth.admin.createUser({
+      email: `uji-slug-al-${tsSlug}@example.com`,
+      password: DEMO_PASSWORD,
+      email_confirm: true,
+      user_metadata: {
+        peran: 'pengajar',
+        nama: 'Al',
+        status_kerja: 'mahasiswa',
+        keahlian: ['software'],
+      },
+    });
+    if (uPendek.user?.id) cleanupAuthUserIds.push(uPendek.user.id);
+    if (uPendekErr || !uPendek.user) {
+      throw uPendekErr ?? new Error('Gagal membuat akun pengajar uji nama pendek');
+    }
+
+    const { data: uNonLatin, error: uNonLatinErr } = await service.auth.admin.createUser({
+      email: `uji-slug-cn-${tsSlug}@example.com`,
+      password: DEMO_PASSWORD,
+      email_confirm: true,
+      user_metadata: {
+        peran: 'pengajar',
+        nama: '李明',
+        status_kerja: 'lulusan',
+        keahlian: ['iot'],
+      },
+    });
+    if (uNonLatin.user?.id) cleanupAuthUserIds.push(uNonLatin.user.id);
+    if (uNonLatinErr || !uNonLatin.user) {
+      throw uNonLatinErr ?? new Error('Gagal membuat akun pengajar uji non-latin');
+    }
+
+    const [{ data: profPendek }, { data: profNonLatin }] = await Promise.all([
+      service.from('profil_pengajar').select('slug').eq('pengguna_id', uPendek.user.id).single(),
+      service.from('profil_pengajar').select('slug').eq('pengguna_id', uNonLatin.user.id).single(),
+    ]);
+    assert(
+      profPendek?.slug === 'pengajar-1' && profNonLatin?.slug === 'pengajar-2',
+      'Signup pengajar nama pendek (Al) dan non-latin (李明) otomatis mendapat fallback pengajar-1 & pengajar-2',
     );
 
     // 7D. End-to-end Referral 5%, Trial 1x Sesi-1, Perkiraan Bagi Hasil, & Honor 30/40%
@@ -927,6 +979,9 @@ async function main() {
     }
     if (cleanupSiswaIds.length > 0) {
       await service.from('siswa').delete().in('id', cleanupSiswaIds);
+    }
+    for (const uid of cleanupAuthUserIds) {
+      await service.auth.admin.deleteUser(uid);
     }
   }
 
