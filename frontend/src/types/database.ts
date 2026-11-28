@@ -495,6 +495,55 @@ export interface AdminRingkasan {
   sesi_tanpa_meet?: number;
 }
 
+export interface ItemPendaftarTrialAdmin {
+  booking_id: string;
+  kode: string;
+  status: StatusBooking;
+  dibuat_pada: string;
+  siswa_id: string;
+  siswa_nama: string;
+  siswa_jenjang: Jenjang;
+  siswa_kelas: number;
+  pemesan_nama: string;
+  pemesan_peran: Peran;
+  kelas_id: string;
+  program_nama: string;
+  program_slug: string;
+  kelas_level: number;
+  pengajar_nama: string;
+  sesi_1_mulai_pada: string | null;
+  sesi_1_status: StatusSesi | null;
+  sudah_lanjut_paket: boolean;
+}
+
+export interface StatistikPlatformAdmin {
+  pengguna: {
+    total: number;
+    orang_tua: number;
+    siswa_mandiri: number;
+    pengajar_terverifikasi: number;
+    pengajar_menunggu: number;
+    profil_siswa: number;
+  };
+  pendapatan: {
+    omzet_kotor: number;
+    bagian_pengajar: number;
+    pendapatan_bersih_platform: number;
+    honor_tercatat: number;
+    honor_dibayar: number;
+    booking_lunas: number;
+    booking_referral: number;
+    total_potongan_referral: number;
+  };
+  trial: {
+    total: number;
+    aktif: number;
+    selesai: number;
+    konversi_paket: number;
+    daftar_terbaru: ItemPendaftarTrialAdmin[];
+  };
+}
+
 export interface SesiAdmin {
   id: string;
   kelas_id: string;
@@ -2648,6 +2697,7 @@ export type Database = {
         Args: { p_pengajar_id: string; p_program_ids: string[] }
         Returns: Json
       }
+      admin_statistik_platform: { Args: never; Returns: Json }
       admin_tandai_honor_dibayar: { Args: { p_id: string }; Returns: Json }
       admin_tolak_pembayaran: {
         Args: { p_alasan: string; p_pembayaran_id: string }

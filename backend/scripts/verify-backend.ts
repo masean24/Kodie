@@ -964,6 +964,40 @@ async function main() {
       !rateS1Err && rateS2Err?.message === 'TIDAK_BERHAK',
       'Peserta trial bisa memberi rating pada Sesi 1 dan ditolak pada Sesi 2–4',
     );
+
+    // 7F. RPC statistik dashboard admin (khusus admin)
+    const { error: statOrtuErr } = await ortu1.rpc('admin_statistik_platform');
+    assert(
+      statOrtuErr?.message === 'TIDAK_BERHAK',
+      'Non-admin ditolak memanggil RPC admin_statistik_platform dengan TIDAK_BERHAK',
+    );
+
+    const { data: statData, error: statAdminErr } = await admin.rpc('admin_statistik_platform');
+    const statObj = statData as {
+      pengguna?: { total?: number };
+      pendapatan?: {
+        omzet_kotor?: number;
+        bagian_pengajar?: number;
+        pendapatan_bersih_platform?: number;
+        booking_referral?: number;
+      };
+      trial?: {
+        total?: number;
+        konversi_paket?: number;
+        daftar_terbaru?: unknown[];
+      };
+    } | null;
+    assert(
+      !statAdminErr &&
+        (statObj?.pengguna?.total ?? 0) >= 7 &&
+        (statObj?.pendapatan?.omzet_kotor ?? -1) ===
+          (statObj?.pendapatan?.bagian_pengajar ?? 0) +
+            (statObj?.pendapatan?.pendapatan_bersih_platform ?? 0) &&
+        (statObj?.pendapatan?.booking_referral ?? 0) >= 1 &&
+        (statObj?.trial?.total ?? 0) >= 1 &&
+        Array.isArray(statObj?.trial?.daftar_terbaru),
+      'RPC admin_statistik_platform mengembalikan rincian pengguna, pendapatan bagi hasil, dan pendaftar trial',
+    );
   } finally {
     await service.from('profil_pengajar').update({ slug: 'dimas-putra-mahendra' }).eq('pengguna_id', pengajarPendingId);
     await service.from('pengalaman_pengajar').delete().eq('pengajar_id', pengajarPendingId);

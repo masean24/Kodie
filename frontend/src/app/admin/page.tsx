@@ -9,23 +9,38 @@ import {
   GraduationCap,
   History,
   Settings,
+  Sparkles,
+  Tag,
+  TrendingUp,
   UserCheck,
+  UserPlus,
   Users,
   Video,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
-import { ambilRingkasanAdmin } from "@/lib/api/admin";
+import { ambilRingkasanAdmin, ambilStatistikAdmin } from "@/lib/api/admin";
+import { persenKonversiTrial } from "@/lib/admin";
 import { sapaan } from "@/components/area/kartu-dashboard";
+import { TagProgram } from "@/components/kategori";
+import { Lencana } from "@/components/ui/dasar";
 import { TombolTautan } from "@/components/ui/tombol";
 import { cx } from "@/lib/cx";
+import { formatRupiah, formatTanggalJam, labelKelas } from "@/lib/format";
+import { NAMA_PERAN } from "@/lib/peran";
 
 export const metadata: Metadata = { title: "Dashboard admin" };
 
 export default async function DashboardAdmin() {
-  const ringkasan = await ambilRingkasanAdmin();
+  const [ringkasan, statistik] = await Promise.all([ambilRingkasanAdmin(), ambilStatistikAdmin()]);
   const adaSesiTanpaMeet = (ringkasan.sesi_tanpa_meet ?? 0) > 0;
   const adaHonorBelumDibayar = (ringkasan.honor_belum_dibayar ?? 0) > 0;
+
+  const omzetKotor = statistik.pendapatan.omzet_kotor;
+  const persenPlatform =
+    omzetKotor > 0 ? Math.round((statistik.pendapatan.pendapatan_bersih_platform / omzetKotor) * 100) : 0;
+  const persenPengajar = omzetKotor > 0 ? Math.max(0, 100 - persenPlatform) : 0;
+  const konversiPersen = persenKonversiTrial(statistik.trial.konversi_paket, statistik.trial.total);
 
   const statUtama = [
     {
@@ -189,6 +204,247 @@ export default async function DashboardAdmin() {
               </span>
             </Link>
           ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="judul-statistik" className="flex flex-col gap-3.5">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="judul-statistik" className="text-lg font-semibold">
+            Statistik platform &amp; pendapatan
+          </h2>
+          <span className="text-sm text-text-muted">Ringkasan akun, bagi hasil 30–40%, dan trial gratis</span>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-12">
+          <div className="kodie-kartu-lime flex flex-col justify-between gap-4 rounded-card bg-surface p-5 md:p-6 lg:col-span-7">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted">
+                  <TrendingUp aria-hidden className="size-4 text-primary" />
+                  Pendapatan bersih platform (60–70%)
+                </p>
+                <p className="kodie-teks-sorot-lime mt-1.5 font-display text-32 leading-tight font-extrabold tabular-nums">
+                  {formatRupiah(statistik.pendapatan.pendapatan_bersih_platform)}
+                </p>
+              </div>
+              <Lencana nada="info">{statistik.pendapatan.booking_lunas} paket lunas</Lencana>
+            </div>
+
+            <div>
+              <div
+                aria-label={`Proporsi platform ${persenPlatform}% dan pengajar ${persenPengajar}%`}
+                className="flex h-2.5 w-full overflow-hidden rounded-full bg-surface-sunken"
+              >
+                <div className="bg-primary transition-all" style={{ width: `${persenPlatform}%` }} />
+                <div className="bg-success transition-all" style={{ width: `${persenPengajar}%` }} />
+              </div>
+              <p className="mt-2 text-xs text-text-muted">
+                Porsi platform {persenPlatform}% · Porsi pengajar {persenPengajar}% · Honor sudah dibayar{" "}
+                <strong className="font-semibold text-text tabular-nums">
+                  {formatRupiah(statistik.pendapatan.honor_dibayar)}
+                </strong>
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-card-sm bg-surface-sunken p-3.5">
+                <p className="text-xs font-medium text-text-muted">Omzet kotor</p>
+                <p className="mt-1 font-display text-lg font-bold tabular-nums">
+                  {formatRupiah(statistik.pendapatan.omzet_kotor)}
+                </p>
+                <p className="mt-0.5 text-xs text-text-muted">Setelah potongan referral</p>
+              </div>
+              <div className="rounded-card-sm bg-surface-sunken p-3.5">
+                <p className="text-xs font-medium text-text-muted">Bagian pengajar (30–40%)</p>
+                <p className="mt-1 font-display text-lg font-bold tabular-nums">
+                  {formatRupiah(statistik.pendapatan.bagian_pengajar)}
+                </p>
+                <p className="mt-0.5 text-xs text-text-muted">
+                  Honor tercatat {formatRupiah(statistik.pendapatan.honor_tercatat)}
+                </p>
+              </div>
+              <div className="rounded-card-sm bg-surface-sunken p-3.5">
+                <p className="inline-flex items-center gap-1 text-xs font-medium text-text-muted">
+                  <Tag aria-hidden className="size-3.5" />
+                  Kode referral dipakai
+                </p>
+                <p className="mt-1 font-display text-lg font-bold tabular-nums">
+                  {statistik.pendapatan.booking_referral} paket
+                </p>
+                <p className="mt-0.5 text-xs text-text-muted">
+                  Diskon siswa {formatRupiah(statistik.pendapatan.total_potongan_referral)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-between gap-4 rounded-card bg-surface p-5 md:p-6 lg:col-span-5">
+            <div>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted">
+                    <UserPlus aria-hidden className="size-4 text-primary" />
+                    Pengguna terdaftar
+                  </p>
+                  <p className="mt-1 font-display text-3xl font-bold tabular-nums">{statistik.pengguna.total} akun</p>
+                </div>
+                <span className="rounded-full bg-surface-sunken px-3 py-1 text-xs font-semibold text-text-muted tabular-nums">
+                  {statistik.pengguna.profil_siswa} profil siswa
+                </span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-3 gap-2.5">
+                <div className="rounded-card-sm bg-surface-sunken p-3">
+                  <p className="text-xs text-text-muted">Orang tua</p>
+                  <p className="mt-0.5 font-display text-xl font-bold tabular-nums">
+                    {statistik.pengguna.orang_tua}
+                  </p>
+                </div>
+                <div className="rounded-card-sm bg-surface-sunken p-3">
+                  <p className="text-xs text-text-muted">Siswa</p>
+                  <p className="mt-0.5 font-display text-xl font-bold tabular-nums">
+                    {statistik.pengguna.siswa_mandiri}
+                  </p>
+                </div>
+                <div className="rounded-card-sm bg-surface-sunken p-3">
+                  <p className="text-xs text-text-muted">Pengajar</p>
+                  <p className="mt-0.5 font-display text-xl font-bold tabular-nums">
+                    {statistik.pengguna.pengajar_terverifikasi}
+                  </p>
+                  {statistik.pengguna.pengajar_menunggu > 0 ? (
+                    <p className="text-[11px] font-medium text-warning">
+                      +{statistik.pengguna.pengajar_menunggu} antre
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-border/60 pt-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted">
+                  <Sparkles aria-hidden className="size-4 text-primary" />
+                  Trial gratis Sesi 1
+                </p>
+                <Lencana nada={statistik.trial.konversi_paket > 0 ? "sukses" : "netral"}>
+                  {konversiPersen}% lanjut paket
+                </Lencana>
+              </div>
+              <div className="mt-2 flex flex-wrap items-baseline justify-between gap-2">
+                <p className="font-display text-2xl font-bold tabular-nums">{statistik.trial.total} peserta</p>
+                <p className="text-sm text-text-muted">
+                  {statistik.trial.konversi_paket} konversi · {statistik.trial.aktif} terjadwal ·{" "}
+                  {statistik.trial.selesai} selesai
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-card bg-surface p-5 md:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 className="font-display text-base font-semibold">Pendaftar trial gratis terbaru</h3>
+              <p className="text-sm text-text-muted">
+                Siswa yang mencoba Sesi 1 gratis beserta status kelanjutan ke paket reguler.
+              </p>
+            </div>
+            <Link
+              href="/admin/kelas"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+            >
+              Kelola kelas <ArrowRight aria-hidden className="size-3.5" />
+            </Link>
+          </div>
+
+          {statistik.trial.daftar_terbaru.length === 0 ? (
+            <div className="mt-4 rounded-card-sm bg-surface-sunken p-4 text-sm text-text-muted">
+              Belum ada pendaftar trial gratis Sesi 1 saat ini.
+            </div>
+          ) : (
+            <>
+              <div className="mt-4 hidden overflow-hidden rounded-card-sm border border-border/60 md:block">
+                <table className="w-full border-collapse text-left text-sm">
+                  <thead className="bg-surface-sunken text-text-muted">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold">Siswa</th>
+                      <th className="px-4 py-3 font-semibold">Pemesan</th>
+                      <th className="px-4 py-3 font-semibold">Kelas &amp; pengajar</th>
+                      <th className="px-4 py-3 font-semibold">Jadwal Sesi 1</th>
+                      <th className="px-4 py-3 text-right font-semibold">Status &amp; konversi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/50">
+                    {statistik.trial.daftar_terbaru.map((item) => (
+                      <tr key={item.booking_id} className="align-middle hover:bg-surface-sunken/50">
+                        <td className="px-4 py-3.5">
+                          <p className="font-semibold">{item.siswa_nama}</p>
+                          <p className="text-xs text-text-muted">
+                            {labelKelas(item.siswa_jenjang, item.siswa_kelas)} · {item.kode}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <p className="font-medium">{item.pemesan_nama}</p>
+                          <p className="text-xs text-text-muted">{NAMA_PERAN[item.pemesan_peran]}</p>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex flex-col items-start gap-1">
+                            <TagProgram slug={item.program_slug}>{item.program_nama}</TagProgram>
+                            <span className="text-xs text-text-muted">
+                              Level {item.kelas_level} · {item.pengajar_nama}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-text-muted">
+                          {item.sesi_1_mulai_pada ? formatTanggalJam(item.sesi_1_mulai_pada) : "Belum terjadwal"}
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <div className="inline-flex flex-wrap justify-end gap-1.5">
+                            <Lencana nada={item.status === "selesai" ? "netral" : "info"}>
+                              {item.status === "selesai" ? "Trial selesai" : "Terjadwal"}
+                            </Lencana>
+                            {item.sudah_lanjut_paket ? <Lencana nada="sukses">Lanjut paket</Lencana> : null}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-3 md:hidden">
+                {statistik.trial.daftar_terbaru.map((item) => (
+                  <div key={item.booking_id} className="flex flex-col gap-2 rounded-card-sm bg-surface-sunken p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="font-semibold">{item.siswa_nama}</p>
+                        <p className="text-xs text-text-muted">
+                          {labelKelas(item.siswa_jenjang, item.siswa_kelas)} · Pemesan: {item.pemesan_nama} (
+                          {NAMA_PERAN[item.pemesan_peran]})
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <Lencana nada={item.status === "selesai" ? "netral" : "info"}>
+                          {item.status === "selesai" ? "Trial selesai" : "Terjadwal"}
+                        </Lencana>
+                        {item.sudah_lanjut_paket ? <Lencana nada="sukses">Lanjut paket</Lencana> : null}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <TagProgram slug={item.program_slug}>{item.program_nama}</TagProgram>
+                      <span className="text-xs text-text-muted">
+                        Level {item.kelas_level} · {item.pengajar_nama}
+                      </span>
+                    </div>
+                    <p className="text-xs text-text-muted">
+                      Sesi 1: {item.sesi_1_mulai_pada ? formatTanggalJam(item.sesi_1_mulai_pada) : "Belum terjadwal"} ·{" "}
+                      {item.kode}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
 

@@ -1273,8 +1273,12 @@ async function main() {
     siswa_id: string;
     dibuat_oleh: string;
     status: Database['public']['Enums']['status_booking'];
+    jenis?: Database['public']['Enums']['jenis_booking'];
+    kode_referral?: string | null;
+    potongan?: number;
     total: number;
     batasOffsetHours: number;
+    dibuatOffsetHours?: number;
   }> = [
     {
       id: '55555555-5555-4555-8555-000000000001',
@@ -1346,10 +1350,56 @@ async function main() {
       total: 400000,
       batasOffsetHours: -600,
     },
+    {
+      id: '55555555-5555-4555-8555-000000000010',
+      kode: 'BK-20261123-0010',
+      kelas_id: KELAS_IDS.k4,
+      siswa_id: anakIds.rakaSma,
+      dibuat_oleh: ortu2Id,
+      status: 'terkonfirmasi',
+      jenis: 'paket',
+      kode_referral: 'BAGUS-M4P9',
+      potongan: 17500,
+      total: 332500,
+      batasOffsetHours: -96,
+      dibuatOffsetHours: -120,
+    },
+    {
+      id: '55555555-5555-4555-8555-000000000011',
+      kode: 'BK-20261110-0011',
+      kelas_id: KELAS_IDS.k3,
+      siswa_id: anakIds.rakaSma,
+      dibuat_oleh: ortu2Id,
+      status: 'selesai',
+      jenis: 'trial',
+      kode_referral: null,
+      potongan: 0,
+      total: 0,
+      batasOffsetHours: -360,
+      dibuatOffsetHours: -360,
+    },
+    {
+      id: '55555555-5555-4555-8555-000000000012',
+      kode: 'BK-20261127-0012',
+      kelas_id: KELAS_IDS.k4,
+      siswa_id: anakIds.sintaSmp,
+      dibuat_oleh: ortu1Id,
+      status: 'terkonfirmasi',
+      jenis: 'trial',
+      kode_referral: null,
+      potongan: 0,
+      total: 0,
+      batasOffsetHours: -24,
+      dibuatOffsetHours: -24,
+    },
   ];
 
   for (const b of bookingSeeds) {
     const batas = new Date(Date.now() + b.batasOffsetHours * 3600 * 1000).toISOString();
+    const dibuat =
+      b.dibuatOffsetHours !== undefined
+        ? new Date(Date.now() + b.dibuatOffsetHours * 3600 * 1000).toISOString()
+        : undefined;
     const { error: bErr } = await supabase.from('booking').upsert(
       {
         id: b.id,
@@ -1358,8 +1408,12 @@ async function main() {
         siswa_id: b.siswa_id,
         dibuat_oleh: b.dibuat_oleh,
         status: b.status,
+        jenis: b.jenis ?? 'paket',
+        kode_referral: b.kode_referral ?? null,
+        potongan: b.potongan ?? 0,
         total: b.total,
         batas_bayar_pada: batas,
+        ...(dibuat ? { dibuat_pada: dibuat } : {}),
       },
       { onConflict: 'kode' },
     );
@@ -1389,6 +1443,14 @@ async function main() {
         status: 'disetujui',
         diverifikasi_oleh: adminId,
         diverifikasi_pada: new Date().toISOString(),
+      },
+      {
+        id: '66666666-6666-4666-8666-000000000010',
+        booking_id: '55555555-5555-4555-8555-000000000010',
+        bukti_path: '55555555-5555-4555-8555-000000000002/bukti-demo.png',
+        status: 'disetujui',
+        diverifikasi_oleh: adminId,
+        diverifikasi_pada: new Date(Date.now() - 108 * 3600 * 1000).toISOString(),
       },
     ],
     { onConflict: 'id' },

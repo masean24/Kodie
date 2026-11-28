@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   bolehSetujuiPengajar,
   formatLamaMenunggu,
+  hitungStatistikPlatform,
+  persenKonversiTrial,
   urutkanAntreanWaktu,
   urutkanLaporanMasalah,
 } from "./admin";
@@ -70,5 +72,145 @@ describe("validasi input admin", () => {
         aktif: true,
       }).success,
     ).toBe(true);
+  });
+});
+
+describe("statistik platform dashboard admin", () => {
+  it("menghitung rincian pengguna, bagi hasil 30%/40%, dan konversi trial dengan akurat", () => {
+    const stat = hitungStatistikPlatform({
+      pengguna: [
+        { id: "admin1", peran: "admin", status: "aktif", nama: "Admin" },
+        { id: "ortu1", peran: "orang_tua", status: "aktif", nama: "Ratna" },
+        { id: "ortuNonaktif", peran: "orang_tua", status: "nonaktif", nama: "Nonaktif" },
+        { id: "siswa1", peran: "siswa", status: "aktif", nama: "Fajar" },
+        { id: "siswa2", peran: "siswa", status: "menunggu_persetujuan", nama: "Laras" },
+        { id: "pg1", peran: "pengajar", status: "terverifikasi", nama: "Bagus" },
+        { id: "pg2", peran: "pengajar", status: "menunggu_verifikasi", nama: "Dimas" },
+      ],
+      siswa: [
+        { id: "sw1", nama: "Bima", jenjang: "SD", kelas: 5, pengguna_id: null },
+        { id: "sw2", nama: "Fajar", jenjang: "SMA", kelas: 11, pengguna_id: "siswa1" },
+        { id: "sw3", nama: "Laras", jenjang: "SMP", kelas: 9, pengguna_id: "siswa2" },
+      ],
+      kelas: [
+        {
+          id: "k1",
+          pengajar_id: "pg1",
+          pengajar_nama: "Bagus",
+          program_nama: "Kelas Reguler Teknologi",
+          program_slug: "kelas-reguler-teknologi",
+          level: 1,
+        },
+      ],
+      sesi: [
+        {
+          kelas_id: "k1",
+          nomor: 1,
+          mulai_pada: "2026-12-01T12:00:00.000Z",
+          status: "terjadwal",
+        },
+      ],
+      kodeReferral: [{ pengajar_id: "pg1", kode: "BAGUS-M4P9" }],
+      honor: [
+        { jumlah: 60_000, status: "belum_dibayar" },
+        { jumlah: 90_000, status: "dibayar" },
+      ],
+      booking: [
+        {
+          id: "b-trial-1",
+          kode: "BK-TRIAL-1",
+          kelas_id: "k1",
+          siswa_id: "sw1",
+          dibuat_oleh: "ortu1",
+          status: "selesai",
+          jenis: "trial",
+          kode_referral: null,
+          potongan: 0,
+          total: 0,
+          dibuat_pada: "2026-11-10T10:00:00.000Z",
+        },
+        {
+          id: "b-trial-2",
+          kode: "BK-TRIAL-2",
+          kelas_id: "k1",
+          siswa_id: "sw2",
+          dibuat_oleh: "siswa1",
+          status: "terkonfirmasi",
+          jenis: "trial",
+          kode_referral: null,
+          potongan: 0,
+          total: 0,
+          dibuat_pada: "2026-11-27T10:00:00.000Z",
+        },
+        {
+          id: "b-trial-batal",
+          kode: "BK-TRIAL-BATAL",
+          kelas_id: "k1",
+          siswa_id: "sw3",
+          dibuat_oleh: "ortu1",
+          status: "dibatalkan",
+          jenis: "trial",
+          kode_referral: null,
+          potongan: 0,
+          total: 0,
+          dibuat_pada: "2026-11-28T10:00:00.000Z",
+        },
+        {
+          id: "b-paket-ref",
+          kode: "BK-PAKET-1",
+          kelas_id: "k1",
+          siswa_id: "sw1",
+          dibuat_oleh: "ortu1",
+          status: "terkonfirmasi",
+          jenis: "paket",
+          kode_referral: "BAGUS-M4P9",
+          potongan: 17_500,
+          total: 332_500,
+          dibuat_pada: "2026-11-20T10:00:00.000Z",
+        },
+        {
+          id: "b-paket-biasa",
+          kode: "BK-PAKET-2",
+          kelas_id: "k1",
+          siswa_id: "sw3",
+          dibuat_oleh: "ortu1",
+          status: "selesai",
+          jenis: "paket",
+          kode_referral: null,
+          potongan: 0,
+          total: 250_000,
+          dibuat_pada: "2026-11-21T10:00:00.000Z",
+        },
+      ],
+    });
+
+    expect(stat.pengguna).toEqual({
+      total: 5,
+      orang_tua: 1,
+      siswa_mandiri: 2,
+      pengajar_terverifikasi: 1,
+      pengajar_menunggu: 1,
+      profil_siswa: 2,
+    });
+    // 332.500 * 40% = 133.000; 250.000 * 30% = 75.000 -> total pengajar = 208.000; platform = 582.500 - 208.000 = 374.500
+    expect(stat.pendapatan).toEqual({
+      omzet_kotor: 582_500,
+      bagian_pengajar: 208_000,
+      pendapatan_bersih_platform: 374_500,
+      honor_tercatat: 150_000,
+      honor_dibayar: 90_000,
+      booking_lunas: 2,
+      booking_referral: 1,
+      total_potongan_referral: 17_500,
+    });
+    expect(stat.trial.total).toBe(2);
+    expect(stat.trial.aktif).toBe(1);
+    expect(stat.trial.selesai).toBe(1);
+    expect(stat.trial.konversi_paket).toBe(1);
+    expect(stat.trial.daftar_terbaru.map((d) => d.kode)).toEqual(["BK-TRIAL-2", "BK-TRIAL-1"]);
+    expect(stat.trial.daftar_terbaru[0]?.sudah_lanjut_paket).toBe(false);
+    expect(stat.trial.daftar_terbaru[1]?.sudah_lanjut_paket).toBe(true);
+    expect(persenKonversiTrial(stat.trial.konversi_paket, stat.trial.total)).toBe(50);
+    expect(persenKonversiTrial(0, 0)).toBe(0);
   });
 });

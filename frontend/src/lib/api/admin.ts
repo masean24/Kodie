@@ -3,6 +3,7 @@ import type {
   AdminRingkasan,
   Booking,
   Honor,
+  ItemPendaftarTrialAdmin,
   KelasKatalog,
   LaporanMasalah,
   LogAdmin,
@@ -12,12 +13,19 @@ import type {
   ProfilPengajar,
   Program,
   SesiAdmin,
+  StatistikPlatformAdmin,
   StatusHonor,
   StatusKelas,
   StatusMasalah,
   StatusPengguna,
 } from "@/types/database";
-import { bolehSetujuiPengajar, urutkanAntreanWaktu, urutkanLaporanMasalah, type UrutanAntrean } from "@/lib/admin";
+import {
+  bolehSetujuiPengajar,
+  hitungStatistikPlatform,
+  urutkanAntreanWaktu,
+  urutkanLaporanMasalah,
+  type UrutanAntrean,
+} from "@/lib/admin";
 import { STATUS_AKTIF } from "@/lib/booking";
 import { buatKelasMock, programMock } from "@/lib/mock/data";
 import { storeMock } from "@/lib/mock/store";
@@ -93,6 +101,60 @@ export async function ambilRingkasanAdmin(): Promise<AdminRingkasan> {
     laporan_masalah_baru: r.laporan_masalah_baru ?? 0,
     honor_belum_dibayar: r.honor_belum_dibayar ?? 0,
     sesi_tanpa_meet: r.sesi_tanpa_meet ?? 0,
+  };
+}
+
+export async function ambilStatistikAdmin(): Promise<StatistikPlatformAdmin> {
+  await wajibAdmin();
+  const sekarang = new Date();
+  if (pakaiMock) {
+    const store = storeMock();
+    return hitungStatistikPlatform({
+      pengguna: daftarPenggunaMock(),
+      siswa: store.siswa,
+      booking: store.booking,
+      kelas: [...buatKelasMock(sekarang), ...store.kelasTambahan],
+      sesi: store.sesi,
+      honor: store.honor,
+      kodeReferral: store.kodeReferral,
+    });
+  }
+
+  const supabase = await buatClientServer();
+  const { data, error } = await supabase.rpc("admin_statistik_platform");
+  lemparJikaError(error);
+
+  const raw = (data ?? {}) as Partial<StatistikPlatformAdmin>;
+  const daftarTrial: ItemPendaftarTrialAdmin[] = Array.isArray(raw.trial?.daftar_terbaru)
+    ? raw.trial.daftar_terbaru
+    : [];
+
+  return {
+    pengguna: {
+      total: raw.pengguna?.total ?? 0,
+      orang_tua: raw.pengguna?.orang_tua ?? 0,
+      siswa_mandiri: raw.pengguna?.siswa_mandiri ?? 0,
+      pengajar_terverifikasi: raw.pengguna?.pengajar_terverifikasi ?? 0,
+      pengajar_menunggu: raw.pengguna?.pengajar_menunggu ?? 0,
+      profil_siswa: raw.pengguna?.profil_siswa ?? 0,
+    },
+    pendapatan: {
+      omzet_kotor: raw.pendapatan?.omzet_kotor ?? 0,
+      bagian_pengajar: raw.pendapatan?.bagian_pengajar ?? 0,
+      pendapatan_bersih_platform: raw.pendapatan?.pendapatan_bersih_platform ?? 0,
+      honor_tercatat: raw.pendapatan?.honor_tercatat ?? 0,
+      honor_dibayar: raw.pendapatan?.honor_dibayar ?? 0,
+      booking_lunas: raw.pendapatan?.booking_lunas ?? 0,
+      booking_referral: raw.pendapatan?.booking_referral ?? 0,
+      total_potongan_referral: raw.pendapatan?.total_potongan_referral ?? 0,
+    },
+    trial: {
+      total: raw.trial?.total ?? 0,
+      aktif: raw.trial?.aktif ?? 0,
+      selesai: raw.trial?.selesai ?? 0,
+      konversi_paket: raw.trial?.konversi_paket ?? 0,
+      daftar_terbaru: daftarTrial,
+    },
   };
 }
 

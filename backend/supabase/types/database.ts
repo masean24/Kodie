@@ -2084,6 +2084,7 @@ export type Database = {
         Args: { p_pengajar_id: string; p_program_ids: string[] }
         Returns: Json
       }
+      admin_statistik_platform: { Args: never; Returns: Json }
       admin_tandai_honor_dibayar: { Args: { p_id: string }; Returns: Json }
       admin_tolak_pembayaran: {
         Args: { p_alasan: string; p_pembayaran_id: string }
