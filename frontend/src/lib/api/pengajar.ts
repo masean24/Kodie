@@ -136,19 +136,20 @@ export async function ambilPengajarPublik(idAtauSlug: string): Promise<PengajarP
     lemparJikaError(error);
     return data ? normalisasiPengajar(data as BarisPengajarPublik) : null;
   }
-  if (!fiturLanjutan) return null;
+  // Tidak digerbang `fiturLanjutan`: tautan slug hanya dibuat bila view sudah mengirim kolom slug, jadi pencariannya
+  // harus jalan juga. Backend lama tanpa kolom slug → query gagal → anggap tidak ditemukan (404), bukan error halaman.
   const { data, error } = await clientPublik()
     .from("pengajar_publik")
     .select("*")
     .eq("slug" as never, kunci)
     .maybeSingle();
-  lemparJikaError(error);
+  if (error) return null;
   return data ? normalisasiPengajar(data as BarisPengajarPublik) : null;
 }
 
 /**
  * Slug profil untuk ID pengajar, dipakai proxy agar tautan lama `/pengajar/<uuid>` dialihkan dengan status 307
- * sebelum halaman dirender. Null bila tidak ada, fitur lanjutan mati, atau permintaan gagal: halaman tetap
+ * sebelum halaman dirender. Null bila tidak ada atau permintaan gagal (mis. backend lama tanpa kolom slug): halaman tetap
  * menangani tautan UUID sendiri sebagai cadangan.
  */
 export async function ambilSlugPengajar(id: string): Promise<string | null> {
@@ -158,7 +159,6 @@ export async function ambilSlugPengajar(id: string): Promise<string | null> {
     const pr = storeMock().profilPengajar.find((x) => x.pengguna_id === kunci);
     return pr?.slug ?? pengajarMock.find((x) => x.id === kunci)?.slug ?? null;
   }
-  if (!fiturLanjutan) return null;
   try {
     const { data, error } = await clientPublik()
       .from("pengajar_publik")
