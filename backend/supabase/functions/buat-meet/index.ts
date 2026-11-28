@@ -45,34 +45,53 @@ async function getGoogleAccessToken(
   return tokenData.access_token as string;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function createMeetSpace(accessToken: string): Promise<{ name: string; meetingUri: string }> {
-  const res = await fetch('https://meet.googleapis.com/v2/spaces', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      config: {
-        accessType: 'OPEN',
+  const maxAttempts = 3;
+  let lastErrorText = '';
+  let lastStatus = 0;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const res = await fetch('https://meet.googleapis.com/v2/spaces', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
       },
-    }),
-  });
+      body: JSON.stringify({
+        config: {
+          accessType: 'OPEN',
+        },
+      }),
+    });
 
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Google Meet spaces.create gagal (${res.status}): ${errText}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (!data.name || !data.meetingUri) {
+        throw new Error('Response Google Meet API tidak lengkap (name / meetingUri kosong)');
+      }
+
+      return {
+        name: data.name as string,
+        meetingUri: data.meetingUri as string,
+      };
+    }
+
+    lastStatus = res.status;
+    lastErrorText = await res.text();
+    const isTransient = res.status === 429 || res.status === 502 || res.status === 503;
+    if (!isTransient || attempt === maxAttempts) {
+      break;
+    }
+
+    const delayMs = res.status === 429 ? 7000 * attempt : 1500 * attempt;
+    await sleep(delayMs);
   }
 
-  const data = await res.json();
-  if (!data.name || !data.meetingUri) {
-    throw new Error('Response Google Meet API tidak lengkap (name / meetingUri kosong)');
-  }
-
-  return {
-    name: data.name as string,
-    meetingUri: data.meetingUri as string,
-  };
+  throw new Error(`Google Meet spaces.create gagal (${lastStatus}): ${lastErrorText}`);
 }
 
 Deno.serve(async (req: Request) => {
@@ -217,7 +236,11 @@ Deno.serve(async (req: Request) => {
   let berhasil = 0;
   let gagal = 0;
 
-  for (const sesi of sesiList) {
+  for (let idx = 0; idx < sesiList.length; idx++) {
+    const sesi = sesiList[idx];
+    if (sesiList.length > 3 && idx > 0) {
+      await sleep(1200);
+    }
     try {
       const space = await createMeetSpace(accessToken);
       const { error: updateErr } = await adminClient

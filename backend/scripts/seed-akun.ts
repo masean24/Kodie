@@ -54,6 +54,14 @@ const DUMMY_PNG = Buffer.from(
   'base64',
 );
 
+function hasRealMeetUri(uri: string | null | undefined): boolean {
+  return (
+    typeof uri === 'string' &&
+    uri.startsWith('https://meet.google.com/') &&
+    !uri.includes('demo-')
+  );
+}
+
 async function ensureAuthUser(params: {
   email: string;
   password: string;
@@ -1206,12 +1214,20 @@ async function main() {
     );
     if (kErr) throw kErr;
 
+    const { data: existingSesiRows } = await supabase
+      .from('sesi')
+      .select('nomor, meet_uri, meet_space, meet_dibuat_pada')
+      .eq('kelas_id', k.id);
+    const existingSesiMap = new Map((existingSesiRows ?? []).map((s) => [s.nomor, s]));
+
     sesiMap[k.id] = [];
     for (let sNum = 1; sNum <= 4; sNum++) {
       const sesiId = `44444444-4444-4444-8444-0000000000${k.sesiUuidPrefix}${sNum}`;
       const mulai = wibDateIso(k.startDaysOffset + (sNum - 1) * 7, k.hourWib, k.minuteWib);
       const selesai = addMinutesIso(mulai, k.durasi);
       const isDone = sNum <= k.sesiSelesaiCount;
+      const prevSesi = existingSesiMap.get(sNum);
+      const keepMeet = !isDone && prevSesi && hasRealMeetUri(prevSesi.meet_uri);
 
       const { error: sErr } = await supabase.from('sesi').upsert(
         {
@@ -1221,8 +1237,14 @@ async function main() {
           mulai_pada: mulai,
           selesai_pada: selesai,
           status: isDone ? 'selesai' : 'terjadwal',
-          meet_uri: isDone ? 'https://meet.google.com/demo-seventx-selesai' : null,
-          meet_dibuat_pada: isDone ? mulai : null,
+          meet_uri: isDone
+            ? 'https://meet.google.com/demo-seventx-selesai'
+            : keepMeet
+              ? prevSesi.meet_uri
+              : null,
+          meet_space: !isDone && keepMeet ? prevSesi.meet_space : null,
+          meet_dibuat_pada: isDone ? mulai : keepMeet ? prevSesi.meet_dibuat_pada : null,
+          meet_gagal_terakhir: null,
         },
         { onConflict: 'kelas_id,nomor' },
       );

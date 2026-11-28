@@ -33,9 +33,14 @@ const KELAS_IDS = {
   k7Live: '22222222-2222-4222-8222-000000000007',
   k8Kenal: '22222222-2222-4222-8222-000000000008',
 } as const;
+const KELAS_NADIA_SESI1 = '22222222-2222-4222-8222-000000000009';
 
 const BOOKING_K1_PENDING_ID = '55555555-5555-4555-8555-000000000001';
 const BOOKING_LIVE_ID = '55555555-5555-4555-8555-000000000008';
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function hasRealMeetUri(uri: string | null | undefined): boolean {
   return (
@@ -94,7 +99,10 @@ async function getAdminAccessToken(): Promise<string | null> {
   return data.session.access_token;
 }
 
-async function tryBuatMeet(kelasId: string, adminToken: string | null) {
+async function tryBuatMeet(
+  kelasId: string,
+  adminToken: string | null,
+): Promise<{ berhasil?: number; gagal?: number } | null> {
   const token = adminToken ?? SUPABASE_SERVICE_ROLE_KEY!;
   try {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/buat-meet`, {
@@ -109,11 +117,17 @@ async function tryBuatMeet(kelasId: string, adminToken: string | null) {
     const text = await res.text();
     if (res.ok) {
       console.log(`   -> buat-meet(${kelasId}): ${text}`);
-    } else {
-      console.warn(`   -> Peringatan buat-meet(${kelasId}) [${res.status}]: ${text}`);
+      try {
+        return JSON.parse(text) as { berhasil?: number; gagal?: number };
+      } catch {
+        return null;
+      }
     }
+    console.warn(`   -> Peringatan buat-meet(${kelasId}) [${res.status}]: ${text}`);
+    return null;
   } catch (err) {
     console.warn(`   -> Gagal memanggil buat-meet(${kelasId}), lanjut tanpa memblokir:`, err);
+    return null;
   }
 }
 
@@ -147,7 +161,13 @@ async function ensureAllSesiHaveMeet(kelasId: string, adminToken: string | null)
     if (clrErr) throw clrErr;
   }
 
-  await tryBuatMeet(kelasId, adminToken);
+  const res1 = await tryBuatMeet(kelasId, adminToken);
+  if ((res1?.gagal ?? 0) > 0) {
+    console.log('   -> Menunggu 8 detik untuk cooldown kuota Google Meet API sebelum retry...');
+    await sleep(8000);
+    await tryBuatMeet(kelasId, adminToken);
+  }
+  await sleep(2000);
 }
 
 async function updateKelasScheduleAndEnsureMeet(params: {
@@ -368,6 +388,17 @@ async function main() {
     durationMinutes: 90,
     adminToken,
   });
+
+  // 6. Lengkapi link Meet sesi terjadwal kelas demo Nadia Sesi 1 (k9) bila ada, tanpa mengubah jadwal/Sesi 1
+  const { data: k9Row } = await supabase
+    .from('kelas')
+    .select('id')
+    .eq('id', KELAS_NADIA_SESI1)
+    .maybeSingle();
+  if (k9Row) {
+    console.log('6. Melengkapi link Google Meet sesi terjadwal kelas demo Nadia (k9)...');
+    await ensureAllSesiHaveMeet(KELAS_NADIA_SESI1, adminToken);
+  }
 
   console.log('\nReset demo selesai! Ringkasan skenario QA & Live Demo siap pakai:');
   console.log('====================================================================');

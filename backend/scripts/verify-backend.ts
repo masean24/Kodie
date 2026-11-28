@@ -975,7 +975,29 @@ async function main() {
       await service.from('notifikasi').delete().ilike('tautan', `%${needle}%`);
     }
     if (cleanupKelasIds.length > 0) {
-      await service.from('kelas').delete().in('id', cleanupKelasIds);
+      const { data: cleanupSesiRows } = await service
+        .from('sesi')
+        .select('id')
+        .in('kelas_id', cleanupKelasIds);
+      const cleanupSesiIds = (cleanupSesiRows ?? []).map((s) => s.id);
+      if (cleanupSesiIds.length > 0) {
+        await service.from('honor').delete().in('sesi_id', cleanupSesiIds);
+      }
+
+      const { data: cleanupBookingRows } = await service
+        .from('booking')
+        .select('id')
+        .in('kelas_id', cleanupKelasIds);
+      const cleanupBookingIds = (cleanupBookingRows ?? []).map((b) => b.id);
+      if (cleanupBookingIds.length > 0) {
+        await service.from('pembayaran').delete().in('booking_id', cleanupBookingIds);
+        await service.from('booking').delete().in('id', cleanupBookingIds);
+      }
+
+      const { error: delKelasErr } = await service.from('kelas').delete().in('id', cleanupKelasIds);
+      if (delKelasErr) {
+        console.warn('Peringatan cleanup kelas uji:', delKelasErr.message);
+      }
     }
     if (cleanupSiswaIds.length > 0) {
       await service.from('siswa').delete().in('id', cleanupSiswaIds);
