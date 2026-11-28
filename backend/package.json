@@ -13,6 +13,7 @@
     "gen:types:linked": "supabase gen types typescript --linked > supabase/types/database.ts",
     "seed:akun": "tsx scripts/seed-akun.ts",
     "demo:reset": "tsx scripts/demo-reset.ts",
+    "demo:nadia": "tsx scripts/demo-nadia-sesi1.ts",
     "ingest:knowledge": "tsx scripts/ingest-knowledge.ts",
     "test:rls": "tsx scripts/verify-backend.ts",
     "test:chatbot": "tsx scripts/test-chatbot-unit.ts",

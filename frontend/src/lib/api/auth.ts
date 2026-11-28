@@ -99,6 +99,9 @@ export async function ambilPenggunaSaya(): Promise<Pengguna | null> {
       ...(profil ? { nama: profil.nama, no_wa: profil.no_wa } : {}),
     };
   }
+  // auth.getUser() memeriksa masa berlaku token dengan Date.now(): tandai render ini dinamis lebih dulu, kalau tidak
+  // Cache Components menolak prerender (termasuk halaman 404 yang memuat header situs).
+  await connection();
   const supabase = await buatClientServer();
   const { data: u } = await supabase.auth.getUser();
   if (!u.user) return null;

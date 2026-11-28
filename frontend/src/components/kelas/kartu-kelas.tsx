@@ -39,15 +39,16 @@ export function SisaKursi({ k }: { k: KelasKatalog }) {
   );
 }
 
-export function KartuKelas({ k }: { k: KelasKatalog }) {
+export function KartuKelas({ k, trial = false }: { k: KelasKatalog; trial?: boolean }) {
   const alasan = alasanTidakBisaDipesan(k);
+  const hrefDetail = trial ? `/kelas/${k.id}?trial=1` : `/kelas/${k.id}`;
   return (
     <article className="flex flex-col gap-4 rounded-card-sm bg-surface p-6 shadow-kartu">
       <div>
         <TagProgram slug={k.program_slug}>{labelJenjang(k.jenjang, k.kelas_min, k.kelas_maks)}</TagProgram>
       </div>
       <h3 className="text-xl font-semibold">
-        <Link href={`/kelas/${k.id}`} className="relative hover:underline after:absolute after:-inset-y-2.5 after:inset-x-0 after:content-['']">
+        <Link href={hrefDetail} className="relative hover:underline after:absolute after:-inset-y-2.5 after:inset-x-0 after:content-['']">
           {judulKelas(k)}
         </Link>
       </h3>
@@ -86,8 +87,9 @@ export function KartuKelas({ k }: { k: KelasKatalog }) {
             {alasan}
           </span>
         ) : (
-          <Link href={`/kelas/${k.id}`} className={kelasTombol("utama")}>
-            Pesan kelas<span className="sr-only">: {judulKelas(k)}</span>
+          <Link href={hrefDetail} className={kelasTombol(trial ? "ajakan" : "utama")}>
+            {trial ? "Pilih untuk trial" : "Pesan kelas"}
+            <span className="sr-only">: {judulKelas(k)}</span>
           </Link>
         )}
       </div>

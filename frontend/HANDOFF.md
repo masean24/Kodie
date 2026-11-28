@@ -5,9 +5,10 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 ## Lokasi kerja & status Git
 
 - Repository: monorepo `sevent-x-bimbel`. Area kerja frontend hanya `frontend/` (plus catatan keputusan di `docs/KEPUTUSAN.md`). **Jangan ubah** `backend/` dan `docs/PRD.md`.
-- Worktree aktif terakhir: `.claude/worktrees/ui-ux-bimbel-design-306056` (branch `fe/audit-ui`, dibuat dari `origin/main`). Worktree lama `baca-handoff-md-315ddd` dan `prompt-revision-design-c2bf99` masih ada; selalu `git fetch` dan mulai dari `origin/main`.
+- Worktree aktif terakhir: `.claude/worktrees/prompt-revision-design-c2bf99` (branch `claude/frontend-fondasi`, selalu di-rebase ke `origin/main`). Worktree lama `ui-ux-bimbel-design-306056` dan `baca-handoff-md-315ddd` masih ada; selalu `git fetch` dan mulai dari `origin/main`.
 - Push dilakukan langsung ke `main` dengan `git push origin HEAD:main` (fast-forward; `git fetch` dulu dan rebase bila ada commit tim baru). Remote: `github.com/masean24/Kodie`.
-- Commit terakhir yang sudah di-push ke `main`: commit performa (Revisi 28) dan pembaruan handoff ini, 27 November 2026, setelah `e8d2ec1`. Periksa ulang dengan `git log --oneline -3 origin/main` sebelum mulai.
+- Commit terakhir yang sudah di-push ke `main`: Revisi 31 dan pembaruan handoff ini, 28 November 2026, setelah `a331c9b`. Periksa ulang dengan `git log --oneline -3 origin/main` sebelum mulai.
+- **Backend**: area tim lain. Mengubah `backend/` atau data Supabase Cloud hanya dengan persetujuan eksplisit pengguna per tugas.
 - Di Git Bash, argumen berupa path URL seperti `/` atau `/program` untuk skrip Node diubah jadi path Windows. Jalankan dengan `MSYS_NO_PATHCONV=1`.
 - Produksi: `https://kodie.xevora.me` (Coolify, auto-redeploy setiap push ke `main`; lihat `frontend/DEPLOY-COOLIFY.md`).
 - **Jangan pernah commit**: `.claude/`, `frontend/.env.local`, dan `docs/SERAH-TERIMA-FE.md`.
@@ -57,6 +58,20 @@ File ini diperbarui di setiap checkpoint supaya seluruh riwayat pengerjaan, kepu
 | Revisi 26 | Tombol Daftar tidak lagi keluar dari navbar kaca saat di-scroll | Selesai | `ef89191` |
 | Revisi 27 | **Bit-Cat Mentor** di Kodie Lab: pemeriksa kode Socratic terpisah dari chatbot Kiko (`POST /functions/v1/lab-mentor`, Agnes AI primary), sorotan baris CodeMirror 6, petunjuk bertahap Level 1 → 2, & banner proaktif saat `stderr` | Selesai | `79b7cc4`, `e8d2ec1` (backend `f42592b`) |
 | Revisi 28 | **Performa**: reveal hero/band CSS murni, Motion & ScrollTrigger keluar dari bundle awal, Supabase dimuat malas, loop maskot dijeda, CLS `/kelas` 0, cache data program | Selesai | lihat `git log` (commit performa 27 November) |
+| Revisi 29 | **Saran dosen pembimbing** (10 butir, `docs/KEPUTUSAN.md` 2026-11-28): bintang kuning, chip nama anak, bagi hasil 30%/40% + kode referral, profil pengajar lengkap & bisa dibagikan, jalur belajar berkelanjutan, testimoni, trial gratis Sesi 1, paket Kenal Komputer (TK), harga baru | Selesai | `d09d76f`, `e55bf80`, `6b93eb6` (backend migrasi 13–15 oleh tim) |
+| Revisi 30 | **Slug profil pengajar** `/pengajar/<slug>`: fallback `pengajar-1`, redirect 307 UUID → slug di `proxy.ts`, peringatan ganti username, 404 khusus profil, pencarian slug tidak digerbang flag | Selesai | `ec3802b`, `a331c9b` (backend migrasi 16–17 oleh tim) |
+| Revisi 31 | Beranda: judul "Empat program" + grid 4 kolom, tombol karier gelap, tombol **Coba trial gratis Sesi 1** di hero (alur `?trial=1` sampai form pesan); tabel "Bandingkan program" tidak bergeser; data demo Nadia 9 siswa; perbaikan 8 *issues* dev overlay | Selesai | commit 28 November setelah `a331c9b` |
+
+## Checkpoint 28 November 2026 (Revisi 29–31)
+
+1. **Flag `NEXT_PUBLIC_FITUR_LANJUTAN`** (`src/lib/api/sumber.ts`: `fiturLanjutan = pakaiMock || flag === "true"`) menggerbang trial, kode referral, bagi hasil, pengalaman/sertifikat, dan anak TK. Backend migrasi 13–17 sudah di Supabase Cloud; `Dockerfile` memberi nilai bawaan `true`. Di lokal tambahkan `NEXT_PUBLIC_FITUR_LANJUTAN=true` ke `.env.local`. **Pengecualian**: pencarian profil lewat slug (`ambilPengajarPublik`, `ambilSlugPengajar`) sengaja tidak digerbang, karena tautan slug dibuat dari data view.
+2. **Aturan bisnis baru** ada di `src/lib/referral.ts` (30%/+10%/potongan 5%, `hitungHonorPerSesi`, kode tersimpan terikat ke pengajarnya) dan `src/lib/jalur-belajar.ts`. Rumus honor sama persis dengan RPC `kirim_laporan` (migrasi 14).
+3. **Slug**: `buatSlugUnik` di `src/lib/validasi/pengajar-lanjutan.ts` mengikuti `buat_slug_pengajar_unik` (migrasi 17: aksen dibuang, cadangan `pengajar-1`, `-2`, …). `proxy.ts` mengalihkan `/pengajar/<uuid>` ke slug dengan 307 (query `?ref` ikut); redirect di halaman tetap jadi cadangan. Slug lama tidak dialihkan setelah diganti (tidak ada tabel riwayat); `KartuSlugProfil` memperingatkan pengajar.
+4. **Alur trial dari beranda**: tombol hero → `/kelas?trial=1` (banner, hanya kelas `bisa_dibooking`, `FilterKelas` menyimpan `trial` di input tersembunyi) → `/kelas/[id]?trial=1` ("Pesan trial gratis", `lanjut` login di-*encode*) → `/…/booking/baru?kelas=…&trial=1` → `AlurPesan awalTrial`. Semua digerbang `fiturLanjutan`.
+5. **Judul section program** dirender di dalam `Suspense` bersama datanya (`JudulProgram`), sehingga jumlahnya mengikuti data (Tiga/Empat). Grid `md:2`, `lg:4` kolom bila ≥ 4 program.
+6. **"Bandingkan program"** (`matriks-program.tsx`): lencana "Cocok" selalu memakai tempatnya (`invisible`), tombol jenjang tebal hurufnya sama di semua keadaan → tinggi & posisi tabel tetap (diukur sama di 9 pilihan).
+7. **Perbaikan dev overlay (8 issues)**: `ambilPenggunaSaya` memanggil `await connection()` sebelum `auth.getUser()` (Date.now saat prerender `app/not-found.tsx` di semua rute); kanal realtime lonceng memakai nama unik per pemasangan (`notifikasi-<id>-<uuid>`) karena `supabase.channel()` mengembalikan kanal lama yang sudah `subscribe()`; `updateCallbackDone` transisi tema ditangkap.
+8. **Data demo Nadia** (`backend/scripts/demo-nadia-sesi1.ts`, `npm run demo:nadia`, dibuat atas izin eksplisit pengguna): kelas `22222222-…-000000000009` Kelas Reguler milik Nadia, 9 siswa `33333333-…-0000000009NN` di bawah ortu1, booking terkonfirmasi Rp350.000, laporan Sesi 1, honor **Rp236.250** (9 × 350.000 × 30% ÷ 4). Ditulis dengan service role tanpa login password; tidak membuat notifikasi. Sudah dijalankan ke Cloud 28 November. **Ke depan, setiap pekerjaan backend wajib persetujuan pengguna.**
 
 ## Checkpoint performa (Revisi 28, setelah `e8d2ec1`)
 
@@ -286,6 +301,9 @@ Sumber: `docs/PRD.md` bagian 7–9, `docs/SERAH-TERIMA-FE.md`, dan `docs/PROMPT-
 - `.claude/launch.json` (lokal, tidak di-commit): `kodie-dev` (Supabase) dan `kodie-dev-mock`, dikonfigurasi di port 3000; bila port 3000 sudah dipakai, server dev otomatis pindah ke port lain (mis. 3001).
 
 ## Pekerjaan tertunda
+
+- **Rotasi rahasia backend** setelah demo: service role key, Google client secret & refresh token, Agnes & Gemini API key, dan password akun demo pernah ditempel di percakapan (28 November). `backend/.env` lokal hanya berisi URL + service role dan diabaikan git.
+- Redeploy Coolify setelah push supaya Revisi 29–31 tampil di produksi; uji ujung ke ujung booking referral, booking trial, dan honor di produksi dengan akun demo (dilakukan pengguna).
 
 - **Playbook H-1 akun demo**: backend menyediakan `npm run demo:reset` (sesi `k5` +18 jam untuk Nadia, `k7Live` live +5 menit). Jalankan ulang mendekati penjurian.
 - Tautan footer "Panduan belajar" masih ke `/program` (halaman valid, label kurang pas); belum diputuskan.

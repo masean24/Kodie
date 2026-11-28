@@ -12,7 +12,15 @@ import { TombolTautan } from "@/components/ui/tombol";
 import { AlurPesan, type KandidatSiswa } from "./alur-pesan";
 
 /** Isi halaman `/orang-tua/booking/baru` dan `/siswa/booking/baru`. Dirender di dalam Suspense layout area. */
-export async function HalamanPesan({ peran, kelasId }: { peran: Extract<Peran, "orang_tua" | "siswa">; kelasId: string | null }) {
+export async function HalamanPesan({
+  peran,
+  kelasId,
+  trial = false,
+}: {
+  peran: Extract<Peran, "orang_tua" | "siswa">;
+  kelasId: string | null;
+  trial?: boolean;
+}) {
   const kelas = kelasId ? await ambilKelas(kelasId) : null;
   const kembali = (
     <TombolTautan href="/kelas" varian="kedua" className="mt-3">
@@ -100,7 +108,7 @@ export async function HalamanPesan({ peran, kelasId }: { peran: Extract<Peran, "
 
   return (
     <div className="max-w-[720px]">
-      <AlurPesan kelas={kelas} kandidat={kandidat} untukDiriSendiri={peran === "siswa"} fiturLanjutan={fiturLanjutan} />
+      <AlurPesan kelas={kelas} kandidat={kandidat} untukDiriSendiri={peran === "siswa"} fiturLanjutan={fiturLanjutan} awalTrial={trial} />
     </div>
   );
 }

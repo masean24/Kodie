@@ -15,6 +15,8 @@ export interface FilterKelas {
   jenjang?: Jenjang;
   hari?: number;
   jam?: RentangJam;
+  /** Mode trial (`?trial=1`): hanya kelas yang masih bisa dipesan sebelum Sesi 1, tautan membawa pilihan trial. */
+  trial?: boolean;
 }
 
 /** Saring dengan kata kunci (tidak peka huruf besar/kecil) pada program, pengajar, level, dan jenjang. */

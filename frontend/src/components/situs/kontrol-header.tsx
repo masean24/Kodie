@@ -135,6 +135,7 @@ function gantiTemaHalus(nilai: Tema, asal: HTMLElement) {
   });
   // Transisi bisa dibatalkan browser (misalnya tab disembunyikan); tema tetap sudah tersimpan.
   transisi.ready.catch(() => {});
+  transisi.updateCallbackDone.catch(() => {});
   transisi.finished
     .catch(() => {})
     .finally(() => {

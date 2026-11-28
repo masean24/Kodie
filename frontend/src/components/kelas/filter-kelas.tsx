@@ -59,6 +59,7 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
       }}
       className="flex flex-col gap-4 rounded-card-sm bg-surface p-6"
     >
+      {nilai.trial ? <input type="hidden" name="trial" value="1" /> : null}
       <div className="flex items-center justify-between gap-3">
         <h2 id="judul-filter" className="text-xl font-semibold">
           Saring kelas
@@ -147,7 +148,7 @@ export function FilterKelas({ program, nilai }: { program: { slug: string; nama:
           Terapkan
         </button>
       </noscript>
-      <Link href={pathname} scroll={false} className="flex min-h-touch items-center justify-center font-display font-semibold text-primary hover:underline">
+      <Link href={nilai.trial ? `${pathname}?trial=1` : pathname} scroll={false} className="flex min-h-touch items-center justify-center font-display font-semibold text-primary hover:underline">
         Hapus semua filter
       </Link>
       </div>

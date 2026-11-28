@@ -267,14 +267,14 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setSelectedGrade(g.id)}
-                className="min-h-[44px] rounded-full border px-3.5 py-2 font-display text-sm font-semibold transition-all"
+                // Tebal huruf sama di semua keadaan: tombol tidak melebar/menyempit saat dipilih.
+                className="min-h-[44px] rounded-full border px-3.5 py-2 font-display text-sm font-bold transition-colors"
                 style={
                   active
                     ? {
                         backgroundColor: "var(--k-lime)",
                         borderColor: "var(--k-lime)",
                         color: "var(--k-obsidian)",
-                        fontWeight: 800,
                       }
                     : {
                         backgroundColor: "var(--mp-surface)",
@@ -330,7 +330,9 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                       )}
                       style={{ borderLeft: "1px solid rgb(15 23 42 / 0.16)", width: `${(programs.length > 3 ? 80 : 76.5) / programs.length}%` }}
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      {/* Lencana "Cocok" selalu memakai tempatnya (hanya disembunyikan), supaya tinggi kepala kolom
+                          dan posisi tabel tidak berubah saat jenjang dipilih. */}
+                      <div className="flex flex-col items-start gap-1.5">
                         <span
                           className="inline-flex items-center rounded-full px-3 py-0.5 text-sm font-extrabold shadow-kartu"
                           style={
@@ -341,18 +343,20 @@ export function MatriksProgram({ daftar }: { daftar: Program[] }) {
                         >
                           {p.jenjangLabel}
                         </span>
-                        {selectedGrade !== "all" && match ? (
-                          <span
-                            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-display text-sm font-extrabold"
-                            style={
-                              isDarkBlock
-                                ? { backgroundColor: "var(--k-white)", color: "var(--k-royal)" }
-                                : { backgroundColor: "var(--k-ink)", color: "var(--k-lime)" }
-                            }
-                          >
-                            <Check aria-hidden className="size-4" />Cocok
-                          </span>
-                        ) : null}
+                        <span
+                          aria-hidden={!(selectedGrade !== "all" && match)}
+                          className={cx(
+                            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-display text-sm font-extrabold",
+                            !(selectedGrade !== "all" && match) && "invisible",
+                          )}
+                          style={
+                            isDarkBlock
+                              ? { backgroundColor: "var(--k-white)", color: "var(--k-royal)" }
+                              : { backgroundColor: "var(--k-ink)", color: "var(--k-lime)" }
+                          }
+                        >
+                          <Check aria-hidden className="size-4" />Cocok
+                        </span>
                       </div>
 
                       <p className="mt-3.5 font-display text-17 leading-snug font-extrabold lg:text-lg">

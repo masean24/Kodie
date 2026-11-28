@@ -110,8 +110,10 @@ export function LoncengNotifikasi({
     void import("@/lib/supabase/browser").then(({ buatClientBrowser }) => {
       if (batal) return;
       const supabase = buatClientBrowser();
+      // Nama kanal unik per pemasangan: supabase.channel() mengembalikan kanal lama bila namanya sama, dan kanal itu
+      // sudah subscribe (Strict Mode memasang efek dua kali, removeChannel berjalan asinkron), sehingga .on() gagal.
       const channel = supabase
-      .channel(`notifikasi-${penggunaId}`)
+      .channel(`notifikasi-${penggunaId}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         {

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps<"/kelas/[id]">): Pr
     : { title: "Kelas tidak ditemukan" };
 }
 
-export default function HalamanDetailKelas({ params }: PageProps<"/kelas/[id]">) {
+export default function HalamanDetailKelas({ params, searchParams }: PageProps<"/kelas/[id]">) {
   return (
     <Kontainer className="py-8 md:py-12">
       <Link href="/kelas" className="inline-flex min-h-touch items-center gap-2 font-display font-semibold text-primary hover:underline">
@@ -47,7 +47,7 @@ export default function HalamanDetailKelas({ params }: PageProps<"/kelas/[id]">)
           </div>
         }
       >
-        <Isi params={params} />
+        <Isi params={params} searchParams={searchParams} />
       </Suspense>
     </Kontainer>
   );
@@ -59,8 +59,16 @@ function jamSelesai(jamMulai: string, durasi: number) {
   return `${String(Math.floor(total / 60) % 24).padStart(2, "0")}.${String(total % 60).padStart(2, "0")}`;
 }
 
-async function Isi({ params }: { params: Promise<{ id: string }> }) {
+async function Isi({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { id } = await params;
+  // Datang dari tombol trial beranda: pilihan trial dibawa sampai halaman pesan.
+  const trial = fiturLanjutan && (await searchParams).trial === "1";
   const k = await ambilKelas(id);
   if (!k) notFound();
   const [pengajar, program] = await Promise.all([ambilPengajarPublik(k.pengajar_id), ambilProgram(k.program_slug)]);
@@ -169,13 +177,14 @@ async function Isi({ params }: { params: Promise<{ id: string }> }) {
             <TombolTautan
               href={
                 pemesan === "tamu"
-                  ? `/masuk?lanjut=/kelas/${k.id}`
-                  : `${pemesan === "orang_tua" ? "/orang-tua" : "/siswa"}/booking/baru?kelas=${k.id}`
+                  ? `/masuk?lanjut=${encodeURIComponent(`/kelas/${k.id}${trial ? "?trial=1" : ""}`)}`
+                  : `${pemesan === "orang_tua" ? "/orang-tua" : "/siswa"}/booking/baru?kelas=${k.id}${trial ? "&trial=1" : ""}`
               }
+              varian={trial ? "ajakan" : "utama"}
               ukuran="lg"
               className="w-full"
             >
-              Pesan kelas
+              {trial ? "Pesan trial gratis" : "Pesan kelas"}
             </TombolTautan>
           )}
           <ul className="flex flex-col gap-2 text-sm">

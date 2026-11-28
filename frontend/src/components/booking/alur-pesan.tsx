@@ -31,16 +31,18 @@ type Props = {
   untukDiriSendiri: boolean;
   /** Trial gratis & kode referral aktif (mode mock atau backend sudah siap). */
   fiturLanjutan?: boolean;
+  /** Datang dari tombol trial beranda (`?trial=1`): pilihan "Trial gratis" terpilih sejak awal. */
+  awalTrial?: boolean;
 };
 
-export function AlurPesan({ kelas, kandidat, untukDiriSendiri, fiturLanjutan = false }: Props) {
+export function AlurPesan({ kelas, kandidat, untukDiriSendiri, fiturLanjutan = false, awalTrial = false }: Props) {
   const cocok = kandidat.filter((k) => !k.alasan);
   const [siswaId, setSiswaId] = useState<string | null>(untukDiriSendiri || cocok.length === 1 ? (cocok[0]?.id ?? null) : null);
   const [langkah, setLangkah] = useState<1 | 2>(untukDiriSendiri ? 2 : 1);
   const [galat, setGalat] = useState<string>();
   const [galatPilih, setGalatPilih] = useState(false);
   const [menunggu, mulai] = useTransition();
-  const [jenis, setJenis] = useState<"paket" | "trial">("paket");
+  const [jenis, setJenis] = useState<"paket" | "trial">(awalTrial && fiturLanjutan ? "trial" : "paket");
   const [kodeRef, setKodeRef] = useState("");
   const judulRef = useRef<HTMLHeadingElement>(null);
 

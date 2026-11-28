@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense, type CSSProperties } from "react";
-import { ArrowRight, Compass, FileText, Globe, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, Compass, FileText, Gift, Globe, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import { cx } from "@/lib/cx";
+import { fiturLanjutan } from "@/lib/api/sumber";
 import { ambilDaftarProgram } from "@/lib/api/program";
 import { ambilDaftarPengajarPublik } from "@/lib/api/pengajar";
 import { Kerangka, Kontainer, StateKosong, StatusMemuat, Sorotan } from "@/components/ui/dasar";
@@ -28,16 +28,14 @@ export default function Beranda() {
       <section aria-labelledby="judul-program" className="relative isolate py-16 md:py-24">
         <div aria-hidden className="aksen-grid" />
         <Kontainer>
-          <h2
-            id="judul-program"
-            className="text-center text-28 leading-[38px] font-extrabold tracking-tight sm:text-32 sm:leading-[44px] md:text-40 md:leading-[52px]"
+          <Suspense
+            fallback={
+              <>
+                <JudulProgram jumlah={null} />
+                <KerangkaKartu jumlah={4} tinggi="h-[420px]" />
+              </>
+            }
           >
-            Tiga program, <Sorotan>naik bertahap</Sorotan>
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-center text-base leading-7 text-text-muted md:text-lg">
-            Mulai dari logika di SD, lanjut proyek nyata, lalu coba empat jurusan IT.
-          </p>
-          <Suspense fallback={<KerangkaKartu jumlah={3} tinggi="h-[420px]" />}>
             <DaftarProgram />
           </Suspense>
         </Kontainer>
@@ -241,6 +239,19 @@ function Pahlawan() {
                 Lihat jadwal kelas
               </TombolTautan>
             </div>
+            {fiturLanjutan ? (
+              <div data-hero="aksi" className="hero-muncul mt-3.5">
+                <TombolTautan
+                  href="/kelas?trial=1"
+                  varian="khusus"
+                  ukuran="lg"
+                  className="border-2 border-cta bg-white/10 text-white hover:bg-white/20"
+                >
+                  <Gift aria-hidden className="size-5 text-cta" />
+                  Coba trial gratis Sesi 1
+                </TombolTautan>
+              </div>
+            ) : null}
             <div data-hero="aksi" style={{ "--i": 1 } as CSSProperties} className="hero-muncul mt-6 flex flex-wrap items-center gap-2.5 text-sm">
               <span className="font-bold text-ice">Tes minat:</span>
               <ul aria-label="Tentang tes minat" className="flex flex-wrap items-center gap-2 font-bold">
@@ -411,9 +422,31 @@ function Nilai() {
   );
 }
 
+const ANGKA_KATA: Record<number, string> = { 2: "Dua", 3: "Tiga", 4: "Empat", 5: "Lima", 6: "Enam" };
+
+/** Judul section program; jumlahnya mengikuti data supaya tidak basi saat program bertambah. */
+function JudulProgram({ jumlah }: { jumlah: number | null }) {
+  const adaKenal = jumlah !== null && jumlah >= 4;
+  return (
+    <>
+      <h2
+        id="judul-program"
+        className="text-center text-28 leading-[38px] font-extrabold tracking-tight sm:text-32 sm:leading-[44px] md:text-40 md:leading-[52px]"
+      >
+        {jumlah && ANGKA_KATA[jumlah] ? `${ANGKA_KATA[jumlah]} program` : "Program Kodie"}, <Sorotan>naik bertahap</Sorotan>
+      </h2>
+      <p className="mx-auto mt-3 max-w-2xl text-center text-base leading-7 text-text-muted md:text-lg">
+        {adaKenal
+          ? "Kenal komputer sejak TK, logika di SD, proyek nyata, lalu coba empat jurusan IT."
+          : "Mulai dari logika di SD, lanjut proyek nyata, lalu coba empat jurusan IT."}
+      </p>
+    </>
+  );
+}
+
 function KerangkaKartu({ jumlah, tinggi }: { jumlah: number; tinggi: string }) {
   return (
-    <div className="mt-10 grid gap-6 md:grid-cols-3">
+    <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <StatusMemuat />
       {Array.from({ length: jumlah }, (_, i) => (
         <Kerangka key={i} className={tinggi} />
@@ -426,21 +459,27 @@ async function DaftarProgram() {
   const daftar = await ambilDaftarProgram();
   if (daftar.length === 0) {
     return (
-      <div className="mt-10">
-        <StateKosong judul="Program belum tersedia" keterangan="Program sedang disiapkan. Coba lagi nanti." />
-      </div>
+      <>
+        <JudulProgram jumlah={null} />
+        <div className="mt-10">
+          <StateKosong judul="Program belum tersedia" keterangan="Program sedang disiapkan. Coba lagi nanti." />
+        </div>
+      </>
     );
   }
   return (
-    <div className="mt-10 grid gap-6 md:grid-cols-3">
-      {daftar.map((p, i) => (
-        <Muncul key={p.id} tunda={i * 0.08} className="flex">
-          <AngkatHover className="flex w-full">
-            <KartuProgram p={p} />
-          </AngkatHover>
-        </Muncul>
-      ))}
-    </div>
+    <>
+      <JudulProgram jumlah={daftar.length} />
+      <div className={`mt-10 grid gap-6 md:grid-cols-2 ${daftar.length >= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"}`}>
+        {daftar.map((p, i) => (
+          <Muncul key={p.id} tunda={i * 0.08} className="flex">
+            <AngkatHover className="flex w-full">
+              <KartuProgram p={p} />
+            </AngkatHover>
+          </Muncul>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -459,13 +498,16 @@ function Pengajar() {
             <p className="mt-3 text-base leading-7 md:text-lg">
               Semua pengajar memakai Teaching Playbook yang sama di setiap sesi.
             </p>
-            <Link
+            <TombolTautan
               href="/karier"
-              className="group mt-6 inline-flex min-h-touch items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-base font-bold ring-1 ring-white/40 transition-colors hover:bg-white/25"
+              varian="khusus"
+              ukuran="lg"
+              panah
+              kelasPanah="bg-cta text-ink"
+              className="mt-6 bg-ink py-3 text-left text-white shadow-mengambang hover:bg-ink/85"
             >
               Ingin bergabung sebagai pengajar? Lihat posisi yang dibuka
-              <ArrowRight aria-hidden className="size-4 shrink-0 transition-transform group-hover:translate-x-1" />
-            </Link>
+            </TombolTautan>
           </div>
           <Suspense
             fallback={
